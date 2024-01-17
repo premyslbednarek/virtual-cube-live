@@ -1,11 +1,11 @@
 import { OrbitControls } from './OrbitControls.js'
-import { DoubleSide, PlaneGeometry, Scene, PerspectiveCamera, WebGLRenderer, BoxGeometry, MeshBasicMaterial, Mesh } from './three.module.js'
+import * as THREE from './three.module.js'
 
-const scene = new Scene();
-let camera = new PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+const scene = new THREE.Scene();
+let camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 camera.position.set(3,3,3)
 
-const renderer = new WebGLRenderer();
+const renderer = new THREE.WebGLRenderer();
 
 function resizeCanvas() {
     renderer.setSize( window.innerWidth, window.innerHeight );
@@ -27,17 +27,17 @@ controls.update();
 
 document.body.appendChild( renderer.domElement );
 
-let geometry = new BoxGeometry( 1, 1, 1 );
-let material = new MeshBasicMaterial( { color: 0x00ff00 } );
-let cube = new Mesh( geometry, material );
+let geometry = new THREE.BoxGeometry( 1, 1, 1 );
+let material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+let cube = new THREE.Mesh( geometry, material );
 scene.add( cube );
 
 let plane;
 for (let i = 0; i < 3; ++i) {
     for (let j = 0; j < 3; ++j) {
-        geometry = new PlaneGeometry( 0.9, 0.9 );
-        material = new MeshBasicMaterial( {color: 0xff0000, side: DoubleSide} );
-        plane = new Mesh( geometry, material );
+        geometry = new THREE.PlaneGeometry( 0.9, 0.9 );
+        material = new THREE.MeshBasicMaterial( {color: 0xff0000, side: THREE.DoubleSide} );
+        plane = new THREE.Mesh( geometry, material );
         plane.position.set(i-1, j-1, 0.5001);
 
         scene.add( plane );
@@ -46,9 +46,9 @@ for (let i = 0; i < 3; ++i) {
 
 for (let i = 0; i < 3; ++i) {
     for (let j = 0; j < 3; ++j) {
-        geometry = new PlaneGeometry( 0.9, 0.9 );
-        material = new MeshBasicMaterial( {color: 0x0000ff, side: DoubleSide} );
-        plane = new Mesh( geometry, material );
+        geometry = new THREE.PlaneGeometry( 0.9, 0.9 );
+        material = new THREE.MeshBasicMaterial( {color: 0x0000ff, side: THREE.DoubleSide} );
+        plane = new THREE.Mesh( geometry, material );
         plane.position.set(i-1, j-1, -0.5001);
 
         scene.add( plane );

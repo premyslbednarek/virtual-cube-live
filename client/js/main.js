@@ -1,5 +1,5 @@
 import { OrbitControls } from './OrbitControls.js'
-import { Scene, PerspectiveCamera, WebGLRenderer, BoxGeometry, MeshBasicMaterial, Mesh } from './three.module.js'
+import { DoubleSide, PlaneGeometry, Scene, PerspectiveCamera, WebGLRenderer, BoxGeometry, MeshBasicMaterial, Mesh } from './three.module.js'
 
 const scene = new Scene();
 let camera = new PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -27,16 +27,43 @@ controls.update();
 
 document.body.appendChild( renderer.domElement );
 
-const geometry = new BoxGeometry( 1, 1, 1 );
-const material = new MeshBasicMaterial( { color: 0x00ff00 } );
-const cube = new Mesh( geometry, material );
+let geometry = new BoxGeometry( 1, 1, 1 );
+let material = new MeshBasicMaterial( { color: 0x00ff00 } );
+let cube = new Mesh( geometry, material );
 scene.add( cube );
 
-// camera.position.z = 5;
+let plane;
+for (let i = 0; i < 3; ++i) {
+    for (let j = 0; j < 3; ++j) {
+        geometry = new PlaneGeometry( 0.9, 0.9 );
+        material = new MeshBasicMaterial( {color: 0xff0000, side: DoubleSide} );
+        plane = new Mesh( geometry, material );
+        plane.position.set(i-1, j-1, 0.5001);
 
-function animate() {
+        scene.add( plane );
+    }
+}
+
+for (let i = 0; i < 3; ++i) {
+    for (let j = 0; j < 3; ++j) {
+        geometry = new PlaneGeometry( 0.9, 0.9 );
+        material = new MeshBasicMaterial( {color: 0x0000ff, side: DoubleSide} );
+        plane = new Mesh( geometry, material );
+        plane.position.set(i-1, j-1, -0.5001);
+
+        scene.add( plane );
+    }
+}
+
+
+async function animate() {
+    // uncomment the following line for smoother movements
 	requestAnimationFrame( animate );
+    // comment this fro smoothness
+    // await new Promise(r => setTimeout(r, 200));
+
 	renderer.render( scene, camera );
+    console.log(1);
 
     // cube.rotation.x += 0.01;
     // cube.rotation.y += 0.01;

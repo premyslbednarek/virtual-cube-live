@@ -1,5 +1,6 @@
-import { OrbitControls } from './OrbitControls.js'
-import * as THREE from './three.module.js'
+import { OrbitControls } from './OrbitControls.js';
+import * as THREE from './three.module.js';
+import { Cube } from './cube.js';
 
 const scene = new THREE.Scene();
 let camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -24,46 +25,32 @@ controls.enableZoom = false;
 controls.enablePan = false; // disable moving the camera with right click
 controls.update();
 
-
 document.body.appendChild( renderer.domElement );
 
-let geometry = new THREE.BoxGeometry( 1, 1, 1 );
-let material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-let cube = new THREE.Mesh( geometry, material );
-scene.add( cube );
+// draw a green box in the middle 
+// let boxGeometry = new THREE.BoxGeometry( 1, 1, 1 );
+// let boxMaterial = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+// let cube = new THREE.Mesh( boxGeometry, boxMaterial );
+// scene.add( cube );
 
-let plane;
-for (let i = 0; i < 3; ++i) {
-    for (let j = 0; j < 3; ++j) {
-        geometry = new THREE.PlaneGeometry( 0.9, 0.9 );
-        material = new THREE.MeshBasicMaterial( {color: 0xff0000, side: THREE.DoubleSide} );
-        plane = new THREE.Mesh( geometry, material );
-        plane.position.set(i-1, j-1, 0.5001);
 
-        scene.add( plane );
-    }
-}
+// visualize the axes
+// X is red, Y is green, Z is blue
+const axesHelper = new THREE.AxesHelper( 2 );
+// scene.add( axesHelper );
 
-for (let i = 0; i < 3; ++i) {
-    for (let j = 0; j < 3; ++j) {
-        geometry = new THREE.PlaneGeometry( 0.9, 0.9 );
-        material = new THREE.MeshBasicMaterial( {color: 0x0000ff, side: THREE.DoubleSide} );
-        plane = new THREE.Mesh( geometry, material );
-        plane.position.set(i-1, j-1, -0.5001);
-
-        scene.add( plane );
-    }
-}
-
+let cube3 = new Cube(3);
+cube3.draw(scene);
 
 async function animate() {
     // uncomment the following line for smoother movements
 	requestAnimationFrame( animate );
     // comment this fro smoothness
-    // await new Promise(r => setTimeout(r, 200));
-
 	renderer.render( scene, camera );
     console.log(1);
+
+    // await new Promise(r => setTimeout(r, 1000));
+    // animate();
 
     // cube.rotation.x += 0.01;
     // cube.rotation.y += 0.01;

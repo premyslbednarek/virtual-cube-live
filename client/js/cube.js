@@ -1,21 +1,5 @@
 import * as THREE from './three.module.js'
 
-function getNormalVectors(vector) {
-    let normals = [];
-    if (vector.x == 0) normals.push(new THREE.Vector3(1, 0, 0));
-    if (vector.y == 0) normals.push(new THREE.Vector3(0, 1, 0));
-    if (vector.z == 0) normals.push(new THREE.Vector3(0, 0, 1));
-    return normals;
-}
-
-function rotateStickerAroundAxis(sticker, axis, rad) {
-    let rotationMatrix = new THREE.Matrix4();
-    rotationMatrix.makeRotationAxis(axis, rad);
-    sticker.matrix.multiply(rotationMatrix);
-    sticker.rotation.setFromRotationMatrix(sticker.matrix)
-}
-
-
 class Cube {
     constructor(size) {
         this.size = size;

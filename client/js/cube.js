@@ -24,6 +24,7 @@ class Cube {
 
     draw(scene) {
         console.log("kreslim");
+        var centerOffset = -(this.size - 1) / 2;
 
         const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
         const boxMaterial = new THREE.MeshBasicMaterial({color: 0x00000});
@@ -32,7 +33,7 @@ class Cube {
             for (let j = 0; j < this.size; ++j) {
                 for (let k = 0; k < this.size; ++k) {
                     const cubie = boxMesh.clone();
-                    cubie.position.set(i - 1, j - 1, k - 1);
+                    cubie.position.set(i + centerOffset, j + centerOffset, k + centerOffset);
                     scene.add(cubie);
                 }
             }
@@ -50,9 +51,9 @@ class Cube {
                 for (let j = 0; j < this.size; ++j) {
                     let sticker = stickerMesh.clone();
                     sticker.lookAt(faceCenters[n]);
-                    sticker.translateZ(1.501);
-                    sticker.translateX(-1 + i);
-                    sticker.translateY(-1 + j);
+                    sticker.translateZ(-centerOffset + 0.5 + 0.001);
+                    sticker.translateX(centerOffset + i);
+                    sticker.translateY(centerOffset + j);
 
                     // var stickerAxis = new THREE.AxesHelper(2);
                     // sticker.add(stickerAxis);

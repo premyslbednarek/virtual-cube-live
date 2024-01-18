@@ -25,10 +25,18 @@ class Cube {
     draw(scene) {
         console.log("kreslim");
 
-        const boxGeometry = new THREE.BoxGeometry(3, 3, 3);
+        const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
         const boxMaterial = new THREE.MeshBasicMaterial({color: 0x00000});
         const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
-        scene.add(boxMesh);
+        for (let i = 0; i < this.size; ++i) {
+            for (let j = 0; j < this.size; ++j) {
+                for (let k = 0; k < this.size; ++k) {
+                    const cubie = boxMesh.clone();
+                    cubie.position.set(i - 1, j - 1, k - 1);
+                    scene.add(cubie);
+                }
+            }
+        }
 
         const stickerGeometry = new THREE.PlaneGeometry(0.95, 0.95);
 

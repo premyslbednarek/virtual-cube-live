@@ -22,7 +22,7 @@ const controls = new OrbitControls(camera, renderer.domElement);
 // controls.maxDistance = 20;
 controls.enableZoom = false;
 controls.enablePan = false; // disable moving the camera with right click
-camera.position.set(3,3,3);
+camera.position.set(0,5,5);
 controls.update();
 
 document.body.appendChild( renderer.domElement );
@@ -36,7 +36,7 @@ document.body.appendChild( renderer.domElement );
 
 // visualize the axes
 // X is red, Y is green, Z is blue
-const axesHelper = new THREE.AxesHelper( 2 );
+// const axesHelper = new THREE.AxesHelper( 5 );
 // scene.add( axesHelper );
 
 let cube = new Cube(3);
@@ -51,7 +51,7 @@ slider.oninput = function() {
     layersInfo.innerHTML = `Layers: ${newLayers}`;
     cube = new Cube(newLayers);
     cube.draw(scene);
-    camera.position.set(newLayers, newLayers, newLayers);
+    camera.position.set(newLayers+2, newLayers+2, 0);
     camera.lookAt(0,0,0);
 }
 
@@ -83,42 +83,59 @@ var tween;
 var group = new THREE.Group();
 scene.add(group);
 
-function rotateGroupGen(checkFunction, v) {
+function rotateGroupGen(checkFunction, axis, mult) {
     if (tween && tween.isPlaying()) {
         tween.end();
     }
-    // first, clear the group
+
+    // first, clear the previosly used group
     for (var i = group.children.length - 1; i >= 0; --i) {
-        console.log(group.children[i].position);
         scene.attach(group.children[i]);
     }
-    
     scene.remove(group);
-    group = new THREE.Group();
-    scene.add(group);
-    
     
     // construct new group
+    group = new THREE.Group();
     for (var i = scene.children.length - 1; i >= 0; --i) {
         if (checkFunction(scene.children[i])) {
             group.attach(scene.children[i]);
         }
     }
+    scene.add(group);
 
     // tween
-    tween = new TWEEN.Tween(group.rotation).to({x: group.rotation.x + v.x, y: group.rotation.y + v.y, z: group.rotation.z + v.z}, 300).easing(TWEEN.Easing.Quadratic.Out);
+    // [axis] - this is the usage of "computed property name" introduced in ES6
+    tween = new TWEEN.Tween(group.rotation).to({[axis]: mult * Math.PI / 2}, 200).easing(TWEEN.Easing.Quadratic.Out);
     tween.start();
 }
-window.rotateGroupGen = rotateGroupGen;
 
 // resize the canvas when the windows size changes
 window.addEventListener('resize', resizeCanvas, false);
+
+const keyMap = new Map();
+keyMap.set("j", [(obj) => obj.position.y > 0.3, "y", -1]); // U
+keyMap.set("f", [(obj) => obj.position.y > 0.3, "y", 1]);  // U'
+keyMap.set("i", [(obj) => obj.position.x > 0.3, "x", -1]); // R
+keyMap.set("k", [(obj) => obj.position.x > 0.3, "x", 1]);  // R'
+keyMap.set("b", [(_) => true, "x", 1]); // x'
+keyMap.set("n", [(_) => true, "x", 1]); // x'
+keyMap.set("t", [(_) => true, "x", -1]); // x
+keyMap.set("y", [(_) => true, "x", -1]); // x
+keyMap.set("d", [(obj) => obj.position.x < -0.3, "x", 1]); // L
+keyMap.set("e", [(obj) => obj.position.x < -0.3, "x", -1]);  // L'
+keyMap.set("g", [(obj) => obj.position.z > 0.3, "z", 1]); // F
+keyMap.set("h", [(obj) => obj.position.z > 0.3, "z", -1]);  // F'
+keyMap.set("l", [(obj) => obj.position.y < -0.3, "y", -1]); // D'
+keyMap.set("s", [(obj) => obj.position.y < -0.3, "y", 1]);  // D
+keyMap.set(";", [(_) => true, "y", -1]); // y
+keyMap.set("a", [(_) => true, "y", 1]); // y'
+
 document.addEventListener("keydown", event => {
-  if (event.isComposing || event.keyCode == 85) {
-    rotateGroupGen((obj) => obj.position.y > 0.3, new THREE.Vector3(0, Math.PI / 2, 0));
-  }
-  else if (event.isComposing || event.keyCode == 74) {
-    rotateGroupGen((obj) => obj.position.x > 0.3, new THREE.Vector3(Math.PI / 2, 0, 0));
-  }
+    let args = keyMap.get(event.key);
+    // expand array of parameters with ...args
+    if (args) { rotateGroupGen(...args); }
 });
+
+// expose local variables to browser's console
+window.rotateGroupGen = rotateGroupGen;
 window.scene = scene

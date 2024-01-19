@@ -56,7 +56,7 @@ slider.oninput = function() {
 }
 
 
-const fps = 5;
+const fps = 60;
 async function animate() {
 	renderer.render( scene, camera );
     TWEEN.update();
@@ -79,5 +79,73 @@ async function animate() {
 }
 animate();
 
+var tween;
+var group = new THREE.Group();
+scene.add(group);
+function rotateGroup() {
+    if (tween && tween.isPlaying()) {
+        console.log("Animation is still running");
+        return;
+    }
+    // first, clear the group
+    for (var i = group.children.length - 1; i >= 0; --i) {
+        console.log(group.children[i].position);
+        scene.attach(group.children[i]);
+    }
+    scene.remove(group);
+    group = new THREE.Group();
+    scene.add(group);
+    
+    // construct new group
+    for (var i = scene.children.length - 1; i >= 0; --i) {
+        if (scene.children[i].position.y > 0.3) {
+            group.attach(scene.children[i]);
+        }
+    }
+
+    // tween
+    tween = new TWEEN.Tween(group.rotation).to({y: group.rotation.y + Math.PI/2}, 300).easing(TWEEN.Easing.Quadratic.Out);
+    tween.start();
+}
+window.rotateGroup = rotateGroup;
+
+function rotateGroup2() {
+    if (tween && tween.isPlaying()) {
+        console.log("Animation is still running");
+        return;
+    }
+    // first, clear the group
+    for (var i = group.children.length - 1; i >= 0; --i) {
+        console.log(group.children[i].position);
+        scene.attach(group.children[i]);
+    }
+    
+    scene.remove(group);
+    group = new THREE.Group();
+    scene.add(group);
+    
+    
+    // construct new group
+    for (var i = scene.children.length - 1; i >= 0; --i) {
+        if (scene.children[i].position.x > 0.3) {
+            group.attach(scene.children[i]);
+        }
+    }
+
+    // tween
+    tween = new TWEEN.Tween(group.rotation).to({x: group.rotation.x + Math.PI/2}, 300).easing(TWEEN.Easing.Quadratic.Out);
+    tween.start();
+}
+window.rotateGroup2 = rotateGroup2;
+
 // resize the canvas when the windows size changes
 window.addEventListener('resize', resizeCanvas, false);
+document.addEventListener("keydown", event => {
+  if (event.isComposing || event.keyCode == 85) {
+    rotateGroup();
+  }
+  else if (event.isComposing || event.keyCode == 74) {
+    rotateGroup2();
+  }
+});
+window.scene = scene

@@ -46,12 +46,10 @@ let slider = document.getElementById("layersSlider");
 let layersInfo = document.getElementById("layersInfo");
 slider.oninput = function() {
     const newLayers = this.value;
-    // clear the scene
-    scene.remove.apply(scene, scene.children);
     layersInfo.innerHTML = `Layers: ${newLayers}`;
     cube = new Cube(newLayers);
     cube.draw(scene);
-    camera.position.set(newLayers+2, newLayers+2, 0);
+    camera.position.set(newLayers, newLayers, 0);
     camera.lookAt(0,0,0);
 }
 
@@ -139,3 +137,13 @@ document.addEventListener("keydown", event => {
 // expose local variables to browser's console
 window.rotateGroupGen = rotateGroupGen;
 window.scene = scene
+
+var speedMode = true;
+function speedModeToggle() {
+    speedMode = !speedMode;
+    console.log("Speed mode toggled.");
+    cube.draw(scene, speedMode);
+}
+
+const button = document.getElementById('speedToggle');
+button.addEventListener('click', speedModeToggle);

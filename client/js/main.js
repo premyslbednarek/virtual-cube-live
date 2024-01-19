@@ -59,6 +59,7 @@ slider.oninput = function() {
 const fps = 5;
 async function animate() {
 	renderer.render( scene, camera );
+    TWEEN.update();
 
     setTimeout(() => {
         requestAnimationFrame(animate);

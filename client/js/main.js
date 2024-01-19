@@ -56,13 +56,17 @@ slider.oninput = function() {
 }
 
 
+const fps = 5;
 async function animate() {
-    // uncomment the following line for smoother movements
-	requestAnimationFrame( animate );
-    // comment this fro smoothness
 	renderer.render( scene, camera );
-    console.log(1);
 
+    setTimeout(() => {
+        requestAnimationFrame(animate);
+    }, 1000 / fps);
+
+    // uncomment the following line for smoother movements
+	// requestAnimationFrame( animate );
+    // comment this fro smoothness
     // await new Promise(r => setTimeout(r, 1000));
     // animate();
 

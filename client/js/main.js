@@ -82,33 +82,8 @@ animate();
 var tween;
 var group = new THREE.Group();
 scene.add(group);
-function rotateGroup() {
-    if (tween && tween.isPlaying()) {
-        tween.end();
-    }
-    // first, clear the group
-    for (var i = group.children.length - 1; i >= 0; --i) {
-        console.log(group.children[i].position);
-        scene.attach(group.children[i]);
-    }
-    scene.remove(group);
-    group = new THREE.Group();
-    scene.add(group);
-    
-    // construct new group
-    for (var i = scene.children.length - 1; i >= 0; --i) {
-        if (scene.children[i].position.y > 0.3) {
-            group.attach(scene.children[i]);
-        }
-    }
 
-    // tween
-    tween = new TWEEN.Tween(group.rotation).to({y: group.rotation.y + Math.PI/2}, 300).easing(TWEEN.Easing.Quadratic.Out);
-    tween.start();
-}
-window.rotateGroup = rotateGroup;
-
-function rotateGroup2() {
+function rotateGroupGen(checkFunction, v) {
     if (tween && tween.isPlaying()) {
         tween.end();
     }
@@ -125,25 +100,25 @@ function rotateGroup2() {
     
     // construct new group
     for (var i = scene.children.length - 1; i >= 0; --i) {
-        if (scene.children[i].position.x > 0.3) {
+        if (checkFunction(scene.children[i])) {
             group.attach(scene.children[i]);
         }
     }
 
     // tween
-    tween = new TWEEN.Tween(group.rotation).to({x: group.rotation.x + Math.PI/2}, 300).easing(TWEEN.Easing.Quadratic.Out);
+    tween = new TWEEN.Tween(group.rotation).to({x: group.rotation.x + v.x, y: group.rotation.y + v.y, z: group.rotation.z + v.z}, 300).easing(TWEEN.Easing.Quadratic.Out);
     tween.start();
 }
-window.rotateGroup2 = rotateGroup2;
+window.rotateGroupGen = rotateGroupGen;
 
 // resize the canvas when the windows size changes
 window.addEventListener('resize', resizeCanvas, false);
 document.addEventListener("keydown", event => {
   if (event.isComposing || event.keyCode == 85) {
-    rotateGroup();
+    rotateGroupGen((obj) => obj.position.y > 0.3, new THREE.Vector3(0, Math.PI / 2, 0));
   }
   else if (event.isComposing || event.keyCode == 74) {
-    rotateGroup2();
+    rotateGroupGen((obj) => obj.position.x > 0.3, new THREE.Vector3(Math.PI / 2, 0, 0));
   }
 });
 window.scene = scene

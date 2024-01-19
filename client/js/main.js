@@ -84,8 +84,7 @@ var group = new THREE.Group();
 scene.add(group);
 function rotateGroup() {
     if (tween && tween.isPlaying()) {
-        console.log("Animation is still running");
-        return;
+        tween.end();
     }
     // first, clear the group
     for (var i = group.children.length - 1; i >= 0; --i) {
@@ -111,8 +110,7 @@ window.rotateGroup = rotateGroup;
 
 function rotateGroup2() {
     if (tween && tween.isPlaying()) {
-        console.log("Animation is still running");
-        return;
+        tween.end();
     }
     // first, clear the group
     for (var i = group.children.length - 1; i >= 0; --i) {

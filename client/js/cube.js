@@ -38,10 +38,12 @@ class Cube {
         let colors = [0xffa200, 0xff1100, 0xffffff, 0xfffb00, 0x33ff00, 0x0800ff];
 
         for (let n = 0; n < 6; ++n) {
-            const stickerMaterial = new THREE.MeshBasicMaterial( {color: colors[n], side: THREE.DoubleSide} );
-            const stickerMesh = new THREE.Mesh(stickerGeometry, stickerMaterial);
             for (let i = 0; i < this.size; ++i) {
                 for (let j = 0; j < this.size; ++j) {
+                    const stickerMaterial = new THREE.MeshBasicMaterial( {color: colors[n], side: THREE.DoubleSide} );
+                    const stickerMesh = new THREE.Mesh(stickerGeometry, stickerMaterial);
+                    // Mesh.clone() does not clone the material - it has to be copied by hand
+                    // https://github.com/mrdoob/three.js/issues/14223 
                     let sticker = stickerMesh.clone();
                     sticker.lookAt(faceCenters[n]);
                     sticker.translateZ(-centerOffset + 0.5 + 0.001);

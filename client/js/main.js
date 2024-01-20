@@ -53,8 +53,89 @@ slider.oninput = function() {
     camera.lookAt(0,0,0);
 }
 
+function drawLine(pointA, pointB) {
+    // draw the vector (from click start point to click end point)
+    console.log("drawing line from", pointA, "to", pointB)
+    var material = new THREE.LineBasicMaterial( { color: 0x0000ff } );
+    const points = [];
+    points.push(pointA);
+    points.push(pointB);
+    const geometry = new THREE.BufferGeometry().setFromPoints( points );
+    var line = new THREE.Line( geometry, material );
+    scene.add( line )
+}
 
-const fps = 60;
+// raycasting for determining, what was clicked
+// https://threejs.org/docs/index.html?q=ray#api/en/core/Raycaster
+const raycaster = new THREE.Raycaster();
+raycaster.params.Line.threshold = 0; // never intersect with a line (lines are for development visualization purposes)
+
+const pointer = new THREE.Vector2();
+var prevEvent;
+
+function onMouseDown( event ) {
+    prevEvent = event;
+    console.log("Mouse down coordinates:", event.clientX, event.clientY);
+	// calculate pointer position in normalized device coordinates
+	// (-1 to +1) for both components
+	pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+	pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+    // update the picking ray with the camera and pointer position
+	raycaster.setFromCamera( pointer, camera );
+
+	// calculate objects intersecting the picking ray
+	const intersects = raycaster.intersectObjects( scene.children );
+    console.log("Number of objects intersected:", intersects.length);
+
+    // if there are objects under the cursor, change color of the closest one to red
+    var i = 0;
+    while (i < intersects.length && intersects[i].object.type == "Line") ++i;
+    console.log(i);
+    if (intersects.length) {
+        var pointA = intersects[0].point;
+        if (Math.abs(1.501 - pointA.x) > 0.1) {
+            drawLine(pointA, pointA.clone().add(new THREE.Vector3(3, 0, 0)));
+        }
+        if (Math.abs(1.501 - pointA.y) > 0.1) {
+            drawLine(pointA, pointA.clone().add(new THREE.Vector3(0, 3, 0)));
+        }
+        if (Math.abs(1.501 - pointA.z) > 0.1) {
+            drawLine(pointA, pointA.clone().add(new THREE.Vector3(0, 0, 3)));
+        }
+        console.log("First intersected object", intersects[0]);
+		// intersects[0].object.material.color.set( 0xff0000 );
+    }
+}
+window.addEventListener('mousedown', onMouseDown);
+
+function onMouseUp(event) {
+    // onMouseDown was previously called
+    // var startPoint = new THREE.Vector3(
+    //     ( ( prevEvent.clientX - renderer.domElement.offsetLeft ) / renderer.domElement.width ) * 2 - 1,
+    //     - ( ( prevEvent.clientY - renderer.domElement.offsetTop ) / renderer.domElement.height ) * 2 + 1,
+    //     prevEvent.clientZ           
+    // );
+
+    // var endPoint = new THREE.Vector3(
+    //     ( ( event.clientX - renderer.domElement.offsetLeft ) / renderer.domElement.width ) * 2 - 1,
+    //     - ( ( event.clientY - renderer.domElement.offsetTop ) / renderer.domElement.height ) * 2 + 1,
+    //     event.clientZ           
+    // );
+    console.log("Mouse up coordinates", event.clientX, event.clientY);
+    // console.log(startPoint, endPoint)
+    // // draw the vector (from click start point to click end point)
+    // var material = new THREE.LineBasicMaterial( { color: 0x0000ff } );
+    // const points = [];
+    // points.push(startPoint);
+    // points.push(endPoint)
+    // const geometry = new THREE.BufferGeometry().setFromPoints(points);
+    // var line = new THREE.Line( geometry, material );
+    // scene.add( line )
+}
+window.addEventListener('mouseup', onMouseUp);
+
+const fps = 10;
 async function animate() {
 	renderer.render( scene, camera );
     TWEEN.update();

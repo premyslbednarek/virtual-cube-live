@@ -11,6 +11,10 @@ class Cube {
         var centerOffset = -(this.size - 1) / 2;
         // clear scene
         scene.remove.apply(scene, scene.children);
+        // visualize the axes
+        // X is red, Y is green, Z is blue
+        const axesHelper = new THREE.AxesHelper( 10 );
+        scene.add( axesHelper );
 
         if (!speedMode) {
             const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
@@ -49,7 +53,7 @@ class Cube {
                     sticker.translateZ(-centerOffset + 0.5 + 0.001);
                     sticker.translateX(centerOffset + i);
                     sticker.translateY(centerOffset + j);
-
+                    sticker.isSticker = true;
                     // var stickerAxis = new THREE.AxesHelper(2);
                     // sticker.add(stickerAxis);
 

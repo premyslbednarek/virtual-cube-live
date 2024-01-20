@@ -54,9 +54,7 @@ slider.oninput = function() {
 }
 
 function drawLine(pointA, pointB) {
-    // draw the vector (from click start point to click end point)
-    console.log("drawing line from", pointA, "to", pointB)
-    var material = new THREE.LineBasicMaterial( { color: 0x0000ff } );
+    var material = new THREE.LineBasicMaterial( { color: 0x0000ff, linewidth: 5 } );
     const points = [];
     points.push(pointA);
     points.push(pointB);
@@ -71,45 +69,135 @@ const raycaster = new THREE.Raycaster();
 raycaster.params.Line.threshold = 0; // never intersect with a line (lines are for development visualization purposes)
 
 const pointer = new THREE.Vector2();
-var prevEvent;
+var mouseDownPointer;
+var axisMovements = [];
+
+function getClickedAxis(pos) {
+    if (Math.abs(1.501 - Math.abs(pos.x)) < 0.1) return "x";
+    if (Math.abs(1.501 - Math.abs(pos.y)) < 0.1) return "y";
+    if (Math.abs(1.501 - Math.abs(pos.z)) < 0.1) return "z";
+}
 
 function onMouseDown( event ) {
-    prevEvent = event;
-    console.log("Mouse down coordinates:", event.clientX, event.clientY);
+    cleanGroup();
+    // console.log("Mouse down coordinates:", event.clientX, event.clientY);
 	// calculate pointer position in normalized device coordinates
 	// (-1 to +1) for both components
 	pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
 	pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+    mouseDownPointer = event;
 
     // update the picking ray with the camera and pointer position
 	raycaster.setFromCamera( pointer, camera );
 
 	// calculate objects intersecting the picking ray
 	const intersects = raycaster.intersectObjects( scene.children );
-    console.log("Number of objects intersected:", intersects.length);
+    // console.log("Number of objects intersected:", intersects.length);
 
-    // if there are objects under the cursor, change color of the closest one to red
-    var i = 0;
-    while (i < intersects.length && intersects[i].object.type == "Line") ++i;
-    console.log(i);
-    if (intersects.length) {
+    if (intersects.length && intersects[0].object.isSticker) {
+        // controls.enabled = false; // disable rotating camera
+        axisMovements = [];
+        var pos = intersects[0].object.position;
+        console.log("clicked stijijiijijcker position", pos.x, pos.y, pos.z)
+        var clickedAxis = getClickedAxis(pos);
+        window.pos = pos;
+        var sign = pos[clickedAxis] / Math.abs(pos[clickedAxis]);
+        console.log(clickedAxis, sign);
         var pointA = intersects[0].point;
-        if (Math.abs(1.501 - pointA.x) > 0.1) {
-            drawLine(pointA, pointA.clone().add(new THREE.Vector3(3, 0, 0)));
+        if (clickedAxis == "x") {
+            if (sign > 0) {
+                drawLine(pointA, pointA.clone().add(new THREE.Vector3(0, 0, 1)));
+                drawLine(pointA, pointA.clone().add(new THREE.Vector3(0, -1, 0)));
+            } else {
+                drawLine(pointA, pointA.clone().add(new THREE.Vector3(0, 0, -1)));
+                drawLine(pointA, pointA.clone().add(new THREE.Vector3(0, 1, 0)));
+            }
+        } else if (clickedAxis == "y") {
+            if (sign > 0) {
+                drawLine(pointA, pointA.clone().add(new THREE.Vector3(0, 0, -1)));
+                drawLine(pointA, pointA.clone().add(new THREE.Vector3(1, 0, 0)));
+            } else {
+                drawLine(pointA, pointA.clone().add(new THREE.Vector3(0, 0, 1)));
+                drawLine(pointA, pointA.clone().add(new THREE.Vector3(-1, 0, 0)));
+            }
+        } else {
+            if (sign > 0) {
+                drawLine(pointA, pointA.clone().add(new THREE.Vector3(0, 1, 0)));
+                drawLine(pointA, pointA.clone().add(new THREE.Vector3(-1, 0, 0)));
+            } else {
+                drawLine(pointA, pointA.clone().add(new THREE.Vector3(0, -1, 0)));
+                drawLine(pointA, pointA.clone().add(new THREE.Vector3(1, 0, 0)));
+            }
         }
-        if (Math.abs(1.501 - pointA.y) > 0.1) {
-            drawLine(pointA, pointA.clone().add(new THREE.Vector3(0, 3, 0)));
-        }
-        if (Math.abs(1.501 - pointA.z) > 0.1) {
-            drawLine(pointA, pointA.clone().add(new THREE.Vector3(0, 0, 3)));
-        }
-        console.log("First intersected object", intersects[0]);
+
+
+        // if (Math.abs(1.501 - pointA.x) > 0.1) {
+        //     var pointB = pointA.clone().add(new THREE.Vector3(1, 0, 0))
+        //     pointB.multiplyScalar(sign);
+        //     drawLine(pointA, pointB);
+        //     axisMovements.push(["x", pointA, pointB]);
+        // }
+        // if (Math.abs(1.501 - pointA.y) > 0.1) {
+        //     var pointB = pointA.clone().add(new THREE.Vector3(0, 1, 0))
+        //     pointB.multiplyScalar(sign);
+        //     drawLine(pointA, pointB);
+        //     axisMovements.push(["y", pointA, pointB]);
+        // }
+        // if (Math.abs(1.501 - pointA.z) > 0.1) {
+        //     var pointB = pointA.clone().add(new THREE.Vector3(0, 0, 1));
+        //     pointB.multiplyScalar(sign);
+        //     drawLine(pointA, pointB);
+        //     axisMovements.push(["z", pointA, pointB]);
+        // }
+        // console.log("First intersected object", intersects[0]);
 		// intersects[0].object.material.color.set( 0xff0000 );
     }
 }
 window.addEventListener('mousedown', onMouseDown);
 
 function onMouseUp(event) {
+    if (axisMovements.length == 0) return;
+    var x = event.clientX;
+    var y = event.clientY;
+	// var x = ( event.clientX / window.innerWidth ) * 2 - 1;
+	// var y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+    var movementVector = new THREE.Vector3(x - mouseDownPointer.clientX, y - mouseDownPointer.clientY, 0);
+
+    if (movementVector.length() < 10) {
+        controls.enabled = true;
+        axisMovements = [];
+        return;
+    }
+    console.log("Mouse vector", movementVector);
+    var angles = []
+    for (var i = 0; i < 2; ++i) {
+        var vectorS = axisMovements[i][1].clone();
+        vectorS.project(camera);
+        vectorS.x = ( vectorS.x + 1) * window.innerWidth / 2;
+        vectorS.y = - ( vectorS.y - 1) * window.innerHeight / 2;
+        vectorS.z = 0;
+        // console.log("S", vectorS);
+        var vectorE = axisMovements[i][2].clone();
+        vectorE.project(camera);
+        vectorE.x = ( vectorE.x + 1) * window.innerWidth / 2;
+        vectorE.y = - ( vectorE.y - 1) * window.innerHeight / 2;
+        vectorE.z = 0;
+        vectorE.sub(vectorS)
+        var angle = movementVector.angleTo(vectorE);
+        console.log(`Vektor #${i + 1}`, vectorE);
+        console.log(`Angle  #${i + 1}`, angle*57);
+        angles.push([axisMovements[i][0], angle]);
+    }
+    console.log(angles)
+    if (angles[0][1] < angles[1][1]) {
+        console.log("MoveA");
+        rotateGroupGen((_) => true, angles[1][0], 1);
+    } else {
+        console.log("MoveB");
+        rotateGroupGen((_) => true, angles[0][0], 1);
+    }
+
+    // console.log("Angles", angles);
     // onMouseDown was previously called
     // var startPoint = new THREE.Vector3(
     //     ( ( prevEvent.clientX - renderer.domElement.offsetLeft ) / renderer.domElement.width ) * 2 - 1,
@@ -122,7 +210,7 @@ function onMouseUp(event) {
     //     - ( ( event.clientY - renderer.domElement.offsetTop ) / renderer.domElement.height ) * 2 + 1,
     //     event.clientZ           
     // );
-    console.log("Mouse up coordinates", event.clientX, event.clientY);
+    // console.log("Mouse up coordinates", event.clientX, event.clientY);
     // console.log(startPoint, endPoint)
     // // draw the vector (from click start point to click end point)
     // var material = new THREE.LineBasicMaterial( { color: 0x0000ff } );
@@ -132,6 +220,7 @@ function onMouseUp(event) {
     // const geometry = new THREE.BufferGeometry().setFromPoints(points);
     // var line = new THREE.Line( geometry, material );
     // scene.add( line )
+    controls.enabled = true;
 }
 window.addEventListener('mouseup', onMouseUp);
 
@@ -162,9 +251,18 @@ var tween;
 var group = new THREE.Group();
 scene.add(group);
 
+function cleanGroup() {
+    for (var i = group.children.length - 1; i >= 0; --i) {
+        scene.attach(group.children[i]);
+    }
+    scene.remove(group);
+}
+window.cleanGroup = cleanGroup;
+
 function rotateGroupGen(checkFunction, axis, mult) {
     if (tween && tween.isPlaying()) {
         tween.end();
+        cleanGroup();
     }
 
     // first, clear the previosly used group
@@ -176,6 +274,7 @@ function rotateGroupGen(checkFunction, axis, mult) {
     // construct new group
     group = new THREE.Group();
     for (var i = scene.children.length - 1; i >= 0; --i) {
+        if (scene.children[i].type == "AxesHelper") continue;
         if (checkFunction(scene.children[i])) {
             group.attach(scene.children[i]);
         }
@@ -185,6 +284,7 @@ function rotateGroupGen(checkFunction, axis, mult) {
     // tween
     // [axis] - this is the usage of "computed property name" introduced in ES6
     tween = new TWEEN.Tween(group.rotation).to({[axis]: mult * Math.PI / 2}, 200).easing(TWEEN.Easing.Quadratic.Out);
+    // tween.onComplete(cleanGroup);
     tween.start();
 }
 

@@ -289,7 +289,22 @@ function onMouseUp(event) {
 }
 window.addEventListener('mouseup', onMouseUp);
 
-const fps = 30;
+var fps = 30;
+window.fps = fps;
+
+const fpsSlider = document.getElementById("fpsSlider");
+const fpsInfo = document.getElementById("fpsInfo");
+
+function updateFps() {
+    const newFps = fpsSlider.value;
+    fpsInfo.innerHTML = newFps;
+    fps = newFps;
+}
+
+fpsSlider.oninput = updateFps;
+updateFps();
+
+
 async function animate() {
 	renderer.render( scene, camera );
     TWEEN.update();

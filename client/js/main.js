@@ -15,6 +15,31 @@ function resizeCanvas() {
 
 resizeCanvas();
 
+async function performMacro(macro) {
+    for (var i = 0; i < macro.length; ++i) {
+        document.dispatchEvent(new KeyboardEvent("keydown", { key: macro[i], }));
+        await new Promise(r => setTimeout(r, 150));
+    }
+}
+window.performMacro = performMacro;
+
+function uperm() {
+    performMacro("ifijijifkfkk");
+}
+function rInt(max) {
+    return Math.floor(Math.random() * max);
+}
+function scramble() {
+    var moves = "asdfjkl;ghieb";
+    var s = ""
+    for (var i = 0; i < 25; i++) {
+        s += moves[rInt(moves.length) + 1];
+    }
+    performMacro(s);
+}
+window.scramble = scramble;
+window.uperm = uperm;
+
 const controls = new OrbitControls(camera, renderer.domElement);
 //controls.update() must be called after any manual changes to the camera's transform
 // camera.position.set( 0, 20, 100 );

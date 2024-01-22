@@ -45,6 +45,7 @@ async def connect(sid, environ, auth):
     i += 1
     print("Sending welcoming message...")
     await sio.emit("message", f"Welcome to the server. Your session user id is {sidToName[sid]}", to=sid)
+    await sio.emit("welcome", {"users": len(sidToName) - 1}, to=sid)
     await sio.emit("message", f"User with session id {sidToName[sid]} has connected.", skip_sid=sid)
     await sio.emit("connection", "", skip_sid=sid)
     print("Welcoming message sent...")

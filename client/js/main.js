@@ -23,6 +23,22 @@ async function performMacro(macro) {
 }
 window.performMacro = performMacro;
 
+var renderOtherCube = () => {};
+var otherCube;
+function drawAnotherCube() {
+    const scene = new THREE.Scene();
+    let camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+    camera.position.set(5, 0, 0);
+    camera.lookAt(0, 0, 0);
+    const canvas = document.getElementById("otherCanvas")
+    const renderer = new THREE.WebGLRenderer({antialias: true, canvas});
+    renderer.setSize(300, 300);
+    document.body.appendChild( renderer.domElement );
+    otherCube = new Cube(3,scene, camera);
+	renderOtherCube = () => { renderer.render( scene, camera ) };
+}
+export { drawAnotherCube };
+
 function uperm() {
     performMacro("ifijijifkfkk");
 }
@@ -296,6 +312,7 @@ updateFps();
 
 async function animate() {
 	renderer.render( scene, camera );
+    renderOtherCube();
     TWEEN.update();
 
     setTimeout(() => {

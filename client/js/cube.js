@@ -5,6 +5,7 @@ class Cube {
         this.size = size;
         this.scene = scene;
         this.camera = camera;
+        this.speedMode = true;
         this.tween;
         this.group = new THREE.Group();
         this.scene.add(this.group);
@@ -17,6 +18,11 @@ class Cube {
             this.scene.attach(this.group.children[i]);
         }
         this.scene.remove(this.group);
+    }
+
+    toggleSpeedMode() {
+        this.speedMode = !this.speedMode;
+        this.draw();
     }
 
     changeLayers(newLayers) {
@@ -32,7 +38,7 @@ class Cube {
     }
 
 
-    draw(speedMode=true) {
+    draw() {
         const scene = this.scene;
         var centerOffset = -(this.size - 1) / 2;
         // clear scene
@@ -45,7 +51,7 @@ class Cube {
         const axesHelper = new THREE.AxesHelper( 10 );
         scene.add( axesHelper );
 
-        if (!speedMode) {
+        if (!this.speedMode) {
             const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
             const boxMaterial = new THREE.MeshBasicMaterial({color: 0x00000});
             const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
@@ -61,7 +67,7 @@ class Cube {
         }
 
         var stickerGeometry;
-        if (speedMode) {
+        if (this.speedMode) {
             stickerGeometry = new THREE.PlaneGeometry(0.85, 0.85);
         } else {
             stickerGeometry = new THREE.PlaneGeometry(0.93, 0.93);

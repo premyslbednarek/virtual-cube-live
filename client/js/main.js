@@ -347,11 +347,8 @@ document.addEventListener("keydown", event => {
 window.rotateGroupGen = cube.rotateGroupGen;
 window.scene = scene
 
-var speedMode = true;
 function speedModeToggle() {
-    speedMode = !speedMode;
-    console.log("Speed mode toggled.");
-    cube.draw(scene, speedMode);
+    cube.toggleSpeedMode();
 }
 
 const button = document.getElementById('speedToggle');

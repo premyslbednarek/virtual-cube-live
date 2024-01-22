@@ -37,6 +37,11 @@ async def print_message(sid, message):
 async def print_ack(sid, message):
     print("The client has gotten the message.")
 
+@sio.on("move")
+async def distributeMove(sid, message):
+    await sio.emit("opponentMove", message, skip_sid=sid)
+
+
 @sio.event
 async def connect(sid, environ, auth):
     global i

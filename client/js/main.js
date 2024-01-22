@@ -1,6 +1,7 @@
 import { OrbitControls } from './OrbitControls.js';
 import * as THREE from './three.module.js';
 import { Cube } from './cube.js';
+import { sendMove } from './websocket.js';
 
 const scene = new THREE.Scene();
 let camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -37,7 +38,11 @@ function drawAnotherCube() {
     otherCube = new Cube(3,scene, camera);
 	renderOtherCube = () => { renderer.render( scene, camera ) };
 }
-export { drawAnotherCube };
+
+function moveAnotherCube(args) {
+    otherCube.rotateGroupGen(...args);
+}
+export { drawAnotherCube, moveAnotherCube };
 
 function uperm() {
     performMacro("ifijijifkfkk");
@@ -245,27 +250,30 @@ function onMouseUp(event) {
     console.log("Lowest angle is: ", lowestAngle*57, "to vector", axisMovements.vectors[lowestAngleIndex]);
     console.log(axisMovements.clickedAxis)
     var sign = axisMovements.stickerPosition[axisMovements.clickedAxis] / Math.abs(axisMovements.stickerPosition[axisMovements.clickedAxis]);
+    var args;
     if (axisMovements.clickedAxis == "x") {
         if (bestVector.y != 0) {
-            cube.rotateGroupGen(axisMovements.stickerPosition.z - 0.75,axisMovements.stickerPosition.z + 0.75,"z", sign*bestVector.y / Math.abs(bestVector.y));
+            args = [axisMovements.stickerPosition.z - 0.75,axisMovements.stickerPosition.z + 0.75,"z", sign*bestVector.y / Math.abs(bestVector.y)];
         } else {
-            cube.rotateGroupGen(axisMovements.stickerPosition.y - 0.75,axisMovements.stickerPosition.y + 0.75,"y", sign*-bestVector.z / Math.abs(bestVector.z));
+            args = [axisMovements.stickerPosition.y - 0.75,axisMovements.stickerPosition.y + 0.75,"y", sign*-bestVector.z / Math.abs(bestVector.z)];
         }
     }
     if (axisMovements.clickedAxis == "y") {
         if (bestVector.x != 0) {
-            cube.rotateGroupGen(axisMovements.stickerPosition.z - 0.75,axisMovements.stickerPosition.z + 0.75,"z", sign*-bestVector.x / Math.abs(bestVector.x));
+            args = [axisMovements.stickerPosition.z - 0.75,axisMovements.stickerPosition.z + 0.75,"z", sign*-bestVector.x / Math.abs(bestVector.x)];
         } else {
-            cube.rotateGroupGen(axisMovements.stickerPosition.x - 0.75,axisMovements.stickerPosition.x + 0.75,"x", sign*bestVector.z / Math.abs(bestVector.z));
+            args = [axisMovements.stickerPosition.x - 0.75,axisMovements.stickerPosition.x + 0.75,"x", sign*bestVector.z / Math.abs(bestVector.z)];
         }
     }
     if (axisMovements.clickedAxis == "z") {
         if (bestVector.x != 0) {
-            cube.rotateGroupGen(axisMovements.stickerPosition.y - 0.75,axisMovements.stickerPosition.y + 0.75, "y", sign*bestVector.x / Math.abs(bestVector.x));
+            args = [axisMovements.stickerPosition.y - 0.75,axisMovements.stickerPosition.y + 0.75, "y", sign*bestVector.x / Math.abs(bestVector.x)];
         } else {
-            cube.rotateGroupGen(axisMovements.stickerPosition.x - 0.75,axisMovements.stickerPosition.x + 0.75, "x", sign*-bestVector.y / Math.abs(bestVector.y));
+            args = [axisMovements.stickerPosition.x - 0.75,axisMovements.stickerPosition.x + 0.75, "x", sign*-bestVector.y / Math.abs(bestVector.y)];
         }
     }
+    cube.rotateGroupGen(...args);
+    sendMove(args);
 
     // console.log("Angles", angles);
     // onMouseDown was previously called
@@ -357,7 +365,10 @@ keyMap.set("a", [-20, 20, "y", 1]); // y'
 document.addEventListener("keydown", event => {
     let args = keyMap.get(event.key);
     // expand array of parameters with ...args
-    if (args) { cube.rotateGroupGen(...args); }
+    if (args) {
+        sendMove(args);
+        cube.rotateGroupGen(...args);
+    }
 });
 
 // expose local variables to browser's console

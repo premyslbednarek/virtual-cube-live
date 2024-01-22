@@ -64,18 +64,13 @@ document.body.appendChild( renderer.domElement );
 // const axesHelper = new THREE.AxesHelper( 5 );
 // scene.add( axesHelper );
 
-let cube = new Cube(3);
-cube.draw(scene);
+let cube = new Cube(3, scene, camera);
 
 let slider = document.getElementById("layersSlider");
 let layersInfo = document.getElementById("layersInfo");
 slider.oninput = function() {
     const newLayers = this.value;
-    layersInfo.innerHTML = `Layers: ${newLayers}`;
-    cube = new Cube(newLayers);
-    cube.draw(scene);
-    camera.position.set(newLayers, newLayers, 0);
-    camera.lookAt(0,0,0);
+    cube.changeLayers(newLayers);
 }
 
 function drawLine(pointA, pointB) {
@@ -97,14 +92,8 @@ const pointer = new THREE.Vector2();
 var mouseDownPointer;
 var axisMovements = [];
 
-function getClickedAxis(pos) {
-    if (Math.abs(1.501 - Math.abs(pos.x)) < 0.1) return "x";
-    if (Math.abs(1.501 - Math.abs(pos.y)) < 0.1) return "y";
-    if (Math.abs(1.501 - Math.abs(pos.z)) < 0.1) return "z";
-}
-
 function onMouseDown( event ) {
-    cleanGroup();
+    cube.cleanGroup();
     axisMovements = undefined;
     // console.log("Mouse down coordinates:", event.clientX, event.clientY);
 	// calculate pointer position in normalized device coordinates
@@ -124,7 +113,7 @@ function onMouseDown( event ) {
         controls.enabled = false; // disable rotating camera
         var pos = intersects[0].object.position;
         // console.log("clicked stijijiijijcker position", pos.x, pos.y, pos.z)
-        var clickedAxis = getClickedAxis(pos);
+        var clickedAxis = cube.getClickedAxis(pos);
         window.pos = pos;
         var sign = pos[clickedAxis] / Math.abs(pos[clickedAxis]);
         // console.log(clickedAxis, sign);
@@ -242,23 +231,23 @@ function onMouseUp(event) {
     var sign = axisMovements.stickerPosition[axisMovements.clickedAxis] / Math.abs(axisMovements.stickerPosition[axisMovements.clickedAxis]);
     if (axisMovements.clickedAxis == "x") {
         if (bestVector.y != 0) {
-            rotateGroupGen((obj) => Math.abs(obj.position.z - axisMovements.stickerPosition.z) < 0.75,"z", sign*bestVector.y / Math.abs(bestVector.y));
+            cube.rotateGroupGen((obj) => Math.abs(obj.position.z - axisMovements.stickerPosition.z) < 0.75,"z", sign*bestVector.y / Math.abs(bestVector.y));
         } else {
-            rotateGroupGen((obj) => Math.abs(obj.position.y - axisMovements.stickerPosition.y) < 0.75,"y", sign*-bestVector.z / Math.abs(bestVector.z));
+            cube.rotateGroupGen((obj) => Math.abs(obj.position.y - axisMovements.stickerPosition.y) < 0.75,"y", sign*-bestVector.z / Math.abs(bestVector.z));
         }
     }
     if (axisMovements.clickedAxis == "y") {
         if (bestVector.x != 0) {
-            rotateGroupGen((obj) => Math.abs(obj.position.z - axisMovements.stickerPosition.z) < 0.75,"z", sign*-bestVector.x / Math.abs(bestVector.x));
+            cube.rotateGroupGen((obj) => Math.abs(obj.position.z - axisMovements.stickerPosition.z) < 0.75,"z", sign*-bestVector.x / Math.abs(bestVector.x));
         } else {
-            rotateGroupGen((obj) => Math.abs(obj.position.x - axisMovements.stickerPosition.x) < 0.75,"x", sign*bestVector.z / Math.abs(bestVector.z));
+            cube.rotateGroupGen((obj) => Math.abs(obj.position.x - axisMovements.stickerPosition.x) < 0.75,"x", sign*bestVector.z / Math.abs(bestVector.z));
         }
     }
     if (axisMovements.clickedAxis == "z") {
         if (bestVector.x != 0) {
-            rotateGroupGen((obj) => Math.abs(obj.position.y - axisMovements.stickerPosition.y) < 0.75,"y", sign*bestVector.x / Math.abs(bestVector.x));
+            cube.rotateGroupGen((obj) => Math.abs(obj.position.y - axisMovements.stickerPosition.y) < 0.75,"y", sign*bestVector.x / Math.abs(bestVector.x));
         } else {
-            rotateGroupGen((obj) => Math.abs(obj.position.x - axisMovements.stickerPosition.x) < 0.75,"x", sign*-bestVector.y / Math.abs(bestVector.y));
+            cube.rotateGroupGen((obj) => Math.abs(obj.position.x - axisMovements.stickerPosition.x) < 0.75,"x", sign*-bestVector.y / Math.abs(bestVector.y));
         }
     }
 
@@ -327,48 +316,6 @@ async function animate() {
 }
 animate();
 
-var tween;
-var group = new THREE.Group();
-scene.add(group);
-
-function cleanGroup() {
-    for (var i = group.children.length - 1; i >= 0; --i) {
-        scene.attach(group.children[i]);
-    }
-    scene.remove(group);
-}
-window.cleanGroup = cleanGroup;
-
-function rotateGroupGen(checkFunction, axis, mult) {
-    console.log("rotation started", checkFunction, axis, mult);
-    if (tween && tween.isPlaying()) {
-        tween.end();
-        cleanGroup();
-    }
-
-    // first, clear the previosly used group
-    for (var i = group.children.length - 1; i >= 0; --i) {
-        scene.attach(group.children[i]);
-    }
-    scene.remove(group);
-    
-    // construct new group
-    group = new THREE.Group();
-    for (var i = scene.children.length - 1; i >= 0; --i) {
-        if (scene.children[i].type == "AxesHelper") continue;
-        if (checkFunction(scene.children[i])) {
-            group.attach(scene.children[i]);
-        }
-    }
-    scene.add(group);
-
-    // tween
-    // [axis] - this is the usage of "computed property name" introduced in ES6
-    tween = new TWEEN.Tween(group.rotation).to({[axis]: mult * Math.PI / 2}, 200).easing(TWEEN.Easing.Quadratic.Out);
-    // tween.onComplete(cleanGroup);
-    tween.start();
-}
-
 // resize the canvas when the windows size changes
 window.addEventListener('resize', resizeCanvas, false);
 
@@ -393,11 +340,11 @@ keyMap.set("a", [(_) => true, "y", 1]); // y'
 document.addEventListener("keydown", event => {
     let args = keyMap.get(event.key);
     // expand array of parameters with ...args
-    if (args) { rotateGroupGen(...args); }
+    if (args) { cube.rotateGroupGen(...args); }
 });
 
 // expose local variables to browser's console
-window.rotateGroupGen = rotateGroupGen;
+window.rotateGroupGen = cube.rotateGroupGen;
 window.scene = scene
 
 var speedMode = true;

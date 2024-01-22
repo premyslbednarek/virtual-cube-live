@@ -17,6 +17,9 @@ async def index(request):
     with open('index.html') as f:
         return web.Response(text=f.read(), content_type='text/html')
 
+sidToName = {}
+i = 0
+
 ## If we wanted to create a new websocket endpoint,
 ## use this decorator, passing in the name of the
 ## event we wish to listen out for
@@ -36,14 +39,21 @@ async def print_ack(sid, message):
 
 @sio.event
 async def connect(sid, environ, auth):
+    global i
     print('connect ', sid)
+    sidToName[sid] = i
+    i += 1
     print("Sending welcoming message...")
-    await sio.emit("message", "welcome to the server")
+    await sio.emit("message", f"Welcome to the server. Your session user id is {sidToName[sid]}", to=sid)
+    await sio.emit("message", f"User with session id {sidToName[sid]} has connected.", skip_sid=sid)
+    await sio.emit("connection", "", skip_sid=sid)
     print("Welcoming message sent...")
 
 @sio.event
 async def disconnect(sid):
     print('disconnect ', sid)
+    await sio.emit("message", f"User with session id {sidToName[sid]} has disconnected.")
+    del sidToName[sid]
 
 
 ## We bind our aiohttp endpoint to our app

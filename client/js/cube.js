@@ -97,10 +97,10 @@ class Cube {
             }
         }
     }
-    rotateGroupGen(checkFunction, axis, mult) {
+    rotateGroupGen(low, high, axis, mult) {
         const scene = this.scene;
         
-        console.log("rotation started", checkFunction, axis, mult);
+        // console.log("rotation started", low, high, axis, mult);
         if (this.tween && this.tween.isPlaying()) {
             this.tween.end();
             this.cleanGroup();
@@ -112,7 +112,7 @@ class Cube {
         this.group = new THREE.Group();
         for (var i = scene.children.length - 1; i >= 0; --i) {
             if (scene.children[i].type == "AxesHelper") continue;
-            if (checkFunction(scene.children[i])) {
+            if (low <= scene.children[i].position[axis] && scene.children[i].position[axis] <= high) {
                 this.group.attach(scene.children[i]);
             }
         }

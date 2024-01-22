@@ -247,23 +247,23 @@ function onMouseUp(event) {
     var sign = axisMovements.stickerPosition[axisMovements.clickedAxis] / Math.abs(axisMovements.stickerPosition[axisMovements.clickedAxis]);
     if (axisMovements.clickedAxis == "x") {
         if (bestVector.y != 0) {
-            cube.rotateGroupGen((obj) => Math.abs(obj.position.z - axisMovements.stickerPosition.z) < 0.75,"z", sign*bestVector.y / Math.abs(bestVector.y));
+            cube.rotateGroupGen(axisMovements.stickerPosition.z - 0.75,axisMovements.stickerPosition.z + 0.75,"z", sign*bestVector.y / Math.abs(bestVector.y));
         } else {
-            cube.rotateGroupGen((obj) => Math.abs(obj.position.y - axisMovements.stickerPosition.y) < 0.75,"y", sign*-bestVector.z / Math.abs(bestVector.z));
+            cube.rotateGroupGen(axisMovements.stickerPosition.y - 0.75,axisMovements.stickerPosition.y + 0.75,"y", sign*-bestVector.z / Math.abs(bestVector.z));
         }
     }
     if (axisMovements.clickedAxis == "y") {
         if (bestVector.x != 0) {
-            cube.rotateGroupGen((obj) => Math.abs(obj.position.z - axisMovements.stickerPosition.z) < 0.75,"z", sign*-bestVector.x / Math.abs(bestVector.x));
+            cube.rotateGroupGen(axisMovements.stickerPosition.z - 0.75,axisMovements.stickerPosition.z + 0.75,"z", sign*-bestVector.x / Math.abs(bestVector.x));
         } else {
-            cube.rotateGroupGen((obj) => Math.abs(obj.position.x - axisMovements.stickerPosition.x) < 0.75,"x", sign*bestVector.z / Math.abs(bestVector.z));
+            cube.rotateGroupGen(axisMovements.stickerPosition.x - 0.75,axisMovements.stickerPosition.x + 0.75,"x", sign*bestVector.z / Math.abs(bestVector.z));
         }
     }
     if (axisMovements.clickedAxis == "z") {
         if (bestVector.x != 0) {
-            cube.rotateGroupGen((obj) => Math.abs(obj.position.y - axisMovements.stickerPosition.y) < 0.75,"y", sign*bestVector.x / Math.abs(bestVector.x));
+            cube.rotateGroupGen(axisMovements.stickerPosition.y - 0.75,axisMovements.stickerPosition.y + 0.75, "y", sign*bestVector.x / Math.abs(bestVector.x));
         } else {
-            cube.rotateGroupGen((obj) => Math.abs(obj.position.x - axisMovements.stickerPosition.x) < 0.75,"x", sign*-bestVector.y / Math.abs(bestVector.y));
+            cube.rotateGroupGen(axisMovements.stickerPosition.x - 0.75,axisMovements.stickerPosition.x + 0.75, "x", sign*-bestVector.y / Math.abs(bestVector.y));
         }
     }
 
@@ -337,22 +337,22 @@ animate();
 window.addEventListener('resize', resizeCanvas, false);
 
 const keyMap = new Map();
-keyMap.set("j", [(obj) => obj.position.y > 0.3, "y", -1]); // U
-keyMap.set("f", [(obj) => obj.position.y > 0.3, "y", 1]);  // U'
-keyMap.set("i", [(obj) => obj.position.x > 0.3, "x", -1]); // R
-keyMap.set("k", [(obj) => obj.position.x > 0.3, "x", 1]);  // R'
-keyMap.set("b", [(_) => true, "x", 1]); // x'
-keyMap.set("n", [(_) => true, "x", 1]); // x'
-keyMap.set("t", [(_) => true, "x", -1]); // x
-keyMap.set("y", [(_) => true, "x", -1]); // x
-keyMap.set("d", [(obj) => obj.position.x < -0.3, "x", 1]); // L
-keyMap.set("e", [(obj) => obj.position.x < -0.3, "x", -1]);  // L'
-keyMap.set("g", [(obj) => obj.position.z > 0.3, "z", 1]); // F
-keyMap.set("h", [(obj) => obj.position.z > 0.3, "z", -1]);  // F'
-keyMap.set("l", [(obj) => obj.position.y < -0.3, "y", -1]); // D'
-keyMap.set("s", [(obj) => obj.position.y < -0.3, "y", 1]);  // D
-keyMap.set(";", [(_) => true, "y", -1]); // y
-keyMap.set("a", [(_) => true, "y", 1]); // y'
+keyMap.set("j", [0.3, 20, "y", -1]); // U
+keyMap.set("f", [0.3, 20, "y", 1]);  // U'
+keyMap.set("i", [0.3, 20, "x", -1]); // R
+keyMap.set("k", [0.3, 20, "x", 1]);  // R'
+keyMap.set("b", [-20, 20, "x", 1]); // x'
+keyMap.set("n", [-20, 20, "x", 1]); // x'
+keyMap.set("t", [-20, 20, "x", -1]); // x
+keyMap.set("y", [-20, 20, "x", -1]); // x
+keyMap.set("d", [-20, -0.3, "x", 1]); // L
+keyMap.set("e", [-20, -0.3, "x", -1]);  // L'
+keyMap.set("g", [0.3, 20, "z", 1]); // F
+keyMap.set("h", [0.3, 20, "z", -1]);  // F'
+keyMap.set("l", [-20, -0.3, "y", -1]); // D'
+keyMap.set("s", [-20, -0.3, "y", 1]);  // D
+keyMap.set(";", [-20, 20, "y", -1]); // y
+keyMap.set("a", [-20, 20, "y", 1]); // y'
 
 document.addEventListener("keydown", event => {
     let args = keyMap.get(event.key);

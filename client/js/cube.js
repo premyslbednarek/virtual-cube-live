@@ -1,17 +1,23 @@
 import * as THREE from './three.module.js'
 
 class Cube {
-    constructor(size, scene, camera) {
-        this.size = size;
-        this.scene = scene;
-        this.camera = camera;
+    constructor(layers, canvas) {
+        this.layers = layers;
+        this.scene = new THREE.Scene();
+        this.camera = new THREE.PerspectiveCamera(
+            75, 
+            window.innerWidth / window.innerHeight,
+            0.1,
+            1000
+        );
+        this.renderer = new THREE.WebGLRenderer({antialias: true, canvas});
         this.speedMode = true;
         this.tween;
         this.group = new THREE.Group();
         this.scene.add(this.group);
         this.keyMap = new Map();
 
-        console.log(`Created a ${size}x${size} cube`);
+        console.log(`Created a ${layers}x${layers} cube`);
         this.draw();
         this.generateKeymap();
     }
@@ -23,7 +29,7 @@ class Cube {
     }
 
     generateKeymap() {  
-        const lowerBound = (this.size / 2) - 1;
+        const lowerBound = (this.layers / 2) - 1;
         const keyMap = this.keyMap;
         keyMap.clear(); // remove all key-value pairs
 
@@ -57,13 +63,13 @@ class Cube {
     }
 
     changeLayers(newLayers) {
-        this.size = parseInt(newLayers);
+        this.layers = parseInt(newLayers);
         this.draw();
         this.generateKeymap();
     }
 
     getClickedAxis(pos) {
-        const stickerPosition = this.size / 2 + 0.01;
+        const stickerPosition = this.layers / 2 + 0.01;
         if (Math.abs(stickerPosition - Math.abs(pos.x)) < 0.1) return "x";
         if (Math.abs(stickerPosition - Math.abs(pos.y)) < 0.1) return "y";
         if (Math.abs(stickerPosition - Math.abs(pos.z)) < 0.1) return "z";
@@ -72,11 +78,10 @@ class Cube {
 
     draw() {
         const scene = this.scene;
-        var centerOffset = -(this.size - 1) / 2;
+        var centerOffset = -(this.layers - 1) / 2;
         // clear scene
         scene.remove.apply(scene, scene.children);
-        console.log(this.size, this.size + (this.size / 2) + 1)
-        this.camera.position.set(0, this.size + this.size / 2 + 1, this.size + this.size / 2 + 1)
+        this.camera.position.set(0, this.layers + this.layers / 2 + 1, this.layers + this.layers / 2 + 1)
         this.camera.lookAt(0, 0, 0);
         // visualize the axes
         // X is red, Y is green, Z is blue
@@ -87,9 +92,9 @@ class Cube {
             const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
             const boxMaterial = new THREE.MeshBasicMaterial({color: 0x00000});
             const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
-            for (let i = 0; i < this.size; ++i) {
-                for (let j = 0; j < this.size; ++j) {
-                    for (let k = 0; k < this.size; ++k) {
+            for (let i = 0; i < this.layers; ++i) {
+                for (let j = 0; j < this.layers; ++j) {
+                    for (let k = 0; k < this.layers; ++k) {
                         const cubie = boxMesh.clone();
                         cubie.position.set(i + centerOffset, j + centerOffset, k + centerOffset);
                         scene.add(cubie);
@@ -109,8 +114,8 @@ class Cube {
         let colors = [0xffa200, 0xff1100, 0xffffff, 0xfffb00, 0x33ff00, 0x0800ff];
 
         for (let n = 0; n < 6; ++n) {
-            for (let i = 0; i < this.size; ++i) {
-                for (let j = 0; j < this.size; ++j) {
+            for (let i = 0; i < this.layers; ++i) {
+                for (let j = 0; j < this.layers; ++j) {
                     const stickerMaterial = new THREE.MeshBasicMaterial( {color: colors[n], side: THREE.DoubleSide} );
                     const stickerMesh = new THREE.Mesh(stickerGeometry, stickerMaterial);
                     // Mesh.clone() does not clone the material - it has to be copied by hand

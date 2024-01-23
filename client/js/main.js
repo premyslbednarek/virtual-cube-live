@@ -3,15 +3,12 @@ import * as THREE from './three.module.js';
 import { Cube } from './cube.js';
 import { sendMove, sendCamera } from './websocket.js';
 
-const scene = new THREE.Scene();
-let camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-
-const renderer = new THREE.WebGLRenderer({antialias: true});
+let cube = new Cube(3, document.getElementById("mainCanvas"));
 
 function resizeCanvas() {
-    renderer.setSize( window.innerWidth, window.innerHeight );
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix(); // must be called after changing camera's properties
+    cube.renderer.setSize( window.innerWidth, window.innerHeight );
+    cube.camera.aspect = window.innerWidth / window.innerHeight;
+    cube.camera.updateProjectionMatrix(); // must be called after changing camera's properties
 }
 
 resizeCanvas();
@@ -24,35 +21,23 @@ async function performMacro(macro) {
 }
 window.performMacro = performMacro;
 
-var renderOtherCube = () => {};
-var otherCube;
-var anotherCamera;
+const otherCubes = []
 function drawAnotherCube() {
-    const scene = new THREE.Scene();
-    let camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-    camera.position.set(5, 0, 0);
-    camera.lookAt(0, 0, 0);
-    const canvas = document.getElementById("otherCanvas")
-    const renderer = new THREE.WebGLRenderer({antialias: true, canvas});
-    renderer.setSize(300, 300);
-    document.body.appendChild( renderer.domElement );
-    otherCube = new Cube(3,scene, camera);
-    anotherCamera = camera;
-	renderOtherCube = () => { renderer.render( scene, camera ) };
+    otherCubes.push(new Cube(3, document.getElementById("otherCanvas")));
 }
 
 function moveAnotherCube(args) {
-    otherCube.rotateGroupGen(...args);
+    otherCubes[0].rotateGroupGen(...args);
 }
+
 function moveAnotherCamera(args) {
-    console.log("update")
-    anotherCamera.position.x = args.position.x;
-    anotherCamera.position.y = args.position.y;
-    anotherCamera.position.z = args.position.z;
-    anotherCamera.rotation.x = args.rotation.x;
-    anotherCamera.rotation.y = args.rotation.y;
-    anotherCamera.rotation.z = args.rotation.z;
-    anotherCamera.lookAt(0, 0, 0);
+    otherCubes[0].camera.position.x = args.position.x;
+    otherCubes[0].camera.position.y = args.position.y;
+    otherCubes[0].camera.position.z = args.position.z;
+    otherCubes[0].camera.rotation.x = args.rotation.x;
+    otherCubes[0].camera.rotation.y = args.rotation.y;
+    otherCubes[0].camera.rotation.z = args.rotation.z;
+    otherCubes[0].camera.lookAt(0, 0, 0);
 }
 
 export { drawAnotherCube, moveAnotherCube, moveAnotherCamera };
@@ -75,31 +60,9 @@ window.scramble = scramble;
 window.uperm = uperm;
 
 function onCameraEnd() {
-    sendCamera({position: camera.position, rotation: camera.rotation});
+    sendCamera({position: cube.camera.position, rotation: cube.camera.rotation});
 }
 
-function degToRad(deg) {
-    return deg * Math.PI / 180;
-}
-
-const controls = new OrbitControls(camera, renderer.domElement);
-//controls.update() must be called after any manual changes to the camera's transform
-// camera.position.set( 0, 20, 100 );
-// controls.minDistance = 5;
-// controls.maxDistance = 20;
-controls.enableZoom = false;
-controls.enablePan = false; // disable moving the camera with right click
-camera.position.set(0,5,5);
-controls.minAzimuthAngle = degToRad(-35);
-controls.maxAzimuthAngle = degToRad(35);
-controls.minPolarAngle = degToRad(60);
-controls.maxPolarAngle = degToRad(120);
-// controls.addEventListener('end', () => {console.log('end', camera.position, camera.rotation)});
-controls.addEventListener('end', onCameraEnd);
-controls.addEventListener('change', onCameraEnd);
-controls.update();
-
-document.body.appendChild( renderer.domElement );
 
 // draw a green box in the middle 
 // let boxGeometry = new THREE.BoxGeometry( 1, 1, 1 );
@@ -107,13 +70,25 @@ document.body.appendChild( renderer.domElement );
 // let cube = new THREE.Mesh( boxGeometry, boxMaterial );
 // scene.add( cube );
 
+function degToRad(deg) {
+    return deg * Math.PI / 180;
+}
+
+cube.controls = new OrbitControls(cube.camera, cube.renderer.domElement);
+cube.controls.enableZoom = false;
+cube.controls.enablePan = false; // disable moving the camera with right click
+cube.controls.minAzimuthAngle = degToRad(-35);
+cube.controls.maxAzimuthAngle = degToRad(35);
+cube.controls.minPolarAngle = degToRad(60);
+cube.controls.maxPolarAngle = degToRad(120);
+cube.controls.update();
+cube.controls.addEventListener('end', onCameraEnd);
+cube.controls.addEventListener('change', onCameraEnd);
 
 // visualize the axes
 // X is red, Y is green, Z is blue
 // const axesHelper = new THREE.AxesHelper( 5 );
 // scene.add( axesHelper );
-
-let cube = new Cube(3, scene, camera);
 
 let slider = document.getElementById("layersSlider");
 let layersInfo = document.getElementById("layersInfo");
@@ -152,14 +127,14 @@ function onMouseDown( event ) {
     mouseDownPointer = event;
 
     // update the picking ray with the camera and pointer position
-	raycaster.setFromCamera( pointer, camera );
+	raycaster.setFromCamera( pointer, cube.camera );
 
 	// calculate objects intersecting the picking ray
-	const intersects = raycaster.intersectObjects( scene.children );
+	const intersects = raycaster.intersectObjects( cube.scene.children );
     // console.log("Number of objects intersected:", intersects.length);
 
     if (intersects.length && intersects[0].object.isSticker) {
-        controls.enabled = false; // disable rotating camera
+        cube.controls.enabled = false; // disable rotating camera
         var pos = intersects[0].object.position;
         // console.log("clicked stijijiijijcker position", pos.x, pos.y, pos.z)
         var clickedAxis = cube.getClickedAxis(pos);
@@ -236,7 +211,7 @@ window.addEventListener('mousedown', onMouseDown);
 
 function onMouseUp(event) {
     // enable controls, that were disable on mouse down
-    controls.enabled = true;
+    cube.controls.enabled = true;
     // no sticker was clicked
     if (axisMovements == undefined) return;
 
@@ -247,7 +222,7 @@ function onMouseUp(event) {
     var movementVector = new THREE.Vector3(x - mouseDownPointer.clientX, y - mouseDownPointer.clientY, 0);
 
     if (movementVector.length() < 10) {
-        controls.enabled = true;
+        cube.controls.enabled = true;
         axisMovements = [];
         return;
     }
@@ -256,13 +231,13 @@ function onMouseUp(event) {
     var angles = []
     for (var vector of axisMovements.vectors) {
         var vectorS = axisMovements.clickedPosition.clone();
-        vectorS.project(camera);
+        vectorS.project(cube.camera);
         vectorS.x = ( vectorS.x + 1) * window.innerWidth / 2;
         vectorS.y = - ( vectorS.y - 1) * window.innerHeight / 2;
         vectorS.z = 0;
         // console.log("S", vectorS);
         var vectorE = axisMovements.clickedPosition.clone().add(vector);
-        vectorE.project(camera);
+        vectorE.project(cube.camera);
         vectorE.x = ( vectorE.x + 1) * window.innerWidth / 2;
         vectorE.y = - ( vectorE.y - 1) * window.innerHeight / 2;
         vectorE.z = 0;
@@ -361,7 +336,7 @@ function onMouseUp(event) {
     // const geometry = new THREE.BufferGeometry().setFromPoints(points);
     // var line = new THREE.Line( geometry, material );
     // scene.add( line )
-    controls.enabled = true;
+    // controls.enabled = true;
 }
 window.addEventListener('mouseup', onMouseUp);
 
@@ -382,8 +357,10 @@ updateFps();
 
 
 async function animate() {
-	renderer.render( scene, camera );
-    renderOtherCube();
+	cube.renderer.render(cube.scene,cube.camera);
+    for (const otherCube of otherCubes) {
+        otherCube.renderer.render(otherCube.scene, otherCube.camera);
+    }
     TWEEN.update();
 
     setTimeout(() => {
@@ -418,7 +395,6 @@ document.addEventListener("keydown", event => {
 
 // expose local variables to browser's console
 window.rotateGroupGen = cube.rotateGroupGen;
-window.scene = scene
 
 function speedModeToggle() {
     cube.toggleSpeedMode();

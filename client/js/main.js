@@ -78,6 +78,10 @@ function onCameraEnd() {
     sendCamera({position: camera.position, rotation: camera.rotation});
 }
 
+function degToRad(deg) {
+    return deg * Math.PI / 180;
+}
+
 const controls = new OrbitControls(camera, renderer.domElement);
 //controls.update() must be called after any manual changes to the camera's transform
 // camera.position.set( 0, 20, 100 );
@@ -86,6 +90,10 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableZoom = false;
 controls.enablePan = false; // disable moving the camera with right click
 camera.position.set(0,5,5);
+controls.minAzimuthAngle = degToRad(-35);
+controls.maxAzimuthAngle = degToRad(35);
+controls.minPolarAngle = degToRad(60);
+controls.maxPolarAngle = degToRad(120);
 // controls.addEventListener('end', () => {console.log('end', camera.position, camera.rotation)});
 controls.addEventListener('end', onCameraEnd);
 controls.addEventListener('change', onCameraEnd);

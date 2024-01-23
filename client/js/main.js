@@ -364,27 +364,8 @@ animate();
 // resize the canvas when the windows size changes
 window.addEventListener('resize', resizeCanvas, false);
 
-const keyMap = new Map();
-
-keyMap.set("j", [0.3, 20, "y", -1]); // U
-keyMap.set("f", [0.3, 20, "y", 1]);  // U'
-keyMap.set("i", [0.3, 20, "x", -1]); // R
-keyMap.set("k", [0.3, 20, "x", 1]);  // R'
-keyMap.set("b", [-20, 20, "x", 1]); // x'
-keyMap.set("n", [-20, 20, "x", 1]); // x'
-keyMap.set("t", [-20, 20, "x", -1]); // x
-keyMap.set("y", [-20, 20, "x", -1]); // x
-keyMap.set("d", [-20, -0.3, "x", 1]); // L
-keyMap.set("e", [-20, -0.3, "x", -1]);  // L'
-keyMap.set("g", [0.3, 20, "z", 1]); // F
-keyMap.set("h", [0.3, 20, "z", -1]);  // F'
-keyMap.set("l", [-20, -0.3, "y", -1]); // D'
-keyMap.set("s", [-20, -0.3, "y", 1]);  // D
-keyMap.set(";", [-20, 20, "y", -1]); // y
-keyMap.set("a", [-20, 20, "y", 1]); // y'
-
 document.addEventListener("keydown", event => {
-    let args = keyMap.get(event.key);
+    let args = cube.keyMap.get(event.key);
     // expand array of parameters with ...args
     if (args) {
         sendMove(args);

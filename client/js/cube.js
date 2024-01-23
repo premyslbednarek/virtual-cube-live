@@ -9,15 +9,46 @@ class Cube {
         this.tween;
         this.group = new THREE.Group();
         this.scene.add(this.group);
+        this.keyMap = new Map();
 
         console.log(`Created a ${size}x${size} cube`);
         this.draw();
+        this.generateKeymap();
     }
     cleanGroup() {
         for (var i = this.group.children.length - 1; i >= 0; --i) {
             this.scene.attach(this.group.children[i]);
         }
         this.scene.remove(this.group);
+    }
+
+    generateKeymap() {  
+        const lowerBound = (this.size / 2) - 1;
+        const keyMap = this.keyMap;
+        keyMap.clear(); // remove all key-value pairs
+
+        keyMap.set("j", [lowerBound, 20, "y", -1]); // U
+        keyMap.set(",", [lowerBound-1, 20, "y", -1]); // Uw = U wide - two upper layers
+        keyMap.set("f", [lowerBound, 20, "y", 1]);  // U'
+        keyMap.set("c", [lowerBound-1, 20, "y", 1]);  // Uw'
+        keyMap.set("i", [lowerBound, 20, "x", -1]); // R
+        keyMap.set("u", [lowerBound-1, 20, "x", -1]); // Rw
+        keyMap.set("k", [lowerBound, 20, "x", 1]);  // R'
+        keyMap.set("m", [lowerBound-1, 20, "x", 1]);  // Rw'
+        keyMap.set("b", [-20, 20, "x", 1]); // x'
+        keyMap.set("n", [-20, 20, "x", 1]); // x'
+        keyMap.set("t", [-20, 20, "x", -1]); // x
+        keyMap.set("y", [-20, 20, "x", -1]); // x
+        keyMap.set("d", [-20, -lowerBound, "x", 1]); // L
+        keyMap.set("v", [-20, -lowerBound+1, "x", 1]); // Lw
+        keyMap.set("e", [-20, -lowerBound, "x", -1]);  // L'
+        keyMap.set("v", [-20, -lowerBound+1, "x", -1]);  // Lw'
+        keyMap.set("g", [lowerBound, 20, "z", 1]); // F
+        keyMap.set("h", [lowerBound, 20, "z", -1]);  // F'
+        keyMap.set("l", [-20, -lowerBound, "y", -1]); // D'
+        keyMap.set("s", [-20, -lowerBound, "y", 1]);  // D
+        keyMap.set(";", [-20, 20, "y", -1]); // y
+        keyMap.set("a", [-20, 20, "y", 1]); // y'
     }
 
     toggleSpeedMode() {
@@ -28,6 +59,7 @@ class Cube {
     changeLayers(newLayers) {
         this.size = parseInt(newLayers);
         this.draw();
+        this.generateKeymap();
     }
 
     getClickedAxis(pos) {

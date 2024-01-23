@@ -155,37 +155,44 @@ function onMouseDown( event ) {
         var pos = intersects[0].object.position;
         // console.log("clicked stijijiijijcker position", pos.x, pos.y, pos.z)
         var clickedAxis = cube.getClickedAxis(pos);
+        var otherAxes = [];
+        if (clickedAxis != "x") otherAxes.push("x");
+        if (clickedAxis != "y") otherAxes.push("y");
+        if (clickedAxis != "z") otherAxes.push("z");
         window.pos = pos;
         var sign = pos[clickedAxis] / Math.abs(pos[clickedAxis]);
         // console.log(clickedAxis, sign);
         var pointA = intersects[0].point;
         var v1 = new THREE.Vector3(0, 0, 0);
         var v2 = new THREE.Vector3(0, 0, 0);
-        if (clickedAxis == "x") {
-            if (sign > 0) {
-                v1.z = 1;
-                v2.y = -1;
-            } else {
-                v1.z = -1;
-                v2.y = 1;
-            }
-        } else if (clickedAxis == "y") {
-            if (sign > 0) {
-                v1.z = -1;
-                v2.x = 1;
-            } else {
-                v1.z = 1;
-                v2.x = -1;
-            }
-        } else {
-            if (sign > 0) {
-                v1.y = 1;
-                v2.x = -1;
-            } else {
-                v1.y = -1;
-                v2.x = 1;
-            }
-        }
+        v1[otherAxes[0]] = 1;
+        v2[otherAxes[1]] = 1;
+        // code below refactored out
+        // if (clickedAxis == "x") {
+        //     if (sign > 0) {
+        //         v1.z = 1;
+        //         v2.y = -1;
+        //     } else {
+        //         v1.z = -1;
+        //         v2.y = 1;
+        //     }
+        // } else if (clickedAxis == "y") {
+        //     if (sign > 0) {
+        //         v1.z = -1;
+        //         v2.x = 1;
+        //     } else {
+        //         v1.z = 1;
+        //         v2.x = -1;
+        //     }
+        // } else {
+        //     if (sign > 0) {
+        //         v1.y = 1;
+        //         v2.x = -1;
+        //     } else {
+        //         v1.y = -1;
+        //         v2.x = 1;
+        //     }
+        // }
         // console.log(v1, v2);
         // drawLine(pointA, pointA.clone().add(v1));
         // drawLine(pointA, pointA.clone().add(v2));
@@ -270,6 +277,34 @@ function onMouseUp(event) {
     console.log("Lowest angle is: ", lowestAngle*57, "to vector", axisMovements.vectors[lowestAngleIndex]);
     console.log(axisMovements.clickedAxis)
     var sign = axisMovements.stickerPosition[axisMovements.clickedAxis] / Math.abs(axisMovements.stickerPosition[axisMovements.clickedAxis]);
+    // var otherAxes = [];
+    // if (axisMovements.clickedAxis != "x") otherAxes.push("x");
+    // if (axisMovements.clickedAxis != "y") otherAxes.push("y");
+    // if (axisMovements.clickedAxis != "z") otherAxes.push("z");
+
+    // if (Math.abs(bestVector[otherAxes[1]]) == 1) {
+    //     var temp = otherAxes[1];
+    //     otherAxes[1] = otherAxes[0];
+    //     otherAxes[0] = temp;
+    // }
+    // console.log("Vyhral vektor", bestVector);
+    // var clickedAxis = axisMovements.clickedAxis;
+    // var rotateAxis = otherAxes[1];
+    // var rotateLayer = otherAxes[0];
+    // var args = [];
+    // args.push(axisMovements.stickerPosition[rotateAxis] - 0.75);
+    // args.push(axisMovements.stickerPosition[rotateAxis] + 0.75);
+    // args.push(rotateAxis);
+    // // sign = bestVector[rotateLayer];
+    // console.log(sign)
+    // if (
+    //     (clickedAxis == "x" && rotateAxis == "y") ||
+    //     (clickedAxis == "y" && rotateAxis == "z") ||
+    //     (clickedAxis == "z" && rotateAxis == "x")
+    // ) {
+    //     sign = -sign;
+    // }
+    // args.push(sign);
     var args;
     if (axisMovements.clickedAxis == "x") {
         if (bestVector.y != 0) {

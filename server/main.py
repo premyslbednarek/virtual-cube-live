@@ -41,6 +41,9 @@ async def print_ack(sid, message):
 async def distributeMove(sid, message):
     await sio.emit("opponentMove", message, skip_sid=sid)
 
+@sio.on("camera")
+async def distributeCamera(sid, message):
+    await sio.emit("opponentCamera", message, skip_sid=sid)
 
 @sio.event
 async def connect(sid, environ, auth):

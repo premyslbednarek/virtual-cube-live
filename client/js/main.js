@@ -1,7 +1,7 @@
 import { OrbitControls } from './OrbitControls.js';
 import * as THREE from './three.module.js';
 import { Cube } from './cube.js';
-import { sendMove } from './websocket.js';
+import { sendMove, sendCamera } from './websocket.js';
 
 const scene = new THREE.Scene();
 let camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -26,6 +26,7 @@ window.performMacro = performMacro;
 
 var renderOtherCube = () => {};
 var otherCube;
+var anotherCamera;
 function drawAnotherCube() {
     const scene = new THREE.Scene();
     let camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -36,13 +37,25 @@ function drawAnotherCube() {
     renderer.setSize(300, 300);
     document.body.appendChild( renderer.domElement );
     otherCube = new Cube(3,scene, camera);
+    anotherCamera = camera;
 	renderOtherCube = () => { renderer.render( scene, camera ) };
 }
 
 function moveAnotherCube(args) {
     otherCube.rotateGroupGen(...args);
 }
-export { drawAnotherCube, moveAnotherCube };
+function moveAnotherCamera(args) {
+    console.log("update")
+    anotherCamera.position.x = args.position.x;
+    anotherCamera.position.y = args.position.y;
+    anotherCamera.position.z = args.position.z;
+    anotherCamera.rotation.x = args.rotation.x;
+    anotherCamera.rotation.y = args.rotation.y;
+    anotherCamera.rotation.z = args.rotation.z;
+    anotherCamera.lookAt(0, 0, 0);
+}
+
+export { drawAnotherCube, moveAnotherCube, moveAnotherCamera };
 
 function uperm() {
     performMacro("ifijijifkfkk");
@@ -61,6 +74,10 @@ function scramble() {
 window.scramble = scramble;
 window.uperm = uperm;
 
+function onCameraEnd() {
+    sendCamera({position: camera.position, rotation: camera.rotation});
+}
+
 const controls = new OrbitControls(camera, renderer.domElement);
 //controls.update() must be called after any manual changes to the camera's transform
 // camera.position.set( 0, 20, 100 );
@@ -69,6 +86,9 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableZoom = false;
 controls.enablePan = false; // disable moving the camera with right click
 camera.position.set(0,5,5);
+// controls.addEventListener('end', () => {console.log('end', camera.position, camera.rotation)});
+controls.addEventListener('end', onCameraEnd);
+controls.addEventListener('change', onCameraEnd);
 controls.update();
 
 document.body.appendChild( renderer.domElement );
@@ -345,6 +365,7 @@ animate();
 window.addEventListener('resize', resizeCanvas, false);
 
 const keyMap = new Map();
+
 keyMap.set("j", [0.3, 20, "y", -1]); // U
 keyMap.set("f", [0.3, 20, "y", 1]);  // U'
 keyMap.set("i", [0.3, 20, "x", -1]); // R

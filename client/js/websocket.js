@@ -1,7 +1,7 @@
 import { OrbitControls } from './OrbitControls.js';
 import * as THREE from './three.module.js';
 import { Cube } from './cube.js';
-import { drawAnotherCube, moveAnotherCube } from './main.js';
+import { drawAnotherCube, moveAnotherCube, moveAnotherCamera } from './main.js';
 
 localStorage.debug = 'socket.io-client:socket'
 let socket = io("http://localhost:8080")
@@ -30,7 +30,16 @@ socket.on("opponentMove", function(data) {
     moveAnotherCube(args);
 })
 
+socket.on("opponentCamera", function(data) {
+    var args = JSON.parse(data);
+    moveAnotherCamera(args);
+})
+
 function sendMove(args) {
     socket.emit("move", JSON.stringify(args));
 }
-export {sendMove};
+
+function sendCamera(args) {
+    socket.emit("camera", JSON.stringify(args));
+}
+export {sendMove, sendCamera};

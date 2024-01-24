@@ -2,6 +2,7 @@ import * as THREE from './three.module.js'
 import { OrbitControls } from './OrbitControls.js';
 import { sendMove } from './websocket.js';
 import { Tween, Easing } from './tween.module.js';
+import { startTimer, stopTimer, isStarted } from './main.js';
 
 class Cube {
     constructor(layers, canvas) {
@@ -73,6 +74,7 @@ class Cube {
         }
         console.log("Cube solved!");
         this.solved = true;
+        stopTimer();
         return true;
     }
 
@@ -156,6 +158,7 @@ class Cube {
 
     rotateGroupGen(low, high, axis, mult) {
         const scene = this.scene;
+        if (!isStarted()) { startTimer()};
         
         // console.log("rotation started", low, high, axis, mult);
         if (this.tween && this.tween.isPlaying()) {

@@ -118,6 +118,38 @@ fpsSlider.oninput = updateFps;
 updateFps();
 
 
+class Timer {
+    constructor(domElement) {
+        this.domElement = domElement;
+        this.startTime = undefined;
+    }
+    
+    start() {
+        this.startTime = performance.now();
+        this.update();
+    }
+    async update() {
+        if (!this.startTime) return;
+        const timeElapsed = performance.now() - this.startTime;
+        this.domElement.innerHTML = Math.floor(timeElapsed / 1000) + "s";
+        setTimeout(() => {
+            this.update();
+        }, 1000);
+    }
+    stop() {
+        const timeElapsed = performance.now() - this.startTime;
+        console.log(Math.floor(timeElapsed / 1000) + "s");
+        this.startTime = undefined;
+    }
+}
+
+const timerElement = document.getElementById("timer");
+const timer = new Timer(timerElement);
+const startTimer = () => { timer.start(); };
+const stopTimer = () => { timer.stop(); };
+const isStarted = () => { return timer.startTime != undefined; }
+export { startTimer, stopTimer, isStarted };
+
 async function animate() {
 	cube.renderer.render(cube.scene,cube.camera);
     for (const otherCube of otherCubes) {

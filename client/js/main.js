@@ -2,6 +2,7 @@ import { OrbitControls } from './OrbitControls.js';
 import * as THREE from './three.module.js';
 import { Cube, MovableCube } from './cube.js';
 import { sendMove, sendCamera } from './websocket.js';
+import * as TWEEN from './tween.module.js';
 
 let cube = new MovableCube(3, document.getElementById("mainCanvas"));
 

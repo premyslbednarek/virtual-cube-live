@@ -1,6 +1,7 @@
 import * as THREE from './three.module.js'
 import { OrbitControls } from './OrbitControls.js';
 import { sendMove } from './websocket.js';
+import { Tween, Easing } from './tween.module.js';
 
 class Cube {
     constructor(layers, canvas) {
@@ -168,7 +169,7 @@ class Cube {
 
         // tween
         // [axis] - this is the usage of "computed property name" introduced in ES6
-        this. tween = new TWEEN.Tween(this.group.rotation).to({[axis]: mult * Math.PI / 2}, 200).easing(TWEEN.Easing.Quadratic.Out);
+        this.tween = new Tween(this.group.rotation).to({[axis]: mult * Math.PI / 2}, 200).easing(Easing.Quadratic.Out);
         // tween.onComplete(cleanGroup);
         this.tween.start();
     }

@@ -25,6 +25,8 @@ class Cube {
         console.log(`Created a ${layers}x${layers} cube`);
         this.resizeCanvas();
         this.draw();
+        this.solved = true;
+        this.needsSolvedCheck = false;
     }
 
     resizeCanvas() {
@@ -53,18 +55,24 @@ class Cube {
     }
 
     isSolved() {
+        if (!this.needsSolvedCheck) return this.solved;
+        this.needsSolvedCheck = false;
         this.cleanGroup();
         const colorToFace = new Map();
         for (const sticker of this.stickers) {
             const color = sticker.material.color.getHex();
             const face = this.getStickerFace(sticker);
             if (colorToFace.has(color)) {
-                if (colorToFace.get(color) != face) return false;
+                if (colorToFace.get(color) != face) {
+                    this.solved = false;
+                    return false;
+                }
             } else {
                 colorToFace.set(color, face);
             }
         }
-        console.log("Cube is solved!")
+        console.log("Cube solved!");
+        this.solved = true;
         return true;
     }
 
@@ -151,11 +159,12 @@ class Cube {
         
         // console.log("rotation started", low, high, axis, mult);
         if (this.tween && this.tween.isPlaying()) {
+            this.tween.stop(); // this would not work without stopping it first (+-2h debugging)
             this.tween.end();
-            this.cleanGroup();
         }
 
         this.cleanGroup();
+        this.needsSolvedCheck = true;
         
         // construct new group
         this.group = new THREE.Group();
@@ -169,9 +178,11 @@ class Cube {
 
         // tween
         // [axis] - this is the usage of "computed property name" introduced in ES6
-        this.tween = new Tween(this.group.rotation).to({[axis]: mult * Math.PI / 2}, 200).easing(Easing.Quadratic.Out);
-        // tween.onComplete(cleanGroup);
-        this.tween.start();
+        this.tween = new Tween(this.group.rotation)
+                        .to({[axis]: mult * Math.PI / 2}, 200)
+                        .easing(Easing.Quadratic.Out)
+                        .onComplete(() => { this.isSolved(); })
+                        .start();
     }
 }
 

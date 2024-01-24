@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html style="height: 100%;">
   <head>
     <title>Virtual rubik's cube</title>
     <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" href="style/style.css">
   </head>
-  <body style="margin: 0;">
+  <body style="margin: 0; height: 100%;">
     <div style="position: absolute; top: 0; left: 0; margin: 10px; color:white;">
       <button id="speedToggle">Toggle speedcuber mode</button>
       <button onclick="uperm()">U-Perm</button>
@@ -21,6 +21,6 @@
     <script type='module' src="js/main.js"></script>
     <script type='module' src="js/websocket.js"></script>
     <canvas id="mainCanvas" style="width: 100%; height: 100%; display: block;"></canvas>
-    <canvas id="otherCanvas" style="position: absolute; bottom: 0; right: 0; width: 300; height: 300; display: block;"></canvas>
+    <canvas id="otherCanvas" style="position: absolute; bottom: 0; right: 0; width: 200px; height: 200px; display: block;"></canvas>
   </body>
 </html>

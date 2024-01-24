@@ -6,9 +6,10 @@ class Cube {
     constructor(layers, canvas) {
         this.layers = layers;
         this.scene = new THREE.Scene();
+        this.canvas = canvas;
         this.camera = new THREE.PerspectiveCamera(
             75, 
-            window.innerWidth / window.innerHeight,
+            canvas.clientWidth / canvas.clientHeight,
             0.1,
             1000
         );
@@ -20,8 +21,17 @@ class Cube {
         this.keyMap = new Map();
 
         console.log(`Created a ${layers}x${layers} cube`);
+        this.resizeCanvas();
         this.draw();
     }
+
+    resizeCanvas() {
+        const canvas = this.renderer.domElement;
+        this.renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+        this.camera.aspect = canvas.clientWidth / canvas.clientHeight;
+        this.camera.updateProjectionMatrix(); // must be called after changing camera's properties
+    }
+
 
     cleanGroup() {
         for (var i = this.group.children.length - 1; i >= 0; --i) {

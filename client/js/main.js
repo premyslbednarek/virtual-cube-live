@@ -5,14 +5,6 @@ import { sendMove, sendCamera } from './websocket.js';
 
 let cube = new MovableCube(3, document.getElementById("mainCanvas"));
 
-function resizeCanvas() {
-    cube.renderer.setSize( window.innerWidth, window.innerHeight );
-    cube.camera.aspect = window.innerWidth / window.innerHeight;
-    cube.camera.updateProjectionMatrix(); // must be called after changing camera's properties
-}
-
-resizeCanvas();
-
 async function performMacro(macro) {
     for (var i = 0; i < macro.length; ++i) {
         document.dispatchEvent(new KeyboardEvent("keydown", { key: macro[i], }));
@@ -151,7 +143,7 @@ async function animate() {
 animate();
 
 // resize the canvas when the windows size changes
-window.addEventListener('resize', resizeCanvas, false);
+window.addEventListener('resize', () => { cube.resizeCanvas(); }, false);
 
 document.addEventListener("keydown", event => {
     let args = cube.keyMap.get(event.key);

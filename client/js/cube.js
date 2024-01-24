@@ -19,6 +19,7 @@ class Cube {
         this.group = new THREE.Group();
         this.scene.add(this.group);
         this.keyMap = new Map();
+        this.stickers = [];
 
         console.log(`Created a ${layers}x${layers} cube`);
         this.resizeCanvas();
@@ -38,6 +39,32 @@ class Cube {
             this.scene.attach(this.group.children[i]);
         }
         this.scene.remove(this.group);
+    }
+
+    getStickerFace(sticker) {
+        const stickerPosition = this.layers / 2 + 0.01;
+        if (Math.abs(stickerPosition - sticker.position.x) < 0.1) return "R";
+        if (Math.abs(stickerPosition - sticker.position.y) < 0.1) return "U";
+        if (Math.abs(stickerPosition - sticker.position.z) < 0.1) return "F";
+        if (Math.abs(-stickerPosition - sticker.position.x) < 0.1) return "L";
+        if (Math.abs(-stickerPosition - sticker.position.y) < 0.1) return "D";
+        if (Math.abs(-stickerPosition - sticker.position.z) < 0.1) return "B";
+    }
+
+    isSolved() {
+        this.cleanGroup();
+        const colorToFace = new Map();
+        for (const sticker of this.stickers) {
+            const color = sticker.material.color.getHex();
+            const face = this.getStickerFace(sticker);
+            if (colorToFace.has(color)) {
+                if (colorToFace.get(color) != face) return false;
+            } else {
+                colorToFace.set(color, face);
+            }
+        }
+        console.log("Cube is solved!")
+        return true;
     }
 
     toggleSpeedMode() {
@@ -95,6 +122,7 @@ class Cube {
         let faceCenters = [new THREE.Vector3(1, 0, 0), new THREE.Vector3(-1, 0, 0), new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, -1, 0), new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 0, -1)];
         let colors = [0xffa200, 0xff1100, 0xffffff, 0xfffb00, 0x33ff00, 0x0800ff];
 
+        this.stickers = [];
         for (let n = 0; n < 6; ++n) {
             for (let i = 0; i < this.layers; ++i) {
                 for (let j = 0; j < this.layers; ++j) {
@@ -110,7 +138,7 @@ class Cube {
                     sticker.isSticker = true;
                     // var stickerAxis = new THREE.AxesHelper(2);
                     // sticker.add(stickerAxis);
-
+                    this.stickers.push(sticker);
                     scene.add(sticker);
                 }
             }
@@ -306,7 +334,7 @@ class MovableCube extends Cube {
         var movementVector = new THREE.Vector3(x - this.mouseDownPointer.clientX, y - this.mouseDownPointer.clientY, 0);
 
         if (movementVector.length() < 10) {
-            this.cube.controls.enabled = true;
+            this.controls.enabled = true;
             this.axisMovements = [];
             return;
         }

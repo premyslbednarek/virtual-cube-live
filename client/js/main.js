@@ -160,3 +160,5 @@ function speedModeToggle() {
 
 const button = document.getElementById('speedToggle');
 button.addEventListener('click', speedModeToggle);
+
+window.isSolved = () => { return cube.isSolved(); };

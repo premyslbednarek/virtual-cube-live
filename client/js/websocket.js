@@ -1,7 +1,7 @@
 import { OrbitControls } from './OrbitControls.js';
 import * as THREE from './three.module.js';
 import { Cube } from './cube.js';
-import { drawAnotherCube, moveAnotherCube, moveAnotherCamera } from './main.js';
+import { drawAnotherCube, moveAnotherCube, moveAnotherCamera, removeCube } from './main.js';
 
 localStorage.debug = 'socket.io-client:socket'
 let socket = io("http://localhost:8080")
@@ -24,6 +24,11 @@ socket.on("ack", function(data) {
 
 socket.on("connection", function(id) {
     drawAnotherCube(id);
+})
+
+socket.on("disconnection", function(id) {
+    console.log("remove cube with id", id);
+    removeCube(id);
 })
 
 socket.on("opponentMove", function(data) {

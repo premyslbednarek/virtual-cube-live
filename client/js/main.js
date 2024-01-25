@@ -39,7 +39,15 @@ function moveAnotherCamera(id, args) {
     otherCube.camera.lookAt(0, 0, 0);
 }
 
-export { drawAnotherCube, moveAnotherCube, moveAnotherCamera };
+function removeCube(id) {
+    console.log("remove cube", id);
+    console.log(otherCubes);
+    const otherCube = otherCubes.get(id);
+    otherCube.canvas.remove();
+    otherCubes.delete(id);
+}
+
+export { drawAnotherCube, moveAnotherCube, moveAnotherCamera, removeCube };
 
 function uperm() {
     performMacro("ifijijifkfkk");

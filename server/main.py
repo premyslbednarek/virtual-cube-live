@@ -63,6 +63,7 @@ async def connect(sid, environ, auth):
 async def disconnect(sid):
     print('disconnect ', sid)
     await sio.emit("message", f"User with session id {sidToName[sid]} has disconnected.")
+    await sio.emit("disconnection", sidToName[sid])
     del sidToName[sid]
 
 

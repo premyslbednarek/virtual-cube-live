@@ -14,23 +14,29 @@ async function performMacro(macro) {
 }
 window.performMacro = performMacro;
 
-const otherCubes = []
-function drawAnotherCube() {
-    otherCubes.push(new Cube(3, document.getElementById("otherCanvas")));
+const otherCubes = new Map();
+function drawAnotherCube(id) {
+    const canvas = document.createElement("canvas");
+    canvas.style = "width: 100%; height: 250px"
+    document.getElementById("otherCanvases").appendChild(canvas);
+    // otherCubes.push(new Cube(3, document.getElementById("otherCanvas")));
+    otherCubes.set(id, new Cube(3, canvas));
 }
 
-function moveAnotherCube(args) {
-    otherCubes[0].rotateGroupGen(...args);
+function moveAnotherCube(id, args) {
+    const otherCube = otherCubes.get(id);
+    otherCube.rotateGroupGen(...args);
 }
 
-function moveAnotherCamera(args) {
-    otherCubes[0].camera.position.x = args.position.x;
-    otherCubes[0].camera.position.y = args.position.y;
-    otherCubes[0].camera.position.z = args.position.z;
-    otherCubes[0].camera.rotation.x = args.rotation.x;
-    otherCubes[0].camera.rotation.y = args.rotation.y;
-    otherCubes[0].camera.rotation.z = args.rotation.z;
-    otherCubes[0].camera.lookAt(0, 0, 0);
+function moveAnotherCamera(id, args) {
+    const otherCube = otherCubes.get(id);
+    otherCube.camera.position.x = args.position.x;
+    otherCube.camera.position.y = args.position.y;
+    otherCube.camera.position.z = args.position.z;
+    otherCube.camera.rotation.x = args.rotation.x;
+    otherCube.camera.rotation.y = args.rotation.y;
+    otherCube.camera.rotation.z = args.rotation.z;
+    otherCube.camera.lookAt(0, 0, 0);
 }
 
 export { drawAnotherCube, moveAnotherCube, moveAnotherCamera };
@@ -155,8 +161,8 @@ export { startTimer, stopTimer, isStarted };
 
 async function animate() {
 	cube.renderer.render(cube.scene,cube.camera);
-    for (const otherCube of otherCubes) {
-        otherCube.renderer.render(otherCube.scene, otherCube.camera);
+    for (let [_, cube] of otherCubes) {
+        cube.renderer.render(cube.scene, cube.camera);
     }
     TWEEN.update();
 

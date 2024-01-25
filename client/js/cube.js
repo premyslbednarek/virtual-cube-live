@@ -25,6 +25,7 @@ class Cube {
 
         console.log(`Created a ${layers}x${layers} cube`);
         this.resizeCanvas();
+        document.addEventListener("resize", () => { this.resizeCanvas(); }, false);
         this.draw();
         this.solved = true;
         this.needsSolvedCheck = false;

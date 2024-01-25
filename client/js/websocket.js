@@ -12,8 +12,9 @@ socket.on("message", function(data) {
 });
 
 socket.on("welcome", function(data) {
-    if (data.users > 0) {
-        drawAnotherCube();
+    console.log("Connected users:", data.usersIds)
+    for (var id of data.usersIds) {
+        drawAnotherCube(id);
     }
 });
 
@@ -21,18 +22,20 @@ socket.on("ack", function(data) {
     console.log("The server has gotten the message", data);
 });
 
-socket.on("connection", function(data) {
-    drawAnotherCube();
+socket.on("connection", function(id) {
+    drawAnotherCube(id);
 })
 
 socket.on("opponentMove", function(data) {
-    var args = JSON.parse(data);
-    moveAnotherCube(args);
+    var id = data[0];
+    var args = JSON.parse(data[1]);
+    moveAnotherCube(id, args);
 })
 
 socket.on("opponentCamera", function(data) {
-    var args = JSON.parse(data);
-    moveAnotherCamera(args);
+    var id = data[0];
+    var args = JSON.parse(data[1]);
+    moveAnotherCamera(id, args);
 })
 
 function sendMove(args) {

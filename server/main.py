@@ -39,23 +39,24 @@ async def print_ack(sid, message):
 
 @sio.on("move")
 async def distributeMove(sid, message):
-    await sio.emit("opponentMove", message, skip_sid=sid)
+    await sio.emit("opponentMove", [sidToName[sid], message], skip_sid=sid)
 
 @sio.on("camera")
 async def distributeCamera(sid, message):
-    await sio.emit("opponentCamera", message, skip_sid=sid)
+    await sio.emit("opponentCamera", [sidToName[sid], message], skip_sid=sid)
 
 @sio.event
 async def connect(sid, environ, auth):
     global i
     print('connect ', sid)
+    connected_users = list(sidToName.values())
     sidToName[sid] = i
     i += 1
     print("Sending welcoming message...")
     await sio.emit("message", f"Welcome to the server. Your session user id is {sidToName[sid]}", to=sid)
-    await sio.emit("welcome", {"users": len(sidToName) - 1}, to=sid)
+    await sio.emit("welcome", {"nUsers": len(sidToName) - 1, "usersIds": connected_users}, to=sid)
     await sio.emit("message", f"User with session id {sidToName[sid]} has connected.", skip_sid=sid)
-    await sio.emit("connection", "", skip_sid=sid)
+    await sio.emit("connection", sidToName[sid], skip_sid=sid)
     print("Welcoming message sent...")
 
 @sio.event

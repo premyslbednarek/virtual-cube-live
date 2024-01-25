@@ -196,7 +196,12 @@ async function animate() {
 animate();
 
 // resize the canvas when the windows size changes
-window.addEventListener('resize', () => { cube.resizeCanvas(); }, false);
+window.addEventListener('resize', () => {
+    cube.resizeCanvas();
+    for (let [_, otherCube] of otherCubes) {
+        otherCube.resizeCanvas();
+    }
+}, false);
 
 document.addEventListener("keydown", event => {
     let args = cube.keyMap.get(event.key);

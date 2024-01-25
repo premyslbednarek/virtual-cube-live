@@ -74,7 +74,6 @@ class Cube {
         }
         console.log("Cube solved!");
         this.solved = true;
-        stopTimer();
         return true;
     }
 
@@ -158,7 +157,6 @@ class Cube {
 
     rotateGroupGen(low, high, axis, mult) {
         const scene = this.scene;
-        if (!isStarted()) { startTimer()};
         
         // console.log("rotation started", low, high, axis, mult);
         if (this.tween && this.tween.isPlaying()) {
@@ -205,6 +203,16 @@ class MovableCube extends Cube {
         this.controls.maxPolarAngle = degToRad(120);
         this.controls.update();
         this.generateKeymap();
+    }
+
+    isSolved() {
+        super.isSolved();
+        if (this.solved) stopTimer();
+    }
+
+    rotateGroupGen(...args) {
+        if (!isStarted()) { startTimer()};
+        super.rotateGroupGen(...args);
     }
 
     generateKeymap() {  

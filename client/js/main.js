@@ -138,8 +138,11 @@ class Timer {
     }
     stop() {
         const timeElapsed = performance.now() - this.startTime;
-        console.log(Math.floor(timeElapsed / 1000) + "s");
+        const timeString = Math.floor(timeElapsed / 1000) + "s";
+        console.log(timeString);
         this.startTime = undefined;
+        const timeListElement = document.getElementById("times");
+        timeListElement.innerHTML += `<br> ${timeString}`;
     }
 }
 

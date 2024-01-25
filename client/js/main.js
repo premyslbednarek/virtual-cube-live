@@ -49,6 +49,9 @@ function removeCube(id) {
 
 export { drawAnotherCube, moveAnotherCube, moveAnotherCamera, removeCube };
 
+const resetButton = document.getElementById("reset");
+resetButton.addEventListener("click", () => { cube.draw(); }, false);
+
 function uperm() {
     performMacro("ifijijifkfkk");
 }

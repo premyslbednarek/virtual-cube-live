@@ -1,4 +1,5 @@
 import * as THREE from './three.module.js'
+import { Vector3 } from './three.module.js';
 import { OrbitControls } from './OrbitControls.js';
 import { sendMove } from './websocket.js';
 import { Tween, Easing } from './tween.module.js';
@@ -73,7 +74,7 @@ class Cube {
                 colorToFace.set(color, face);
             }
         }
-        console.log("Cube solved!");
+        // console.log("Cube solved!");
         this.solved = true;
         return true;
     }
@@ -86,7 +87,7 @@ class Cube {
     changeLayers(newLayers) {
         this.layers = parseInt(newLayers);
         this.draw();
-        this.generateKeymap();
+        // this.generateKeymap();
     }
 
     getClickedAxis(pos) {
@@ -320,7 +321,7 @@ class MovableCube extends Cube {
             var v2_neg = v2.clone().multiplyScalar(-1);
             // drawLine(pointA, pointA.clone().add(v1_neg));
             // drawLine(pointA, pointA.clone().add(v2_neg));
-            this.axisMovements = {clickedAxis: clickedAxis, clickedPosition: intersects[0].point, stickerPosition: pos, vectors: [v1, v2, v1_neg, v2_neg] };
+            this.axisMovements = {clickedAxis: clickedAxis, clickedPosition: intersects[0].point, sticker: intersects[0].object, stickerPosition: pos, vectors: [v1, v2, v1_neg, v2_neg] };
 
             // if (Math.abs(1.501 - pointA.x) > 0.1) {
             //     var pointB = pointA.clone().add(new THREE.Vector3(1, 0, 0))
@@ -394,9 +395,88 @@ class MovableCube extends Cube {
             }
         }
         var bestVector = this.axisMovements.vectors[lowestAngleIndex];
-        console.log("Lowest angle is: ", lowestAngle*57, "to vector", axisMovements.vectors[lowestAngleIndex]);
-        console.log(this.axisMovements.clickedAxis)
+        // console.log("Lowest angle is: ", lowestAngle*57, "to vector", axisMovements.vectors[lowestAngleIndex]);
+        // console.log(this.axisMovements.clickedAxis)
         var sign = axisMovements.stickerPosition[axisMovements.clickedAxis] / Math.abs(axisMovements.stickerPosition[axisMovements.clickedAxis]);
+
+        // TRIPLE PRODUCT TESTING
+        var otherAxes = [];
+        if (axisMovements.clickedAxis != "x") otherAxes.push("x");
+        if (axisMovements.clickedAxis != "y") otherAxes.push("y");
+        if (axisMovements.clickedAxis != "z") otherAxes.push("z");
+
+        if (Math.abs(bestVector[otherAxes[1]]) == 1) {
+            var temp = otherAxes[1];
+            otherAxes[1] = otherAxes[0];
+            otherAxes[0] = temp;
+        }
+        // console.log("Vyhral vektor", bestVector);
+        var clickedAxis = axisMovements.clickedAxis;
+        var rotateAxis = otherAxes[1];
+        var rotateLayer = otherAxes[0];
+
+        const clickedPosition = axisMovements.clickedPosition;
+        let axisOfRotation = new THREE.Vector3(0, 0, 0);
+        switch (rotateAxis) {
+            case "x": axisOfRotation.x = 1; break;
+            case "y": axisOfRotation.y = 1; break;
+            case "z": axisOfRotation.z = 1; break;
+            // default: console.log("Not found");
+        }
+        // console.log("Rotating around:", axisOfRotation);
+
+        const faceToRotationAxis = new Map();
+        faceToRotationAxis.set("R", new Vector3(1, 0, 0));
+        faceToRotationAxis.set("L", new Vector3(-1, 0, 0));
+        faceToRotationAxis.set("U", new Vector3(0, 1, 0));
+        faceToRotationAxis.set("D", new Vector3(0, -1, 0));
+        faceToRotationAxis.set("F", new Vector3(0, 0, 1));
+        faceToRotationAxis.set("B", new Vector3(0, 0, -1));
+        faceToRotationAxis.set("M", new Vector3(-1, 0, 0)); // middle, rotation as L
+        faceToRotationAxis.set("E", new Vector3(0, -1, 0)); // equator, rotation as D
+        faceToRotationAxis.set("S", new Vector3(0, 0, 1)); // standing, rotation as F
+        const coordToFace = new Map();
+        coordToFace.set("x1", "R");
+        coordToFace.set("x-1", "L");
+        coordToFace.set("x0", "M");
+        coordToFace.set("y1", "U");
+        coordToFace.set("y0", "E");
+        coordToFace.set("y-1", "D");
+        coordToFace.set("z1", "F");
+        coordToFace.set("z0", "S");
+        coordToFace.set("z-1", "B");
+        const rotatingAroundCoord = Math.round(axisMovements.sticker.position[rotateAxis]);
+        const coord = rotateAxis + rotatingAroundCoord;
+
+        let rotatedFace = coordToFace.get(coord);
+        const axis = faceToRotationAxis.get(rotatedFace);
+
+        const matrix = new THREE.Matrix3;
+        matrix.set(
+            axis.x,  axis.y,  axis.z,
+            clickedPosition.x, clickedPosition.y, clickedPosition.z,
+            bestVector.x,      bestVector.y,      bestVector.z
+        )
+        // console.log(matrix);
+        const determinant = matrix.determinant();
+        // console.log("Determinant:", determinant);
+
+        if (determinant > 0) rotatedFace = rotatedFace + "'";
+        console.log(rotatedFace);
+
+
+
+        // const stickerFace = this.getStickerFace(axisMovements.sticker);
+        // switch (stickerFace) {
+        //     case "R": axisOfRotation.x = 1; break;
+        //     case "L": axisOfRotation.x = -1; break;
+        //     case "U": axisOfRotation.y = 1; break;
+        //     case "D": axisOfRotation.y = -1; break;
+        //     case "F": axisOfRotation.z = 1; break;
+        //     case "B": axisOfRotation.z = -1; break;
+        //     default: console.log("ERROR: Axis of rotation was not found.");
+        // }
+
         // var otherAxes = [];
         // if (axisMovements.clickedAxis != "x") otherAxes.push("x");
         // if (axisMovements.clickedAxis != "y") otherAxes.push("y");

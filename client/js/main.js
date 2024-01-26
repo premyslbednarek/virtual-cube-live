@@ -3,6 +3,7 @@ import * as THREE from './three.module.js';
 import { Cube, MovableCube } from './cube.js';
 import { sendMove, sendCamera } from './websocket.js';
 import * as TWEEN from './tween.module.js';
+import keybinds from './keybindings.js';
 
 let cube = new MovableCube(3, document.getElementById("mainCanvas"));
 
@@ -204,11 +205,10 @@ window.addEventListener('resize', () => {
 }, false);
 
 document.addEventListener("keydown", event => {
-    let args = cube.keyMap.get(event.key);
+    let move = keybinds.get(event.key);
     // expand array of parameters with ...args
-    if (args) {
-        sendMove(args);
-        cube.rotateGroupGen(...args);
+    if (move) {
+        cube.makeMove(move);
     }
 });
 

@@ -156,6 +156,38 @@ class Cube {
         }
     }
 
+    makeMove(move) {  
+        const lowerBound = (this.layers / 2) - 1;
+        const keyMap = this.keyMap;
+        keyMap.clear(); // remove all key-value pairs
+
+        keyMap.set("U", [lowerBound, 20, "y", -1]); // U
+        keyMap.set("Uw", [lowerBound-1, 20, "y", -1]); // Uw = U wide - two upper layers
+        keyMap.set("U'", [lowerBound, 20, "y", 1]);  // U'
+        keyMap.set("Uw'", [lowerBound-1, 20, "y", 1]);  // Uw'
+        keyMap.set("R", [lowerBound, 20, "x", -1]); // R
+        keyMap.set("Rw", [lowerBound-1, 20, "x", -1]); // Rw
+        keyMap.set("R'", [lowerBound, 20, "x", 1]);  // R'
+        keyMap.set("Rw'", [lowerBound-1, 20, "x", 1]);  // Rw'
+        keyMap.set("x'", [-20, 20, "x", 1]); // x'
+        keyMap.set("x'", [-20, 20, "x", 1]); // x'
+        keyMap.set("x", [-20, 20, "x", -1]); // x
+        keyMap.set("x", [-20, 20, "x", -1]); // x
+        keyMap.set("L", [-20, -lowerBound, "x", 1]); // L
+        keyMap.set("Lw", [-20, -lowerBound+1, "x", 1]); // Lw
+        keyMap.set("L'", [-20, -lowerBound, "x", -1]);  // L'
+        keyMap.set("Lw'", [-20, -lowerBound+1, "x", -1]);  // Lw'
+        keyMap.set("F", [lowerBound, 20, "z", 1]); // F
+        keyMap.set("F'", [lowerBound, 20, "z", -1]);  // F'
+        keyMap.set("D'", [-20, -lowerBound, "y", -1]); // D'
+        keyMap.set("D", [-20, -lowerBound, "y", 1]);  // D
+        keyMap.set("y", [-20, 20, "y", -1]); // y
+        keyMap.set("y'", [-20, 20, "y", 1]); // y'
+        const args = keyMap.get(move);
+        sendMove(args);
+        this.rotateGroupGen(...args);
+    }
+
     rotateGroupGen(low, high, axis, mult) {
         const scene = this.scene;
         
@@ -203,7 +235,6 @@ class MovableCube extends Cube {
         this.controls.minPolarAngle = degToRad(60);
         this.controls.maxPolarAngle = degToRad(120);
         this.controls.update();
-        this.generateKeymap();
     }
 
     isSolved() {
@@ -215,36 +246,6 @@ class MovableCube extends Cube {
         if (!isStarted()) { startTimer()};
         super.rotateGroupGen(...args);
     }
-
-    generateKeymap() {  
-        const lowerBound = (this.layers / 2) - 1;
-        const keyMap = this.keyMap;
-        keyMap.clear(); // remove all key-value pairs
-
-        keyMap.set("j", [lowerBound, 20, "y", -1]); // U
-        keyMap.set(",", [lowerBound-1, 20, "y", -1]); // Uw = U wide - two upper layers
-        keyMap.set("f", [lowerBound, 20, "y", 1]);  // U'
-        keyMap.set("c", [lowerBound-1, 20, "y", 1]);  // Uw'
-        keyMap.set("i", [lowerBound, 20, "x", -1]); // R
-        keyMap.set("u", [lowerBound-1, 20, "x", -1]); // Rw
-        keyMap.set("k", [lowerBound, 20, "x", 1]);  // R'
-        keyMap.set("m", [lowerBound-1, 20, "x", 1]);  // Rw'
-        keyMap.set("b", [-20, 20, "x", 1]); // x'
-        keyMap.set("n", [-20, 20, "x", 1]); // x'
-        keyMap.set("t", [-20, 20, "x", -1]); // x
-        keyMap.set("y", [-20, 20, "x", -1]); // x
-        keyMap.set("d", [-20, -lowerBound, "x", 1]); // L
-        keyMap.set("v", [-20, -lowerBound+1, "x", 1]); // Lw
-        keyMap.set("e", [-20, -lowerBound, "x", -1]);  // L'
-        keyMap.set("v", [-20, -lowerBound+1, "x", -1]);  // Lw'
-        keyMap.set("g", [lowerBound, 20, "z", 1]); // F
-        keyMap.set("h", [lowerBound, 20, "z", -1]);  // F'
-        keyMap.set("l", [-20, -lowerBound, "y", -1]); // D'
-        keyMap.set("s", [-20, -lowerBound, "y", 1]);  // D
-        keyMap.set(";", [-20, 20, "y", -1]); // y
-        keyMap.set("a", [-20, 20, "y", 1]); // y'
-    }
-
 
     mouseDown(event) {
         this.pointer = new THREE.Vector2();

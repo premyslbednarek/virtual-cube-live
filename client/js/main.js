@@ -97,15 +97,16 @@ slider.oninput = function() {
     cube.changeLayers(newLayers);
 }
 
-function drawLine(pointA, pointB) {
+function drawLine(start, end, scene) {
     var material = new THREE.LineBasicMaterial( { color: 0x0000ff, linewidth: 5 } );
     const points = [];
-    points.push(pointA);
-    points.push(pointB);
+    points.push(start);
+    points.push(end);
     const geometry = new THREE.BufferGeometry().setFromPoints( points );
     var line = new THREE.Line( geometry, material );
     scene.add( line )
 }
+export { drawLine }
 
 // raycasting for determining, what was clicked
 // https://threejs.org/docs/index.html?q=ray#api/en/core/Raycaster
@@ -220,3 +221,5 @@ const button = document.getElementById('speedToggle');
 button.addEventListener('click', speedModeToggle);
 
 window.isSolved = () => { return cube.isSolved(); };
+
+window.cube = cube;

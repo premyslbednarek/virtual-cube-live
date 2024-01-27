@@ -4,6 +4,15 @@ import { OrbitControls } from './OrbitControls.js';
 import { sendMove } from './websocket.js';
 import { Tween, Easing } from './tween.module.js';
 import { startTimer, stopTimer, isStarted } from './main.js';
+import { getOrtogonalVectors, getScreenCoordinates } from './utils.js';
+import { drawLine } from './main.js';
+
+const xAxis = ["x", new THREE.Vector3(1, 0, 0)];
+const yAxis = ["y", new THREE.Vector3(0, 1, 0)];
+const zAxis = ["z", new THREE.Vector3(0, 0, 1)];
+const xTurning = 0.25;
+const yTurning = -0.25;
+const zTurning = -0.25;
 
 class Cube {
     constructor(layers, canvas) {
@@ -30,6 +39,33 @@ class Cube {
         this.draw();
         this.solved = true;
         this.needsSolvedCheck = false;
+        this.faceName = {
+            x: {
+                "-1": "L",
+                "0": "M",
+                "1": "R"
+            },
+            y: {
+                "-1": "D",
+                "0": "E",
+                "1": "U"
+            },
+            z: {
+                "-1": "B",
+                "0": "S",
+                "1": "F"
+            }
+        }
+        this.faceToRotationAxis = new Map();
+        this.faceToRotationAxis.set("R", new Vector3(1, 0, 0));
+        this.faceToRotationAxis.set("L", new Vector3(-1, 0, 0));
+        this.faceToRotationAxis.set("U", new Vector3(0, 1, 0));
+        this.faceToRotationAxis.set("D", new Vector3(0, -1, 0));
+        this.faceToRotationAxis.set("F", new Vector3(0, 0, 1));
+        this.faceToRotationAxis.set("B", new Vector3(0, 0, -1));
+        this.faceToRotationAxis.set("M", new Vector3(-1, 0, 0)); // middle, rotation as L
+        this.faceToRotationAxis.set("E", new Vector3(0, -1, 0)); // equator, rotation as D
+        this.faceToRotationAxis.set("S", new Vector3(0, 0, 1)); // standing, rotation as F
     }
 
     resizeCanvas() {
@@ -175,15 +211,23 @@ class Cube {
         keyMap.set("x", [-20, 20, "x", -1]); // x
         keyMap.set("x", [-20, 20, "x", -1]); // x
         keyMap.set("L", [-20, -lowerBound, "x", 1]); // L
+        keyMap.set("M", [-0.5, 0.5, "x", 1]); // L
+        keyMap.set("M'", [-0.5, 0.5, "x", -1]); // L
         keyMap.set("Lw", [-20, -lowerBound+1, "x", 1]); // Lw
         keyMap.set("L'", [-20, -lowerBound, "x", -1]);  // L'
         keyMap.set("Lw'", [-20, -lowerBound+1, "x", -1]);  // Lw'
-        keyMap.set("F", [lowerBound, 20, "z", 1]); // F
-        keyMap.set("F'", [lowerBound, 20, "z", -1]);  // F'
+        keyMap.set("F", [lowerBound, 20, "z", -1]); // F
+        keyMap.set("S", [-0.5, 0.5, "z", -1]); // D'
+        keyMap.set("F'", [lowerBound, 20, "z", 1]);  // F'
+        keyMap.set("S'", [-0.5, 0.5, "z", 1]);  // F'
         keyMap.set("D'", [-20, -lowerBound, "y", -1]); // D'
+        keyMap.set("E'", [-0.5, 0.5, "y", -1]); // D'
         keyMap.set("D", [-20, -lowerBound, "y", 1]);  // D
+        keyMap.set("E", [-0.5, 0.5, "y", 1]);  // D
         keyMap.set("y", [-20, 20, "y", -1]); // y
         keyMap.set("y'", [-20, 20, "y", 1]); // y'
+        keyMap.set("B", [-20, -lowerBound, "z", 1]); // B
+        keyMap.set("B'", [-20, -lowerBound, "z", -1]); // B'
         const args = keyMap.get(move);
         sendMove(args);
         this.rotateGroupGen(...args);
@@ -249,311 +293,123 @@ class MovableCube extends Cube {
     }
 
     mouseDown(event) {
-        this.pointer = new THREE.Vector2();
-        this.mouseDownPointer;
-        this.axisMovements = [];
-
-        this.cleanGroup();
-        this.axisMovements = undefined;
-        // console.log("Mouse down coordinates:", event.clientX, event.clientY);
-        // calculate pointer position in normalized device coordinates
-        // (-1 to +1) for both components
-        this.pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-        this.pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-        this.mouseDownPointer = event;
-
+        // calculate pointer position in NDC - normalized device coordinates
+        // in NDC, bottom left corner is [-1, -1], top right is [1, 1]
+        const pointer = new THREE.Vector2(
+            (event.clientX / window.innerWidth) * 2 - 1,
+            - (event.clientY / window.innerHeight) * 2 + 1
+        )
+        
+        // find stickers under the pointer
+        // note that it is possible to click stickers, that cannot be directly 
+        // seen from our point of view (e.g. stickers on the back face)
         const raycaster = new THREE.Raycaster();
-        raycaster.params.Line.threshold = 0; // never intersect with a line (lines are for development visualization purposes)
-        // update the picking ray with the camera and pointer position
-        raycaster.setFromCamera(this.pointer, this.camera );
+        raycaster.setFromCamera(pointer, this.camera);
+        const intersectedStickers = raycaster.intersectObjects(this.stickers);
 
-        // calculate objects intersecting the picking ray
-        const intersects = raycaster.intersectObjects(this.scene.children );
-        // console.log("Number of objects intersected:", intersects.length);
+        if (intersectedStickers.length == 0) {
+            this.mouseDownObject = undefined;
+            return;
+        }
 
-        if (intersects.length && intersects[0].object.isSticker) {
-            this.controls.enabled = false; // disable rotating camera
-            var pos = intersects[0].object.position;
-            // console.log("clicked stijijiijijcker position", pos.x, pos.y, pos.z)
-            var clickedAxis = this.getClickedAxis(pos);
-            var otherAxes = [];
-            if (clickedAxis != "x") otherAxes.push("x");
-            if (clickedAxis != "y") otherAxes.push("y");
-            if (clickedAxis != "z") otherAxes.push("z");
-            window.pos = pos;
-            var sign = pos[clickedAxis] / Math.abs(pos[clickedAxis]);
-            // console.log(clickedAxis, sign);
-            var pointA = intersects[0].point;
-            var v1 = new THREE.Vector3(0, 0, 0);
-            var v2 = new THREE.Vector3(0, 0, 0);
-            v1[otherAxes[0]] = 1;
-            v2[otherAxes[1]] = 1;
-            // code below refactored out
-            // if (clickedAxis == "x") {
-            //     if (sign > 0) {
-            //         v1.z = 1;
-            //         v2.y = -1;
-            //     } else {
-            //         v1.z = -1;
-            //         v2.y = 1;
-            //     }
-            // } else if (clickedAxis == "y") {
-            //     if (sign > 0) {
-            //         v1.z = -1;
-            //         v2.x = 1;
-            //     } else {
-            //         v1.z = 1;
-            //         v2.x = -1;
-            //     }
-            // } else {
-            //     if (sign > 0) {
-            //         v1.y = 1;
-            //         v2.x = -1;
-            //     } else {
-            //         v1.y = -1;
-            //         v2.x = 1;
-            //     }
-            // }
-            // console.log(v1, v2);
-            // drawLine(pointA, pointA.clone().add(v1));
-            // drawLine(pointA, pointA.clone().add(v2));
-            var v1_neg = v1.clone().multiplyScalar(-1);
-            var v2_neg = v2.clone().multiplyScalar(-1);
-            // drawLine(pointA, pointA.clone().add(v1_neg));
-            // drawLine(pointA, pointA.clone().add(v2_neg));
-            this.axisMovements = {clickedAxis: clickedAxis, clickedPosition: intersects[0].point, sticker: intersects[0].object, stickerPosition: pos, vectors: [v1, v2, v1_neg, v2_neg] };
+        // a sticker was clicked - the user wants to make a move
+        // disable camera rotation, so the desired mouse movement does not move the camera
+        this.controls.enabled = false;
 
-            // if (Math.abs(1.501 - pointA.x) > 0.1) {
-            //     var pointB = pointA.clone().add(new THREE.Vector3(1, 0, 0))
-            //     pointB.multiplyScalar(sign);
-            //     drawLine(pointA, pointB);
-            //     axisMovements.push(["x", pointA, pointB]);
-            // }
-            // if (Math.abs(1.501 - pointA.y) > 0.1) {
-            //     var pointB = pointA.clone().add(new THREE.Vector3(0, 1, 0))
-            //     pointB.multiplyScalar(sign);
-            //     drawLine(pointA, pointB);
-            //     axisMovements.push(["y", pointA, pointB]);
-            // }
-            // if (Math.abs(1.501 - pointA.z) > 0.1) {
-            //     var pointB = pointA.clone().add(new THREE.Vector3(0, 0, 1));
-            //     pointB.multiplyScalar(sign);
-            //     drawLine(pointA, pointB);
-            //     axisMovements.push(["z", pointA, pointB]);
-            // }
-            // console.log("First intersected object", intersects[0]);
-            // intersects[0].object.material.color.set( 0xff0000 );
+        const clickedSticker = intersectedStickers[0].object;
+        const clickedCoordinates = intersectedStickers[0].point;
+
+        this.mouseDownObject = {
+            clientX: event.clientX,
+            clientY: event.clientY,
+            sticker: clickedSticker,
+            clickedPoint: clickedCoordinates
         }
     }
 
     mouseUp(event) {
-        // enable controls, that were disable on mouse down
-        this.controls.enabled = true;
-        // no sticker was clicked
-        if (this.axisMovements == undefined) return;
-        const axisMovements = this.axisMovements;
-
-        var x = event.clientX;
-        var y = event.clientY;
-        // var x = ( event.clientX / window.innerWidth ) * 2 - 1;
-        // var y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-        var movementVector = new THREE.Vector3(x - this.mouseDownPointer.clientX, y - this.mouseDownPointer.clientY, 0);
-
-        if (movementVector.length() < 10) {
-            this.controls.enabled = true;
-            this.axisMovements = [];
+        // check whether a sticker was clicked on mouseDown event handler
+        if (this.mouseDownObject == undefined) {
             return;
         }
 
-        // console.log("Mouse vector", movementVector);
-        var angles = []
-        for (var vector of this.axisMovements.vectors) {
-            var vectorS = this.axisMovements.clickedPosition.clone();
-            vectorS.project(this.camera);
-            vectorS.x = ( vectorS.x + 1) * window.innerWidth / 2;
-            vectorS.y = - ( vectorS.y - 1) * window.innerHeight / 2;
-            vectorS.z = 0;
-            // console.log("S", vectorS);
-            var vectorE = this.axisMovements.clickedPosition.clone().add(vector);
-            vectorE.project(this.camera);
-            vectorE.x = ( vectorE.x + 1) * window.innerWidth / 2;
-            vectorE.y = - ( vectorE.y - 1) * window.innerHeight / 2;
-            vectorE.z = 0;
-            vectorE.sub(vectorS)
+        this.controls.enabled = true;
 
-            var angle = movementVector.angleTo(vectorE);
-            // console.log(`Vektor`, angle*57, vectorE);
-            angles.push(angle);
-        }
-
-        var lowestAngleIndex = 0;
-        var lowestAngle = angles[0];
-        for (var i = 1; i < angles.length; ++i) {
-            if (angles[i] < lowestAngle) {
-                lowestAngle = angles[i];
-                lowestAngleIndex = i;
-            }
-        }
-        var bestVector = this.axisMovements.vectors[lowestAngleIndex];
-        // console.log("Lowest angle is: ", lowestAngle*57, "to vector", axisMovements.vectors[lowestAngleIndex]);
-        // console.log(this.axisMovements.clickedAxis)
-        var sign = axisMovements.stickerPosition[axisMovements.clickedAxis] / Math.abs(axisMovements.stickerPosition[axisMovements.clickedAxis]);
-
-        // TRIPLE PRODUCT TESTING
-        var otherAxes = [];
-        if (axisMovements.clickedAxis != "x") otherAxes.push("x");
-        if (axisMovements.clickedAxis != "y") otherAxes.push("y");
-        if (axisMovements.clickedAxis != "z") otherAxes.push("z");
-
-        if (Math.abs(bestVector[otherAxes[1]]) == 1) {
-            var temp = otherAxes[1];
-            otherAxes[1] = otherAxes[0];
-            otherAxes[0] = temp;
-        }
-        // console.log("Vyhral vektor", bestVector);
-        var clickedAxis = axisMovements.clickedAxis;
-        var rotateAxis = otherAxes[1];
-        var rotateLayer = otherAxes[0];
-
-        const clickedPosition = axisMovements.clickedPosition;
-        let axisOfRotation = new THREE.Vector3(0, 0, 0);
-        switch (rotateAxis) {
-            case "x": axisOfRotation.x = 1; break;
-            case "y": axisOfRotation.y = 1; break;
-            case "z": axisOfRotation.z = 1; break;
-            // default: console.log("Not found");
-        }
-        // console.log("Rotating around:", axisOfRotation);
-
-        const faceToRotationAxis = new Map();
-        faceToRotationAxis.set("R", new Vector3(1, 0, 0));
-        faceToRotationAxis.set("L", new Vector3(-1, 0, 0));
-        faceToRotationAxis.set("U", new Vector3(0, 1, 0));
-        faceToRotationAxis.set("D", new Vector3(0, -1, 0));
-        faceToRotationAxis.set("F", new Vector3(0, 0, 1));
-        faceToRotationAxis.set("B", new Vector3(0, 0, -1));
-        faceToRotationAxis.set("M", new Vector3(-1, 0, 0)); // middle, rotation as L
-        faceToRotationAxis.set("E", new Vector3(0, -1, 0)); // equator, rotation as D
-        faceToRotationAxis.set("S", new Vector3(0, 0, 1)); // standing, rotation as F
-        const coordToFace = new Map();
-        coordToFace.set("x1", "R");
-        coordToFace.set("x-1", "L");
-        coordToFace.set("x0", "M");
-        coordToFace.set("y1", "U");
-        coordToFace.set("y0", "E");
-        coordToFace.set("y-1", "D");
-        coordToFace.set("z1", "F");
-        coordToFace.set("z0", "S");
-        coordToFace.set("z-1", "B");
-        const rotatingAroundCoord = Math.round(axisMovements.sticker.position[rotateAxis]);
-        const coord = rotateAxis + rotatingAroundCoord;
-
-        let rotatedFace = coordToFace.get(coord);
-        const axis = faceToRotationAxis.get(rotatedFace);
-
-        const matrix = new THREE.Matrix3;
-        matrix.set(
-            axis.x,  axis.y,  axis.z,
-            clickedPosition.x, clickedPosition.y, clickedPosition.z,
-            bestVector.x,      bestVector.y,      bestVector.z
+        // direction of the cursor movement
+        const mouseMovementVector = new THREE.Vector2(
+            event.clientX - this.mouseDownObject.clientX,
+            event.clientY - this.mouseDownObject.clientY
         )
-        // console.log(matrix);
+        
+        if (mouseMovementVector.length() <= 3) {
+            // the mouse movement was very short - possibly just a click
+            return;
+        }
+        const clickedPosition = this.mouseDownObject.clickedPoint;
+
+        // calculate normal vector to the clicked sticker plane
+        const stickerNormal = new THREE.Vector3();
+        this.mouseDownObject.sticker.getWorldDirection(stickerNormal);
+        stickerNormal.round();
+        // visualize the normal
+        // drawLine(this.mouseDownObject.clickedPoint, stickerNormal.clone().add(this.mouseDownObject.clickedPoint), this.scene);
+
+        const orthogonalVectors = getOrtogonalVectors(stickerNormal);
+        // visualize the orthogonal vectors
+        const startPoint = this.mouseDownObject.clickedPoint;
+        const endPoints = orthogonalVectors.map((vector) => vector.clone().add(startPoint));
+        // endPoints.forEach((endPoint) => drawLine(startPoint, endPoint, this.scene));
+
+        const startPointScreen = getScreenCoordinates(startPoint, this.camera);
+        const endPointsScreen = endPoints.map((point) => getScreenCoordinates(point, this.camera));
+        const screenDirs = endPointsScreen.map((end) => end.sub(startPointScreen));
+
+        // calculate angle to mouseMovenmentVector
+        const angles = screenDirs.map((dir) => dir.angleTo(mouseMovementVector)*180/Math.PI);
+
+        // choose the vector closest to mouseMovementVector
+        let lowest = 0;
+        for (let j = 1; j < 4; ++j) {
+            if (angles[j] < angles[lowest]) {
+                lowest = j;
+            }
+        }
+        const move_dir = orthogonalVectors[lowest];
+
+        // get rotation axis
+        let rotateAround;
+        let rotateAroundLabel;
+        for (let [label, axis] of [xAxis, yAxis, zAxis]) {
+            if (axis.dot(move_dir) == 0 && axis.dot(stickerNormal) == 0) {
+                rotateAround = axis;
+                rotateAroundLabel = label;
+                break;
+            }
+        }
+        const axisCoord = Math.round(this.mouseDownObject.sticker.position[rotateAroundLabel]);
+
+        // rotated layer in standard notation
+        const rotatedName = this.faceName[rotateAroundLabel][axisCoord];
+
+        // get axis, around which the pieces will rotate
+        const rotationAxis = this.faceToRotationAxis.get(rotatedName);
+
+        // triple product calculation
+        // does the vector rotate around the axis in a clockwise or anticlockwise direction?
+        // positive determinant - anticlockwise
+        // negative determinant - clockwise
+        const matrix = new THREE.Matrix3();
+        matrix.set(
+            rotationAxis.x,  rotationAxis.y,  rotationAxis.z,
+            clickedPosition.x, clickedPosition.y, clickedPosition.z,
+            move_dir.x,      move_dir.y,      move_dir.z
+        )
         const determinant = matrix.determinant();
-        // console.log("Determinant:", determinant);
 
-        if (determinant > 0) rotatedFace = rotatedFace + "'";
-        console.log(rotatedFace);
-
-
-
-        // const stickerFace = this.getStickerFace(axisMovements.sticker);
-        // switch (stickerFace) {
-        //     case "R": axisOfRotation.x = 1; break;
-        //     case "L": axisOfRotation.x = -1; break;
-        //     case "U": axisOfRotation.y = 1; break;
-        //     case "D": axisOfRotation.y = -1; break;
-        //     case "F": axisOfRotation.z = 1; break;
-        //     case "B": axisOfRotation.z = -1; break;
-        //     default: console.log("ERROR: Axis of rotation was not found.");
-        // }
-
-        // var otherAxes = [];
-        // if (axisMovements.clickedAxis != "x") otherAxes.push("x");
-        // if (axisMovements.clickedAxis != "y") otherAxes.push("y");
-        // if (axisMovements.clickedAxis != "z") otherAxes.push("z");
-
-        // if (Math.abs(bestVector[otherAxes[1]]) == 1) {
-        //     var temp = otherAxes[1];
-        //     otherAxes[1] = otherAxes[0];
-        //     otherAxes[0] = temp;
-        // }
-        // console.log("Vyhral vektor", bestVector);
-        // var clickedAxis = axisMovements.clickedAxis;
-        // var rotateAxis = otherAxes[1];
-        // var rotateLayer = otherAxes[0];
-        // var args = [];
-        // args.push(axisMovements.stickerPosition[rotateAxis] - 0.75);
-        // args.push(axisMovements.stickerPosition[rotateAxis] + 0.75);
-        // args.push(rotateAxis);
-        // // sign = bestVector[rotateLayer];
-        // console.log(sign)
-        // if (
-        //     (clickedAxis == "x" && rotateAxis == "y") ||
-        //     (clickedAxis == "y" && rotateAxis == "z") ||
-        //     (clickedAxis == "z" && rotateAxis == "x")
-        // ) {
-        //     sign = -sign;
-        // }
-        // args.push(sign);
-        var args;
-        if (axisMovements.clickedAxis == "x") {
-            if (bestVector.y != 0) {
-                args = [axisMovements.stickerPosition.z - 0.75,axisMovements.stickerPosition.z + 0.75,"z", sign*bestVector.y / Math.abs(bestVector.y)];
-            } else {
-                args = [axisMovements.stickerPosition.y - 0.75,axisMovements.stickerPosition.y + 0.75,"y", sign*-bestVector.z / Math.abs(bestVector.z)];
-            }
-        }
-        if (axisMovements.clickedAxis == "y") {
-            if (bestVector.x != 0) {
-                args = [axisMovements.stickerPosition.z - 0.75,axisMovements.stickerPosition.z + 0.75,"z", sign*-bestVector.x / Math.abs(bestVector.x)];
-            } else {
-                args = [axisMovements.stickerPosition.x - 0.75,axisMovements.stickerPosition.x + 0.75,"x", sign*bestVector.z / Math.abs(bestVector.z)];
-            }
-        }
-        if (axisMovements.clickedAxis == "z") {
-            if (bestVector.x != 0) {
-                args = [axisMovements.stickerPosition.y - 0.75,axisMovements.stickerPosition.y + 0.75, "y", sign*bestVector.x / Math.abs(bestVector.x)];
-            } else {
-                args = [axisMovements.stickerPosition.x - 0.75,axisMovements.stickerPosition.x + 0.75, "x", sign*-bestVector.y / Math.abs(bestVector.y)];
-            }
-        }
-        this.rotateGroupGen(...args);
-        sendMove(args);
-
-        // console.log("Angles", angles);
-        // onMouseDown was previously called
-        // var startPoint = new THREE.Vector3(
-        //     ( ( prevEvent.clientX - renderer.domElement.offsetLeft ) / renderer.domElement.width ) * 2 - 1,
-        //     - ( ( prevEvent.clientY - renderer.domElement.offsetTop ) / renderer.domElement.height ) * 2 + 1,
-        //     prevEvent.clientZ           
-        // );
-
-        // var endPoint = new THREE.Vector3(
-        //     ( ( event.clientX - renderer.domElement.offsetLeft ) / renderer.domElement.width ) * 2 - 1,
-        //     - ( ( event.clientY - renderer.domElement.offsetTop ) / renderer.domElement.height ) * 2 + 1,
-        //     event.clientZ           
-        // );
-        // console.log("Mouse up coordinates", event.clientX, event.clientY);
-        // console.log(startPoint, endPoint)
-        // // draw the vector (from click start point to click end point)
-        // var material = new THREE.LineBasicMaterial( { color: 0x0000ff } );
-        // const points = [];
-        // points.push(startPoint);
-        // points.push(endPoint)
-        // const geometry = new THREE.BufferGeometry().setFromPoints(points);
-        // var line = new THREE.Line( geometry, material );
-        // scene.add( line )
-        // controls.enabled = true;
+        let move = rotatedName;
+        // move was anticlockwise
+        if (determinant > 0) move = move + "'";
+        this.makeMove(move);
     }
 }
 

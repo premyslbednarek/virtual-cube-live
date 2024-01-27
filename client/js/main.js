@@ -56,16 +56,24 @@ resetButton.addEventListener("click", () => { cube.draw(); }, false);
 function uperm() {
     performMacro("ifijijifkfkk");
 }
-function rInt(max) {
+function randomInt(max) {
     return Math.floor(Math.random() * max);
 }
 function scramble() {
-    var moves = "asdfjkl;ghieb";
-    var s = ""
+    const moves = ["R", "R'", "L", "L'", "U", "U'", "D", "D'", "F", "F'", "B", "B'"];
+    const scramble = []
     for (var i = 0; i < 25; i++) {
-        s += moves[rInt(moves.length) + 1];
+        scramble.push(moves[randomInt(moves.length)]);
     }
-    performMacro(s);
+    // finish the scramble with some rotations
+    const rotations = ["y", "y'", "x", "x'"];
+    for (var i = 0; i < 4; i++) {
+        scramble.push(rotations[randomInt(rotations.length)]);
+    }
+
+    for (const move of scramble) {
+        cube.makeMove(move, true, true);
+    }
 }
 window.scramble = scramble;
 window.uperm = uperm;

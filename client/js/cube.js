@@ -193,7 +193,7 @@ class Cube {
         }
     }
 
-    makeMove(move, send=true) {  
+    makeMove(move, send=true, scramble=false) {  
         const lowerBound = (this.layers / 2) - 1;
         const keyMap = this.keyMap;
         keyMap.clear(); // remove all key-value pairs
@@ -289,9 +289,10 @@ class MovableCube extends Cube {
         if (this.solved) stopTimer();
     }
 
-    rotateGroupGen(...args) {
-        if (!isStarted()) { startTimer()};
-        super.rotateGroupGen(...args);
+    makeMove(move, send=true, scramble=false) {
+        if (!scramble && !isStarted()) { startTimer()};
+        super.makeMove(move, send);
+
     }
 
     mouseDown(event) {

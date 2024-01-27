@@ -50,9 +50,6 @@ function removeCube(id) {
 
 export { drawAnotherCube, moveAnotherCube, moveAnotherCamera, removeCube };
 
-const resetButton = document.getElementById("reset");
-resetButton.addEventListener("click", () => { cube.draw(); }, false);
-
 function uperm() {
     performMacro("ifijijifkfkk");
 }
@@ -163,13 +160,17 @@ class Timer {
             this.update();
         }, 1000);
     }
-    stop() {
+    stop(write=true) {
         const timeElapsed = performance.now() - this.startTime;
         const timeString = Math.floor(timeElapsed / 1000) + "s";
         console.log(timeString);
         this.startTime = undefined;
+        if (!write) return;
         const timeListElement = document.getElementById("times");
         timeListElement.innerHTML += `<br> ${timeString}`;
+    }
+    resetDom() {
+        this.innerHTML = "timer stopped";
     }
 }
 
@@ -231,3 +232,9 @@ button.addEventListener('click', speedModeToggle);
 window.isSolved = () => { return cube.isSolved(); };
 
 window.cube = cube;
+
+const resetButton = document.getElementById("reset");
+resetButton.addEventListener("click", () => { 
+    timer.stop(false);
+    cube.draw();
+}, false);

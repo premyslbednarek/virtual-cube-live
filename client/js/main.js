@@ -66,7 +66,7 @@ function scramble() {
         scramble.push(moves[randomInt(moves.length)]);
     }
     // finish the scramble with some rotations
-    const rotations = ["y", "y'", "x", "x'"];
+    const rotations = ["y", "y'", "x", "x'", "z", "z'"];
     for (var i = 0; i < 4; i++) {
         scramble.push(rotations[randomInt(rotations.length)]);
     }

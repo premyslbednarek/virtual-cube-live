@@ -226,6 +226,8 @@ class Cube {
         keyMap.set("E", [-0.5, 0.5, "y", 1]);  // D
         keyMap.set("y", [-20, 20, "y", -1]); // y
         keyMap.set("y'", [-20, 20, "y", 1]); // y'
+        keyMap.set("z", [-20, 20, "z", -1]); // y
+        keyMap.set("z'", [-20, 20, "z", 1]); // y'
         keyMap.set("B", [-20, -lowerBound, "z", 1]); // B
         keyMap.set("B'", [-20, -lowerBound, "z", -1]); // B'
         const args = keyMap.get(move);

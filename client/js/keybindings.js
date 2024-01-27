@@ -22,5 +22,7 @@ keybinds.set("l", "D'");
 keybinds.set("s", "D");
 keybinds.set(";", "y");
 keybinds.set("a", "y'");
+keybinds.set("p", "z");
+keybinds.set("q", "z'");
 
 export default keybinds;

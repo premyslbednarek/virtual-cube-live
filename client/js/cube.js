@@ -193,7 +193,7 @@ class Cube {
         }
     }
 
-    makeMove(move) {  
+    makeMove(move, send=true) {  
         const lowerBound = (this.layers / 2) - 1;
         const keyMap = this.keyMap;
         keyMap.clear(); // remove all key-value pairs
@@ -229,7 +229,9 @@ class Cube {
         keyMap.set("B", [-20, -lowerBound, "z", 1]); // B
         keyMap.set("B'", [-20, -lowerBound, "z", -1]); // B'
         const args = keyMap.get(move);
-        sendMove(args);
+        if (send) {
+            sendMove(move);
+        }
         this.rotateGroupGen(...args);
     }
 

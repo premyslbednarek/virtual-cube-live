@@ -33,8 +33,8 @@ socket.on("disconnection", function(id) {
 
 socket.on("opponentMove", function(data) {
     var id = data[0];
-    var args = JSON.parse(data[1]);
-    moveAnotherCube(id, args);
+    var move = data[1];
+    moveAnotherCube(id, move);
 })
 
 socket.on("opponentCamera", function(data) {
@@ -43,8 +43,8 @@ socket.on("opponentCamera", function(data) {
     moveAnotherCamera(id, args);
 })
 
-function sendMove(args) {
-    socket.emit("move", JSON.stringify(args));
+function sendMove(move) {
+    socket.emit("move", move);
 }
 
 function sendCamera(args) {

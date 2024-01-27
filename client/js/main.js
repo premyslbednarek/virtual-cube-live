@@ -24,9 +24,9 @@ function drawAnotherCube(id) {
     otherCubes.set(id, new Cube(3, canvas));
 }
 
-function moveAnotherCube(id, args) {
+function moveAnotherCube(id, move) {
     const otherCube = otherCubes.get(id);
-    otherCube.rotateGroupGen(...args);
+    otherCube.makeMove(move, false);
 }
 
 function moveAnotherCamera(id, args) {

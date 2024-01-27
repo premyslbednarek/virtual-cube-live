@@ -38,6 +38,7 @@ function moveAnotherCamera(id, args) {
     otherCube.camera.rotation.y = args.rotation.y;
     otherCube.camera.rotation.z = args.rotation.z;
     otherCube.camera.lookAt(0, 0, 0);
+    otherCube.render();
 }
 
 function removeCube(id) {
@@ -181,30 +182,41 @@ const stopTimer = () => { timer.stop(); };
 const isStarted = () => { return timer.startTime != undefined; }
 export { startTimer, stopTimer, isStarted };
 
-async function animate() {
-	cube.renderer.render(cube.scene,cube.camera);
-    for (let [_, cube] of otherCubes) {
-        cube.renderer.render(cube.scene, cube.camera);
-    }
+// async function animate() {
+// 	cube.renderer.render(cube.scene,cube.camera);
+//     for (let [_, cube] of otherCubes) {
+//         cube.renderer.render(cube.scene, cube.camera);
+//     }
+//     TWEEN.update();
+//     setTimeout(() => {
+//         requestAnimationFrame(animate);
+//     }, 1000 / fps);
+// }
+// animate();
+// export { animate };
+
+let renderRequested = false;
+function animateTweens() {
+    renderRequested = false;
     TWEEN.update();
-
-    setTimeout(() => {
-        requestAnimationFrame(animate);
-    }, 1000 / fps);
-
-    // uncomment the following line for smoother movements
-	// requestAnimationFrame( animate );
-    // comment this fro smoothness
-    // await new Promise(r => setTimeout(r, 1000));
-    // animate();
-
-    // cube.rotation.x += 0.01;
-    // cube.rotation.y += 0.01;
-
-    // required if controls.enableDamping or controls.autoRotate are set to true
-	// controls.update();
+    cube.render();
+    for (let [_, other] of otherCubes) {
+        other.render();
+    }
+    const all = TWEEN.getAll();
+    if (TWEEN.getAll().length) {
+        requestRenderIfNotRequested(animateTweens)
+    }
 }
-animate();
+
+function requestRenderIfNotRequested() {
+    if (!renderRequested) {
+        renderRequested = true;
+        requestAnimationFrame(animateTweens);
+    }
+}
+
+export { animateTweens, requestRenderIfNotRequested }
 
 // resize the canvas when the windows size changes
 window.addEventListener('resize', () => {

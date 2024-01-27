@@ -3,7 +3,8 @@ import { Vector3 } from './three.module.js';
 import { OrbitControls } from './OrbitControls.js';
 import { sendMove } from './websocket.js';
 import { Tween, Easing } from './tween.module.js';
-import { startTimer, stopTimer, isStarted } from './main.js';
+import * as TWEEN from './tween.module.js'
+import { startTimer, stopTimer, isStarted, requestRenderIfNotRequested } from './main.js';
 import { getOrtogonalVectors, getScreenCoordinates } from './utils.js';
 import { drawLine } from './main.js';
 
@@ -37,6 +38,7 @@ class Cube {
         this.resizeCanvas();
         document.addEventListener("resize", () => { this.resizeCanvas(); }, false);
         this.draw();
+        this.render();
         this.solved = true;
         this.needsSolvedCheck = false;
         this.faceName = {
@@ -73,6 +75,11 @@ class Cube {
         this.renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
         this.camera.aspect = canvas.clientWidth / canvas.clientHeight;
         this.camera.updateProjectionMatrix(); // must be called after changing camera's properties
+        this.render();
+    }
+
+    render() {
+        this.renderer.render(this.scene, this.camera);
     }
 
 
@@ -118,11 +125,13 @@ class Cube {
     toggleSpeedMode() {
         this.speedMode = !this.speedMode;
         this.draw();
+        this.render();
     }
 
     changeLayers(newLayers) {
         this.layers = parseInt(newLayers);
         this.draw();
+        this.render();
         // this.generateKeymap();
     }
 
@@ -266,6 +275,7 @@ class Cube {
                         .easing(Easing.Quadratic.Out)
                         .onComplete(() => { this.isSolved(); })
                         .start();
+        requestRenderIfNotRequested();
     }
 }
 
@@ -284,6 +294,7 @@ class MovableCube extends Cube {
         this.controls.minPolarAngle = degToRad(60);
         this.controls.maxPolarAngle = degToRad(120);
         this.controls.update();
+        this.controls.addEventListener('change', () => this.render());
     }
 
     isSolved() {

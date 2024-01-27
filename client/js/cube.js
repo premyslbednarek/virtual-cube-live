@@ -288,11 +288,12 @@ class MovableCube extends Cube {
 
     isSolved() {
         super.isSolved();
-        if (this.solved) stopTimer();
+        if (isStarted() && this.solved) stopTimer();
     }
 
     makeMove(move, send=true, scramble=false) {
-        if (!scramble && !isStarted()) { startTimer()};
+        const rotations = new Set(["y", "y'", "x", "x'", "z", "z'"]);
+        if (!scramble && !rotations.has(move) && !isStarted()) { startTimer()};
         super.makeMove(move, send);
 
     }

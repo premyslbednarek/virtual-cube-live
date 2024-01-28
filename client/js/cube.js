@@ -68,6 +68,58 @@ class Cube {
         this.faceToRotationAxis.set("M", new Vector3(-1, 0, 0)); // middle, rotation as L
         this.faceToRotationAxis.set("E", new Vector3(0, -1, 0)); // equator, rotation as D
         this.faceToRotationAxis.set("S", new Vector3(0, 0, 1)); // standing, rotation as F
+        this.genMoveToLayer();
+    }
+
+    genMoveToLayer() {
+        // moveToLayer[move in standard notation] = [layer's axis of rotation, layer index]
+        // layer indices are 0-indexed starting from the 'most negative' layer on given axis
+        // on standard 3x3 cube - L has index 0, M has index 1, R has index 2
+        const moveToLayer = new Map();
+        moveToLayer.set("L", ["x", 0]);
+        moveToLayer.set("D", ["y", 0]);
+        moveToLayer.set("B", ["z", 0]);
+        moveToLayer.set("R", ["x", this.layers - 1]);
+        moveToLayer.set("U", ["y", this.layers - 1]);
+        moveToLayer.set("F", ["z", this.layers - 1]);
+
+        let innerLayers = this.layers - 2;
+
+        // even-layered cubes do not have the middle layer (M/E/S)
+        if (this.layers % 2 == 1) {
+            const middleIndex = Math.floor((this.layers - 1) / 2);
+            --innerLayers;
+            moveToLayer.set("M", ["x", middleIndex]);
+            moveToLayer.set("E", ["y", middleIndex]);
+            moveToLayer.set("S", ["z", middleIndex]);
+        }
+
+        // generate mapping for layers such as 2R, 3R etc.
+        for (let i = 1; i <= innerLayers / 2; ++i) {
+            const prefix = i + 1 + "";
+            moveToLayer.set(prefix + "L", ["x", i]);
+            moveToLayer.set(prefix + "D", ["y", i]);
+            moveToLayer.set(prefix + "B", ["z", i]);
+            moveToLayer.set(prefix + "R", ["x", this.layers - i - 1]);
+            moveToLayer.set(prefix + "U", ["y", this.layers - i - 1]);
+            moveToLayer.set(prefix + "F", ["z", this.layers - i - 1]);
+        }
+
+        // create inverted mapping
+        // layerToMove[axis][layer index] = [move in standard notation]
+        const layerToMove = new Map();
+        layerToMove.set("x", new Map());
+        layerToMove.set("y", new Map());
+        layerToMove.set("z", new Map());
+        // Map.prototype.forEach callback swaps key and value
+        moveToLayer.forEach(function(value, key) {
+            const axis = value[0];
+            const index = value[1];
+            layerToMove.get(axis).set(index, key);
+        });
+
+        this.moveToLayer = moveToLayer;
+        this.layerToMove = layerToMove;
     }
 
     resizeCanvas() {
@@ -132,6 +184,7 @@ class Cube {
         this.layers = parseInt(newLayers);
         this.draw();
         this.render();
+        this.genMoveToLayer();
         // this.generateKeymap();
     }
 

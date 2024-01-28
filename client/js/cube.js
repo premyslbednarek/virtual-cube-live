@@ -83,7 +83,7 @@ class Cube {
         moveToLayer.set("U", ["y", this.layers - 1]);
         moveToLayer.set("F", ["z", this.layers - 1]);
 
-        // flipped layers - first n layers turn in other direction
+        // flipped layers - first n layers on given axis turn in other direction
         // flipped["x"] = 2 means that when we turn the first two layers on the x axis (L and M)
         // clockwise, they turn in the other direction that the other layers on that axis (R) 
         const flippedN = Math.floor(this.layers / 2);
@@ -127,6 +127,7 @@ class Cube {
         this.moveToLayer = moveToLayer;
         this.layerToMove = layerToMove;
         this.flipped = flipped;
+        this.firstLayerPosition = -(this.layers - 1) / 2;
     }
 
     resizeCanvas() {
@@ -463,13 +464,14 @@ class MovableCube extends Cube {
                 break;
             }
         }
-        const axisCoord = Math.round(this.mouseDownObject.sticker.position[rotateAroundLabel]);
+        const layerIndex = Math.round(-this.firstLayerPosition + this.mouseDownObject.sticker.position[rotateAroundLabel]);
 
         // rotated layer in standard notation
-        const rotatedName = this.faceName[rotateAroundLabel][axisCoord];
-
-        // get axis, around which the pieces will rotate
-        const rotationAxis = this.faceToRotationAxis.get(rotatedName);
+        const layerName = this.layerToMove.get(rotateAroundLabel).get(layerIndex);
+        let dir = 1;
+        if (layerIndex < this.flipped[rotateAroundLabel]) {
+            dir = -1;
+        };
 
         // triple product calculation
         // does the vector rotate around the axis in a clockwise or anticlockwise direction?
@@ -477,15 +479,16 @@ class MovableCube extends Cube {
         // negative determinant - clockwise
         const matrix = new THREE.Matrix3();
         matrix.set(
-            rotationAxis.x,  rotationAxis.y,  rotationAxis.z,
+            rotateAround.x,  rotateAround.y,  rotateAround.z,
             clickedPosition.x, clickedPosition.y, clickedPosition.z,
             move_dir.x,      move_dir.y,      move_dir.z
         )
         const determinant = matrix.determinant();
 
-        let move = rotatedName;
+        let move = layerName;
         // move was anticlockwise
-        if (determinant > 0) move = move + "'";
+        if (determinant > 0) dir *= -1;
+        if (dir == -1) move += "'";
         this.makeMove(move);
     }
 }

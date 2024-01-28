@@ -1,6 +1,6 @@
-import * as THREE from './three.module.js'
-import * as TWEEN from './tween.module.js'
-import { OrbitControls } from './OrbitControls.js';
+import * as THREE from './libs/three.module.js'
+import * as TWEEN from './libs/tween.module.js'
+import { OrbitControls } from './libs/OrbitControls.js';
 import { sendMove, sendCamera } from './websocket.js';
 import { startTimer, stopTimer, isStarted, requestRenderIfNotRequested } from './main.js';
 import { getOrtogonalVectors, getScreenCoordinates, degToRad, drawLine } from './utils.js';

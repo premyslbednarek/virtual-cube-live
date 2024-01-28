@@ -1,6 +1,6 @@
 import { Cube, MovableCube } from './cube.js';
 import { sendLayerChange } from './websocket.js';
-import * as TWEEN from './tween.module.js';
+import * as TWEEN from './libs/tween.module.js';
 import keybinds from './keybindings.js';
 
 let cube = new MovableCube(3, document.getElementById("mainCanvas"));

@@ -1,4 +1,5 @@
 import { drawAnotherCube, moveAnotherCube, moveAnotherCamera, removeCube, changeLayers } from './main.js';
+import { io } from './libs/socket.io.esm.min.js'
 
 localStorage.debug = 'socket.io-client:socket'
 let socket = io("http://localhost:8080")

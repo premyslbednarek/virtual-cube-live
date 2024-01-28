@@ -273,6 +273,12 @@ class Cube {
             anticlockwise = true;
             move = move.slice(0, -1); // remove ' from the move
         }
+        let isWideMove = false;
+        if (move[move.length - 1] == "w") {
+            isWideMove = true;
+            move = move.slice(0, -1);
+        }
+
         const rotations = ["x", "x'", "y", "y'", "z", "z'"];
         // move is rotation
         if (rotations.includes(move)) {
@@ -289,8 +295,10 @@ class Cube {
         if (index < this.flipped[axis]) anticlockwise = !anticlockwise;
         if (index == 0) {
             lowerBound -= 1;
+            if (isWideMove) upperBound += 1;
         } else if (index == this.layers - 1) {
             upperBound += 1;
+            if (isWideMove) lowerBound -= 1;
         }
         const args = [lowerBound, upperBound, axis, -1];
         if (anticlockwise) args[3] = 1;

@@ -236,7 +236,15 @@ class Cube {
             stickerGeometry = new THREE.PlaneGeometry(0.93, 0.93);
         }
 
-        let faceCenters = [new THREE.Vector3(1, 0, 0), new THREE.Vector3(-1, 0, 0), new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, -1, 0), new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 0, -1)];
+        let faceCenters = [
+            new THREE.Vector3(1, 0, 0),
+            new THREE.Vector3(-1, 0, 0),
+            new THREE.Vector3(0, 1, 0),
+            new THREE.Vector3(0, -1, 0),
+            new THREE.Vector3(0, 0, 1),
+            new THREE.Vector3(0, 0, -1)
+        ];
+
         let colors = [
             0xff1100, // red
             0xffa200, // orange
@@ -248,12 +256,10 @@ class Cube {
 
         this.stickers = [];
         for (let n = 0; n < 6; ++n) {
+            const stickerMaterial = new THREE.MeshBasicMaterial( {color: colors[n], side: THREE.DoubleSide} );
+            const stickerMesh = new THREE.Mesh(stickerGeometry, stickerMaterial);
             for (let i = 0; i < this.layers; ++i) {
                 for (let j = 0; j < this.layers; ++j) {
-                    const stickerMaterial = new THREE.MeshBasicMaterial( {color: colors[n], side: THREE.DoubleSide} );
-                    const stickerMesh = new THREE.Mesh(stickerGeometry, stickerMaterial);
-                    // Mesh.clone() does not clone the material - it has to be copied by hand
-                    // https://github.com/mrdoob/three.js/issues/14223 
                     let sticker = stickerMesh.clone();
                     sticker.lookAt(faceCenters[n]);
                     sticker.translateZ(-centerOffset + 0.5 + 0.001);
@@ -267,6 +273,7 @@ class Cube {
                 }
             }
         }
+
         this.render();
     }
 

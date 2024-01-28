@@ -83,8 +83,13 @@ class Cube {
         moveToLayer.set("U", ["y", this.layers - 1]);
         moveToLayer.set("F", ["z", this.layers - 1]);
 
-        let innerLayers = this.layers - 2;
+        // flipped layers - first n layers turn in other direction
+        // flipped["x"] = 2 means that when we turn the first two layers on the x axis (L and M)
+        // clockwise, they turn in the other direction that the other layers on that axis (R) 
+        const flippedN = Math.floor(this.layers / 2);
+        const flipped = new THREE.Vector3(flippedN, flippedN, flippedN);
 
+        let innerLayers = this.layers - 2;
         // even-layered cubes do not have the middle layer (M/E/S)
         if (this.layers % 2 == 1) {
             const middleIndex = Math.floor((this.layers - 1) / 2);
@@ -92,6 +97,7 @@ class Cube {
             moveToLayer.set("M", ["x", middleIndex]);
             moveToLayer.set("E", ["y", middleIndex]);
             moveToLayer.set("S", ["z", middleIndex]);
+            ++flipped["x"]; // M turns like L
         }
 
         // generate mapping for layers such as 2R, 3R etc.
@@ -120,6 +126,7 @@ class Cube {
 
         this.moveToLayer = moveToLayer;
         this.layerToMove = layerToMove;
+        this.flipped = flipped;
     }
 
     resizeCanvas() {

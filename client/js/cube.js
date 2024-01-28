@@ -1,19 +1,13 @@
 import * as THREE from './three.module.js'
-import { Vector3 } from './three.module.js';
-import { OrbitControls } from './OrbitControls.js';
-import { sendMove } from './websocket.js';
-import { Tween, Easing } from './tween.module.js';
 import * as TWEEN from './tween.module.js'
+import { OrbitControls } from './OrbitControls.js';
+import { sendMove, sendCamera } from './websocket.js';
 import { startTimer, stopTimer, isStarted, requestRenderIfNotRequested } from './main.js';
-import { getOrtogonalVectors, getScreenCoordinates } from './utils.js';
-import { drawLine } from './main.js';
+import { getOrtogonalVectors, getScreenCoordinates, degToRad, drawLine } from './utils.js';
 
 const xAxis = ["x", new THREE.Vector3(1, 0, 0)];
 const yAxis = ["y", new THREE.Vector3(0, 1, 0)];
 const zAxis = ["z", new THREE.Vector3(0, 0, 1)];
-const xTurning = 0.25;
-const yTurning = -0.25;
-const zTurning = -0.25;
 
 class Cube {
     constructor(layers, canvas) {
@@ -29,44 +23,20 @@ class Cube {
         this.renderer = new THREE.WebGLRenderer({antialias: true, canvas});
         this.speedMode = true;
         this.tween;
+
+        // group for rotating objects together
         this.group = new THREE.Group();
         this.scene.add(this.group);
-        this.keyMap = new Map();
+
         this.stickers = [];
 
-        console.log(`Created a ${layers}x${layers} cube`);
         this.resizeCanvas();
-        document.addEventListener("resize", () => { this.resizeCanvas(); }, false);
+        window.addEventListener("resize", () => { this.resizeCanvas(); }, false);
+
         this.draw();
         this.solved = true;
         this.needsSolvedCheck = false;
-        this.faceName = {
-            x: {
-                "-1": "L",
-                "0": "M",
-                "1": "R"
-            },
-            y: {
-                "-1": "D",
-                "0": "E",
-                "1": "U"
-            },
-            z: {
-                "-1": "B",
-                "0": "S",
-                "1": "F"
-            }
-        }
-        this.faceToRotationAxis = new Map();
-        this.faceToRotationAxis.set("R", new Vector3(1, 0, 0));
-        this.faceToRotationAxis.set("L", new Vector3(-1, 0, 0));
-        this.faceToRotationAxis.set("U", new Vector3(0, 1, 0));
-        this.faceToRotationAxis.set("D", new Vector3(0, -1, 0));
-        this.faceToRotationAxis.set("F", new Vector3(0, 0, 1));
-        this.faceToRotationAxis.set("B", new Vector3(0, 0, -1));
-        this.faceToRotationAxis.set("M", new Vector3(-1, 0, 0)); // middle, rotation as L
-        this.faceToRotationAxis.set("E", new Vector3(0, -1, 0)); // equator, rotation as D
-        this.faceToRotationAxis.set("S", new Vector3(0, 0, 1)); // standing, rotation as F
+
         this.genMoveToLayer();
     }
 
@@ -184,52 +154,18 @@ class Cube {
     toggleSpeedMode() {
         this.speedMode = !this.speedMode;
         this.draw();
-        this.render();
     }
 
     changeLayers(newLayers) {
         this.layers = parseInt(newLayers);
         this.draw();
-        this.render();
         this.genMoveToLayer();
-        // this.generateKeymap();
     }
 
-    getClickedAxis(pos) {
-        const stickerPosition = this.layers / 2 + 0.01;
-        if (Math.abs(stickerPosition - Math.abs(pos.x)) < 0.1) return "x";
-        if (Math.abs(stickerPosition - Math.abs(pos.y)) < 0.1) return "y";
-        if (Math.abs(stickerPosition - Math.abs(pos.z)) < 0.1) return "z";
-    }
+    drawStickers() {
+        const centerOffset = -(this.layers - 1) / 2;
 
-    draw() {
-        const scene = this.scene;
-        var centerOffset = -(this.layers - 1) / 2;
-        // clear scene
-        scene.remove.apply(scene, scene.children);
-        this.camera.position.set(0, this.layers + this.layers / 2 - 1.2, this.layers + this.layers / 2 + 1)
-        this.camera.lookAt(0, 0, 0);
-        // visualize the axes
-        // X is red, Y is green, Z is blue
-        const axesHelper = new THREE.AxesHelper( 10 );
-        scene.add( axesHelper );
-
-        if (!this.speedMode) {
-            const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
-            const boxMaterial = new THREE.MeshBasicMaterial({color: 0x00000});
-            const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
-            for (let i = 0; i < this.layers; ++i) {
-                for (let j = 0; j < this.layers; ++j) {
-                    for (let k = 0; k < this.layers; ++k) {
-                        const cubie = boxMesh.clone();
-                        cubie.position.set(i + centerOffset, j + centerOffset, k + centerOffset);
-                        scene.add(cubie);
-                    }
-                }
-            }
-        }
-
-        var stickerGeometry;
+        let stickerGeometry;
         if (this.speedMode) {
             stickerGeometry = new THREE.PlaneGeometry(0.85, 0.85);
         } else {
@@ -269,11 +205,45 @@ class Cube {
                     // var stickerAxis = new THREE.AxesHelper(2);
                     // sticker.add(stickerAxis);
                     this.stickers.push(sticker);
-                    scene.add(sticker);
+                    this.scene.add(sticker);
                 }
             }
         }
+    }
 
+    drawCubies() {
+        const centerOffset = -(this.layers - 1) / 2;
+        const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
+        const boxMaterial = new THREE.MeshBasicMaterial({color: 0x00000});
+        const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
+        for (let i = 0; i < this.layers; ++i) {
+            for (let j = 0; j < this.layers; ++j) {
+                for (let k = 0; k < this.layers; ++k) {
+                    const cubie = boxMesh.clone();
+                    cubie.position.set(i + centerOffset, j + centerOffset, k + centerOffset);
+                    this.scene.add(cubie);
+                }
+            }
+        }
+    }
+
+    draw() {
+        // clear scene
+        this.scene.remove.apply(this.scene, this.scene.children);
+
+        this.camera.position.set(0, this.layers + this.layers / 2 - 1.2, this.layers + this.layers / 2 + 1)
+        this.camera.lookAt(0, 0, 0);
+
+        // visualize the axes
+        // X is red, Y is green, Z is blue
+        const axesHelper = new THREE.AxesHelper( 10 );
+        this.scene.add( axesHelper );
+
+        if (!this.speedMode) {
+            this.drawCubies();
+        }
+
+        this.drawStickers();
         this.render();
     }
 
@@ -343,17 +313,13 @@ class Cube {
 
         // tween
         // [axis] - this is the usage of "computed property name" introduced in ES6
-        this.tween = new Tween(this.group.rotation)
+        this.tween = new TWEEN.Tween(this.group.rotation)
                         .to({[axis]: mult * Math.PI / 2}, 200)
-                        .easing(Easing.Quadratic.Out)
+                        .easing(TWEEN.Easing.Quadratic.Out)
                         .onComplete(() => { this.isSolved(); })
                         .start();
         requestRenderIfNotRequested();
     }
-}
-
-function degToRad(deg) {
-    return deg * Math.PI / 180;
 }
 
 class MovableCube extends Cube {
@@ -368,11 +334,18 @@ class MovableCube extends Cube {
         this.controls.maxPolarAngle = degToRad(120);
         this.controls.update();
         this.controls.addEventListener('change', () => this.render());
+        this.controls.addEventListener('end', () => this.onCameraEnd());
+        this.controls.addEventListener('change', () => this.onCameraEnd());
+
     }
 
     isSolved() {
         super.isSolved();
         if (isStarted() && this.solved) stopTimer();
+    }
+
+    onCameraEnd() {
+        sendCamera({position: this.camera.position, rotation: this.camera.rotation});
     }
 
     makeMove(move, send=true, scramble=false) {

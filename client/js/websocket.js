@@ -1,6 +1,3 @@
-import { OrbitControls } from './OrbitControls.js';
-import * as THREE from './three.module.js';
-import { Cube } from './cube.js';
 import { drawAnotherCube, moveAnotherCube, moveAnotherCamera, removeCube, changeLayers } from './main.js';
 
 localStorage.debug = 'socket.io-client:socket'

@@ -1,7 +1,7 @@
 import { OrbitControls } from './OrbitControls.js';
 import * as THREE from './three.module.js';
 import { Cube, MovableCube } from './cube.js';
-import { sendMove, sendCamera } from './websocket.js';
+import { sendMove, sendCamera, sendLayerChange } from './websocket.js';
 import * as TWEEN from './tween.module.js';
 import keybinds from './keybindings.js';
 
@@ -22,6 +22,11 @@ function drawAnotherCube(id) {
     document.getElementById("otherCanvases").appendChild(canvas);
     // otherCubes.push(new Cube(3, document.getElementById("otherCanvas")));
     otherCubes.set(id, new Cube(3, canvas));
+}
+
+function changeLayers(id, newLayers) {
+    const otherCube = otherCubes.get(id);
+    otherCube.changeLayers(newLayers);
 }
 
 function moveAnotherCube(id, move) {
@@ -49,7 +54,7 @@ function removeCube(id) {
     otherCubes.delete(id);
 }
 
-export { drawAnotherCube, moveAnotherCube, moveAnotherCamera, removeCube };
+export { drawAnotherCube, moveAnotherCube, moveAnotherCamera, removeCube, changeLayers };
 
 function uperm() {
     performMacro("ifijijifkfkk");
@@ -101,6 +106,7 @@ slider.oninput = function() {
     const newLayers = this.value;
     layersInfo.innerHTML = `Layers: ${newLayers}`;
     cube.changeLayers(newLayers);
+    sendLayerChange(newLayers);
 }
 
 function drawLine(start, end, scene) {

@@ -42,6 +42,11 @@ async def distributeMove(sid, message):
     print(message)
     await sio.emit("opponentMove", [sidToName[sid], message], skip_sid=sid)
 
+@sio.on("layersChange")
+async def distributeMove(sid, newLayers):
+    print(f"{sidToName[sid]} changed cube to {newLayers}x{newLayers}")
+    await sio.emit("opponentLayers", [sidToName[sid], newLayers], skip_sid=sid)
+
 @sio.on("camera")
 async def distributeCamera(sid, message):
     await sio.emit("opponentCamera", [sidToName[sid], message], skip_sid=sid)

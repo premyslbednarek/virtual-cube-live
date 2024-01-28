@@ -39,6 +39,7 @@ async def print_ack(sid, message):
 
 @sio.on("move")
 async def distributeMove(sid, message):
+    print(message)
     await sio.emit("opponentMove", [sidToName[sid], message], skip_sid=sid)
 
 @sio.on("camera")

@@ -264,46 +264,36 @@ class Cube {
     }
 
     makeMove(move, send=true, scramble=false) {  
-        const lowerBound = (this.layers / 2) - 1;
-        const keyMap = this.keyMap;
-        keyMap.clear(); // remove all key-value pairs
-
-        keyMap.set("U", [lowerBound, 20, "y", -1]); // U
-        keyMap.set("Uw", [lowerBound-1, 20, "y", -1]); // Uw = U wide - two upper layers
-        keyMap.set("U'", [lowerBound, 20, "y", 1]);  // U'
-        keyMap.set("Uw'", [lowerBound-1, 20, "y", 1]);  // Uw'
-        keyMap.set("R", [lowerBound, 20, "x", -1]); // R
-        keyMap.set("Rw", [lowerBound-1, 20, "x", -1]); // Rw
-        keyMap.set("R'", [lowerBound, 20, "x", 1]);  // R'
-        keyMap.set("Rw'", [lowerBound-1, 20, "x", 1]);  // Rw'
-        keyMap.set("x'", [-20, 20, "x", 1]); // x'
-        keyMap.set("x'", [-20, 20, "x", 1]); // x'
-        keyMap.set("x", [-20, 20, "x", -1]); // x
-        keyMap.set("x", [-20, 20, "x", -1]); // x
-        keyMap.set("L", [-20, -lowerBound, "x", 1]); // L
-        keyMap.set("M", [-0.5, 0.5, "x", 1]); // L
-        keyMap.set("M'", [-0.5, 0.5, "x", -1]); // L
-        keyMap.set("Lw", [-20, -lowerBound+1, "x", 1]); // Lw
-        keyMap.set("L'", [-20, -lowerBound, "x", -1]);  // L'
-        keyMap.set("Lw'", [-20, -lowerBound+1, "x", -1]);  // Lw'
-        keyMap.set("F", [lowerBound, 20, "z", -1]); // F
-        keyMap.set("S", [-0.5, 0.5, "z", -1]); // D'
-        keyMap.set("F'", [lowerBound, 20, "z", 1]);  // F'
-        keyMap.set("S'", [-0.5, 0.5, "z", 1]);  // F'
-        keyMap.set("D'", [-20, -lowerBound, "y", -1]); // D'
-        keyMap.set("E'", [-0.5, 0.5, "y", -1]); // D'
-        keyMap.set("D", [-20, -lowerBound, "y", 1]);  // D
-        keyMap.set("E", [-0.5, 0.5, "y", 1]);  // D
-        keyMap.set("y", [-20, 20, "y", -1]); // y
-        keyMap.set("y'", [-20, 20, "y", 1]); // y'
-        keyMap.set("z", [-20, 20, "z", -1]); // y
-        keyMap.set("z'", [-20, 20, "z", 1]); // y'
-        keyMap.set("B", [-20, -lowerBound, "z", 1]); // B
-        keyMap.set("B'", [-20, -lowerBound, "z", -1]); // B'
-        const args = keyMap.get(move);
         if (send) {
             sendMove(move);
         }
+
+        let anticlockwise = false;
+        if (move[move.length - 1] == "'") {
+            anticlockwise = true;
+            move = move.slice(0, -1); // remove ' from the move
+        }
+        const rotations = ["x", "x'", "y", "y'", "z", "z'"];
+        // move is rotation
+        if (rotations.includes(move)) {
+            const args = [-Infinity, Infinity, move[0], -1];
+            if (anticlockwise) args[3] = 1;
+            this.rotateGroupGen(...args);
+            return;
+        }
+
+        // move is not a rotation
+        const [axis, index] = this.moveToLayer.get(move);
+        let lowerBound = this.firstLayerPosition + index - 0.25;
+        let upperBound = this.firstLayerPosition + index + 0.25;
+        if (index < this.flipped[axis]) anticlockwise = !anticlockwise;
+        if (index == 0) {
+            lowerBound -= 1;
+        } else if (index == this.layers - 1) {
+            upperBound += 1;
+        }
+        const args = [lowerBound, upperBound, axis, -1];
+        if (anticlockwise) args[3] = 1;
         this.rotateGroupGen(...args);
     }
 

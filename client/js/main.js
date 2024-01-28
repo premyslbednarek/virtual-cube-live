@@ -170,7 +170,6 @@ class Timer {
     stop(write=true) {
         const timeElapsed = performance.now() - this.startTime;
         const timeString = Math.floor(timeElapsed / 1000) + "s";
-        console.log(timeString);
         this.startTime = undefined;
         if (!write) return;
         const timeListElement = document.getElementById("times");
@@ -253,6 +252,6 @@ window.cube = cube;
 
 const resetButton = document.getElementById("reset");
 resetButton.addEventListener("click", () => { 
-    timer.stop(false);
+    if (isStarted()) timer.stop(false);
     cube.draw();
 }, false);

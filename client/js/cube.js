@@ -38,7 +38,6 @@ class Cube {
         this.resizeCanvas();
         document.addEventListener("resize", () => { this.resizeCanvas(); }, false);
         this.draw();
-        this.render();
         this.solved = true;
         this.needsSolvedCheck = false;
         this.faceName = {
@@ -261,6 +260,7 @@ class Cube {
                 }
             }
         }
+        this.render();
     }
 
     makeMove(move, send=true, scramble=false) {  

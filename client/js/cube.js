@@ -237,7 +237,14 @@ class Cube {
         }
 
         let faceCenters = [new THREE.Vector3(1, 0, 0), new THREE.Vector3(-1, 0, 0), new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, -1, 0), new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 0, -1)];
-        let colors = [0xffa200, 0xff1100, 0xffffff, 0xfffb00, 0x33ff00, 0x0800ff];
+        let colors = [
+            0xff1100, // red
+            0xffa200, // orange
+            0xffffff, // white
+            0xfffb00, // yellow
+            0x33ff00, // green
+            0x0800ff  // blue
+        ];
 
         this.stickers = [];
         for (let n = 0; n < 6; ++n) {

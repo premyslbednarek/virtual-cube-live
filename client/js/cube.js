@@ -208,7 +208,7 @@ class Cube {
         var centerOffset = -(this.layers - 1) / 2;
         // clear scene
         scene.remove.apply(scene, scene.children);
-        this.camera.position.set(0, this.layers + this.layers / 2 + 1, this.layers + this.layers / 2 + 1)
+        this.camera.position.set(0, this.layers + this.layers / 2 - 1.2, this.layers + this.layers / 2 + 1)
         this.camera.lookAt(0, 0, 0);
         // visualize the axes
         // X is red, Y is green, Z is blue

@@ -1,30 +1,31 @@
 <!DOCTYPE html>
-<html style="height: 100%;">
+<html>
   <head>
     <title>Virtual rubik's cube</title>
     <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" href="style/style.css">
   </head>
-  <body style="margin: 0; height: 100%;">
-    <div style="z-index: 1;position: absolute; top: 0; left: 0; margin: 10px; color:white;">
+  <body>
+    <div id="controlsPanel">
       <button id="speedToggle">Toggle speedcuber mode</button>
-      <button onclick="uperm()">U-Perm</button>
-      <button onclick="scramble()">Scramble</button>
+      <button id="upermButton"">U-Perm</button>
+      <button id="scrambleButton">Scramble</button>
       <button id="reset">Reset cube</button>
       <input type="range" min="2" max="7" value="3" class="slider" id="layersSlider" autocomplete="off">
       <span id="layersInfo">Layers: 3</span>
-      <br>
-      <span>   FPS INFO</span> <input type="range" min="5" max="60" value="60" class="slider" id="fpsSlider">
-      FPS <span id="fpsInfo"></span>
+      <!-- <br> -->
+      <!-- <span>FPS INFO</span>
+      <input type="range" min="5" max="60" value="60" class="slider" id="fpsSlider">
+      <span id="fpsInfo"></span> -->
     </div>
-    <div style="z-index: 1; position: absolute; top: 80px; left: 10px; color: white" id="times">Times:</div>
+
+    <div  id="times">Times:</div>
+    <canvas id="mainCanvas"></canvas>
+    <div id="otherCanvases"></div>
+    <canvas id="otherCanvas"></canvas>
+    <div id="timer">timer stopped</div>
 
     <script type='module' src="js/main.js"></script>
     <script type='module' src="js/websocket.js"></script>
-
-    <canvas id="mainCanvas" style="width: 100%; height: 100%; display: block; position:absolute"></canvas>
-    <div id="otherCanvases" style="width: 20%; height: 100%; position: absolute; display: block; background-color: black; right: 0; border-left-style: solid; border-left-color: white;">AAA</div>
-    <canvas id="otherCanvas" style="position: absolute; bottom: 0; right: 0; width: 200px; height: 200px; display: block;"></canvas>
-    <div id="timer" style="z-index: 2; color: white; position: absolute; bottom: 0; width: 80%; text-align: center;font-size: 50px;">timer stopped</div>
   </body>
 </html>

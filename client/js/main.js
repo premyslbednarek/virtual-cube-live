@@ -54,6 +54,8 @@ async function performMacro(macro) {
 function uperm() {
     performMacro("ifijijifkfkk");
 }
+document.getElementById("upermButton").addEventListener("click", uperm)
+
 function randomInt(max) {
     return Math.floor(Math.random() * max);
 }
@@ -74,6 +76,7 @@ function scramble() {
         cube.makeMove(move, true, true);
     }
 }
+document.getElementById("scrambleButton").addEventListener("click", scramble);
 
 let slider = document.getElementById("layersSlider");
 let layersInfo = document.getElementById("layersInfo");

@@ -9,6 +9,49 @@ const xAxis = ["x", new THREE.Vector3(1, 0, 0)];
 const yAxis = ["y", new THREE.Vector3(0, 1, 0)];
 const zAxis = ["z", new THREE.Vector3(0, 0, 1)];
 
+const axes = {
+    xPos: new THREE.Vector3( 1,  0,  0),
+    yPos: new THREE.Vector3( 0,  1,  0),
+    zPos: new THREE.Vector3( 0,  0,  1),
+    xNeg: new THREE.Vector3(-1,  0,  0),
+    yNeg: new THREE.Vector3( 0, -1,  0),
+    zNeg: new THREE.Vector3( 0,  0, -1)
+}
+
+const faceToAxis = {
+    R: axes.xPos,
+    U: axes.yPos,
+    F: axes.zPos,
+    L: axes.xNeg,
+    D: axes.yNeg,
+    B: axes.zNeg
+}
+
+function parseMove(move) {
+    // move examples: 2R', Rw', F', U
+    let face, layer = 0, positive = true, wide = false;
+
+    if (move[move.length - 1] == "'") {
+        positive = false; // anticlockwise move
+        move = move.slice(0, -1); // remove ' from string
+    }
+    if (move[move.length - 1] == "w") {
+        wide = true;
+        move = move.slice(0, -1);
+    }
+
+    face = move[move.length - 1];
+    if (move.length == 2) {
+        layer = parseInt(move[0]) - 1; // layers are 0 indexed
+    }
+    return {
+        face: face,
+        layer: layer,
+        wide: wide,
+        positive: positive,
+    }
+}
+
 class Cube {
     constructor(layers, canvas) {
         this.layers = layers;

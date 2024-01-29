@@ -328,8 +328,8 @@ class MovableCube extends Cube {
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         this.controls.enableZoom = false;
         this.controls.enablePan = false; // disable moving the camera with right click
-        this.controls.minAzimuthAngle = degToRad(-35);
-        this.controls.maxAzimuthAngle = degToRad(35);
+        // this.controls.minAzimuthAngle = degToRad(-35);
+        // this.controls.maxAzimuthAngle = degToRad(35);
         this.controls.minPolarAngle = degToRad(60);
         this.controls.maxPolarAngle = degToRad(120);
         this.controls.update();
@@ -346,6 +346,108 @@ class MovableCube extends Cube {
 
     onCameraEnd() {
         sendCamera({position: this.camera.position, rotation: this.camera.rotation});
+    }
+
+    makeKeyboardMove(move) {
+        this.controls.update();
+        // convert absolute keyboard input to relative cube move
+        // absolute move results in the same rotation no matter where our point of view is
+        //          R will always turn layer with x = 1
+        // relative move depends on our point of view
+        //          R will turn the layer on the right from the cameras point of view
+        
+        // this function needs lots of refactorization
+        const rotations = new Set(["y", "y'", "x", "x'", "z", "z'"]);
+        const isRotation = rotations.has(move);
+        const angle = this.controls.getAzimuthalAngle()*180/Math.PI;
+        console.log(angle);
+        let anticlockwise = false;
+        if (move[move.length - 1] == "'") {
+            anticlockwise = true;
+            move = move.slice(0, -1); // remove ' from the move
+        }
+
+        let isWideMove = false;
+        if (move[move.length - 1] == "w") {
+            isWideMove = true;
+            move = move.slice(0, -1);
+        }
+        let axis;
+        let index;
+        if (isRotation) {
+            axis = move;
+            index = 0;
+        } else {
+            [axis, index] = this.moveToLayer.get(move);
+        }
+
+        if (axis == "y") {
+            if (isWideMove) {
+                move += "w";
+            }
+            if (anticlockwise) {
+                move += "'";
+            }
+            this.makeMove(move);
+            return;
+        }
+
+        let swap = false;
+        if (-45 <= angle && angle <= 45) {
+            console.log(1)
+            // no change
+        } else if (45 < angle && angle < 135) {
+            console.log(2)
+            // x = -z; z = x;
+            if (axis == "x") {
+                axis = "z";
+                swap = true;
+            } else {
+                axis = "x";
+            }
+        } else if (135 < angle || angle < -135) {
+            console.log(3)
+            // x = -x; z = -z;
+            swap = true;
+        } else {
+            // x = z; z = -x;
+            console.log(4)
+            if (axis == "z") {
+                axis = "x";
+                swap = true;
+            } else {
+                axis = "z";
+            }
+        }
+
+        if (!isRotation && index < this.flipped[axis]) {
+            anticlockwise = !anticlockwise;
+        };
+
+        if (swap) {
+            index = this.layers - 1 - index;
+            anticlockwise = !anticlockwise;
+        }
+        
+        if (!isRotation) {
+            move = this.layerToMove.get(axis).get(index);
+        } else {
+            move = axis;
+        }
+
+        if (!isRotation && index < this.flipped[axis]) {
+            anticlockwise = !anticlockwise;
+        };
+
+        if (isWideMove) {
+            move += "w";
+        }
+
+        if (anticlockwise) {
+            move += "'";
+        }
+        console.log(move)
+        this.makeMove(move);
     }
 
     makeMove(move, send=true, scramble=false) {

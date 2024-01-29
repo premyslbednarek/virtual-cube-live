@@ -176,7 +176,7 @@ document.addEventListener("keydown", event => {
     let move = keybinds.get(event.key);
     // expand array of parameters with ...args
     if (move) {
-        cube.makeMove(move);
+        cube.makeKeyboardMove(move);
     }
 });
 

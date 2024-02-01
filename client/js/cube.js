@@ -9,48 +9,19 @@ const xAxis = ["x", new THREE.Vector3(1, 0, 0)];
 const yAxis = ["y", new THREE.Vector3(0, 1, 0)];
 const zAxis = ["z", new THREE.Vector3(0, 0, 1)];
 
-const axes = {
-    xPos: new THREE.Vector3( 1,  0,  0),
-    yPos: new THREE.Vector3( 0,  1,  0),
-    zPos: new THREE.Vector3( 0,  0,  1),
-    xNeg: new THREE.Vector3(-1,  0,  0),
-    yNeg: new THREE.Vector3( 0, -1,  0),
-    zNeg: new THREE.Vector3( 0,  0, -1)
-}
+// values are [axis, axisSign]
+const faceToAxis = new Map();
+faceToAxis.set("R", ["x",  1]);
+faceToAxis.set("U", ["y",  1]);
+faceToAxis.set("F", ["z",  1]);
+faceToAxis.set("L", ["x", -1]);
+faceToAxis.set("D", ["y", -1]);
+faceToAxis.set("B", ["z", -1]);
+faceToAxis.set("M", ["x", -1]);
+faceToAxis.set("S", ["z",  1]);
+faceToAxis.set("E", ["y",  1]);
+window.face = faceToAxis;
 
-const faceToAxis = {
-    R: axes.xPos,
-    U: axes.yPos,
-    F: axes.zPos,
-    L: axes.xNeg,
-    D: axes.yNeg,
-    B: axes.zNeg
-}
-
-function parseMove(move) {
-    // move examples: 2R', Rw', F', U
-    let face, layer = 0, positive = true, wide = false;
-
-    if (move[move.length - 1] == "'") {
-        positive = false; // anticlockwise move
-        move = move.slice(0, -1); // remove ' from string
-    }
-    if (move[move.length - 1] == "w") {
-        wide = true;
-        move = move.slice(0, -1);
-    }
-
-    face = move[move.length - 1];
-    if (move.length == 2) {
-        layer = parseInt(move[0]) - 1; // layers are 0 indexed
-    }
-    return {
-        face: face,
-        layer: layer,
-        wide: wide,
-        positive: positive,
-    }
-}
 
 class Cube {
     constructor(layers, canvas) {
@@ -81,6 +52,35 @@ class Cube {
         this.needsSolvedCheck = false;
 
         this.genMoveToLayer();
+
+    }
+
+    parseMove(move) {
+        // move examples: 2R', Rw', F', U
+        let face, layer = 0, rotationSign = 1, wide = false;
+
+        if (move[move.length - 1] == "'") {
+            rotationSign = -1; // anticlockwise move
+            move = move.slice(0, -1); // remove ' from string
+        }
+        if (move[move.length - 1] == "w") {
+            wide = true;
+            move = move.slice(0, -1);
+        }
+
+        face = move[move.length - 1];
+        if (move.length == 2) {
+            layer = parseInt(move[0]) - 1; // layers are 0 indexed
+        }
+        if (face == "M" || face == "S" || face == "E") {
+            layer = Math.floor(this.layers / 2);
+        }
+        return {
+            face: face,
+            layer: layer,
+            wide: wide,
+            rotationSign: rotationSign,
+        }
     }
 
     genMoveToLayer() {
@@ -290,47 +290,81 @@ class Cube {
         this.render();
     }
 
-    makeMove(move, send=true, scramble=false) {  
+    makeMove(move, send=true, scramble=false) {
         if (send) {
             sendMove(move);
         }
 
-        let anticlockwise = false;
-        if (move[move.length - 1] == "'") {
-            anticlockwise = true;
-            move = move.slice(0, -1); // remove ' from the move
-        }
-        let isWideMove = false;
-        if (move[move.length - 1] == "w") {
-            isWideMove = true;
-            move = move.slice(0, -1);
-        }
+        const moveObj = this.parseMove(move);
 
-        const rotations = ["x", "x'", "y", "y'", "z", "z'"];
-        // move is rotation
-        if (rotations.includes(move)) {
-            const args = [-Infinity, Infinity, move[0], -1];
-            if (anticlockwise) args[3] = 1;
-            this.rotateGroupGen(...args);
+        // check whether a move is a rotation
+        if (["x", "x'", "y", "y'", "z", "z'"].includes(move)) {
+            this.rotateGroupGen([-Infinity, Infinity, move[0], moveObj.rotationSign]);
             return;
         }
 
-        // move is not a rotation
-        const [axis, index] = this.moveToLayer.get(move);
-        let lowerBound = this.firstLayerPosition + index - 0.25;
-        let upperBound = this.firstLayerPosition + index + 0.25;
-        if (index < this.flipped[axis]) anticlockwise = !anticlockwise;
-        if (index == 0) {
-            lowerBound -= 1;
-            if (isWideMove) upperBound += 1;
-        } else if (index == this.layers - 1) {
-            upperBound += 1;
-            if (isWideMove) lowerBound -= 1;
+        const [axis, axisSign] = faceToAxis.get(moveObj.face);
+        
+        let high = Math.abs(this.firstLayerPosition) - moveObj.layer + 0.25;
+        let low = Math.abs(this.firstLayerPosition) - moveObj.layer - 0.25;
+
+        // outer layer - rotate outer stickers
+        if (moveObj.layer == 0) high += 1;
+
+        // wide move - move two outer layers
+        if (moveObj.wide) {
+            low -= 1;
         }
-        const args = [lowerBound, upperBound, axis, -1];
-        if (anticlockwise) args[3] = 1;
-        this.rotateGroupGen(...args);
+
+        if (axisSign == -1) {
+            [high, low] = [-low, -high];
+        }
+
+        this.rotateGroupGen(low, high, axis, axisSign * moveObj.rotationSign);
+
     }
+
+    // makeMove(move, send=true, scramble=false) {  
+    //     if (send) {
+    //         sendMove(move);
+    //     }
+
+    //     let anticlockwise = false;
+    //     if (move[move.length - 1] == "'") {
+    //         anticlockwise = true;
+    //         move = move.slice(0, -1); // remove ' from the move
+    //     }
+    //     let isWideMove = false;
+    //     if (move[move.length - 1] == "w") {
+    //         isWideMove = true;
+    //         move = move.slice(0, -1);
+    //     }
+
+    //     const rotations = ["x", "x'", "y", "y'", "z", "z'"];
+    //     // move is rotation
+    //     if (rotations.includes(move)) {
+    //         const args = [-Infinity, Infinity, move[0], -1];
+    //         if (anticlockwise) args[3] = 1;
+    //         this.rotateGroupGen(...args);
+    //         return;
+    //     }
+
+    //     // move is not a rotation
+    //     const [axis, index] = this.moveToLayer.get(move);
+    //     let lowerBound = this.firstLayerPosition + index - 0.25;
+    //     let upperBound = this.firstLayerPosition + index + 0.25;
+    //     if (index < this.flipped[axis]) anticlockwise = !anticlockwise;
+    //     if (index == 0) {
+    //         lowerBound -= 1;
+    //         if (isWideMove) upperBound += 1;
+    //     } else if (index == this.layers - 1) {
+    //         upperBound += 1;
+    //         if (isWideMove) lowerBound -= 1;
+    //     }
+    //     const args = [lowerBound, upperBound, axis, -1];
+    //     if (anticlockwise) args[3] = 1;
+    //     this.rotateGroupGen(...args);
+    // }
 
     rotateGroupGen(low, high, axis, mult) {
         const scene = this.scene;
@@ -357,7 +391,7 @@ class Cube {
         // tween
         // [axis] - this is the usage of "computed property name" introduced in ES6
         this.tween = new TWEEN.Tween(this.group.rotation)
-                        .to({[axis]: mult * Math.PI / 2}, 200)
+                        .to({[axis]: -1 * mult * Math.PI / 2}, 200)
                         .easing(TWEEN.Easing.Quadratic.Out)
                         .onComplete(() => { this.isSolved(); })
                         .start();

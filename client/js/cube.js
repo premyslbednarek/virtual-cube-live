@@ -322,7 +322,8 @@ class Cube {
 
         // check whether a move is a rotation
         if (["x", "x'", "y", "y'", "z", "z'"].includes(move)) {
-            this.rotateGroupGen([-Infinity, Infinity, move[0], moveObj.rotationSign]);
+            console.log("r");
+            this.rotateGroupGen(-Infinity, Infinity, move[0], moveObj.rotationSign);
             return;
         }
 

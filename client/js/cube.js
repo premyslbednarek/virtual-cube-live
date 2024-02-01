@@ -20,7 +20,30 @@ faceToAxis.set("B", ["z", -1]);
 faceToAxis.set("M", ["x", -1]);
 faceToAxis.set("S", ["z",  1]);
 faceToAxis.set("E", ["y",  1]);
-window.face = faceToAxis;
+
+function getFace(axis, coord) {
+    if (coord == 0) {
+        switch (axis) {
+            case "x": return "M";
+            case "y": return "E";
+            case "z": return "S";
+        }
+    }
+    if (coord > 0) {
+        switch (axis) {
+            case "x": return "R";
+            case "y": return "U";
+            case "z": return "F";
+        }
+    }
+
+    // coord < 0
+    switch (axis) {
+        case "x": return "L";
+        case "y": return "D";
+        case "z": return "B";
+    }
+}
 
 
 class Cube {
@@ -619,23 +642,29 @@ class MovableCube extends Cube {
         const move_dir = orthogonalVectors[lowest];
 
         // get rotation axis
-        let rotateAround;
-        let rotateAroundLabel;
-        for (let [label, axis] of [xAxis, yAxis, zAxis]) {
-            if (axis.dot(move_dir) == 0 && axis.dot(stickerNormal) == 0) {
-                rotateAround = axis;
-                rotateAroundLabel = label;
+        let axisVector;
+        let axis;
+        for (let [baseLabel, baseVector] of [xAxis, yAxis, zAxis]) {
+            if (baseVector.dot(move_dir) == 0 && baseVector.dot(stickerNormal) == 0) {
+                axisVector = baseVector;
+                axis = baseLabel;
                 break;
             }
         }
-        const layerIndex = Math.round(-this.firstLayerPosition + this.mouseDownObject.sticker.position[rotateAroundLabel]);
 
-        // rotated layer in standard notation
-        const layerName = this.layerToMove.get(rotateAroundLabel).get(layerIndex);
-        let dir = 1;
-        if (layerIndex < this.flipped[rotateAroundLabel]) {
-            dir = -1;
-        };
+        // get clicked sticker position along the rotations axis and round to nearest .5
+        let coord = this.mouseDownObject.sticker.position[axis];
+        coord = Math.round(coord * 2) / 2; 
+
+        const face = getFace(axis, coord);
+        let axisSign = faceToAxis.get(face)[1];
+
+        // distance from outer layers position
+        const layer = Math.abs(this.firstLayerPosition) - Math.abs(coord);
+
+        if (axisSign == -1) {
+            axisVector = axisVector.clone().negate();
+        }
 
         // triple product calculation
         // does the vector rotate around the axis in a clockwise or anticlockwise direction?
@@ -643,17 +672,26 @@ class MovableCube extends Cube {
         // negative determinant - clockwise
         const matrix = new THREE.Matrix3();
         matrix.set(
-            rotateAround.x,  rotateAround.y,  rotateAround.z,
+            axisVector.x,  axisVector.y,  axisVector.z,
             clickedPosition.x, clickedPosition.y, clickedPosition.z,
             move_dir.x,      move_dir.y,      move_dir.z
         )
         const determinant = matrix.determinant();
 
-        let move = layerName;
-        // move was anticlockwise
-        if (determinant > 0) dir *= -1;
-        if (dir == -1) move += "'";
-        this.makeMove(move);
+        let outputMove = "";
+
+        // for inner layers other than middle layers add prefix
+        if (coord != 0 && layer >= 1) {
+            outputMove += layer + 1;
+        }
+
+        outputMove += face;
+        
+        if (determinant > 0) {
+            outputMove += "'";
+        }
+
+        this.makeMove(outputMove);
     }
 }
 

@@ -449,105 +449,95 @@ class MovableCube extends Cube {
     }
 
     makeKeyboardMove(move) {
+        // needs to be worked on
         this.controls.update();
-        // convert absolute keyboard input to relative cube move
-        // absolute move results in the same rotation no matter where our point of view is
-        //          R will always turn layer with x = 1
-        // relative move depends on our point of view
-        //          R will turn the layer on the right from the cameras point of view
-        
-        // this function needs lots of refactorization
-        const rotations = new Set(["y", "y'", "x", "x'", "z", "z'"]);
-        const isRotation = rotations.has(move);
+        // camera rotation around the y axis <-180, 180> deg
         const angle = this.controls.getAzimuthalAngle()*180/Math.PI;
-        console.log(angle);
-        let anticlockwise = false;
-        if (move[move.length - 1] == "'") {
-            anticlockwise = true;
-            move = move.slice(0, -1); // remove ' from the move
-        }
 
-        let isWideMove = false;
-        if (move[move.length - 1] == "w") {
-            isWideMove = true;
-            move = move.slice(0, -1);
-        }
-        let axis;
-        let index;
+        const moveObj = this.parseMove(move);
+        let newRotation = moveObj.rotationSign;
+
+        let oldAxis, oldAxisSign;
+        const isRotation = ["y", "y'", "x", "x'", "z", "z'"].includes(move);
         if (isRotation) {
-            axis = move;
-            index = 0;
+            oldAxis = move[0];
+            oldAxisSign = 1;
+            if (move.length == 2) {
+                oldAxisSign = -1;
+            }
         } else {
-            [axis, index] = this.moveToLayer.get(move);
+            [oldAxis, oldAxisSign] = faceToAxis.get(moveObj.face);
         }
 
-        if (axis == "y") {
-            if (isWideMove) {
-                move += "w";
-            }
-            if (anticlockwise) {
-                move += "'";
-            }
+        if (oldAxisSign == -1) {
+            newRotation *= 1;
+        }
+
+        if (oldAxis == "y") {
             this.makeMove(move);
             return;
         }
 
-        let swap = false;
+        let newAxis = oldAxis;
+        let negateSign = false;
         if (-45 <= angle && angle <= 45) {
-            console.log(1)
-            // no change
+            // nothing
         } else if (45 < angle && angle < 135) {
-            console.log(2)
             // x = -z; z = x;
-            if (axis == "x") {
-                axis = "z";
-                swap = true;
-            } else {
-                axis = "x";
+            if (oldAxis == "x") {
+                newAxis = "z";
+                negateSign = true;
+            } else if (oldAxis == "z") {
+                newAxis = "x";
             }
         } else if (135 < angle || angle < -135) {
-            console.log(3)
             // x = -x; z = -z;
-            swap = true;
+            negateSign = true;
         } else {
             // x = z; z = -x;
-            console.log(4)
-            if (axis == "z") {
-                axis = "x";
-                swap = true;
-            } else {
-                axis = "z";
+            if (oldAxis == "z") {
+                newAxis = "x";
+                negateSign = true;
+            } else if (oldAxis == "x"){
+                newAxis = "z";
             }
         }
 
-        if (!isRotation && index < this.flipped[axis]) {
-            anticlockwise = !anticlockwise;
-        };
-
-        if (swap) {
-            index = this.layers - 1 - index;
-            anticlockwise = !anticlockwise;
+        let coord = oldAxisSign;
+        if (moveObj.face == 'M' || moveObj.face == 'S' || moveObj.face == 'E') {
+            coord = 0;
         }
-        
-        if (!isRotation) {
-            move = this.layerToMove.get(axis).get(index);
+
+        let newAxisSign = oldAxisSign;
+        if (negateSign)  {
+            newAxisSign *= -1;
+            coord = -coord;
+        }
+
+        if (newAxisSign) {
+            newRotation *= -1;
+        }
+
+        let newMove;
+        if (isRotation) {
+            newMove = newAxis;
         } else {
-            move = axis;
+            newMove = getFace(newAxis, coord);
         }
 
-        if (!isRotation && index < this.flipped[axis]) {
-            anticlockwise = !anticlockwise;
-        };
-
-        if (isWideMove) {
-            move += "w";
+        let finalMove = "";
+        if (coord != 0 && moveObj.layer >= 1) {
+            finalMove += moveObj.layer + 1;
         }
 
-        if (anticlockwise) {
-            move += "'";
+        finalMove += newMove;
+        if (moveObj.wide) {
+            finalMove += "w";
         }
-        console.log(move)
-        this.makeMove(move);
+        if (newRotation == 1) {
+            finalMove += "'";
+        }
+        this.makeMove(finalMove);
     }
 
     makeMove(move, send=true, scramble=false) {

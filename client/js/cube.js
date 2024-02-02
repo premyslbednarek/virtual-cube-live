@@ -2,7 +2,8 @@ import * as THREE from './libs/three.module.js'
 import * as TWEEN from './libs/tween.module.js'
 import { OrbitControls } from './libs/OrbitControls.js';
 import { sendMove, sendCamera } from './websocket.js';
-import { startTimer, stopTimer, isStarted, requestRenderIfNotRequested } from './main.js';
+import { requestRenderIfNotRequested } from './main.js';
+import { Timer, startTimer, stopTimer, isStarted } from './timer.js';
 import { getOrtogonalVectors, getScreenCoordinates, degToRad, drawLine } from './utils.js';
 
 const xAxis = ["x", new THREE.Vector3(1, 0, 0)];
@@ -313,7 +314,7 @@ class Cube {
         this.render();
     }
 
-    makeMove(move, send=true, scramble=false) {
+    makeMove(move, send=true) {
         if (send) {
             sendMove(move);
         }
@@ -437,12 +438,26 @@ class MovableCube extends Cube {
         this.controls.addEventListener('change', () => this.render());
         this.controls.addEventListener('end', () => this.onCameraEnd());
         this.controls.addEventListener('change', () => this.onCameraEnd());
-
+        this.timer = new Timer(document.getElementById("timer"));
     }
 
     isSolved() {
         super.isSolved();
-        if (isStarted() && this.solved) stopTimer();
+        if (this.timer.started && this.solved) this.timer.stop();
+    }
+
+    scramble(scramble) {
+        for (const move of scramble) {
+            super.makeMove(move);
+        }
+        this.timer.startInspection();
+    }
+
+    makeMove(move, send=true, scramble=false) {
+        const rotations = new Set(["y", "y'", "x", "x'", "z", "z'"]);
+        if (!scramble && !rotations.has(move) && this.timer.inspection) { this.timer.start()};
+        super.makeMove(move, send);
+
     }
 
     onCameraEnd() {
@@ -539,13 +554,6 @@ class MovableCube extends Cube {
             finalMove += "'";
         }
         this.makeMove(finalMove);
-    }
-
-    makeMove(move, send=true, scramble=false) {
-        const rotations = new Set(["y", "y'", "x", "x'", "z", "z'"]);
-        if (!scramble && !rotations.has(move) && !isStarted()) { startTimer()};
-        super.makeMove(move, send);
-
     }
 
     mouseDown(event) {

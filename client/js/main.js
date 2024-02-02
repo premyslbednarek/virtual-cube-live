@@ -72,9 +72,7 @@ function scramble() {
         scramble.push(rotations[randomInt(rotations.length)]);
     }
 
-    for (const move of scramble) {
-        cube.makeMove(move, true, true);
-    }
+    cube.scramble(scramble);
 }
 document.getElementById("scrambleButton").addEventListener("click", scramble);
 
@@ -86,43 +84,6 @@ slider.oninput = function() {
     cube.changeLayers(newLayers);
     sendLayerChange(newLayers);
 }
-
-class Timer {
-    constructor(domElement) {
-        this.domElement = domElement;
-        this.startTime = undefined;
-    }
-    
-    start() {
-        this.startTime = performance.now();
-        this.update();
-    }
-    async update() {
-        if (!this.startTime) return;
-        const timeElapsed = performance.now() - this.startTime;
-        this.domElement.innerHTML = Math.floor(timeElapsed / 1000) + "s";
-        setTimeout(() => {
-            this.update();
-        }, 1000);
-    }
-    stop(write=true) {
-        const timeElapsed = performance.now() - this.startTime;
-        const timeString = Math.floor(timeElapsed / 1000) + "s";
-        this.startTime = undefined;
-        if (!write) return;
-        const timeListElement = document.getElementById("times");
-        timeListElement.innerHTML += `<br> ${timeString}`;
-    }
-    resetDom() {
-        this.innerHTML = "timer stopped";
-    }
-}
-
-const timerElement = document.getElementById("timer");
-const timer = new Timer(timerElement);
-const startTimer = () => { timer.start(); };
-const stopTimer = () => { timer.stop(); };
-const isStarted = () => { return timer.startTime != undefined; }
 
 // var fps = 30;
 // window.fps = fps;
@@ -190,9 +151,6 @@ resetButton.addEventListener("click", () => {
 }, false);
 
 export {
-    startTimer,
-    stopTimer,
-    isStarted,
     drawAnotherCube,
     moveAnotherCube,
     moveAnotherCamera,

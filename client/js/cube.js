@@ -560,10 +560,10 @@ class MovableCube extends Cube {
 
     mouseDown(event) {
         // calculate pointer position in NDC - normalized device coordinates
-        // in NDC, bottom left corner is [-1, -1], top right is [1, 1]
+        // in NDC, canvas bottom left corner is [-1, -1], top right is [1, 1]
         const pointer = new THREE.Vector2(
-            (event.clientX / window.innerWidth) * 2 - 1,
-            - (event.clientY / window.innerHeight) * 2 + 1
+            (event.clientX / this.canvas.clientWidth) * 2 - 1,
+            - (event.clientY / this.canvas.clientHeight) * 2 + 1
         )
         
         // find stickers under the pointer

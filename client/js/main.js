@@ -36,6 +36,11 @@ function moveAnotherCamera(id, args) {
     otherCube.render();
 }
 
+function resetAnotherCube(id) {
+    const otherCube = otherCubes.get(id);
+    otherCube.draw();
+}
+
 function removeCube(id) {
     console.log("remove cube", id);
     console.log(otherCubes);
@@ -145,15 +150,13 @@ const button = document.getElementById('speedToggle');
 button.addEventListener('click', () => cube.toggleSpeedMode());
 
 const resetButton = document.getElementById("reset");
-resetButton.addEventListener("click", () => { 
-    if (isStarted()) timer.stop(false);
-    cube.draw();
-}, false);
+resetButton.addEventListener("click", () =>  cube.reset(), false);
 
 export {
     drawAnotherCube,
     moveAnotherCube,
     moveAnotherCamera,
+    resetAnotherCube,
     removeCube,
     changeLayers,
     animateTweens,

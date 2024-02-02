@@ -1,4 +1,4 @@
-import { drawAnotherCube, moveAnotherCube, moveAnotherCamera, removeCube, changeLayers } from './main.js';
+import { drawAnotherCube, moveAnotherCube, moveAnotherCamera, removeCube, changeLayers, resetAnotherCube } from './main.js';
 import { io } from './libs/socket.io.esm.min.js'
 
 localStorage.debug = 'socket.io-client:socket'
@@ -47,6 +47,11 @@ socket.on("opponentCamera", function(data) {
     moveAnotherCamera(id, args);
 })
 
+socket.on("opponentReset", function(data) {
+    var id = data[0];
+    resetAnotherCube(id);
+})
+
 function sendLayerChange(newLayers) {
     socket.emit("layersChange", newLayers);
 }
@@ -58,4 +63,8 @@ function sendMove(move) {
 function sendCamera(args) {
     socket.emit("camera", JSON.stringify(args));
 }
-export {sendMove, sendCamera, sendLayerChange};
+
+function sendReset() {
+    socket.emit("reset");
+}
+export {sendMove, sendCamera, sendLayerChange, sendReset};

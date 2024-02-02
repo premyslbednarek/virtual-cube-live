@@ -1,7 +1,7 @@
 import * as THREE from './libs/three.module.js'
 import * as TWEEN from './libs/tween.module.js'
 import { OrbitControls } from './libs/OrbitControls.js';
-import { sendMove, sendCamera } from './websocket.js';
+import { sendMove, sendCamera, sendReset } from './websocket.js';
 import { requestRenderIfNotRequested } from './main.js';
 import { Timer, startTimer, stopTimer, isStarted } from './timer.js';
 import { getOrtogonalVectors, getScreenCoordinates, degToRad, drawLine } from './utils.js';
@@ -476,8 +476,8 @@ class MovableCube extends Cube {
         let newRotation = moveObj.rotationSign;
 
         let oldAxis, oldAxisSign;
-        const isRotation = isRotation(move);
-        if (isRotation) {
+        const rotation = isRotation(move);
+        if (rotation) {
             oldAxis = move[0];
             oldAxisSign = 1;
             if (move.length == 2) {
@@ -537,7 +537,7 @@ class MovableCube extends Cube {
         }
 
         let newMove;
-        if (isRotation) {
+        if (rotation) {
             newMove = newAxis;
         } else {
             newMove = getFace(newAxis, coord);
@@ -693,6 +693,14 @@ class MovableCube extends Cube {
         }
 
         this.makeMove(outputMove);
+    }
+
+    reset() {
+        if (this.timer.started) {
+            this.timer.stop(false); // do not add time into times
+        }
+        this.draw();
+        sendReset();
     }
 }
 

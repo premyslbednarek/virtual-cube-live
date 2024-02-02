@@ -51,6 +51,10 @@ async def distributeMove(sid, newLayers):
 async def distributeCamera(sid, message):
     await sio.emit("opponentCamera", [sidToName[sid], message], skip_sid=sid)
 
+@sio.on("reset")
+async def distributeReset(sid):
+    await sio.emit("opponentReset", [sidToName[sid]], skip_sid=sid)
+
 @sio.event
 async def connect(sid, environ, auth):
     global i

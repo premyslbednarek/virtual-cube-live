@@ -22,6 +22,10 @@ faceToAxis.set("M", ["x", -1]);
 faceToAxis.set("S", ["z",  1]);
 faceToAxis.set("E", ["y",  1]);
 
+function isRotation(move) {
+    return ["x", "x'", "y", "y'", "z", "z'"].includes(move);
+}
+
 function getFace(axis, coord) {
     if (coord == 0) {
         switch (axis) {
@@ -322,8 +326,7 @@ class Cube {
         const moveObj = this.parseMove(move);
 
         // check whether a move is a rotation
-        if (["x", "x'", "y", "y'", "z", "z'"].includes(move)) {
-            console.log("r");
+        if (isRotation(move)) {
             this.rotateGroupGen(-Infinity, Infinity, move[0], moveObj.rotationSign);
             return;
         }
@@ -454,8 +457,7 @@ class MovableCube extends Cube {
     }
 
     makeMove(move, send=true, scramble=false) {
-        const rotations = new Set(["y", "y'", "x", "x'", "z", "z'"]);
-        if (!scramble && !rotations.has(move) && this.timer.inspection) { this.timer.start()};
+        if (!scramble && !isRotation(move) && this.timer.inspection) { this.timer.start()};
         super.makeMove(move, send);
 
     }
@@ -474,7 +476,7 @@ class MovableCube extends Cube {
         let newRotation = moveObj.rotationSign;
 
         let oldAxis, oldAxisSign;
-        const isRotation = ["y", "y'", "x", "x'", "z", "z'"].includes(move);
+        const isRotation = isRotation(move);
         if (isRotation) {
             oldAxis = move[0];
             oldAxisSign = 1;

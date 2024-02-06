@@ -436,33 +436,30 @@ class Cube {
             sendMove(move);
         }
 
-        const moveObj = this.parseMove(move);
+        const moveObj = this.stringToMove(move);
 
         // check whether a move is a rotation
         if (isRotation(move)) {
-            this.rotateGroupGen(-Infinity, Infinity, move[0], moveObj.rotationSign);
+            this.rotateGroupGen(-Infinity, Infinity, moveObj.axis, moveObj.rotationSign);
             return;
         }
-
-        const [axis, axisSign] = faceToAxis.get(moveObj.face);
         
-        let high = Math.abs(this.firstLayerPosition) - moveObj.layer + 0.25;
-        let low = Math.abs(this.firstLayerPosition) - moveObj.layer - 0.25;
+        let high = Math.abs(this.firstLayerPosition) - moveObj.offset + 0.25;
+        let low = Math.abs(this.firstLayerPosition) - moveObj.offset - 0.25;
 
         // outer layer - rotate outer stickers
-        if (moveObj.layer == 0) high += 1;
+        if (Math.abs(moveObj.coord) == Math.abs(this.firstLayerPosition)) high += 1;
 
         // wide move - move two outer layers
         if (moveObj.wide) {
             low -= 1;
         }
 
-        if (axisSign == -1) {
+        if (moveObj.flippedRotation) {
             [high, low] = [-low, -high];
         }
-
-        this.rotateGroupGen(low, high, axis, axisSign * moveObj.rotationSign);
-
+        
+        this.rotateGroupGen(low, high, moveObj.axis, moveObj.rotationSign);
     }
 
     // makeMove(move, send=true, scramble=false) {  

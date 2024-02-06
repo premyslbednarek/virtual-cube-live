@@ -256,7 +256,7 @@ class Cube {
     changeLayers(newLayers) {
         this.layers = parseInt(newLayers);
         this.draw();
-        this.genMoveToLayer();
+        this.firstLayerPosition = -(this.layers - 1) / 2;
     }
 
     drawStickers() {
@@ -357,19 +357,19 @@ class Cube {
             return;
         }
         
-        let high = Math.abs(this.firstLayerPosition) - moveObj.offset + 0.25;
-        let low = Math.abs(this.firstLayerPosition) - moveObj.offset - 0.25;
+        let high = moveObj.coord + 0.25;
+        let low = moveObj.coord - 0.25;
 
         // outer layer - rotate outer stickers
-        if (Math.abs(moveObj.coord) == Math.abs(this.firstLayerPosition)) high += 1;
+        if (Math.abs(moveObj.coord) == Math.abs(this.firstLayerPosition)) {
+            if (high > 0) high += 1;
+            else low -= 1;
+        }
 
         // wide move - move two outer layers
         if (moveObj.wide) {
-            low -= 1;
-        }
-
-        if (moveObj.flippedRotation) {
-            [high, low] = [-low, -high];
+            if (high > 0) low -= 1;
+            else high += 1;
         }
         
         this.rotateGroupGen(low, high, moveObj.axis, moveObj.rotationSign);
@@ -589,7 +589,7 @@ class MovableCube extends Cube {
         const flipped = flippedRotation.get(face);
 
         // distance from outer layers position
-        const offset = Math.abs(this.firstLayerPosition) - Math.abs(coord);
+        const offset = coord == 0 ? 0 : Math.abs(this.firstLayerPosition) - Math.abs(coord);
 
         // triple product calculation
         // does the vector rotate around the axis in a clockwise or anticlockwise direction?

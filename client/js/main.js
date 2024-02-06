@@ -24,14 +24,9 @@ function moveAnotherCube(id, move) {
     otherCube.makeMove(move, false);
 }
 
-function moveAnotherCamera(id, args) {
+function moveAnotherCamera(id, position) {
     const otherCube = otherCubes.get(id);
-    otherCube.camera.position.x = args.position.x;
-    otherCube.camera.position.y = args.position.y;
-    otherCube.camera.position.z = args.position.z;
-    otherCube.camera.rotation.x = args.rotation.x;
-    otherCube.camera.rotation.y = args.rotation.y;
-    otherCube.camera.rotation.z = args.rotation.z;
+    otherCube.camera.position.copy(position);
     otherCube.camera.lookAt(0, 0, 0);
     otherCube.render();
 }

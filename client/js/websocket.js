@@ -43,8 +43,8 @@ socket.on("opponentLayers", function(data) {
 
 socket.on("opponentCamera", function(data) {
     var id = data[0];
-    var args = JSON.parse(data[1]);
-    moveAnotherCamera(id, args);
+    var pos = data[1];
+    moveAnotherCamera(id, pos);
 })
 
 socket.on("opponentReset", function(data) {
@@ -61,7 +61,7 @@ function sendMove(move) {
 }
 
 function sendCamera(args) {
-    socket.emit("camera", JSON.stringify(args));
+    socket.emit("camera", args);
 }
 
 function sendReset() {

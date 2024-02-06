@@ -445,7 +445,7 @@ class MovableCube extends Cube {
     }
 
     onCameraEnd() {
-        sendCamera({position: this.camera.position, rotation: this.camera.rotation});
+        sendCamera(this.camera.position);
     }
 
     getAxisRemapping() {

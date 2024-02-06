@@ -717,14 +717,10 @@ class MovableCube extends Cube {
         coord = Math.round(coord * 2) / 2; 
 
         const face = getFace(axis, coord);
-        let axisSign = faceToAxis.get(face)[1];
+        const flipped = flippedRotation.get(face);
 
         // distance from outer layers position
-        const layer = Math.abs(this.firstLayerPosition) - Math.abs(coord);
-
-        if (axisSign == -1) {
-            axisVector = axisVector.clone().negate();
-        }
+        const offset = Math.abs(this.firstLayerPosition) - Math.abs(coord);
 
         // triple product calculation
         // does the vector rotate around the axis in a clockwise or anticlockwise direction?
@@ -738,20 +734,13 @@ class MovableCube extends Cube {
         )
         const determinant = matrix.determinant();
 
-        let outputMove = "";
-
-        // for inner layers other than middle layers add prefix
-        if (coord != 0 && layer >= 1) {
-            outputMove += layer + 1;
-        }
-
-        outputMove += face;
-        
+        let rotationSign = 1;
         if (determinant > 0) {
-            outputMove += "'";
+            rotationSign *= -1;
         }
 
-        this.makeMove(outputMove);
+        const moveObj = new LayerMove(face, axis, flipped, offset, coord, rotationSign, false);
+        this.makeMove(moveObj.toString());
     }
 
     reset() {

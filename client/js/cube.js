@@ -22,6 +22,14 @@ faceToAxis.set("M", ["x", -1]);
 faceToAxis.set("S", ["z",  1]);
 faceToAxis.set("E", ["y",  1]);
 
+const flippedRotation = new Map();
+for (const face of "RUFSE") {
+    flippedRotation.set(face, false);
+}
+for (const face of "LDBM") {
+    flippedRotation.set(face, true);
+}
+
 function isRotation(move) {
     return ["x", "x'", "y", "y'", "z", "z'"].includes(move);
 }
@@ -47,6 +55,72 @@ function getFace(axis, coord) {
         case "x": return "L";
         case "y": return "D";
         case "z": return "B";
+    }
+}
+
+class Move {
+    constructor(axis, rotationSign) {
+        this.axis = axis;
+        this.rotationSign = rotationSign;
+    }
+}
+
+class LayerMove extends Move {
+    constructor(face, axis, flippedRotation, offset, coord, rotationSign, wide) {
+        super(axis, rotationSign);
+        this.face = face;
+        this.offset = offset;
+        this.coord = coord;
+        this.wide = wide;
+        this.flippedRotation = flippedRotation;
+    }
+
+    toString() {
+        let string = "";
+        if (this.offset > 0) string += this.offset + 1;
+        string += this.face;
+        if (this.wide) string += "w";
+
+        if ((this.flippedRotation && this.rotationSign == 1) ||
+            (!this.flippedRotation && this.rotationSign == -1)) {
+                string += "'"
+        };
+
+        return string;
+    }
+
+    changeAxis(newAxis, negateAxis) {
+        this.axis = newAxis;
+
+        if (negateAxis) {
+            this.coord = -this.coord;
+            this.rotationSign *= -1;
+        }
+
+        this.face = getFace(this.axis, this.coord);
+        this.flippedRotation = flippedRotation.get(this.face);
+
+    }
+}
+
+class Rotation extends Move {
+    constructor(axis, rotationSign) {
+        super(axis, rotationSign);
+    }
+
+    toString() {
+        let string = this.axis;
+        if (this.rotationSign == -1) {
+            string += "'";
+        }
+        return string;
+    }
+
+    changeAxis(newAxis, negateAxis) {
+        this.axis = newAxis;
+        if (negateAxis) {
+            this.rotationSign *= -1;
+        }
     }
 }
 
@@ -80,7 +154,46 @@ class Cube {
         this.needsSolvedCheck = false;
 
         this.genMoveToLayer();
+    }
 
+    stringToMove(string) {
+        const rotation = isRotation(string);
+        let rotationDir = 1;
+
+        // if last character in string is ', the move is anticlockwise
+        if (string[string.length -1] == "'") {
+            rotationDir *= -1;
+            // remove ' from string
+            string = string.slice(0, -1);
+        }
+
+        if (isRotation(string)) {
+            const axis = string[0];
+            return new Rotation(axis, rotationDir);
+        }
+
+        let wide = false;
+        if (string[string.length - 1] == "w") {
+            wide = true;
+            string = string.slice(0, -1);
+        }
+
+        const face = string[string.length - 1];
+        const isMiddle = face == "M" || face == "E" || face == "S";
+
+        let [axis, flippedAxis] = faceToAxis.get(face);
+        flippedAxis = flippedAxis == -1;
+
+        // distance of the layer from the outer layer
+        const layerOffset = (string.length == 2) ? parseInt(string[0]) - 1 : 0;
+        let coord = !isMiddle && !rotation ? (this.layers - 1) / 2 : 0;
+        coord -= layerOffset; // 0 for middle layers
+        if (flippedAxis) {
+            rotationDir *= -1;
+            coord = -coord;
+        }
+
+        return new LayerMove(face, axis, flippedAxis, layerOffset, coord, rotationDir, wide);
     }
 
     parseMove(move) {
@@ -466,96 +579,42 @@ class MovableCube extends Cube {
         sendCamera({position: this.camera.position, rotation: this.camera.rotation});
     }
 
-    makeKeyboardMove(move) {
-        // needs to be worked on
+    getAxisRemapping() {
+        // camera position might have changed - when resizing the cube
         this.controls.update();
-        // camera rotation around the y axis <-180, 180> deg
         const angle = this.controls.getAzimuthalAngle()*180/Math.PI;
-
-        const moveObj = this.parseMove(move);
-        let newRotation = moveObj.rotationSign;
-
-        let oldAxis, oldAxisSign;
-        const rotation = isRotation(move);
-        if (rotation) {
-            oldAxis = move[0];
-            oldAxisSign = 1;
-            if (move.length == 2) {
-                oldAxisSign = -1;
-            }
-        } else {
-            [oldAxis, oldAxisSign] = faceToAxis.get(moveObj.face);
-        }
-
-        if (oldAxisSign == -1) {
-            newRotation *= 1;
-        }
-
-        if (oldAxis == "y") {
-            this.makeMove(move);
-            return;
-        }
-
-        let newAxis = oldAxis;
-        let negateSign = false;
+        // oldAxis -> [newAxis, negateAxis]
+        const remapping = new Map();
         if (-45 <= angle && angle <= 45) {
             // nothing
         } else if (45 < angle && angle < 135) {
             // x = -z; z = x;
-            if (oldAxis == "x") {
-                newAxis = "z";
-                negateSign = true;
-            } else if (oldAxis == "z") {
-                newAxis = "x";
-            }
+            remapping.set("x", ["z", true]);
+            remapping.set("z", ["x", false]);
         } else if (135 < angle || angle < -135) {
             // x = -x; z = -z;
-            negateSign = true;
+            remapping.set("x", ["x", true]);
+            remapping.set("z", ["z", true]);
         } else {
             // x = z; z = -x;
-            if (oldAxis == "z") {
-                newAxis = "x";
-                negateSign = true;
-            } else if (oldAxis == "x"){
-                newAxis = "z";
-            }
+            remapping.set("x", ["z", false]);
+            remapping.set("z", ["x", true]);
         }
 
-        let coord = oldAxisSign;
-        if (moveObj.face == 'M' || moveObj.face == 'S' || moveObj.face == 'E') {
-            coord = 0;
-        }
+        return remapping;
+    }
 
-        let newAxisSign = oldAxisSign;
-        if (negateSign)  {
-            newAxisSign *= -1;
-            coord = -coord;
+    makeKeyboardMove(move) {
+        const remapping = this.getAxisRemapping();
+        const moveObj = this.stringToMove(move);
+        
+        if (remapping.has(moveObj.axis)) {
+            const [newAxis, negateAxis] = remapping.get(moveObj.axis);
+            moveObj.changeAxis(newAxis, negateAxis);
         }
-
-        if (newAxisSign) {
-            newRotation *= -1;
-        }
-
-        let newMove;
-        if (rotation) {
-            newMove = newAxis;
-        } else {
-            newMove = getFace(newAxis, coord);
-        }
-
-        let finalMove = "";
-        if (coord != 0 && moveObj.layer >= 1) {
-            finalMove += moveObj.layer + 1;
-        }
-
-        finalMove += newMove;
-        if (moveObj.wide) {
-            finalMove += "w";
-        }
-        if (newRotation == 1) {
-            finalMove += "'";
-        }
-        this.makeMove(finalMove);
+        
+        const newMove = moveObj.toString();
+        this.makeMove(newMove);
     }
 
     mouseDown(event) {

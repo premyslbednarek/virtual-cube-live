@@ -153,7 +153,7 @@ class Cube {
         this.solved = true;
         this.needsSolvedCheck = false;
 
-        this.genMoveToLayer();
+        this.firstLayerPosition = -(this.layers - 1) / 2;
     }
 
     stringToMove(string) {
@@ -194,93 +194,6 @@ class Cube {
         }
 
         return new LayerMove(face, axis, flippedAxis, layerOffset, coord, rotationDir, wide);
-    }
-
-    parseMove(move) {
-        // move examples: 2R', Rw', F', U
-        let face, layer = 0, rotationSign = 1, wide = false;
-
-        if (move[move.length - 1] == "'") {
-            rotationSign = -1; // anticlockwise move
-            move = move.slice(0, -1); // remove ' from string
-        }
-        if (move[move.length - 1] == "w") {
-            wide = true;
-            move = move.slice(0, -1);
-        }
-
-        face = move[move.length - 1];
-        if (move.length == 2) {
-            layer = parseInt(move[0]) - 1; // layers are 0 indexed
-        }
-        if (face == "M" || face == "S" || face == "E") {
-            layer = Math.floor(this.layers / 2);
-        }
-        return {
-            face: face,
-            layer: layer,
-            wide: wide,
-            rotationSign: rotationSign,
-        }
-    }
-
-    genMoveToLayer() {
-        // moveToLayer[move in standard notation] = [layer's axis of rotation, layer index]
-        // layer indices are 0-indexed starting from the 'most negative' layer on given axis
-        // on standard 3x3 cube - L has index 0, M has index 1, R has index 2
-        const moveToLayer = new Map();
-        moveToLayer.set("L", ["x", 0]);
-        moveToLayer.set("D", ["y", 0]);
-        moveToLayer.set("B", ["z", 0]);
-        moveToLayer.set("R", ["x", this.layers - 1]);
-        moveToLayer.set("U", ["y", this.layers - 1]);
-        moveToLayer.set("F", ["z", this.layers - 1]);
-
-        // flipped layers - first n layers on given axis turn in other direction
-        // flipped["x"] = 2 means that when we turn the first two layers on the x axis (L and M)
-        // clockwise, they turn in the other direction that the other layers on that axis (R) 
-        const flippedN = Math.floor(this.layers / 2);
-        const flipped = new THREE.Vector3(flippedN, flippedN, flippedN);
-
-        let innerLayers = this.layers - 2;
-        // even-layered cubes do not have the middle layer (M/E/S)
-        if (this.layers % 2 == 1) {
-            const middleIndex = Math.floor((this.layers - 1) / 2);
-            --innerLayers;
-            moveToLayer.set("M", ["x", middleIndex]);
-            moveToLayer.set("E", ["y", middleIndex]);
-            moveToLayer.set("S", ["z", middleIndex]);
-            ++flipped["x"]; // M turns like L
-        }
-
-        // generate mapping for layers such as 2R, 3R etc.
-        for (let i = 1; i <= innerLayers / 2; ++i) {
-            const prefix = i + 1 + "";
-            moveToLayer.set(prefix + "L", ["x", i]);
-            moveToLayer.set(prefix + "D", ["y", i]);
-            moveToLayer.set(prefix + "B", ["z", i]);
-            moveToLayer.set(prefix + "R", ["x", this.layers - i - 1]);
-            moveToLayer.set(prefix + "U", ["y", this.layers - i - 1]);
-            moveToLayer.set(prefix + "F", ["z", this.layers - i - 1]);
-        }
-
-        // create inverted mapping
-        // layerToMove[axis][layer index] = [move in standard notation]
-        const layerToMove = new Map();
-        layerToMove.set("x", new Map());
-        layerToMove.set("y", new Map());
-        layerToMove.set("z", new Map());
-        // Map.prototype.forEach callback swaps key and value
-        moveToLayer.forEach(function(value, key) {
-            const axis = value[0];
-            const index = value[1];
-            layerToMove.get(axis).set(index, key);
-        });
-
-        this.moveToLayer = moveToLayer;
-        this.layerToMove = layerToMove;
-        this.flipped = flipped;
-        this.firstLayerPosition = -(this.layers - 1) / 2;
     }
 
     resizeCanvas() {
@@ -462,47 +375,6 @@ class Cube {
         this.rotateGroupGen(low, high, moveObj.axis, moveObj.rotationSign);
     }
 
-    // makeMove(move, send=true, scramble=false) {  
-    //     if (send) {
-    //         sendMove(move);
-    //     }
-
-    //     let anticlockwise = false;
-    //     if (move[move.length - 1] == "'") {
-    //         anticlockwise = true;
-    //         move = move.slice(0, -1); // remove ' from the move
-    //     }
-    //     let isWideMove = false;
-    //     if (move[move.length - 1] == "w") {
-    //         isWideMove = true;
-    //         move = move.slice(0, -1);
-    //     }
-
-    //     const rotations = ["x", "x'", "y", "y'", "z", "z'"];
-    //     // move is rotation
-    //     if (rotations.includes(move)) {
-    //         const args = [-Infinity, Infinity, move[0], -1];
-    //         if (anticlockwise) args[3] = 1;
-    //         this.rotateGroupGen(...args);
-    //         return;
-    //     }
-
-    //     // move is not a rotation
-    //     const [axis, index] = this.moveToLayer.get(move);
-    //     let lowerBound = this.firstLayerPosition + index - 0.25;
-    //     let upperBound = this.firstLayerPosition + index + 0.25;
-    //     if (index < this.flipped[axis]) anticlockwise = !anticlockwise;
-    //     if (index == 0) {
-    //         lowerBound -= 1;
-    //         if (isWideMove) upperBound += 1;
-    //     } else if (index == this.layers - 1) {
-    //         upperBound += 1;
-    //         if (isWideMove) lowerBound -= 1;
-    //     }
-    //     const args = [lowerBound, upperBound, axis, -1];
-    //     if (anticlockwise) args[3] = 1;
-    //     this.rotateGroupGen(...args);
-    // }
 
     rotateGroupGen(low, high, axis, mult) {
         const scene = this.scene;

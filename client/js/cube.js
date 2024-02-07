@@ -4,7 +4,7 @@ import { OrbitControls } from './libs/OrbitControls.js';
 import { sendMove, sendCamera, sendReset } from './websocket.js';
 import { requestRenderIfNotRequested } from './main.js';
 import { Timer, startTimer, stopTimer, isStarted } from './timer.js';
-import { getOrtogonalVectors, getScreenCoordinates, degToRad, drawLine } from './utils.js';
+import { getOrtogonalVectors, getScreenCoordinates, degToRad, drawLine, sleep } from './utils.js';
 
 const xAxis = ["x", new THREE.Vector3(1, 0, 0)];
 const yAxis = ["y", new THREE.Vector3(0, 1, 0)];
@@ -123,6 +123,23 @@ class Rotation extends Move {
         }
     }
 }
+
+class Solve {
+    constructor(scramble) {
+        this.scramble = scramble;
+        this.startTime = performance.now();
+        this.events = [];
+    }
+
+    logMove(move) {
+        this.events.push(["move", performance.now() - this.startTime, move]);
+    }
+
+    logCamera(pos) {
+        this.events.push(["rotation", performance.now() - this.startTime, pos.clone()]);
+    }
+}
+
 
 
 class Cube {
@@ -421,17 +438,50 @@ class MovableCube extends Cube {
         this.controls.maxPolarAngle = degToRad(120);
         this.controls.update();
         this.controls.addEventListener('change', () => this.render());
-        this.controls.addEventListener('end', () => this.onCameraEnd());
-        this.controls.addEventListener('change', () => this.onCameraEnd());
+        this.controls.addEventListener('end', () => this.onCameraChange());
+        this.controls.addEventListener('change', () => this.onCameraChange());
         this.timer = new Timer(document.getElementById("timer"));
+        this.solve = undefined;
+        this.solveHistory = [];
+    }
+
+    replayStep(eventType, arg) {
+        if (eventType == "move") {
+            super.makeMove(arg, false);
+        } else if (eventType == "rotation") {
+            this.camera.position.copy(arg);
+            this.camera.lookAt(0, 0, 0);
+            this.render();
+        } else {
+            alert("unknown eventType")
+        }
+    }
+
+    async replay() {
+        this.reset();
+        const solve = JSON.parse(localStorage.getItem("lastSolve"));
+        this.scramble(solve.scramble);
+        let lastTime = solve.startTime;
+        for (const [eventType, time, arg] of solve.events) {
+            await sleep(time - lastTime);
+            this.replayStep(eventType, arg);
+            lastTime = time;
+        }
     }
 
     isSolved() {
         super.isSolved();
-        if (this.timer.started && this.solved) this.timer.stop();
+        if (this.timer.started && this.solved) {
+            this.timer.stop()
+            this.solveHistory.push(this.solve);
+            localStorage.setItem("lastSolve", JSON.stringify(this.solve));
+            this.solve = undefined;
+        };
     }
 
     scramble(scramble) {
+        this.reset();
+        this.solve = new Solve(scramble);
         for (const move of scramble) {
             super.makeMove(move);
         }
@@ -440,11 +490,17 @@ class MovableCube extends Cube {
 
     makeMove(move, send=true, scramble=false) {
         if (!scramble && !isRotation(move) && this.timer.inspection) { this.timer.start()};
+        if (this.solve) {
+            this.solve.logMove(move);
+        }
         super.makeMove(move, send);
 
     }
 
-    onCameraEnd() {
+    onCameraChange() {
+        if (this.solve) {
+            this.solve.logCamera(this.camera.position);
+        }
         sendCamera(this.camera.position);
     }
 

@@ -37,4 +37,8 @@ function drawLine(start, end, scene) {
     scene.add( line )
 }
 
-export { getOrtogonalVectors, getScreenCoordinates, degToRad, drawLine };
+async function sleep(ms) {
+    await new Promise(r => setTimeout(r, ms));
+}
+
+export { getOrtogonalVectors, getScreenCoordinates, degToRad, drawLine, sleep };

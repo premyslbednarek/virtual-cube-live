@@ -147,6 +147,9 @@ button.addEventListener('click', () => cube.toggleSpeedMode());
 const resetButton = document.getElementById("reset");
 resetButton.addEventListener("click", () =>  cube.reset(), false);
 
+const replayButton = document.getElementById("replay");
+replayButton.addEventListener("click", () => cube.replay(), false);
+
 export {
     drawAnotherCube,
     moveAnotherCube,

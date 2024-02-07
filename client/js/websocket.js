@@ -67,4 +67,8 @@ function sendCamera(args) {
 function sendReset() {
     socket.emit("reset");
 }
-export {sendMove, sendCamera, sendLayerChange, sendReset};
+
+function sendSolve(solve) {
+    socket.emit("solve", solve, (a) => console.log("dostal to", a));
+}
+export {sendMove, sendCamera, sendLayerChange, sendReset, sendSolve};

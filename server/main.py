@@ -2,6 +2,7 @@
 # code from https://tutorialedge.net/python/python-socket-io-tutorial/
 from aiohttp import web
 import socketio
+import sqlite3
 
 ## creates a new Async Socket IO Server
 sio = socketio.AsyncServer(cors_allowed_origins="*") # cors error without cors_allowed origins
@@ -10,6 +11,9 @@ app = web.Application()
 # Binds our Socket.IO server to our Web App
 ## instance
 sio.attach(app)
+
+con = sqlite3.connect("database.db")
+cur = con.cursor()
 
 ## we can define aiohttp endpoints just as we normally
 ## would with no change
@@ -54,6 +58,13 @@ async def distributeCamera(sid, message):
 @sio.on("reset")
 async def distributeReset(sid):
     await sio.emit("opponentReset", [sidToName[sid]], skip_sid=sid)
+
+@sio.on("solve")
+async def getSolve(sid, message):
+    cur.execute("INSERT INTO solves (solve) VALUES (?)", [str(message)])
+    con.commit()
+    # return ID of inserted row
+    return cur.lastrowid
 
 @sio.event
 async def connect(sid, environ, auth):

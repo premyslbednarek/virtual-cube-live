@@ -1,7 +1,7 @@
 import * as THREE from './libs/three.module.js'
 import * as TWEEN from './libs/tween.module.js'
 import { OrbitControls } from './libs/OrbitControls.js';
-import { sendMove, sendCamera, sendReset } from './websocket.js';
+import { sendMove, sendCamera, sendReset, sendSolve } from './websocket.js';
 import { requestRenderIfNotRequested } from './main.js';
 import { Timer, startTimer, stopTimer, isStarted } from './timer.js';
 import { getOrtogonalVectors, getScreenCoordinates, degToRad, drawLine, sleep } from './utils.js';
@@ -475,6 +475,7 @@ class MovableCube extends Cube {
             this.timer.stop()
             this.solveHistory.push(this.solve);
             localStorage.setItem("lastSolve", JSON.stringify(this.solve));
+            sendSolve(this.solve);
             this.solve = undefined;
         };
     }

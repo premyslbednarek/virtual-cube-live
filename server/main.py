@@ -1,97 +1,74 @@
-# https://python-socketio.readthedocs.io/en/latest/server.html
-# code from https://tutorialedge.net/python/python-socket-io-tutorial/
-from aiohttp import web
-import socketio
+from flask import Flask, request
+from flask_socketio import SocketIO
 import sqlite3
 
-## creates a new Async Socket IO Server
-sio = socketio.AsyncServer(cors_allowed_origins="*") # cors error without cors_allowed origins
-## Creates a new Aiohttp Web Application
-app = web.Application()
-# Binds our Socket.IO server to our Web App
-## instance
-sio.attach(app)
+app = Flask(__name__)
 
-con = sqlite3.connect("database.db")
-cur = con.cursor()
-
-## we can define aiohttp endpoints just as we normally
-## would with no change
-async def index(request):
-    with open('index.html') as f:
-        return web.Response(text=f.read(), content_type='text/html')
+# https://github.com/miguelgrinberg/Flask-SocketIO/issues/1356#issuecomment-681830773
+socketio = SocketIO(app, cors_allowed_origins="*", engineio_logger=True)
 
 sidToName = {}
 i = 0
 
-## If we wanted to create a new websocket endpoint,
-## use this decorator, passing in the name of the
-## event we wish to listen out for
-@sio.on('message')
-async def print_message(sid, message):
-    ## When we receive a new event of type
-    ## 'message' through a socket.io connection
-    ## we print the socket ID and the message
-    print("Socket ID: " , sid)
+@socketio.on('message')
+def print_message(message):
+    print("Socket ID: " , request.sid)
     print("Incoming message: ", message)
-    await sio.emit("ack", "the server has gotten the message")
+    socketio.emit("ack", "the server has gotten the message")
 
 
-@sio.on('ack')
-async def print_ack(sid, message):
+@socketio.on('ack')
+def print_ack(message):
+    print("ACK", message)
     print("The client has gotten the message.")
 
-@sio.on("move")
-async def distributeMove(sid, message):
-    print(message)
-    await sio.emit("opponentMove", [sidToName[sid], message], skip_sid=sid)
+@socketio.on("move")
+def distributeMove(message):
+    socketio.emit("opponentMove", [sidToName[request.sid], message], skip_sid=request.sid)
 
-@sio.on("layersChange")
-async def distributeMove(sid, newLayers):
-    print(f"{sidToName[sid]} changed cube to {newLayers}x{newLayers}")
-    await sio.emit("opponentLayers", [sidToName[sid], newLayers], skip_sid=sid)
+@socketio.on("layersChange")
+def distributeMove(newLayers):
+    print(f"{sidToName[request.sid]} changed cube to {newLayers}x{newLayers}")
+    socketio.emit("opponentLayers", [sidToName[request.sid], newLayers], skip_sid=request.sid)
 
-@sio.on("camera")
-async def distributeCamera(sid, message):
-    await sio.emit("opponentCamera", [sidToName[sid], message], skip_sid=sid)
+@socketio.on("camera")
+def distributeCamera(message):
+    socketio.emit("opponentCamera", [sidToName[request.sid], message], skip_sid=request.sid)
 
-@sio.on("reset")
-async def distributeReset(sid):
-    await sio.emit("opponentReset", [sidToName[sid]], skip_sid=sid)
+@socketio.on("reset")
+def distributeReset():
+    socketio.emit("opponentReset", [sidToName[request.sid]], skip_sid=request.sid)
 
-@sio.on("solve")
-async def getSolve(sid, message):
+@socketio.on("solve")
+def getSolve(message):
+    con = sqlite3.connect("database.db")
+    cur = con.cursor()
     cur.execute("INSERT INTO solves (solve) VALUES (?)", [str(message)])
     con.commit()
+    con.close()
     # return ID of inserted row
     return cur.lastrowid
 
-@sio.event
-async def connect(sid, environ, auth):
+@socketio.event
+def connect():
     global i
-    print('connect ', sid)
+    print('connect ', request.sid)
     connected_users = list(sidToName.values())
-    sidToName[sid] = i
+    sidToName[request.sid] = i
     i += 1
     print("Sending welcoming message...")
-    await sio.emit("message", f"Welcome to the server. Your session user id is {sidToName[sid]}", to=sid)
-    await sio.emit("welcome", {"nUsers": len(sidToName) - 1, "usersIds": connected_users}, to=sid)
-    await sio.emit("message", f"User with session id {sidToName[sid]} has connected.", skip_sid=sid)
-    await sio.emit("connection", sidToName[sid], skip_sid=sid)
+    socketio.emit("message", f"Welcome to the server. Your session user id is {sidToName[request.sid]}", to=request.sid)
+    socketio.emit("welcome", {"nUsers": len(sidToName) - 1, "usersIds": connected_users}, to=request.sid)
+    socketio.emit("message", f"User with session id {sidToName[request.sid]} has connected.", skip_sid=request.sid)
+    socketio.emit("connection", sidToName[request.sid], skip_sid=request.sid)
     print("Welcoming message sent...")
 
-@sio.event
-async def disconnect(sid):
-    print('disconnect ', sid)
-    await sio.emit("message", f"User with session id {sidToName[sid]} has disconnected.")
-    await sio.emit("disconnection", sidToName[sid])
-    del sidToName[sid]
+@socketio.event
+def disconnect():
+    print('disconnect ', request.sid)
+    socketio.emit("message", f"User with session id {sidToName[request.sid]} has disconnected.")
+    socketio.emit("disconnection", sidToName[request.sid])
+    del sidToName[request.sid]
 
-
-## We bind our aiohttp endpoint to our app
-## router
-app.router.add_get('/', index)
-
-## We kick off our server
 if __name__ == '__main__':
-    web.run_app(app)
+    socketio.run(app, port=8080, debug=True)

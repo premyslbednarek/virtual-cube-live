@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, send_from_directory
 from flask_socketio import SocketIO
 import sqlite3
 
@@ -9,6 +9,19 @@ socketio = SocketIO(app, cors_allowed_origins="*", engineio_logger=True)
 
 sidToName = {}
 i = 0
+
+@app.route('/')
+def index():
+    return send_from_directory("../client", "index.html")
+
+@app.route('/js/<path:path>')
+def js(path):
+    return send_from_directory("../client/js", path)
+
+@app.route('/style/<path:path>')
+def style(path):
+    return send_from_directory("../client/style", path)
+
 
 @socketio.on('message')
 def print_message(message):
@@ -71,4 +84,4 @@ def disconnect():
     del sidToName[request.sid]
 
 if __name__ == '__main__':
-    socketio.run(app, port=8080, debug=True)
+    socketio.run(app, host="localhost", port=8080, debug=True)

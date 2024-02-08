@@ -26,10 +26,11 @@ class Timer {
         const timeElapsed = performance.now() - this.startTime;
         const timeString = Math.floor(timeElapsed / 1000) + "s";
         this.started = false;
-        if (write) {
-            const timeListElement = document.getElementById("times");
-            timeListElement.innerHTML += `<br> ${timeString}`;
-        }
+        // if (write) {
+        //     const timeListElement = document.getElementById("times");
+        //     timeListElement.innerHTML += `<br> ${timeString}`;
+        // }
+        return timeString;
     }
 
     startInspection() {

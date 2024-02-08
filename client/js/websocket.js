@@ -68,7 +68,10 @@ function sendReset() {
     socket.emit("reset");
 }
 
-function sendSolve(solve) {
-    socket.emit("solve", solve, (a) => console.log("dostal to", a));
+async function sendSolve(solve) {
+    // socket.emit("solve", solve, (a) => console.log("dostal to", a));
+    const response = socket.emitWithAck("solve", solve).then((response) => console.log("dostal jsem odpoved", response));
+    // console.log("Move was inserted into the database with id:", await response);
+    return response;
 }
-export {sendMove, sendCamera, sendLayerChange, sendReset, sendSolve};
+export {sendMove, sendCamera, sendLayerChange, sendReset, sendSolve, socket};

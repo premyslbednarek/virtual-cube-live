@@ -1,7 +1,7 @@
 import * as THREE from './libs/three.module.js'
 import * as TWEEN from './libs/tween.module.js'
 import { OrbitControls } from './libs/OrbitControls.js';
-import { sendMove, sendCamera, sendReset, sendSolve } from './websocket.js';
+import { sendMove, sendCamera, sendReset, sendSolve, socket } from './websocket.js';
 import { requestRenderIfNotRequested } from './main.js';
 import { Timer, startTimer, stopTimer, isStarted } from './timer.js';
 import { getOrtogonalVectors, getScreenCoordinates, degToRad, drawLine, sleep } from './utils.js';
@@ -457,9 +457,8 @@ class MovableCube extends Cube {
         }
     }
 
-    async replay() {
+    async replay(solve) {
         this.reset();
-        const solve = JSON.parse(localStorage.getItem("lastSolve"));
         this.scramble(solve.scramble);
         let lastTime = solve.startTime;
         for (const [eventType, time, arg] of solve.events) {
@@ -469,13 +468,35 @@ class MovableCube extends Cube {
         }
     }
 
+    replay_from_id(id) {
+        socket.emit("getSolve", id, (solve) => this.replay(JSON.parse(solve)));
+    }
+
+    replay_last() {
+        const solve = JSON.parse(localStorage.getItem("lastSolve"));
+        this.replay(solve);
+    }
+
+    addToTable(solveID, timeString) {
+        const timeListElement = document.getElementById("times");
+        const div = document.createElement("div");
+        div.innerHTML = `${solveID}: ${timeString}`;
+        const button = document.createElement("button");
+        button.innerHTML = "replay";
+        button.addEventListener("click", () => this.replay_from_id(solveID), false);
+        div.appendChild(button);
+        timeListElement.appendChild(div);
+        // timeListElement.innerHTML += `<br> ${solveID}: ${timeString}`;
+    }
+
     isSolved() {
         super.isSolved();
         if (this.timer.started && this.solved) {
-            this.timer.stop()
+            const timeString = this.timer.stop()
             this.solveHistory.push(this.solve);
             localStorage.setItem("lastSolve", JSON.stringify(this.solve));
-            sendSolve(this.solve);
+            // const response = sendSolve(this.solve);
+            socket.emit("solve", JSON.stringify(this.solve), (solveID) => this.addToTable(solveID, timeString));
             this.solve = undefined;
         };
     }

@@ -53,7 +53,7 @@ def distributeReset():
     socketio.emit("opponentReset", [sidToName[request.sid]], skip_sid=request.sid)
 
 @socketio.on("solve")
-def getSolve(message):
+def insertSolve(message):
     con = sqlite3.connect("database.db")
     cur = con.cursor()
     cur.execute("INSERT INTO solves (solve) VALUES (?)", [str(message)])
@@ -61,6 +61,18 @@ def getSolve(message):
     con.close()
     # return ID of inserted row
     return cur.lastrowid
+
+@socketio.on("getSolve")
+def getSolve(id):
+    con = sqlite3.connect("database.db")
+    cur = con.cursor()
+    cur.execute("SELECT solve FROM solves WHERE id=?", [id])
+    res = cur.fetchone()[0]
+    cur.close()
+    con.close()
+    return res
+
+
 
 @socketio.event
 def connect():

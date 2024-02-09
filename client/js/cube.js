@@ -500,7 +500,12 @@ class MovableCube extends Cube {
             this.solveHistory.push(this.solve);
             localStorage.setItem("lastSolve", JSON.stringify(this.solve));
             // const response = sendSolve(this.solve);
-            socket.emit("solve", JSON.stringify(this.solve), (solveID) => this.addToTable(solveID, timeString));
+            const solveData = {
+                solve: JSON.stringify(this.solve),
+                timeString: timeString,
+                layers: this.layers
+            }
+            socket.emit("uploadSolve", solveData, (solveID) => this.addToTable(solveID, timeString));
             this.solve = undefined;
         };
     }

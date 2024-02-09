@@ -52,11 +52,12 @@ def distributeCamera(message):
 def distributeReset():
     socketio.emit("opponentReset", [sidToName[request.sid]], skip_sid=request.sid)
 
-@socketio.on("solve")
-def insertSolve(message):
+@socketio.on("uploadSolve")
+def insertSolve(data):
+    print(data)
     con = sqlite3.connect("database.db")
     cur = con.cursor()
-    cur.execute("INSERT INTO solves (solve) VALUES (?)", [str(message)])
+    cur.execute("INSERT INTO solves (solve, layers, time) VALUES (?, ?, ?)", [data["solve"], data["layers"], data["timeString"]])
     con.commit()
     con.close()
     # return ID of inserted row

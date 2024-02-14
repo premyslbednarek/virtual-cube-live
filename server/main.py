@@ -1,22 +1,96 @@
-from flask import Flask, request, send_from_directory
+from flask import Flask, request, send_from_directory, render_template, redirect, flash
 from flask_socketio import SocketIO
+from flask_login import LoginManager, UserMixin, login_user, logout_user
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_sqlalchemy import SQLAlchemy
 import sqlite3
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db' # Using SQLite as the database
+app.config['SECRET_KEY'] = "secret"
+db = SQLAlchemy()
+db.init_app(app)
+
+login_manager = LoginManager()
+login_manager.init_app(app)
 
 # https://github.com/miguelgrinberg/Flask-SocketIO/issues/1356#issuecomment-681830773
-socketio = SocketIO(app, cors_allowed_origins="*", engineio_logger=True)
+socketio = SocketIO(app, cors_allowed_origins="*", engineio_logger=False)
 
 sidToName = {}
 i = 0
 
+class Solve(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    layers = db.Column(db.Integer)
+    scramble = db.Column(db.String(128))
+    solution = db.Column(db.Text)
+    time = db.Column(db.Text)
+
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(64), unique=True)
+    password_hash = db.Column(db.String(128))
+
+with app.app_context():
+    db.create_all() 
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(user_id)
+
 @app.route('/')
 def index():
-    return send_from_directory("../client", "index.html")
+    return render_template("index.html")
+    # return send_from_directory("../client", "index.html")
 
 @app.route('/js/<path:path>')
 def js(path):
     return send_from_directory("../client/js", path)
+
+@app.route('/register', methods=["GET"])
+def register():
+    return render_template("register.html")
+
+
+@app.route('/register', methods=["POST"])
+def register_post():
+    username = request.form['username']
+    password = request.form['password']
+    hashed_password = generate_password_hash(password)
+    print(username, hashed_password)
+
+    new_user = User(username=username,password_hash=hashed_password) 
+    print(username, password)
+    db.session.add(new_user)
+    db.session.commit()
+    flash("AAAAA")
+    return redirect("/")
+
+@app.route('/login', methods=["GET"])
+def login():
+    return render_template("login.html")
+
+@app.route('/login', methods=["POST"])
+def login_post():
+    username = request.form['username']
+    password = request.form['password']
+    print(username)
+    user = User.query.filter_by(username=username).first()
+    if user and check_password_hash(user.password_hash, password):
+        login_user(user)
+        print("Logged in")
+    else:
+        print("Login unsuccesfull")
+
+    return redirect("/")
+
+@app.route("/logout")
+def logout():
+    logout_user()
+    return redirect("/")
 
 @app.route('/style/<path:path>')
 def style(path):

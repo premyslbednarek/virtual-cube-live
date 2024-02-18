@@ -469,7 +469,7 @@ class MovableCube extends Cube {
     }
 
     replay_from_id(id) {
-        socket.emit("getSolve", id, (solve) => this.replay(JSON.parse(solve)));
+        socket.emit("getSolve", id, (solve) => this.replay({scramble: JSON.parse(solve.scramble), events: JSON.parse(solve.solution)}));
     }
 
     replay_last() {
@@ -501,7 +501,8 @@ class MovableCube extends Cube {
             localStorage.setItem("lastSolve", JSON.stringify(this.solve));
             // const response = sendSolve(this.solve);
             const solveData = {
-                solve: JSON.stringify(this.solve),
+                solution: this.solve.events,
+                scramble: this.solve.scramble,
                 timeString: timeString,
                 layers: this.layers
             }

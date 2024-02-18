@@ -2,7 +2,7 @@ import { drawAnotherCube, moveAnotherCube, moveAnotherCamera, removeCube, change
 import { io } from './libs/socket.io.esm.min.js'
 
 localStorage.debug = 'socket.io-client:socket'
-let socket = io("localhost:8080")
+let socket = io()
 
 socket.on("message", function(data) {
     console.log("Incoming message: ", data);

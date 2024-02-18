@@ -1,9 +1,9 @@
 from flask import Flask, request, send_from_directory, render_template, redirect, flash
 from flask_socketio import SocketIO
-from flask_login import LoginManager, UserMixin, login_user, logout_user
+from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
-import sqlite3
+import json
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db' # Using SQLite as the database
@@ -80,7 +80,7 @@ def login_post():
     print(username)
     user = User.query.filter_by(username=username).first()
     if user and check_password_hash(user.password_hash, password):
-        login_user(user)
+        login_user(user, remember=True)
         print("Logged in")
     else:
         print("Login unsuccesfull")
@@ -128,26 +128,25 @@ def distributeReset():
 
 @socketio.on("uploadSolve")
 def insertSolve(data):
-    print(data)
-    con = sqlite3.connect("database.db")
-    cur = con.cursor()
-    cur.execute("INSERT INTO solves (solve, layers, time) VALUES (?, ?, ?)", [data["solve"], data["layers"], data["timeString"]])
-    con.commit()
-    con.close()
-    # return ID of inserted row
-    return cur.lastrowid
+    user_id = current_user.get_id()
+    user = load_user(user_id)
+    id = user.id
+    solve = Solve(
+        user_id=id,
+        layers=data["layers"],
+        scramble=json.dumps(data["scramble"]),
+        solution=json.dumps(data["solution"]),
+        time=data["timeString"]
+    )
+    db.session.add(solve)
+    db.session.commit()
+    # db.session.refresh(solve)
+    return solve.id
 
 @socketio.on("getSolve")
 def getSolve(id):
-    con = sqlite3.connect("database.db")
-    cur = con.cursor()
-    cur.execute("SELECT solve FROM solves WHERE id=?", [id])
-    res = cur.fetchone()[0]
-    cur.close()
-    con.close()
-    return res
-
-
+    solve = Solve.query.filter_by(id=id).first()
+    return { "scramble": solve.scramble, "solution": solve.solution }
 
 @socketio.event
 def connect():
@@ -162,6 +161,7 @@ def connect():
     socketio.emit("message", f"User with session id {sidToName[request.sid]} has connected.", skip_sid=request.sid)
     socketio.emit("connection", sidToName[request.sid], skip_sid=request.sid)
     print("Welcoming message sent...")
+    print("pripojeni")
 
 @socketio.event
 def disconnect():

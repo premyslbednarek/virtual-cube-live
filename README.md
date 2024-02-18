@@ -1,9 +1,19 @@
-This is a sample readme.
+# virtual Rubik's cube
 
-# python-socketio needed for server-side websockets client
-pip install python-socketio
-# aiohttp
-pip install aiohttp
+## Setup
+```Shell
+# install python3 virtualenv package
+pip install virtualenv
 
-# start the websocket server with
-python3 server/main.py
+# create python virtual environment
+python3 -m venv env
+
+# activate the virtual environment
+source env/bin/activate
+
+# install dependencies
+pip install -r requirements.txt
+
+# run the server
+python3 main.py
+```

@@ -1,4 +1,5 @@
-import { Cube, MovableCube } from './cube.js';
+import { Cube } from './cube.js';
+import { MovableCube } from './movablecube.js';
 import { sendLayerChange } from './websocket.js';
 import * as TWEEN from './libs/tween.module.js';
 import keybinds from './keybindings.js';

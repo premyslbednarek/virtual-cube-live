@@ -41,6 +41,14 @@ with app.app_context():
 def load_user(user_id):
     return User.query.get(user_id)
 
+@app.route("/solve/<int:solve_id>")
+def solve(solve_id):
+    solve = Solve.query.filter_by(id=solve_id).first()
+    if solve is None:
+        return "Solve with this ID does not exist"
+    print("Scramble", solve.scramble)
+    return render_template("solve.html", solution=solve.solution, scramble=solve.scramble)
+
 @app.route('/')
 def index():
     return render_template("index.html")

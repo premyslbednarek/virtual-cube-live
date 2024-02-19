@@ -1,0 +1,22 @@
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Solve replay</title>
+    </head>
+    <body>
+        <div id="scramble">Scramble: </div>
+    </body>
+    <script>
+        const div = document.getElementById("scramble");
+        var scramble = JSON.parse({{ scramble | tojson }});
+        var solution = JSON.parse({{ solution | tojson }});
+        console.log(scramble)
+        for (const move of scramble) {
+            div.innerHTML += move + " ";
+        }
+
+        for (const move of solution)
+            div.innerHTML += "<br>" + move;
+    </script>
+</html>

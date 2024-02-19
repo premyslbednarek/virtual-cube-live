@@ -1,22 +1,51 @@
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="height: 100%;">
     <head>
         <title>Solve replay</title>
     </head>
-    <body>
-        <div id="scramble">Scramble: </div>
+    <body style="height: 100%;">
+        <canvas id="c" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%"></canvas>
+        <div id="scramble" style="position: absolute; color: white;">Scramble: </div>
     </body>
-    <script>
+    <script type="module">
+        import { Cube } from '/static/js/cube.js';
+
+        const canvas = document.getElementById("c");
+        const cube = new Cube(3, canvas);
+
         const div = document.getElementById("scramble");
         var scramble = JSON.parse({{ scramble | tojson }});
         var solution = JSON.parse({{ solution | tojson }});
+
         console.log(scramble)
         for (const move of scramble) {
+            cube.makeMove(move);
             div.innerHTML += move + " ";
         }
 
-        for (const move of solution)
-            div.innerHTML += "<br>" + move;
+        div.innerHTML += "<br> Solve: "
+
+        function replayStep(cube, eventType, arg) {
+            if (eventType == "move") {
+                cube.makeMove(arg);
+                div.innerHTML += arg + " ";
+            } else if (eventType == "rotation") {
+                cube.camera.position.copy(arg);
+                cube.camera.lookAt(0, 0, 0);
+                cube.render();
+            } else {
+                alert("unknown eventType")
+            }
+        }
+
+        // replay the solve
+        let lastTime = 0;
+        for (const [eventType, time, arg] of solution) {
+            await new Promise(r => setTimeout(r, time - lastTime));
+            replayStep(cube, eventType, arg);
+            lastTime = time;
+        }
+
     </script>
 </html>

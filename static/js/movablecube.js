@@ -241,7 +241,7 @@ class MovableCube extends Cube {
             sendMove(move);
         }
         if (!scramble && !isRotation(move) && this.timer.inspection) { this.timer.start()};
-        if (this.solve) {
+        if (!scramble && this.solve) {
             this.solve.logMove(move);
         }
         super.makeMove(move, send);

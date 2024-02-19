@@ -46,7 +46,6 @@ def solve(solve_id):
     solve = Solve.query.filter_by(id=solve_id).first()
     if solve is None:
         return "Solve with this ID does not exist"
-    print("Scramble", solve.scramble)
     return render_template("solve.html", solution=solve.solution, scramble=solve.scramble)
 
 @app.route('/')

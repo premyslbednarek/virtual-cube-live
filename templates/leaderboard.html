@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Leaderboard</title>
+    </head>
+    <body>
+        <table style="text-align: center;">
+            <tr>
+                <th>solve_id</th>
+                <th>username</th>
+                <th>layers</th>
+                <th>time</th>
+                <th>replay</th>
+            </tr>
+            {% for (solve, user) in solves %}
+            <tr>
+                <td>{{ solve.id }}</td>
+                <td>
+                    {% if user.username %}
+                    {{ user.username }} 
+                    {% else %}
+                    Anonymous 
+                    {% endif %}
+                </td>
+                <td>{{ solve.layers }}</td>
+                <td>{{ solve.time }}</td>
+                <td><a href="/solve/{{solve.id}}">replay</a></td>
+            </tr>
+            {% endfor %}
+        </table>
+    </body>
+</html>

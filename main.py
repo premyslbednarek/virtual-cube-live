@@ -105,6 +105,16 @@ def logout():
 def style(path):
     return send_from_directory("../client/style", path)
 
+@app.route('/leaderboard')
+def leaderboard():
+    solves = Solve.query.all()
+    for solve in solves:
+        print(solve)
+    q = db.session.query(Solve, User).outerjoin(User, User.id == Solve.user_id).order_by(Solve.time)
+    print("Query:", q)
+    print("result", q.all())
+    return render_template("leaderboard.html", solves=q)
+
 
 @socketio.on('message')
 def print_message(message):
@@ -139,7 +149,10 @@ def distributeReset():
 def insertSolve(data):
     user_id = current_user.get_id()
     user = load_user(user_id)
-    id = user.id
+    id = None
+    if user:
+        id = user.id
+
     solve = Solve(
         user_id=id,
         layers=data["layers"],

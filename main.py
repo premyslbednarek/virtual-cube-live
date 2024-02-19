@@ -1,4 +1,4 @@
-from flask import Flask, request, send_from_directory, render_template, redirect, flash
+from flask import Flask, request, send_from_directory, render_template, redirect, flash, url_for
 from flask_socketio import SocketIO
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -52,7 +52,7 @@ def js(path):
 
 @app.route('/register', methods=["GET"])
 def register():
-    return render_template("register.html")
+    return render_template("login.html", text="register")
 
 
 @app.route('/register', methods=["POST"])
@@ -60,18 +60,26 @@ def register_post():
     username = request.form['username']
     password = request.form['password']
     hashed_password = generate_password_hash(password)
-    print(username, hashed_password)
+
+    if not username or not password:
+        flash("insert both username and password")
+        return redirect(url_for("register"))
+
+    user = User.query.filter_by(username=username).first()
+    print(user)
+    if user:
+        flash("user already exists")
+        return redirect(url_for("register"))
 
     new_user = User(username=username,password_hash=hashed_password) 
-    print(username, password)
     db.session.add(new_user)
     db.session.commit()
-    flash("AAAAA")
+    login_user(new_user, remember=True)
     return redirect("/")
 
 @app.route('/login', methods=["GET"])
 def login():
-    return render_template("login.html")
+    return render_template("login.html", text="login")
 
 @app.route('/login', methods=["POST"])
 def login_post():
@@ -83,7 +91,8 @@ def login_post():
         login_user(user, remember=True)
         print("Logged in")
     else:
-        print("Login unsuccesfull")
+        flash("Wrong username or password")
+        return redirect(url_for("login"))
 
     return redirect("/")
 

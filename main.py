@@ -33,6 +33,10 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(64), unique=True)
     password_hash = db.Column(db.String(128))
 
+class Lobby(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    creator = db.Column(db.Integer)
+
 with app.app_context():
     db.create_all() 
 
@@ -47,6 +51,26 @@ def solve(solve_id):
     if solve is None:
         return "Solve with this ID does not exist"
     return render_template("solve.html", layers=solve.layers, solution=solve.solution, scramble=solve.scramble)
+
+@app.route("/lobby")
+def lobby_index():
+    return render_template("lobby.html")
+
+lobbies = {}
+@app.route("/lobby/new")
+def new_lobby():
+    user_id = current_user.get_id()
+    user = load_user(user_id)
+    user_id = user_id if user else None
+    lobby = Lobby(creator=user_id)
+    db.session.add(lobby)
+    db.session.commit()
+    lobby_id = lobby.id
+    return redirect(f"/lobby/{lobby_id}")
+
+@app.route("/lobby/<int:lobby_id>")
+def lobby(lobby_id):
+    return str(lobby_id)
 
 @app.route('/')
 def index():

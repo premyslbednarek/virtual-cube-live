@@ -12,7 +12,8 @@
         import { Cube } from '/static/js/cube.js';
 
         const canvas = document.getElementById("c");
-        const cube = new Cube(3, canvas);
+        const layers = {{ layers }};
+        const cube = new Cube(layers, canvas);
 
         const div = document.getElementById("scramble");
         var scramble = JSON.parse({{ scramble | tojson }});

@@ -155,14 +155,9 @@ const timeElementList = document.getElementById("times");
 const times = JSON.parse(localStorage.getItem("times"));
 if (times) {
     for (const time of times) {
-        const timeListElement = document.getElementById("times");
         const div = document.createElement("div");
-        div.innerHTML = `${time.solveID}: ${time.time}`;
-        const button = document.createElement("button");
-        button.innerHTML = "replay";
-        button.addEventListener("click", () => cube.replay_from_id(time.solveID), false);
-        div.appendChild(button);
-        timeListElement.appendChild(div);
+        div.innerHTML = `${time.solveID}: ${time.time} <a href="/solve/${time.solveID}" target="_blank">replay</a>`;
+        timeElementList.appendChild(div);
     }
 }
 

@@ -195,11 +195,7 @@ class MovableCube extends Cube {
     addToTable(solveID, timeString) {
         const timeListElement = document.getElementById("times");
         const div = document.createElement("div");
-        div.innerHTML = `${solveID}: ${timeString}`;
-        const button = document.createElement("button");
-        button.innerHTML = "replay";
-        button.addEventListener("click", () => this.replay_from_id(solveID), false);
-        div.appendChild(button);
+        div.innerHTML = `${solveID}: ${timeString} <a href="/solve/${solveID}" target="_blank">replay</a>`;
         timeListElement.appendChild(div);
         let times = JSON.parse(localStorage.getItem("times"));
         if (!times) times = [];

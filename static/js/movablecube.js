@@ -196,7 +196,7 @@ class MovableCube extends Cube {
         const timeListElement = document.getElementById("times");
         const div = document.createElement("div");
         div.innerHTML = `${solveID}: ${timeString} <a href="/solve/${solveID}" target="_blank">replay</a>`;
-        timeListElement.appendChild(div);
+        timeListElement.prepend(div);
         let times = JSON.parse(localStorage.getItem("times"));
         if (!times) times = [];
         times.push({time: timeString, solveID: solveID});

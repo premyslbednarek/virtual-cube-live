@@ -17,6 +17,9 @@ body {
 }
 
 #times {
+    height: 70%;
+    scrollbar-gutter: stable; /* make space for scrollbar */
+    overflow: scroll;
     z-index: 1;
     position: absolute;
     top: 80px;

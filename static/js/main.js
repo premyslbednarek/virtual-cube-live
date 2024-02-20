@@ -154,7 +154,8 @@ replayButton.addEventListener("click", () => cube.replay_last(), false);
 const timeElementList = document.getElementById("times");
 const times = JSON.parse(localStorage.getItem("times"));
 if (times) {
-    for (const time of times) {
+    for (let i = times.length - 1; i >= 0; --i) {
+        const time = times[i];
         const div = document.createElement("div");
         div.innerHTML = `${time.solveID}: ${time.time} <a href="/solve/${time.solveID}" target="_blank">replay</a>`;
         timeElementList.appendChild(div);

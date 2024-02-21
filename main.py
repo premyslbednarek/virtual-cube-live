@@ -1,45 +1,26 @@
 from flask import Flask, request, send_from_directory, render_template, redirect, flash, url_for
 from flask_socketio import SocketIO
-from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user
+from flask_login import LoginManager, login_user, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_sqlalchemy import SQLAlchemy
 import json
+from model import db, Solve, User, Lobby
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db' # Using SQLite as the database
 app.config['SECRET_KEY'] = "secret"
-db = SQLAlchemy()
-db.init_app(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+db.init_app(app)
+with app.app_context():
+    db.create_all() 
 
 # https://github.com/miguelgrinberg/Flask-SocketIO/issues/1356#issuecomment-681830773
 socketio = SocketIO(app, cors_allowed_origins="*", engineio_logger=False)
 
 sidToName = {}
 i = 0
-
-class Solve(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    layers = db.Column(db.Integer)
-    scramble = db.Column(db.String(128))
-    solution = db.Column(db.Text)
-    time = db.Column(db.Text)
-
-class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(64), unique=True)
-    password_hash = db.Column(db.String(128))
-
-class Lobby(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    creator = db.Column(db.Integer)
-
-with app.app_context():
-    db.create_all() 
-
 
 @login_manager.user_loader
 def load_user(user_id):

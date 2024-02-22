@@ -5,6 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import json
 from sqlalchemy import select
 from model import db, Solve, User, Lobby, LobbyUsers
+from pyTwistyScrambler import scrambler333, scrambler444
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db' # Using SQLite as the database
@@ -272,9 +273,12 @@ def startLobby(data):
         if conn.ready == 0:
             print(conn.user_id, "is not ready")
             return
+    
+    scramble = scrambler333.get_WCA_scramble()
 
     socketio.emit(
         "match_start",
+        { "scramble": scramble },
         room=lobby_id
     ) 
     print("everyone is ready, starting the match")

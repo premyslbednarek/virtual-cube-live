@@ -8,6 +8,7 @@
     <div>Lobby id: {{ lobby_id }}</div>    
     <div id="userList">Users:</div>
     <button id="readyButton">ready</button>
+    <div id="info"></div>
     {% if is_creator %}
         <button id="startButton">Start the race</button>
     {% endif %}
@@ -70,8 +71,10 @@
         addUser(data.username);
     })
 
-    socket.on("match_start", () => {
-        alert("Match is starting!");
+    socket.on("match_start", function(data) {
+        const scramble = data.scramble;
+        const infoDiv = document.getElementById("info");
+        infoDiv.innerHTML += `The match is starting. <br> Scramble: ${scramble}`;
     })
 
     console.log(socket);

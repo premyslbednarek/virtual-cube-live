@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 
@@ -19,3 +20,9 @@ class User(UserMixin, db.Model):
 class Lobby(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     creator = db.Column(db.Integer)
+
+class LobbyUsers(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    lobby_id:int = db.Column(db.Integer)
+    user_id:int = db.Column(db.Integer)
+    ready: bool = db.Column(db.Integer, default=0)

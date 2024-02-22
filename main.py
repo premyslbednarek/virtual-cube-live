@@ -1,9 +1,10 @@
-from flask import Flask, request, send_from_directory, render_template, redirect, flash, url_for
-from flask_socketio import SocketIO
+from flask import Flask, request, send_from_directory, render_template, redirect, flash, url_for, jsonify
+from flask_socketio import SocketIO, join_room, leave_room
 from flask_login import LoginManager, login_user, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 import json
-from model import db, Solve, User, Lobby
+from sqlalchemy import select
+from model import db, Solve, User, Lobby, LobbyUsers
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db' # Using SQLite as the database
@@ -51,7 +52,17 @@ def new_lobby():
 
 @app.route("/lobby/<int:lobby_id>")
 def lobby(lobby_id):
-    return str(lobby_id)
+    # check whether the user has already joined the lobby
+    q = LobbyUsers.query.filter_by(lobby_id=lobby_id).filter_by(user_id=current_user.id).first()
+    if (q):
+        return "You have already joined this lobby!"
+
+    # show start button only for the lobby creator 
+    q = select(Lobby.creator).filter_by(id=lobby_id)
+    lobby_creator_id = db.session.execute(q).scalar()
+    is_creator = lobby_creator_id == current_user.id
+
+    return render_template("race.html", lobby_id=lobby_id, is_creator=is_creator)
 
 @app.route('/')
 def index():
@@ -182,6 +193,92 @@ def getSolve(id):
     solve = Solve.query.filter_by(id=id).first()
     return { "scramble": solve.scramble, "solution": solve.solution }
 
+@socketio.on("lobby_connection")
+def handle_lobby_conection(data):
+    lobby_id = data["lobby_id"]
+
+    print(current_user.username, "has joined lobby", lobby_id)
+    join_room(lobby_id)
+
+    # add connection to database
+    con = LobbyUsers(
+        lobby_id=lobby_id,
+        user_id=current_user.id
+    )
+    db.session.add(con)
+    db.session.commit()
+
+    socketio.emit(
+        "lobby_connection",
+        { "username": current_user.username },
+        room=lobby_id,
+        skip_sid=request.sid
+    )
+
+    q = select(User.username).join(LobbyUsers, User.id == LobbyUsers.user_id).where(LobbyUsers.lobby_id == lobby_id)
+    result = db.session.execute(q).all()
+    return [res[0] for res in result]
+
+@socketio.on("ready")
+def handle_ready(data):
+    lobby_id = data["lobby_id"]
+    username = current_user.username
+    user_id = current_user.id
+
+    print(username, "is ready in lobby", lobby_id)
+
+    user = LobbyUsers.query.filter_by(lobby_id=lobby_id).filter_by(user_id=user_id).first()
+    user.ready = 1
+    db.session.commit()
+
+    socketio.emit(
+        "ready",
+        { "username": username },
+        room=lobby_id
+    )
+
+@socketio.on("unready")
+def handle_ready(data):
+    lobby_id = data["lobby_id"]
+    username = current_user.username
+    user_id = current_user.id
+
+    print(username, "clicked unready in lobby", lobby_id)
+
+    user = LobbyUsers.query.filter_by(lobby_id=lobby_id).filter_by(user_id=user_id).first()
+    user.ready = 0
+    db.session.commit()
+
+    socketio.emit(
+        "unready",
+        { "username": username },
+        room=lobby_id
+    )
+
+@socketio.on("startLobby")
+def startLobby(data):
+    lobby_id = data["lobby_id"]
+    print(current_user.username, "wants to start lobby with id", lobby_id)
+
+    lobby = Lobby.query.filter_by(id=lobby_id).first()
+    if (lobby.creator != current_user.id):
+        print("Somebody else than the creator tried to start the match")
+        return
+
+    lobby_conns = LobbyUsers.query.filter_by(lobby_id=lobby_id).all()
+    print(lobby_conns)
+    for conn in lobby_conns:
+        print(conn.lobby_id)
+        if conn.ready == 0:
+            print(conn.user_id, "is not ready")
+            return
+
+    socketio.emit(
+        "match_start",
+        room=lobby_id
+    ) 
+    print("everyone is ready, starting the match")
+
 @socketio.event
 def connect():
     global i
@@ -203,6 +300,7 @@ def disconnect():
     socketio.emit("message", f"User with session id {sidToName[request.sid]} has disconnected.")
     socketio.emit("disconnection", sidToName[request.sid])
     del sidToName[request.sid]
+
 
 if __name__ == '__main__':
     socketio.run(app, host="localhost", port=8080, debug=True)

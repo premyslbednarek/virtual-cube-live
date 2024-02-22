@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Race</title>
+</head>
+<body>
+    <div>Lobby id: {{ lobby_id }}</div>    
+    <div id="userList">Users:</div>
+    <button id="readyButton">ready</button>
+    {% if is_creator %}
+        <button id="startButton">Start the race</button>
+    {% endif %}
+</body>
+<script type="module">
+    import { io } from '/static/js/libs/socket.io.esm.min.js'
+    const socket = io();
+
+    const lobby_id = {{ lobby_id }};
+
+    const userList = document.getElementById("userList");
+
+    const users = new Map();
+    function addUser(username) {
+        const div = document.createElement("div");
+        div.innerHTML = username;
+        userList.appendChild(div);
+        users.set(username, { div: div, ready: false} );
+    }
+
+    const readyButton = document.getElementById("readyButton");
+    let ready = false;
+    readyButton.addEventListener("click", () => { 
+        if (!ready) {
+            socket.emit("ready", { lobby_id: lobby_id}) 
+            readyButton.innerHTML = "unready"
+            ready = true;
+        } else {
+            socket.emit("unready", { lobby_id: lobby_id}) 
+            readyButton.innerHTML = "ready"
+            ready = false;
+        }
+    });
+
+    socket.on("ready", function(data) {
+        const username = data.username;
+        const user = users.get(username)
+        user.div.innerHTML = username + " [ready]";
+    });
+
+    socket.on("unready", function(data) {
+        const username = data.username;
+        const user = users.get(username)
+        user.div.innerHTML = username;
+    })
+    
+    {% if is_creator %}
+        const startButton = document.getElementById("startButton")
+        startButton.addEventListener("click", () => {
+            socket.emit("startLobby", { lobby_id: lobby_id});
+        })
+    {% endif %}
+
+    // connect to this lobby
+    socket.emit("lobby_connection", { lobby_id: lobby_id }, function(users) {
+        users.forEach((user) => {addUser(user)});
+    })
+
+    socket.on("lobby_connection", function(data) {
+        addUser(data.username);
+    })
+
+    socket.on("match_start", () => {
+        alert("Match is starting!");
+    })
+
+    console.log(socket);
+</script>
+</html>

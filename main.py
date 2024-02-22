@@ -283,6 +283,20 @@ def startLobby(data):
     ) 
     print("everyone is ready, starting the match")
 
+@socketio.on("lobby_move")
+def lobby_move(data):
+    lobby_id = data["lobby_id"]
+    move = data["move"]
+
+    print(current_user.username, "in lobby", lobby_id, "has made a ", move, "move")
+
+    socketio.emit(
+        "lobby_move",
+        { "username": current_user.username, "move": move},
+        room=lobby_id,
+        skip_sid=request.sid
+    )
+
 @socketio.event
 def connect():
     global i

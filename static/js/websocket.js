@@ -68,6 +68,7 @@ function sendReset() {
     socket.emit("reset");
 }
 
+
 async function sendSolve(solve) {
     // socket.emit("solve", solve, (a) => console.log("dostal to", a));
     const response = socket.emitWithAck("solve", solve).then((response) => console.log("dostal jsem odpoved", response));

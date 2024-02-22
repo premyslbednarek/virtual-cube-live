@@ -12,10 +12,16 @@
     {% if is_creator %}
         <button id="startButton">Start the race</button>
     {% endif %}
+    <br>
+    <canvas id="mainCanvas" style="width: 100%; height: 50%"></canvas>
 </body>
 <script type="module">
     import { io } from '/static/js/libs/socket.io.esm.min.js'
+    import { Cube } from '/static/js/cube.js'
+    import keybinds from '/static/js/keybindings.js'
     const socket = io();
+
+    const cube = new Cube(3, document.getElementById("mainCanvas"));
 
     const lobby_id = {{ lobby_id }};
 
@@ -28,6 +34,16 @@
         userList.appendChild(div);
         users.set(username, { div: div, ready: false} );
     }
+
+    // begin duplication with main.js
+    document.addEventListener("keydown", event => {
+        let move = keybinds.get(event.key);
+        // expand array of parameters with ...args
+        if (move) {
+            cube.makeMove(move);
+        }
+    });
+    // end
 
     const readyButton = document.getElementById("readyButton");
     let ready = false;
@@ -72,7 +88,13 @@
     })
 
     socket.on("match_start", function(data) {
-        const scramble = data.scramble;
+        let scramble = data.scramble;
+        scramble = "D' R U R F' U2 R D L F2 D2 L2 F D2 B' L2 B U2 F2 L2 F'"
+        const moves = scramble.split(' ');
+        for (const move of moves) {
+            console.log(move);
+            cube.makeMove(move);
+        }
         const infoDiv = document.getElementById("info");
         infoDiv.innerHTML += `The match is starting. <br> Scramble: ${scramble}`;
     })

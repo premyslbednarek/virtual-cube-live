@@ -56,15 +56,16 @@ function getFace(axis, coord) {
 }
 
 class Move {
-    constructor(axis, rotationSign) {
+    constructor(axis, rotationSign, double=false) {
         this.axis = axis;
         this.rotationSign = rotationSign;
+        this.double = double;
     }
 }
 
 class LayerMove extends Move {
-    constructor(face, axis, flippedRotation, offset, coord, rotationSign, wide) {
-        super(axis, rotationSign);
+    constructor(face, axis, flippedRotation, offset, coord, rotationSign, wide, double=false) {
+        super(axis, rotationSign, double);
         this.face = face;
         this.offset = offset;
         this.coord = coord;
@@ -77,6 +78,7 @@ class LayerMove extends Move {
         if (this.offset > 0) string += this.offset + 1;
         string += this.face;
         if (this.wide) string += "w";
+        if (this.double) string += "2";
 
         if ((this.flippedRotation && this.rotationSign == 1) ||
             (!this.flippedRotation && this.rotationSign == -1)) {
@@ -101,12 +103,15 @@ class LayerMove extends Move {
 }
 
 class Rotation extends Move {
-    constructor(axis, rotationSign) {
-        super(axis, rotationSign);
+    constructor(axis, rotationSign, double=false) {
+        super(axis, rotationSign, double);
     }
 
     toString() {
         let string = this.axis;
+        if (this.double) {
+            string += "2";
+        }
         if (this.rotationSign == -1) {
             string += "'";
         }
@@ -181,9 +186,16 @@ class Cube {
             string = string.slice(0, -1);
         }
 
+        let double = false;
+        if (string[string.length -1] == "2") {
+            double = true;
+            // remove 2 from string
+            string = string.slice(0, -1);
+        }
+
         if (isRotation(string)) {
             const axis = string[0];
-            return new Rotation(axis, rotationDir);
+            return new Rotation(axis, rotationDir, double);
         }
 
         let wide = false;
@@ -207,7 +219,7 @@ class Cube {
             coord = -coord;
         }
 
-        return new LayerMove(face, axis, flippedAxis, layerOffset, coord, rotationDir, wide);
+        return new LayerMove(face, axis, flippedAxis, layerOffset, coord, rotationDir, wide, double);
     }
 
     resizeCanvas() {
@@ -381,6 +393,10 @@ class Cube {
         if (moveObj.wide) {
             if (high > 0) low -= 1;
             else high += 1;
+        }
+
+        if (moveObj.double) {
+            moveObj.rotationSign *= 2;
         }
         
         this.rotateGroupGen(low, high, moveObj.axis, moveObj.rotationSign);

@@ -18,6 +18,9 @@ B = 3
 L = 4
 D = 5
 
+MIDDLE_LAYERS = "MSE"
+MINUS_LAYERS = "DBL"
+
 
 class Move:
     def __init__(self, face: str, index: int, wide: bool,
@@ -27,6 +30,23 @@ class Move:
         self.wide = wide
         self.double = double
         self.dir = dir
+
+    def get_index(self, n: int):
+        """
+        Params:
+            n: cube dimension
+        Retuns:
+            int: 0-indexed layer index along the axis
+        """
+        if (self.face in MIDDLE_LAYERS):
+            # is possible only on odd-layered cube
+            assert n % 2 == 1
+            return (n - 1) // 2
+
+        index = self.index - 1
+        if (self.face in MINUS_LAYERS):
+            index = n - 1 - index
+        return index
 
 
 def parse_move(move: str):

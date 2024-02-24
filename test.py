@@ -36,6 +36,30 @@ class TestClass(unittest.TestCase):
         self.assertFalse(out.double)
         self.assertEqual(out.dir, 1)
 
+    def test_index2(self):
+        move = parse_move("U")
+        self.assertEqual(move.get_index(3), 0)
+        self.assertEqual(move.get_index(5), 0)
+        move = parse_move("3U")
+        self.assertEqual(move.get_index(9), 2)
+        move = parse_move("2U")
+        self.assertEqual(move.get_index(9), 1)
+
+    def test_index3(self):
+        for layer in "LDB":
+            move = parse_move(layer)
+            self.assertEqual(move.get_index(3), 2)
+            self.assertEqual(move.get_index(5), 4)
+            move = parse_move(str(3) + layer)
+            self.assertEqual(move.get_index(11), 8)
+
+    def test_middle(self):
+        for layer in "MSE":
+            move = parse_move(layer)
+            self.assertEqual(move.get_index(3), 1)
+            self.assertEqual(move.get_index(5), 2)
+            self.assertEqual(move.get_index(7), 3)
+
 
 if __name__ == '__main__':
     unittest.main()

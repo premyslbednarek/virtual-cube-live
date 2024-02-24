@@ -1,5 +1,5 @@
 import unittest
-from cube import parse_move
+from cube import parse_move, Cube
 
 
 class TestClass(unittest.TestCase):
@@ -59,6 +59,23 @@ class TestClass(unittest.TestCase):
             self.assertEqual(move.get_index(3), 1)
             self.assertEqual(move.get_index(5), 2)
             self.assertEqual(move.get_index(7), 3)
+
+    def test_move_basic(self):
+        c = Cube(3)
+        # order of an algoritm is the number of times we have to perform it
+        # before the cube comes to the original state
+        # algorithm can be viewed as a permutation
+        alg = "U D L' U' F B' F' R D' L R' D' B"
+
+        # order calculated with https://mzrg.com/rubik/ordercalc.shtml
+        # beware: the calculator uses SiGN notation
+        order = 120
+        c.move(alg)
+        for i in range(order - 1):
+            self.assertFalse(c.is_solved())
+            c.move(alg)
+        self.assertTrue(c.is_solved())
+
 
 
 if __name__ == '__main__':

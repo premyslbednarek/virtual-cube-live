@@ -76,6 +76,12 @@ class TestClass(unittest.TestCase):
             c.move(alg)
         self.assertTrue(c.is_solved())
 
+    def test_solve(self):
+        c = Cube(3)
+        solve = "D F D' F U' R U F' L L' F' B' B' L' B L L B D U L L' D B R y' x' z' z' y' y' x' x' x' y' R' U' U' F' F' U' R' F R D' y' U R' U R R U R' y' U U y' R' U R y' R' U' R U U y' R' U' R U' y' L U L' U' R U R' U' U' R U' U' R' U y' R' U' R y' y' y' F R U R' U' F' U U' L' U' U' L U L' U L U U U U R U R' F' R U R' U' R' F R R U' R' U U U R R U R U R' U' R' U' R' U R' U' U' "
+        c.move(solve)
+        self.assertTrue(c.is_solved())
+
 
 
 if __name__ == '__main__':

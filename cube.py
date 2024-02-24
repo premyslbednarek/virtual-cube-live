@@ -41,9 +41,11 @@ class Move:
         self.dir = dir
 
     def get_axis(self):
-        if (self.face in "RML"):
+        if self.face in "xyz":
+            return self.face
+        if self.face in "RML":
             return "x"
-        if (self.face in "UED"):
+        if self.face in "UED":
             return "y"
         # self.face in "FSB"
         return "z"
@@ -233,10 +235,42 @@ class Cube:
                 return False
         return True
 
+    def handle_rotation(self, move: Move):
+        f = self.faces
+        if move.face == "x":
+            views = [f[U], np.rot90(f[B], 2), f[D], f[F]]
+            if move.dir == CW:
+                views.reverse()
+            self.cycle_views(views)
+            self.rotate_face(R, move.dir)
+            self.rotate_face(L, move.dir * -1)
+
+        if move.face == "y":
+            views = [f[F], f[L], f[B], f[R]]
+            if move.dir == CW:
+                views.reverse()
+            self.cycle_views(views)
+            self.rotate_face(U, move.dir)
+            self.rotate_face(D, move.dir * -1)
+
+        if move.face == "z":
+            views = [f[U], np.rot90(f[R], 1), f[D][::-1, ::-1], np.rot90(f[L], 3)]
+            if move.dir == CW:
+                views.reverse()
+            self.cycle_views(views)
+            self.rotate_face(F, move.dir)
+            self.rotate_face(B, move.dir * -1)
+        return self
+
+
     def move(self, moves_str: str):
         moves: List[str] = moves_str.split()
         for move_str in moves:
             move: Move = parse_move(move_str)
+
+            if move.face in "xyz":
+                self.handle_rotation(move)
+                continue
 
             self.rotate_layer(
                 move.get_axis(),
@@ -245,6 +279,7 @@ class Cube:
                 move.face,
                 move.double
             )
+        return self
 
 
 if __name__ == "__main__":

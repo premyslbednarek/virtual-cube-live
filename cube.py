@@ -19,6 +19,16 @@ L = 4
 D = 5
 
 
+class Move:
+    def __init__(self, face: str, index: int, wide: bool,
+                 double: bool, dir: int):
+        self.face = face
+        self.index = index
+        self.wide = wide
+        self.double = double
+        self.dir = dir
+
+
 def parse_move(move: str):
     i = 0
     layer_index = 0
@@ -46,13 +56,13 @@ def parse_move(move: str):
     if i < len(move) and move[i] == "'":
         dir = CCW
 
-    return {
-        "face": face,
-        "index": layer_index,
-        "wide": wide,
-        "double": double,
-        "dir": dir
-    }
+    return Move(
+        face=face,
+        index=layer_index,
+        wide=wide,
+        double=double,
+        dir=dir
+    )
 
 
 class Cube:

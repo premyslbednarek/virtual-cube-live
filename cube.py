@@ -1,4 +1,5 @@
 import numpy as np
+from typing import List
 
 colors = {
     "W": u"\u001b[48;5;15m",
@@ -17,9 +18,17 @@ R = 2
 B = 3
 L = 4
 D = 5
+face_to_int = {
+    "U": U,
+    "R": R,
+    "L": L,
+    "D": D,
+    "F": F,
+    "B": B
+}
 
 MIDDLE_LAYERS = "MSE"
-MINUS_LAYERS = "DBL"
+MINUS_LAYERS = "DBLM"
 
 
 class Move:
@@ -30,6 +39,14 @@ class Move:
         self.wide = wide
         self.double = double
         self.dir = dir
+
+    def get_axis(self):
+        if (self.face in "RML"):
+            return "x"
+        if (self.face in "UED"):
+            return "y"
+        # self.face in "FSB"
+        return "z"
 
     def get_index(self, n: int):
         """
@@ -183,7 +200,8 @@ class Cube:
 
         views[-1][:] = temp
 
-    def rotate_layer(self, axis, index, dir):
+    def rotate_layer(self, axis: str, index: int, dir: int, face: str,
+                     double: bool):
         """
         Rotate cube layer.
         """
@@ -194,10 +212,19 @@ class Cube:
         }
 
         views = fun[axis](self, index)
-        if dir == CW:
+        if (face not in MINUS_LAYERS and dir == CW) \
+                or (face in MINUS_LAYERS and dir == CCW):
             views.reverse()
 
         self.cycle_views(views)
+        if double:
+            self.cycle_views(views)
+
+        if (index == 0 or index == self.n - 1):
+            # outer layer
+            self.rotate_face(face_to_int[face], dir)
+            if double:
+                self.rotate_face(face_to_int[face], dir)
 
     def is_solved(self):
         for face in self.faces:
@@ -206,39 +233,53 @@ class Cube:
                 return False
         return True
 
+    def move(self, moves_str: str):
+        moves: List[str] = moves_str.split()
+        for move_str in moves:
+            move: Move = parse_move(move_str)
+
+            self.rotate_layer(
+                move.get_axis(),
+                move.get_index(self.n),
+                move.dir,
+                move.face,
+                move.double
+            )
+
 
 if __name__ == "__main__":
-    Cube(10).pprint()
+    # Cube(10).pprint()
 
-    cube3 = Cube(6)
+    # cube3 = Cube(6)
 
-    print("Initial")
-    cube3.pprint()
-    cube3.rotate_layer('y', 0, 1)
-    print("after U")
-    cube3.rotate_face(U, 1)
-    cube3.pprint()
+    # print("Initial")
+    # cube3.pprint()
+    # cube3.rotate_layer('y', 0, 1)
+    # print("after U")
+    # cube3.rotate_face(U, 1)
+    # cube3.pprint()
 
-    print("after R")
-    cube3.rotate_layer('x', 0, 1)
-    cube3.rotate_face(R, 1)
-    cube3.pprint()
+    # print("after R")
+    # cube3.rotate_layer('x', 0, 1)
+    # cube3.rotate_face(R, 1)
+    # cube3.pprint()
 
-    print("after L")
-    cube3.rotate_layer('x', cube3.n-1, -1)
-    cube3.rotate_face(L, 1)
-    cube3.pprint()
+    # print("after L")
+    # cube3.rotate_layer('x', cube3.n-1, -1)
+    # cube3.rotate_face(L, 1)
+    # cube3.pprint()
 
-    print("after F")
-    cube3.rotate_layer('z', 0, 1)
-    cube3.rotate_face(F, 1)
-    cube3.pprint()
+    # print("after F")
+    # cube3.rotate_layer('z', 0, 1)
+    # cube3.rotate_face(F, 1)
+    # cube3.pprint()
 
-    print(cube3.is_solved())
+    # print(cube3.is_solved())
 
-    cube4 = Cube(4)
-    for i in range(4):
-        cube3.rotate_layer('z', 0, 1)
-        cube3.rotate_face(F, 1)
+    # cube4 = Cube(4)
+    # for i in range(4):
+    #     cube3.rotate_layer('z', 0, 1)
+    #     cube3.rotate_face(F, 1)
 
-    print(cube4.is_solved())
+    # print(cube4.is_solved())
+    pass

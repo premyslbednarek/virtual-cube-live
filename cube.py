@@ -9,6 +9,50 @@ colors = {
     "Y": u"\u001b[48;5;220m"
 }
 BG_RESET = u"\u001b[0m"
+CW = 1
+CCW = -1
+U = 0
+F = 1
+R = 2
+B = 3
+L = 4
+D = 5
+
+
+def parse_move(move: str):
+    i = 0
+    layer_index = 0
+    while move[i].isdigit():
+        layer_index *= 10
+        layer_index += int(move[i])
+        i += 1
+
+    # first layer index is implicit
+    if (layer_index == 0):
+        layer_index = 1
+
+    face = move[i]
+    i += 1
+
+    wide = i < len(move) and move[i] == 'w'
+    if (wide):
+        i += 1
+
+    double = i < len(move) and move[i] == '2'
+    if (double):
+        i += 1
+
+    dir = CW
+    if i < len(move) and move[i] == "'":
+        dir = CCW
+
+    return {
+        "face": face,
+        "index": layer_index,
+        "wide": wide,
+        "double": double,
+        "dir": dir
+    }
 
 
 class Cube:
@@ -61,9 +105,109 @@ class Cube:
                       else " ", end='')
             print()
 
+    def rotate_face(self, face, dir):
+        """
+        dir= 1 for clockwise face rotation
+        dir=-1 for anticlockwise face rotation
 
-cube3 = Cube(3)
+        rot90 with k=1 rotates anticlockwise
+        k = 3 results in anticlockwise rotation by 270 degrees, which equals
+        90 degrees clockwise
+        """
+        k = 3 if dir == CW else 1
+        self.faces[face][:] = np.rot90(self.faces[face], k)
+
+    def yaxis(self, i):
+        return [
+            self.faces[F][i],
+            self.faces[L][i],
+            self.faces[B][i],
+            self.faces[R][i]
+        ]
+
+    def zaxis(self, i):
+        return [
+            self.faces[U][self.n-1-i],
+            self.faces[R][:, i],
+            self.faces[D][i][::-1],
+            self.faces[L][:, self.n-1-i][::-1]
+        ]
+
+    def xaxis(self, i):
+        return [
+            self.faces[U][:, self.n-1-i][::-1],
+            self.faces[B][:, i],
+            self.faces[D][:, self.n-1-i][::-1],
+            self.faces[F][:, self.n-1-i][::-1],
+        ]
+
+    @staticmethod
+    def cycle_views(views):
+        """
+        Given a list of numpy views, assign the content of views[1]
+        to views[0], views[2] to views[1], ..., views[0] to views[-1]
+        """
+        temp = views[0].copy()
+        for i in range(len(views) - 1):
+            views[i][:] = views[i + 1]
+
+        views[-1][:] = temp
+
+    def rotate_layer(self, axis, index, dir):
+        """
+        Rotate cube layer.
+        """
+        fun = {
+            'x': Cube.xaxis,
+            'y': Cube.yaxis,
+            'z': Cube.zaxis,
+        }
+
+        views = fun[axis](self, index)
+        if dir == CW:
+            views.reverse()
+
+        self.cycle_views(views)
+
+    def is_solved(self):
+        for face in self.faces:
+            # check whether all stickers on the face are of the same color
+            if not (face == face[0][0]).all():
+                return False
+        return True
+
+
+Cube(10).pprint()
+
+cube3 = Cube(6)
+
+print("Initial")
+cube3.pprint()
+cube3.rotate_layer('y', 0, 1)
+print("after U")
+cube3.rotate_face(U, 1)
 cube3.pprint()
 
-cube4 = Cube(10)
-cube4.pprint()
+print("after R")
+cube3.rotate_layer('x', 0, 1)
+cube3.rotate_face(R, 1)
+cube3.pprint()
+
+print("after L")
+cube3.rotate_layer('x', cube3.n-1, -1)
+cube3.rotate_face(L, 1)
+cube3.pprint()
+
+print("after F")
+cube3.rotate_layer('z', 0, 1)
+cube3.rotate_face(F, 1)
+cube3.pprint()
+
+print(cube3.is_solved())
+
+cube4 = Cube(4)
+for i in range(4):
+    cube3.rotate_layer('z', 0, 1)
+    cube3.rotate_face(F, 1)
+
+print(cube4.is_solved())

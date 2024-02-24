@@ -177,37 +177,38 @@ class Cube:
         return True
 
 
-Cube(10).pprint()
+if __name__ == "__main__":
+    Cube(10).pprint()
 
-cube3 = Cube(6)
+    cube3 = Cube(6)
 
-print("Initial")
-cube3.pprint()
-cube3.rotate_layer('y', 0, 1)
-print("after U")
-cube3.rotate_face(U, 1)
-cube3.pprint()
+    print("Initial")
+    cube3.pprint()
+    cube3.rotate_layer('y', 0, 1)
+    print("after U")
+    cube3.rotate_face(U, 1)
+    cube3.pprint()
 
-print("after R")
-cube3.rotate_layer('x', 0, 1)
-cube3.rotate_face(R, 1)
-cube3.pprint()
+    print("after R")
+    cube3.rotate_layer('x', 0, 1)
+    cube3.rotate_face(R, 1)
+    cube3.pprint()
 
-print("after L")
-cube3.rotate_layer('x', cube3.n-1, -1)
-cube3.rotate_face(L, 1)
-cube3.pprint()
+    print("after L")
+    cube3.rotate_layer('x', cube3.n-1, -1)
+    cube3.rotate_face(L, 1)
+    cube3.pprint()
 
-print("after F")
-cube3.rotate_layer('z', 0, 1)
-cube3.rotate_face(F, 1)
-cube3.pprint()
-
-print(cube3.is_solved())
-
-cube4 = Cube(4)
-for i in range(4):
+    print("after F")
     cube3.rotate_layer('z', 0, 1)
     cube3.rotate_face(F, 1)
+    cube3.pprint()
 
-print(cube4.is_solved())
+    print(cube3.is_solved())
+
+    cube4 = Cube(4)
+    for i in range(4):
+        cube3.rotate_layer('z', 0, 1)
+        cube3.rotate_face(F, 1)
+
+    print(cube4.is_solved())

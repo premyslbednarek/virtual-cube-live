@@ -3,12 +3,12 @@ from typing import List
 from enum import Enum
 
 colors = {
-    "W": u"\u001b[48;5;15m",
-    "G": u"\u001b[48;5;2m",
-    "R": u"\u001b[48;5;196m",
-    "B": u"\u001b[48;5;4m",
-    "O": u"\u001b[48;5;166m",
-    "Y": u"\u001b[48;5;220m"
+    b'W': u"\u001b[48;5;15m",
+    b'G': u"\u001b[48;5;2m",
+    b'R': u"\u001b[48;5;196m",
+    b'B': u"\u001b[48;5;4m",
+    b'O': u"\u001b[48;5;166m",
+    b'Y': u"\u001b[48;5;220m"
 }
 BG_RESET = u"\u001b[0m"
 CW = 1
@@ -140,7 +140,7 @@ class Cube:
 
         # for each sticker, create a array element
         # this flat array will be used for serialization of the cube state
-        self.flat = np.chararray(n*n*6, unicode=True)
+        self.flat = np.chararray(n*n*6)
 
         # self.faces is a numpy view, that means any changes in self.faces
         # will reflected in self.flat and vice versa
@@ -163,7 +163,7 @@ class Cube:
         colored background.
         """
         n = self.n
-        print_table = np.chararray((3*self.n, 4*self.n), unicode=True)
+        print_table = np.chararray((3*self.n, 4*self.n))
         print_table[:] = ''
         np.set_printoptions(linewidth=200)
 
@@ -180,7 +180,7 @@ class Cube:
 
         for line in print_table:
             for elem in line:
-                print(f"{colors[elem]}{elem}{BG_RESET}" if elem != ''
+                print(f"{colors[elem]}{elem.decode('UTF-8')}{BG_RESET}" if elem != ''
                       else " ", end='')
             print()
 

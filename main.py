@@ -299,23 +299,33 @@ def lobby_move(data):
     lobby_id = data["lobby_id"]
     move = data["move"]
 
-    res = LobbyUsers.query.filter_by(lobby_id = lobby_id).filter_by(user_id = current_user.id).first()
-    print(res)
-    cube = Cube(3, res.state)
-    cube.move(move)
-    cube.pprint()
-    print("SOLVED?", cube.is_solved())
-    res.state = cube.serialize()
-    db.session.commit()
-
-    print(current_user.username, "in lobby", lobby_id, "has made a ", move, "move")
-
     socketio.emit(
         "lobby_move",
         { "username": current_user.username, "move": move},
         room=lobby_id,
         skip_sid=request.sid
     )
+
+    res = LobbyUsers.query.filter_by(lobby_id = lobby_id).filter_by(user_id = current_user.id).first()
+    print(res)
+    cube = Cube(3, res.state)
+    cube.move(move)
+    # update cube state in db
+    res.state = cube.serialize()
+    db.session.commit()
+
+    cube.pprint()
+
+    if cube.is_solved():
+        print("solved!")
+        socketio.emit(
+            "solved",
+            { "username": current_user.username },
+            room=lobby_id
+        )
+
+    print(current_user.username, "in lobby", lobby_id, "has made a ", move, "move")
+
 
 @socketio.event
 def connect():

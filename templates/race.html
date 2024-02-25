@@ -146,6 +146,13 @@
         infoDiv.innerHTML += `The match is starting. <br> Scramble: ${scramble}`;
     })
 
+    socket.on("solved", function(data) {
+        const username = data.username
+        console.log("SOLVEEED", username)
+        const user = users.get(username)
+        user.div.innerHTML += "[solved]"
+    })
+
     console.log(socket);
 </script>
 </html>

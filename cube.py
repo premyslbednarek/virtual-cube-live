@@ -68,6 +68,31 @@ class Move:
             index = n - 1 - index
         return index
 
+    def get_indices(self, n: int):
+        """
+        Params:
+            n: cube dimension
+        Retuns:
+            int: 0-indexed layer index along the axis
+        """
+        if (self.face in MIDDLE_LAYERS):
+            # is possible only on odd-layered cube
+            assert n % 2 == 1
+            return [(n - 1) // 2]
+
+        indices = []
+        indices.append(self.index - 1)
+
+        if (self.wide):
+            if (self.index == 1):
+                indices = [0, 1]
+            else:
+                indices = list(range(self.index))
+        if (self.face in MINUS_LAYERS):
+            indices = map(lambda index: n - 1 - index, indices)
+        return indices
+
+
 
 def parse_move(move: str):
     i = 0
@@ -87,6 +112,10 @@ def parse_move(move: str):
     wide = i < len(move) and move[i] == 'w'
     if (wide):
         i += 1
+
+    if face.islower() and face not in "xyz":
+        wide = True
+        face = face.upper()
 
     double = i < len(move) and move[i] == '2'
     if (double):
@@ -272,8 +301,8 @@ class Cube:
             f2 = B
 
         self.cycle_views(views, move.dir, move.double)
-        self.rotate_face(f1, move.dir)
-        self.rotate_face(f2, move.dir * -1)
+        self.rotate_face(f1, move.dir, move.double)
+        self.rotate_face(f2, move.dir * -1, move.double)
 
         return self
 
@@ -287,49 +316,12 @@ class Cube:
                 self.handle_rotation(move)
                 continue
 
-            self.rotate_layer(
-                move.get_axis(),
-                move.get_index(self.n),
-                move.dir,
-                move.face,
-                move.double
-            )
+            for index in move.get_indices(self.n):
+                self.rotate_layer(
+                    move.get_axis(),
+                    index,
+                    move.dir,
+                    move.face,
+                    move.double
+                )
         return self
-
-
-if __name__ == "__main__":
-    # Cube(10).pprint()
-
-    # cube3 = Cube(6)
-
-    # print("Initial")
-    # cube3.pprint()
-    # cube3.rotate_layer('y', 0, 1)
-    # print("after U")
-    # cube3.rotate_face(U, 1)
-    # cube3.pprint()
-
-    # print("after R")
-    # cube3.rotate_layer('x', 0, 1)
-    # cube3.rotate_face(R, 1)
-    # cube3.pprint()
-
-    # print("after L")
-    # cube3.rotate_layer('x', cube3.n-1, -1)
-    # cube3.rotate_face(L, 1)
-    # cube3.pprint()
-
-    # print("after F")
-    # cube3.rotate_layer('z', 0, 1)
-    # cube3.rotate_face(F, 1)
-    # cube3.pprint()
-
-    # print(cube3.is_solved())
-
-    # cube4 = Cube(4)
-    # for i in range(4):
-    #     cube3.rotate_layer('z', 0, 1)
-    #     cube3.rotate_face(F, 1)
-
-    # print(cube4.is_solved())
-    pass

@@ -5,7 +5,7 @@
     <title>Race</title>
 </head>
 <body>
-    <div>Lobby id: {{ lobby_id }}</div>    
+    <div>Lobby id: {{ lobby_id }}</div>
     <div id="userList">Users:</div>
     <button id="readyButton">ready</button>
     <div id="info"></div>
@@ -84,13 +84,13 @@
 
     const readyButton = document.getElementById("readyButton");
     let ready = false;
-    readyButton.addEventListener("click", () => { 
+    readyButton.addEventListener("click", () => {
         if (!ready) {
-            socket.emit("ready", { lobby_id: lobby_id}) 
+            socket.emit("ready", { lobby_id: lobby_id})
             readyButton.innerHTML = "unready"
             ready = true;
         } else {
-            socket.emit("unready", { lobby_id: lobby_id}) 
+            socket.emit("unready", { lobby_id: lobby_id})
             readyButton.innerHTML = "ready"
             ready = false;
         }
@@ -107,7 +107,7 @@
         const user = users.get(username)
         user.div.innerHTML = username;
     })
-    
+
     {% if is_creator %}
         const startButton = document.getElementById("startButton")
         startButton.addEventListener("click", () => {
@@ -126,7 +126,6 @@
 
     socket.on("match_start", function(data) {
         let scramble = data.scramble;
-        scramble = "D' R U R F' U2 R D L F2 D2 L2 F D2 B' L2 B U2 F2 L2 F'"
         const moves = scramble.split(' ');
         for (const move of moves) {
             console.log(move);

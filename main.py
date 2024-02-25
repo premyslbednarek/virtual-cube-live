@@ -6,6 +6,7 @@ import json
 from sqlalchemy import select
 from model import db, Solve, User, Lobby, LobbyUsers
 from pyTwistyScrambler import scrambler333, scrambler444
+from cube import Cube
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db' # Using SQLite as the database
@@ -16,7 +17,7 @@ login_manager.init_app(app)
 
 db.init_app(app)
 with app.app_context():
-    db.create_all() 
+    db.create_all()
 
 # https://github.com/miguelgrinberg/Flask-SocketIO/issues/1356#issuecomment-681830773
 socketio = SocketIO(app, cors_allowed_origins="*", engineio_logger=False)
@@ -58,7 +59,7 @@ def lobby(lobby_id):
     if (q):
         return "You have already joined this lobby!"
 
-    # show start button only for the lobby creator 
+    # show start button only for the lobby creator
     q = select(Lobby.creator).filter_by(id=lobby_id)
     lobby_creator_id = db.session.execute(q).scalar()
     is_creator = lobby_creator_id == current_user.id
@@ -95,7 +96,7 @@ def register_post():
         flash("user already exists")
         return redirect(url_for("register"))
 
-    new_user = User(username=username,password_hash=hashed_password) 
+    new_user = User(username=username,password_hash=hashed_password)
     db.session.add(new_user)
     db.session.commit()
     login_user(new_user, remember=True)
@@ -202,9 +203,11 @@ def handle_lobby_conection(data):
     join_room(lobby_id)
 
     # add connection to database
+    cube = Cube(3)
     con = LobbyUsers(
         lobby_id=lobby_id,
-        user_id=current_user.id
+        user_id=current_user.id,
+        state=cube.serialize()
     )
     db.session.add(con)
     db.session.commit()
@@ -273,20 +276,37 @@ def startLobby(data):
         if conn.ready == 0:
             print(conn.user_id, "is not ready")
             return
-    
+
     scramble = scrambler333.get_WCA_scramble()
+    print(scramble)
+    cube = Cube(3)
+    cube.move(scramble)
+    state = cube.serialize()
+    lobby_conns = LobbyUsers.query.filter_by(lobby_id=lobby_id).all()
+    for conn in lobby_conns:
+        conn.state = state
+    db.session.commit()
 
     socketio.emit(
         "match_start",
         { "scramble": scramble },
         room=lobby_id
-    ) 
+    )
     print("everyone is ready, starting the match")
 
 @socketio.on("lobby_move")
 def lobby_move(data):
     lobby_id = data["lobby_id"]
     move = data["move"]
+
+    res = LobbyUsers.query.filter_by(lobby_id = lobby_id).filter_by(user_id = current_user.id).first()
+    print(res)
+    cube = Cube(3, res.state)
+    cube.move(move)
+    cube.pprint()
+    print("SOLVED?", cube.is_solved())
+    res.state = cube.serialize()
+    db.session.commit()
 
     print(current_user.username, "in lobby", lobby_id, "has made a ", move, "move")
 

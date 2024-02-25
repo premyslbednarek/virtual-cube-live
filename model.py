@@ -23,6 +23,7 @@ class Lobby(db.Model):
 
 class LobbyUsers(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    lobby_id:int = db.Column(db.Integer)
-    user_id:int = db.Column(db.Integer)
-    ready: bool = db.Column(db.Integer, default=0)
+    lobby_id = db.Column(db.Integer)
+    user_id = db.Column(db.Integer)
+    ready = db.Column(db.Integer, default=0)
+    state = db.Column(db.BLOB)

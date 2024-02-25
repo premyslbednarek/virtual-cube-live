@@ -143,7 +143,7 @@ class Cube:
         if bytes is None:
             self.flat = np.zeros(n*n*6, dtype=np.dtype("S1"))
         else:
-            self.flat = np.frombuffer(bytes, np.dtype("S1"))
+            self.flat = np.frombuffer(bytes, np.dtype("S1")).copy()
 
         # self.faces is a numpy view, that means any changes in self.faces
         # will reflected in self.flat and vice versa
@@ -158,7 +158,8 @@ class Cube:
         return self.flat.tobytes()
 
     def deserialize(self, buffer: bytes) -> None:
-        self.flat[:] = np.frombuffer(buffer, np.dtype("S1"))
+        arr = np.frombuffer(buffer, np.dtype("S1"))
+        self.flat[:] = arr.copy()
 
     def pprint(self):
         """

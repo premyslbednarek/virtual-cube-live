@@ -238,28 +238,42 @@ class Cube:
     def handle_rotation(self, move: Move):
         f = self.faces
         if move.face == "x":
-            views = [f[U], np.rot90(f[B], 2), f[D], f[F]]
-            if move.dir == CW:
-                views.reverse()
-            self.cycle_views(views)
-            self.rotate_face(R, move.dir)
-            self.rotate_face(L, move.dir * -1)
+            views = [
+                f[U],
+                np.rot90(f[B], 2),
+                f[D],
+                f[F]
+            ]
+            f1 = R
+            f2 = L
 
         if move.face == "y":
-            views = [f[F], f[L], f[B], f[R]]
-            if move.dir == CW:
-                views.reverse()
-            self.cycle_views(views)
-            self.rotate_face(U, move.dir)
-            self.rotate_face(D, move.dir * -1)
+            views = [
+                f[F],
+                f[L],
+                f[B],
+                f[R]
+            ]
+            f1 = U
+            f2 = D
 
         if move.face == "z":
-            views = [f[U], np.rot90(f[R], 1), f[D][::-1, ::-1], np.rot90(f[L], 3)]
-            if move.dir == CW:
-                views.reverse()
-            self.cycle_views(views)
-            self.rotate_face(F, move.dir)
-            self.rotate_face(B, move.dir * -1)
+            views = [
+                f[U],
+                np.rot90(f[R], 1),
+                f[D][::-1, ::-1],
+                np.rot90(f[L], 3)
+            ]
+            f1 = F
+            f2 = B
+
+        if move.dir == CW:
+            views.reverse()
+
+        self.cycle_views(views)
+        self.rotate_face(f1, move.dir)
+        self.rotate_face(f2, move.dir * -1)
+
         return self
 
 

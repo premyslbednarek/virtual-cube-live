@@ -131,6 +131,17 @@
             console.log(move);
             cube.makeMove(move);
         }
+        console.log("users", users)
+        for (let [user, data] of users) {
+            const c = data.cube
+            if (c == undefined)  {
+                continue
+            }
+            for (const move of moves) {
+                c.makeMove(move)
+            }
+        }
+
         const infoDiv = document.getElementById("info");
         infoDiv.innerHTML += `The match is starting. <br> Scramble: ${scramble}`;
     })

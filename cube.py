@@ -154,7 +154,7 @@ class Cube:
                       else " ", end='')
             print()
 
-    def rotate_face(self, face, dir):
+    def rotate_face(self, face, dir, double=False):
         """
         dir= 1 for clockwise face rotation
         dir=-1 for anticlockwise face rotation
@@ -164,6 +164,8 @@ class Cube:
         90 degrees clockwise
         """
         k = 3 if dir == CW else 1
+        if double:
+            k = 2
         self.faces[face][:] = np.rot90(self.faces[face], k)
 
     def yaxis(self, i):
@@ -191,16 +193,21 @@ class Cube:
         ]
 
     @staticmethod
-    def cycle_views(views):
+    def cycle_views(views, dir, double):
         """
         Given a list of numpy views, assign the content of views[1]
         to views[0], views[2] to views[1], ..., views[0] to views[-1]
         """
         temp = views[0].copy()
-        for i in range(len(views) - 1):
-            views[i][:] = views[i + 1]
+        last = views[0]
+        r = range(1, len(views)) if dir == -1 else range(1, len(views))[::-1]
+        for i in r:
+            last[:] = views[i]
+            last = views[i]
 
-        views[-1][:] = temp
+        last[:] = temp
+        if (double):
+            Cube.cycle_views(views, dir, False)
 
     def rotate_layer(self, axis: str, index: int, dir: int, face: str,
                      double: bool):
@@ -214,19 +221,15 @@ class Cube:
         }
 
         views = fun[axis](self, index)
-        if (face not in MINUS_LAYERS and dir == CW) \
-                or (face in MINUS_LAYERS and dir == CCW):
-            views.reverse()
+        layer_dir = dir
+        if face in MINUS_LAYERS:
+            layer_dir *= -1
 
-        self.cycle_views(views)
-        if double:
-            self.cycle_views(views)
+        self.cycle_views(views, layer_dir, double)
 
+        # outer layer? move also the stickers of the face
         if (index == 0 or index == self.n - 1):
-            # outer layer
-            self.rotate_face(face_to_int[face], dir)
-            if double:
-                self.rotate_face(face_to_int[face], dir)
+            self.rotate_face(face_to_int[face], dir, double)
 
     def is_solved(self):
         for face in self.faces:
@@ -267,10 +270,7 @@ class Cube:
             f1 = F
             f2 = B
 
-        if move.dir == CW:
-            views.reverse()
-
-        self.cycle_views(views)
+        self.cycle_views(views, move.dir, move.double)
         self.rotate_face(f1, move.dir)
         self.rotate_face(f2, move.dir * -1)
 

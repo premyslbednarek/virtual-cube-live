@@ -82,6 +82,22 @@ class TestClass(unittest.TestCase):
         c.move(solve)
         self.assertTrue(c.is_solved())
 
+    def test_double_(self):
+        c = Cube(3)
+        # order of an algoritm is the number of times we have to perform it
+        # before the cube comes to the original state
+        # algorithm can be viewed as a permutation
+        alg = "R2 U2 L2"
+
+        # order calculated with https://mzrg.com/rubik/ordercalc.shtml
+        # beware: the calculator uses SiGN notation
+        order = 4
+        c.move(alg)
+        for i in range(order - 1):
+            self.assertFalse(c.is_solved())
+            c.move(alg)
+        self.assertTrue(c.is_solved())
+
 
 
 if __name__ == '__main__':

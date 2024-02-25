@@ -135,21 +135,30 @@ def parse_move(move: str):
 
 
 class Cube:
-    def __init__(self, n):
+    def __init__(self, n, bytes=None):
         self.n = n
 
         # for each sticker, create a array element
         # this flat array will be used for serialization of the cube state
-        self.flat = np.chararray(n*n*6)
+        if bytes is None:
+            self.flat = np.zeros(n*n*6, dtype=np.dtype("S1"))
+        else:
+            self.flat = np.frombuffer(bytes, np.dtype("S1"))
 
         # self.faces is a numpy view, that means any changes in self.faces
         # will reflected in self.flat and vice versa
         # self.faces will be used for indexing the cube
         # self.faces[i] is nxn array
         self.faces = self.flat.reshape(6, n, n)
+        if bytes is None:
+            for i, color in enumerate(colors.keys()):
+                self.faces[i] = color
 
-        for i, color in enumerate(colors.keys()):
-            self.faces[i] = color
+    def serialize(self) -> bytes:
+        return self.flat.tobytes()
+
+    def deserialize(self, buffer: bytes) -> None:
+        self.flat[:] = np.frombuffer(buffer, np.dtype("S1"))
 
     def pprint(self):
         """

@@ -1,5 +1,6 @@
 import numpy as np
 from typing import List
+from enum import Enum
 
 colors = {
     "W": u"\u001b[48;5;15m",
@@ -193,7 +194,7 @@ class Cube:
         ]
 
     @staticmethod
-    def cycle_views(views, dir, double):
+    def cycle_views(views, dir, double=False):
         """
         Given a list of numpy views, assign the content of views[1]
         to views[0], views[2] to views[1], ..., views[0] to views[-1]

@@ -1,5 +1,6 @@
 import unittest
 from cube import parse_move, Cube
+import numpy as np
 
 
 class TestClass(unittest.TestCase):
@@ -81,6 +82,27 @@ class TestClass(unittest.TestCase):
         solve = "D F D' F U' R U F' L L' F' B' B' L' B L L B D U L L' D B R y' x' z' z' y' y' x' x' x' y' R' U' U' F' F' U' R' F R D' y' U R' U R R U R' y' U U y' R' U R y' R' U' R U U y' R' U' R U' y' L U L' U' R U R' U' U' R U' U' R' U y' R' U' R y' y' y' F R U R' U' F' U U' L' U' U' L U L' U L U U U U R U R' F' R U R' U' R' F R R U' R' U U U R R U R U R' U' R' U' R' U R' U' U' "
         c.move(solve)
         self.assertTrue(c.is_solved())
+
+    def test_cycle_pos(self):
+        a = np.arange(12).reshape(4, 3)
+        views = [a[0], a[1], a[2], a[3]]
+        Cube.cycle_views(views, 1)
+        exp = np.roll(np.arange(12), 3).reshape(4, 3)
+        self.assertTrue(np.array_equiv(a, exp))
+
+    def test_cycle_neg(self):
+        a = np.arange(12).reshape(4, 3)
+        views = [a[0], a[1], a[2], a[3]]
+        Cube.cycle_views(views, -1)
+        exp = np.roll(np.arange(12), -3).reshape(4, 3)
+        self.assertTrue(np.array_equiv(a, exp))
+
+    def test_cycle_double(self):
+        a = np.arange(12).reshape(4, 3)
+        views = [a[0], a[1], a[2], a[3]]
+        Cube.cycle_views(views, 1, True)
+        exp = np.roll(np.arange(12), 6).reshape(4, 3)
+        self.assertTrue(np.array_equiv(a, exp))
 
     def test_double_(self):
         c = Cube(3)

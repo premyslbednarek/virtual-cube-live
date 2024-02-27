@@ -1,11 +1,18 @@
 import * as THREE from './libs/three.module.js'
 import * as TWEEN from './libs/tween.module.js'
+import { OrbitControls } from './libs/OrbitControls.js';
 // import { requestRenderIfNotRequested } from './main.js';
 import { addForRender, removeForRender, requestRenderIfNotRequested } from './render.js';
 
 const xAxis = ["x", new THREE.Vector3(1, 0, 0)];
 const yAxis = ["y", new THREE.Vector3(0, 1, 0)];
 const zAxis = ["z", new THREE.Vector3(0, 0, 1)];
+
+const Axis = {
+    "x": 0,
+    "y": 1,
+    "z": 2
+}
 
 // values are [axis, axisSign]
 const faceToAxis = new Map();
@@ -54,6 +61,106 @@ function getFace(axis, coord) {
         case "z": return "B";
     }
 }
+
+const CW = 1
+const CCW = -1
+
+function parse_move(move) {
+    let i = 0
+    let layer_index = 0
+    while ('0' < move[i] && move[i] <= '9') {
+        layer_index *= 10;
+        layer_index += move[i] - '0';
+        ++i;
+    }
+
+    if (layer_index == 0) {
+        layer_index = 1
+    }
+
+    let face = move[i];
+    i += 1;
+
+    let wide = i < move.length && move[i] == "w"
+    if (wide) {
+        i += 1
+    }
+
+    if ('a' <= face && face <= 'z' && face != "x" && face != "y" && face != "z") {
+        wide = true;
+        face = face.toUpperCase();
+    }
+
+    let double = i < move.length && move[i] == "2";
+    if (double) {
+        i += 1
+    }
+
+    let dir = CW
+    if (i < move.length && move[i] == "'") {
+        dir = CCW
+    }
+
+    let axis, flipped;
+    if ("xyz".includes(face)) {
+        [axis, flipped] = [face, 1]
+    } else {
+        [axis, flipped] = faceToAxis.get(face);
+    }
+
+    return {
+        face: face,
+        index: layer_index,
+        wide: wide,
+        double: double,
+        dir: dir,
+        axis: axis,
+        flipped: flipped
+    }
+}
+window.parse_move = parse_move
+
+const MIDDLE_LAYERS = "MSE"
+const MINUS_LAYERS = "DBLM"
+const ROTATIONS = "xyz"
+
+function get_indices(move, n) {
+    if (MIDDLE_LAYERS.includes(move.face)) {
+        return [(n - 1) / 2]
+    }
+
+    let indices = []
+    indices.push(move.index - 1)
+
+    if ("xyz".includes(move.face)) {
+        indices = []
+        for (let i = 0; i < n; ++i) {
+            indices.push(i);
+        }
+        return indices;
+    }
+
+    if (move.wide) {
+        if (move.index == 1) {
+            indices = [0, 1];
+        } else {
+            indices = []
+            for (let i = 0; i < move.index; ++i) {
+                indices.push(i);
+            }
+        }
+    }
+
+    if (MINUS_LAYERS.includes(move.face)) {
+        for (let i = 0; i < indices.length; ++i) {
+            indices[i] = n - 1 - indices[i];
+        }
+    }
+
+    return indices
+}
+
+window.get_indices = get_indices
 
 class Move {
     constructor(axis, rotationSign, double=false) {
@@ -168,11 +275,40 @@ class Cube {
         this.resizeCanvas();
         window.addEventListener("resize", () => { this.resizeCanvas(); }, false);
 
-        this.draw();
         this.solved = true;
         this.needsSolvedCheck = false;
 
         this.firstLayerPosition = -(this.layers - 1) / 2;
+
+        const n = layers
+        const number_of_cubies = n*n*n;
+        const cubies = []
+        for (var i = 0; i < number_of_cubies; ++i) {
+            cubies.push(new THREE.Group())
+        }
+
+        this.cubies = cubies
+        // self.cubies indices
+        this.arr = nj.arange(number_of_cubies).reshape(n, n, n)
+
+        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.controls.enableZoom = false;
+        this.controls.enablePan = false; // disable moving the camera with right click
+        this.controls.update();
+        this.controls.addEventListener('change', () => this.render());
+
+        for (let i = 0; i < n; ++i) {
+            for (let j = 0; j < n; ++j) {
+                for (let k = 0; k < n; ++k) {
+                    const group_index = this.arr.get(i, j, k);
+                    const group = cubies[group_index];
+                    group.position.set(this.firstLayerPosition + i, this.firstLayerPosition + j, this.firstLayerPosition + k);
+                    this.scene.add(group);
+                }
+            }
+        }
+
+        this.draw();
     }
 
     stringToMove(string) {
@@ -270,7 +406,6 @@ class Cube {
                 colorToFace.set(color, face);
             }
         }
-        // console.log("Cube solved!");
         this.solved = true;
         return true;
     }
@@ -286,9 +421,7 @@ class Cube {
         this.firstLayerPosition = -(this.layers - 1) / 2;
     }
 
-    drawStickers() {
-        const centerOffset = -(this.layers - 1) / 2;
-
+    getMesh(color) {
         let stickerGeometry;
         if (this.speedMode) {
             stickerGeometry = new THREE.PlaneGeometry(0.85, 0.85);
@@ -296,40 +429,55 @@ class Cube {
             stickerGeometry = new THREE.PlaneGeometry(0.93, 0.93);
         }
 
+        let colors = {
+            "R": 0xff1100, // red
+            "O": 0xffa200, // orange
+            "W": 0xffffff, // white
+            "Y": 0xfffb00, // yellow
+            "G": 0x33ff00, // green
+            "B": 0x0800ff  // blue
+        };
+
+        const stickerMaterial = new THREE.MeshBasicMaterial( {color: colors[color], side: THREE.DoubleSide} );
+        const stickerMesh = new THREE.Mesh(stickerGeometry, stickerMaterial);
+        return stickerMesh;
+    }
+
+    drawStickers() {
+        const centerOffset = -(this.layers - 1) / 2;
+        const state = "WWWWWWWWWGGGGGGGGGOOOOOOOOOBBBBBBBBBRRRRRRRRRYYYYYYYYY";
+        const n = this.layers;
+
         let faceCenters = [
-            new THREE.Vector3(1, 0, 0),
-            new THREE.Vector3(-1, 0, 0),
             new THREE.Vector3(0, 1, 0),
-            new THREE.Vector3(0, -1, 0),
             new THREE.Vector3(0, 0, 1),
-            new THREE.Vector3(0, 0, -1)
+            new THREE.Vector3(1, 0, 0),
+            new THREE.Vector3(0, 0, -1),
+            new THREE.Vector3(-1, 0, 0),
+            new THREE.Vector3(0, -1, 0),
         ];
 
-        let colors = [
-            0xff1100, // red
-            0xffa200, // orange
-            0xffffff, // white
-            0xfffb00, // yellow
-            0x33ff00, // green
-            0x0800ff  // blue
-        ];
+        let faces = [
+            this.getLayer("y", n - 1),
+            this.getLayer("z", n - 1),
+            this.getLayer("x", n - 1),
+            this.getLayer("z", 0),
+            this.getLayer("x", 0),
+            this.getLayer("y", 0)
+        ]
 
         this.stickers = [];
-        for (let n = 0; n < 6; ++n) {
-            const stickerMaterial = new THREE.MeshBasicMaterial( {color: colors[n], side: THREE.DoubleSide} );
-            const stickerMesh = new THREE.Mesh(stickerGeometry, stickerMaterial);
-            for (let i = 0; i < this.layers; ++i) {
-                for (let j = 0; j < this.layers; ++j) {
-                    let sticker = stickerMesh.clone();
-                    sticker.lookAt(faceCenters[n]);
-                    sticker.translateZ(-centerOffset + 0.5 + 0.001);
-                    sticker.translateX(centerOffset + i);
-                    sticker.translateY(centerOffset + j);
-                    sticker.isSticker = true;
-                    // var stickerAxis = new THREE.AxesHelper(2);
-                    // sticker.add(stickerAxis);
-                    this.stickers.push(sticker);
-                    this.scene.add(sticker);
+        for (let face_i = 0; face_i < 6; ++face_i) {
+            const face_stickers = state.slice(face_i * n*n, (face_i + 1) * (n*n));
+            const face_group_indices = faces[face_i];
+            for (let i = 0; i < n; ++i) {
+                for (let j = 0; j < n; ++j) {
+                    const group_index = face_group_indices.get(i, j);
+                    const group = this.cubies[group_index];
+                    const mesh = this.getMesh(face_stickers[n * i + j]);
+                    mesh.lookAt(faceCenters[face_i]);
+                    group.add(mesh);
+                    mesh.translateZ(0.5)
                 }
             }
         }
@@ -363,6 +511,10 @@ class Cube {
         const axesHelper = new THREE.AxesHelper( 10 );
         this.scene.add( axesHelper );
 
+        for (const group of this.cubies) {
+            this.scene.add(group);
+        }
+
         if (!this.speedMode) {
             this.drawCubies();
         }
@@ -371,7 +523,105 @@ class Cube {
         this.render();
     }
 
-    makeMove(move) {
+    getLayer(axis, index) {
+        let x = null, y = null, z = null;
+        if (axis == "x") {
+            x = index;
+        } else if (axis == "y") {
+            y = index;
+        } else if (axis == "z") {
+            z = index;
+        } else {
+        }
+        return this.arr.pick(x, y, z);
+    }
+
+    rotate_layer(axis, index, dir) {
+        if (axis == "y") { dir *= -1; }
+        const layer = this.getLayer(axis, index);
+        const rotated = nj.rot90(layer, dir).clone()
+
+        for (let i = 0; i < this.layers; ++i) {
+            for (let j = 0; j < this.layers; ++j) {
+                layer.set(i, j, rotated.get(i, j))
+            }
+        }
+    }
+
+    makeMove(move_string) {
+        if (this.tween && this.tween.isPlaying()) {
+            this.tween.stop(); // this would not work without stopping it first (+-2h debugging)
+            this.tween.end();
+        }
+
+
+        const move = parse_move(move_string);
+        const indices = get_indices(move, this.layers);
+
+
+        this.cleanGroup();
+        this.group = new THREE.Group();
+
+
+        let dir = move.dir;
+        if (move.flipped == -1) {
+            dir *= -1;
+        }
+
+        for (let index of indices) {
+            index = this.layers - 1 - index;
+            const layer = this.getLayer(move.axis, index);
+            this.rotate_layer(move.axis, index, -1 * dir)
+            const group_indices = layer.flatten().tolist();
+            for (const group_index of group_indices) {
+                this.group.attach(this.cubies[group_index]);
+            }
+        }
+
+
+        window.group = this.group
+
+        this.scene.add(this.group);
+
+        this.tween = new TWEEN.Tween(this.group.rotation)
+                        .to({[move.axis]: -1 * dir * Math.PI / 2}, 200)
+                        .easing(TWEEN.Easing.Quadratic.Out)
+                        .onComplete(() => { removeForRender(this); this.cleanGroup(); })
+                        .start();
+
+        addForRender(this);
+        requestRenderIfNotRequested();
+
+
+        return;
+        const scene = this.scene;
+
+        this.cleanGroup();
+        this.needsSolvedCheck = true;
+
+        // construct new group
+        this.group = new THREE.Group();
+        for (var i = scene.children.length - 1; i >= 0; --i) {
+            if (scene.children[i].type == "AxesHelper") continue;
+            if (low <= scene.children[i].position[axis] && scene.children[i].position[axis] <= high) {
+                this.group.attach(scene.children[i]);
+            }
+        }
+        scene.add(this.group);
+
+        // tween
+        // [axis] - this is the usage of "computed property name" introduced in ES6
+        this.tween = new TWEEN.Tween(this.group.rotation)
+                        .to({[axis]: -1 * mult * Math.PI / 2}, 200)
+                        .easing(TWEEN.Easing.Quadratic.Out)
+                        .onComplete(() => { removeForRender(this); })
+                        .start();
+
+        addForRender(this);
+        requestRenderIfNotRequested();
+    }
+
+    makeMove2(move) {
         const moveObj = this.stringToMove(move);
 
         // check whether a move is a rotation
@@ -406,7 +656,6 @@ class Cube {
     rotateGroupGen(low, high, axis, mult) {
         const scene = this.scene;
 
-        // console.log("rotation started", low, high, axis, mult);
         if (this.tween && this.tween.isPlaying()) {
             this.tween.stop(); // this would not work without stopping it first (+-2h debugging)
             this.tween.end();
@@ -430,7 +679,7 @@ class Cube {
         this.tween = new TWEEN.Tween(this.group.rotation)
                         .to({[axis]: -1 * mult * Math.PI / 2}, 200)
                         .easing(TWEEN.Easing.Quadratic.Out)
-                        .onComplete(() => { removeForRender(this); })
+                        .onComplete(() => { removeForRender(this); this.isSolved(); })
                         .start();
 
         addForRender(this);

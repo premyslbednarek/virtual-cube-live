@@ -29,6 +29,10 @@ i = 0
 def load_user(user_id):
     return User.query.get(user_id)
 
+@app.route("/dev")
+def dev():
+    return render_template("test.html")
+
 @app.route("/solve/<int:solve_id>")
 def solve(solve_id):
     solve = Solve.query.filter_by(id=solve_id).first()

@@ -32,13 +32,8 @@
 
     const canvas = document.getElementById("c")
     const cube = new Cube(3, canvas);
-    cube.init_controls();
-    document.addEventListener("keydown", event => {
-        let move = keybinds.get(event.key);
-        if (move) {
-            cube.makeMove(move);
-        }
-    });
+    cube.init_camera_controls();
+    cube.init_keyboard_controls();
     window.cube = cube
 
 </script>

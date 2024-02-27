@@ -1,6 +1,7 @@
 import * as THREE from './libs/three.module.js'
 import * as TWEEN from './libs/tween.module.js'
 import { OrbitControls } from './libs/OrbitControls.js';
+import keybinds from '/static/js/keybindings.js'
 import { addForRender, removeForRender, requestRenderIfNotRequested } from './render.js';
 
 const xAxis = ["x", new THREE.Vector3(1, 0, 0)];
@@ -265,7 +266,7 @@ class Cube {
 
         this.cubies = []
         for (var i = 0; i < number_of_cubies; ++i) {
-            cubies.push(new THREE.Group())
+            this.cubies.push(new THREE.Group())
         }
 
         // create NxNxN array - cube representation
@@ -280,7 +281,7 @@ class Cube {
             for (let j = 0; j < n; ++j) {
                 for (let k = 0; k < n; ++k) {
                     const cubie_index = this.arr.get(i, j, k);
-                    const cubie = cubies[cubie_index];
+                    const cubie = this.cubies[cubie_index];
                     cubie.position.set(
                         this.offset + i,
                         this.offset + j,
@@ -294,13 +295,22 @@ class Cube {
         this.draw();
     }
 
-    init_controls() {
+    init_camera_controls() {
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         this.controls.enableZoom = false;
         // disable right mouse button camera panning (side to side movement)
         this.controls.enablePan = false;
         this.controls.update();
         this.controls.addEventListener('change', () => this.render());
+    }
+
+    init_keyboard_controls() {
+        document.addEventListener("keydown", event => {
+            let move = keybinds.get(event.key);
+            if (move) {
+                this.makeMove(move);
+            }
+        });
     }
 
     resizeCanvas() {

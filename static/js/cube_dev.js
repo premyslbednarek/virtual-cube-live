@@ -1,7 +1,6 @@
 import * as THREE from './libs/three.module.js'
 import * as TWEEN from './libs/tween.module.js'
 import { OrbitControls } from './libs/OrbitControls.js';
-// import { requestRenderIfNotRequested } from './main.js';
 import { addForRender, removeForRender, requestRenderIfNotRequested } from './render.js';
 
 const xAxis = ["x", new THREE.Vector3(1, 0, 0)];
@@ -311,53 +310,6 @@ class Cube {
         this.draw();
     }
 
-    stringToMove(string) {
-        const rotation = isRotation(string);
-        let rotationDir = 1;
-
-        // if last character in string is ', the move is anticlockwise
-        if (string[string.length -1] == "'") {
-            rotationDir *= -1;
-            // remove ' from string
-            string = string.slice(0, -1);
-        }
-
-        let double = false;
-        if (string[string.length -1] == "2") {
-            double = true;
-            // remove 2 from string
-            string = string.slice(0, -1);
-        }
-
-        if (isRotation(string)) {
-            const axis = string[0];
-            return new Rotation(axis, rotationDir, double);
-        }
-
-        let wide = false;
-        if (string[string.length - 1] == "w") {
-            wide = true;
-            string = string.slice(0, -1);
-        }
-
-        const face = string[string.length - 1];
-        const isMiddle = face == "M" || face == "E" || face == "S";
-
-        let [axis, flippedAxis] = faceToAxis.get(face);
-        flippedAxis = flippedAxis == -1;
-
-        // distance of the layer from the outer layer
-        const layerOffset = (string.length == 2) ? parseInt(string[0]) - 1 : 0;
-        let coord = !isMiddle && !rotation ? (this.layers - 1) / 2 : 0;
-        coord -= layerOffset; // 0 for middle layers
-        if (flippedAxis) {
-            rotationDir *= -1;
-            coord = -coord;
-        }
-
-        return new LayerMove(face, axis, flippedAxis, layerOffset, coord, rotationDir, wide, double);
-    }
-
     resizeCanvas() {
         const canvas = this.renderer.domElement;
         this.renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
@@ -555,13 +507,8 @@ class Cube {
             this.tween.end();
         }
 
-
         const move = parse_move(move_string);
         const indices = get_indices(move, this.layers);
-
-
-        this.cleanGroup();
-        this.group = new THREE.Group();
 
 
         let dir = move.dir;
@@ -569,6 +516,7 @@ class Cube {
             dir *= -1;
         }
 
+        this.group = new THREE.Group();
         for (let index of indices) {
             index = this.layers - 1 - index;
             const layer = this.getLayer(move.axis, index);
@@ -578,109 +526,12 @@ class Cube {
                 this.group.attach(this.cubies[group_index]);
             }
         }
-
-
-        window.group = this.group
-
         this.scene.add(this.group);
 
         this.tween = new TWEEN.Tween(this.group.rotation)
                         .to({[move.axis]: -1 * dir * Math.PI / 2}, 200)
                         .easing(TWEEN.Easing.Quadratic.Out)
                         .onComplete(() => { removeForRender(this); this.cleanGroup(); })
-                        .start();
-
-        addForRender(this);
-        requestRenderIfNotRequested();
-
-
-        return;
-        const scene = this.scene;
-
-        this.cleanGroup();
-        this.needsSolvedCheck = true;
-
-        // construct new group
-        this.group = new THREE.Group();
-        for (var i = scene.children.length - 1; i >= 0; --i) {
-            if (scene.children[i].type == "AxesHelper") continue;
-            if (low <= scene.children[i].position[axis] && scene.children[i].position[axis] <= high) {
-                this.group.attach(scene.children[i]);
-            }
-        }
-        scene.add(this.group);
-
-        // tween
-        // [axis] - this is the usage of "computed property name" introduced in ES6
-        this.tween = new TWEEN.Tween(this.group.rotation)
-                        .to({[axis]: -1 * mult * Math.PI / 2}, 200)
-                        .easing(TWEEN.Easing.Quadratic.Out)
-                        .onComplete(() => { removeForRender(this); })
-                        .start();
-
-        addForRender(this);
-        requestRenderIfNotRequested();
-    }
-
-    makeMove2(move) {
-        const moveObj = this.stringToMove(move);
-
-        // check whether a move is a rotation
-        if (isRotation(move)) {
-            this.rotateGroupGen(-Infinity, Infinity, moveObj.axis, moveObj.rotationSign);
-            return;
-        }
-
-        let high = moveObj.coord + 0.25;
-        let low = moveObj.coord - 0.25;
-
-        // outer layer - rotate outer stickers
-        if (Math.abs(moveObj.coord) == Math.abs(this.firstLayerPosition)) {
-            if (high > 0) high += 1;
-            else low -= 1;
-        }
-
-        // wide move - move two outer layers
-        if (moveObj.wide) {
-            if (high > 0) low -= 1;
-            else high += 1;
-        }
-
-        if (moveObj.double) {
-            moveObj.rotationSign *= 2;
-        }
-
-        this.rotateGroupGen(low, high, moveObj.axis, moveObj.rotationSign);
-    }
-
-
-    rotateGroupGen(low, high, axis, mult) {
-        const scene = this.scene;
-
-        if (this.tween && this.tween.isPlaying()) {
-            this.tween.stop(); // this would not work without stopping it first (+-2h debugging)
-            this.tween.end();
-        }
-
-        this.cleanGroup();
-        this.needsSolvedCheck = true;
-
-        // construct new group
-        this.group = new THREE.Group();
-        for (var i = scene.children.length - 1; i >= 0; --i) {
-            if (scene.children[i].type == "AxesHelper") continue;
-            if (low <= scene.children[i].position[axis] && scene.children[i].position[axis] <= high) {
-                this.group.attach(scene.children[i]);
-            }
-        }
-        scene.add(this.group);
-
-        // tween
-        // [axis] - this is the usage of "computed property name" introduced in ES6
-        this.tween = new TWEEN.Tween(this.group.rotation)
-                        .to({[axis]: -1 * mult * Math.PI / 2}, 200)
-                        .easing(TWEEN.Easing.Quadratic.Out)
-                        .onComplete(() => { removeForRender(this); this.isSolved(); })
                         .start();
 
         addForRender(this);

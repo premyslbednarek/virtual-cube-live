@@ -445,7 +445,8 @@ class Cube {
 
     drawStickers() {
         const centerOffset = -(this.layers - 1) / 2;
-        const state = "WWWWWWWWWGGGGGGGGGOOOOOOOOOBBBBBBBBBRRRRRRRRRYYYYYYYYY";
+        // const state = "RWOWWWWWWRGOGGGGGGROBOOOOOORBOBBBBBBBRORRRRRRRYOYYYYYY";
+        const state = "RROGWBOYBYGRBGGOWWYRYRRBRYYGWBWBOGBWWWBYOYGGWBOGOYROOR";
         const n = this.layers;
 
         let faceCenters = [
@@ -458,12 +459,12 @@ class Cube {
         ];
 
         let faces = [
-            this.getLayer("y", n - 1),
-            this.getLayer("z", n - 1),
-            this.getLayer("x", n - 1),
-            this.getLayer("z", 0),
-            this.getLayer("x", 0),
-            this.getLayer("y", 0)
+            this.getLayer("y", n - 1).T,
+            nj.rot90(this.getLayer("z", n - 1), 1),
+            nj.rot90(this.getLayer("x", n - 1), 2),
+            nj.rot90(this.getLayer("z", 0), 2).T,
+            nj.rot90(this.getLayer("x", 0), -1).T,
+            nj.rot90(this.getLayer("y", 0), 1)
         ]
 
         this.stickers = [];

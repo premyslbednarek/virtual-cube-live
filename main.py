@@ -319,6 +319,7 @@ def lobby_move(data):
     db.session.commit()
 
     cube.pprint()
+    print("state", cube.serialize())
 
     if cube.is_solved():
         print("solved!")

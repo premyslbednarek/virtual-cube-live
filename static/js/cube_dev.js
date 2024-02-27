@@ -144,7 +144,7 @@ class LayerMove extends Move {
             }
         }
 
-        if (!MINUS_LAYERS.includes(this.face)) {
+        if (!isFlipped(this.face)) {
             for (let i = 0; i < indices.length; ++i) {
                 indices[i] = n - 1 - indices[i];
             }
@@ -252,10 +252,6 @@ class Cube {
         this.speedMode = true;
         this.tween;
 
-        // group for rotating objects together
-        this.group = new THREE.Group();
-        this.scene.add(this.group);
-
         this.stickers = [];
 
         this.resizeCanvas();
@@ -264,36 +260,47 @@ class Cube {
         this.solved = true;
         this.needsSolvedCheck = false;
 
-        this.firstLayerPosition = -(this.n - 1) / 2;
 
         const number_of_cubies = n*n*n;
-        const cubies = []
+
+        this.cubies = []
         for (var i = 0; i < number_of_cubies; ++i) {
             cubies.push(new THREE.Group())
         }
 
-        this.cubies = cubies
-        // self.cubies indices
+        // create NxNxN array - cube representation
+        // elements of this array are indices to this.cubies array
+        // numjs does not to have groups as array elements
         this.arr = nj.arange(number_of_cubies).reshape(n, n, n)
 
-        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-        this.controls.enableZoom = false;
-        this.controls.enablePan = false; // disable moving the camera with right click
-        this.controls.update();
-        this.controls.addEventListener('change', () => this.render());
-
+        // position cubies in space
+        // use offset, so the middle of the cube is at (0, 0, 0)
+        this.offset = -(this.n - 1) / 2;
         for (let i = 0; i < n; ++i) {
             for (let j = 0; j < n; ++j) {
                 for (let k = 0; k < n; ++k) {
-                    const group_index = this.arr.get(i, j, k);
-                    const group = cubies[group_index];
-                    group.position.set(this.firstLayerPosition + i, this.firstLayerPosition + j, this.firstLayerPosition + k);
-                    this.scene.add(group);
+                    const cubie_index = this.arr.get(i, j, k);
+                    const cubie = cubies[cubie_index];
+                    cubie.position.set(
+                        this.offset + i,
+                        this.offset + j,
+                        this.offset + k
+                    );
+                    this.scene.add(cubie);
                 }
             }
         }
 
         this.draw();
+    }
+
+    init_controls() {
+        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.controls.enableZoom = false;
+        // disable right mouse button camera panning (side to side movement)
+        this.controls.enablePan = false;
+        this.controls.update();
+        this.controls.addEventListener('change', () => this.render());
     }
 
     resizeCanvas() {
@@ -317,7 +324,7 @@ class Cube {
     changeLayers(newLayers) {
         this.n = parseInt(newLayers);
         this.draw();
-        this.firstLayerPosition = -(this.n - 1) / 2;
+        this.offset = -(this.n - 1) / 2;
     }
 
     getMesh(color) {

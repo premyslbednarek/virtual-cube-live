@@ -31,7 +31,8 @@
     window.rototate_layer = rototate_layer
 
     const canvas = document.getElementById("c")
-    const cube = new Cube(3, canvas)
+    const cube = new Cube(3, canvas);
+    cube.init_controls();
     document.addEventListener("keydown", event => {
         let move = keybinds.get(event.key);
         if (move) {

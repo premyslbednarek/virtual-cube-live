@@ -29,25 +29,19 @@ class Solve {
     }
 }
 
-
-// values are [axis, axisSign]
-const faceToAxis = new Map();
-faceToAxis.set("R", ["x",  1]);
-faceToAxis.set("U", ["y",  1]);
-faceToAxis.set("F", ["z",  1]);
-faceToAxis.set("L", ["x", -1]);
-faceToAxis.set("D", ["y", -1]);
-faceToAxis.set("B", ["z", -1]);
-faceToAxis.set("M", ["x", -1]);
-faceToAxis.set("S", ["z",  1]);
-faceToAxis.set("E", ["y",  1]);
-
-const flippedRotation = new Map();
-for (const face of "RUFSE") {
-    flippedRotation.set(face, false);
+function getAxis(face) {
+    // return axis for a given face
+    if ("RLM".includes(face)) return "x";
+    if ("UED".includes(face)) return "y";
+    if ("FSB".includes(face)) return "z";
+    throw new Error("Parameter is not a valid face!");
 }
-for (const face of "LDBM") {
-    flippedRotation.set(face, true);
+
+function isFlipped(face) {
+    // return whether rotations of given face are inverted
+    if ("RUFSE".includes(face)) return false;
+    if ("LDBM".includes(face)) return true;
+    return new Error("Parameter is not a valid face!")
 }
 
 function isRotation(move) {
@@ -163,7 +157,7 @@ class LayerMove extends Move {
 class Rotation extends Move {
     constructor(axis, dir, double=false) {
         super(axis, dir, double);
-        this.flipped = 1;
+        this.flipped = false;
     }
 
     toString() {
@@ -235,7 +229,9 @@ function parse_move(move) {
         return new Rotation(face, dir, double);
     }
 
-    const [axis, flipped] = faceToAxis.get(face);
+    const axis = getAxis(face);
+    const flipped = isFlipped(face);
+
     return new LayerMove(face, axis, flipped, layer_index, dir, wide, double);
 }
 
@@ -475,7 +471,7 @@ class Cube {
         // for example clockwise rotation of the right face and clockwise
         // rotation of the left face rotate the pieces in opposite directions
         // around the same axis
-        const direction = (move.flipped == -1) ? move.dir * -1 : move.dir;
+        const direction = (move.flipped) ? move.dir * -1 : move.dir;
 
         // group all cubies that are being rotated
         // the group has a pivot (the point around which we rotate)

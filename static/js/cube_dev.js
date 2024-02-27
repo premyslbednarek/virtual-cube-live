@@ -13,6 +13,23 @@ const Axis = {
     "z": 2
 }
 
+class Solve {
+    constructor(scramble) {
+        this.scramble = scramble;
+        this.startTime = performance.now();
+        this.events = [];
+    }
+
+    logMove(move) {
+        this.events.push(["move", performance.now() - this.startTime, move]);
+    }
+
+    logCamera(pos) {
+        this.events.push(["rotation", performance.now() - this.startTime, pos.clone()]);
+    }
+}
+
+
 // values are [axis, axisSign]
 const faceToAxis = new Map();
 faceToAxis.set("R", ["x",  1]);
@@ -64,6 +81,117 @@ function getFace(axis, coord) {
 const CW = 1
 const CCW = -1
 
+
+const MIDDLE_LAYERS = "MSE"
+const MINUS_LAYERS = "DBLM"
+const ROTATIONS = "xyz"
+
+class Move {
+    constructor(axis, dir, double) {
+        this.axis = axis;
+        this.dir = dir;
+        this.double = double;
+    }
+}
+
+class LayerMove extends Move {
+    constructor(face, axis, flippedRotation, index, dir, wide, double) {
+        super(axis, dir, double);
+        this.face = face;
+        this.index = index;
+        this.wide = wide;
+        this.flippedRotation = flippedRotation;
+    }
+
+    toString() {
+        let string = "";
+        if (this.offset > 0) string += this.offset + 1;
+        string += this.face;
+        if (this.wide) string += "w";
+        if (this.double) string += "2";
+
+        if ((this.flippedRotation && this.dir == 1) ||
+            (!this.flippedRotation && this.dir == -1)) {
+                string += "'"
+        };
+
+        return string;
+    }
+
+    changeAxis(newAxis, negateAxis) {
+        this.axis = newAxis;
+
+        if (negateAxis) {
+            this.coord = -this.coord;
+            this.dir *= -1;
+        }
+
+        this.face = getFace(this.axis, this.coord);
+        this.flippedRotation = flippedRotation.get(this.face);
+
+    }
+
+    get_indices(n) {
+        if (MIDDLE_LAYERS.includes(this.face)) {
+            return [(n - 1) / 2]
+        }
+
+        let indices = []
+        indices.push(this.index - 1)
+
+        if (this.wide) {
+            if (this.index == 1) {
+                indices = [0, 1];
+            } else {
+                indices = []
+                for (let i = 0; i < this.index; ++i) {
+                    indices.push(i);
+                }
+            }
+        }
+
+        if (MINUS_LAYERS.includes(this.face)) {
+            for (let i = 0; i < indices.length; ++i) {
+                indices[i] = n - 1 - indices[i];
+            }
+        }
+
+        return indices
+    }
+}
+
+class Rotation extends Move {
+    constructor(axis, dir, double=false) {
+        super(axis, dir, double);
+    }
+
+    toString() {
+        let string = this.axis;
+        if (this.double) {
+            string += "2";
+        }
+        if (this.dir == -1) {
+            string += "'";
+        }
+        return string;
+    }
+
+    changeAxis(newAxis, negateAxis) {
+        this.axis = newAxis;
+        if (negateAxis) {
+            this.dir *= -1;
+        }
+    }
+
+    get_indices(n) {
+        const indices = []
+        for (let i = 0; i < n; ++i) {
+            indices.push(i);
+        }
+        return indices;
+    }
+}
+
 function parse_move(move) {
     let i = 0
     let layer_index = 0
@@ -80,12 +208,14 @@ function parse_move(move) {
     let face = move[i];
     i += 1;
 
+    const isRotation = "xyz".includes(face);
+
     let wide = i < move.length && move[i] == "w"
     if (wide) {
         i += 1
     }
 
-    if ('a' <= face && face <= 'z' && face != "x" && face != "y" && face != "z") {
+    if ('a' <= face && face <= 'z' && !isRotation) {
         wide = true;
         face = face.toUpperCase();
     }
@@ -100,159 +230,19 @@ function parse_move(move) {
         dir = CCW
     }
 
-    let axis, flipped;
-    if ("xyz".includes(face)) {
-        [axis, flipped] = [face, 1]
-    } else {
-        [axis, flipped] = faceToAxis.get(face);
+    if (isRotation) {
+        return new Rotation(face, dir, double);
     }
 
-    return {
-        face: face,
-        index: layer_index,
-        wide: wide,
-        double: double,
-        dir: dir,
-        axis: axis,
-        flipped: flipped
-    }
-}
-window.parse_move = parse_move
-
-const MIDDLE_LAYERS = "MSE"
-const MINUS_LAYERS = "DBLM"
-const ROTATIONS = "xyz"
-
-function get_indices(move, n) {
-    if (MIDDLE_LAYERS.includes(move.face)) {
-        return [(n - 1) / 2]
-    }
-
-    let indices = []
-    indices.push(move.index - 1)
-
-    if ("xyz".includes(move.face)) {
-        indices = []
-        for (let i = 0; i < n; ++i) {
-            indices.push(i);
-        }
-        return indices;
-    }
-
-    if (move.wide) {
-        if (move.index == 1) {
-            indices = [0, 1];
-        } else {
-            indices = []
-            for (let i = 0; i < move.index; ++i) {
-                indices.push(i);
-            }
-        }
-    }
-
-    if (MINUS_LAYERS.includes(move.face)) {
-        for (let i = 0; i < indices.length; ++i) {
-            indices[i] = n - 1 - indices[i];
-        }
-    }
-
-    return indices
-}
-
-window.get_indices = get_indices
-
-class Move {
-    constructor(axis, rotationSign, double=false) {
-        this.axis = axis;
-        this.rotationSign = rotationSign;
-        this.double = double;
-    }
-}
-
-class LayerMove extends Move {
-    constructor(face, axis, flippedRotation, offset, coord, rotationSign, wide, double=false) {
-        super(axis, rotationSign, double);
-        this.face = face;
-        this.offset = offset;
-        this.coord = coord;
-        this.wide = wide;
-        this.flippedRotation = flippedRotation;
-    }
-
-    toString() {
-        let string = "";
-        if (this.offset > 0) string += this.offset + 1;
-        string += this.face;
-        if (this.wide) string += "w";
-        if (this.double) string += "2";
-
-        if ((this.flippedRotation && this.rotationSign == 1) ||
-            (!this.flippedRotation && this.rotationSign == -1)) {
-                string += "'"
-        };
-
-        return string;
-    }
-
-    changeAxis(newAxis, negateAxis) {
-        this.axis = newAxis;
-
-        if (negateAxis) {
-            this.coord = -this.coord;
-            this.rotationSign *= -1;
-        }
-
-        this.face = getFace(this.axis, this.coord);
-        this.flippedRotation = flippedRotation.get(this.face);
-
-    }
-}
-
-class Rotation extends Move {
-    constructor(axis, rotationSign, double=false) {
-        super(axis, rotationSign, double);
-    }
-
-    toString() {
-        let string = this.axis;
-        if (this.double) {
-            string += "2";
-        }
-        if (this.rotationSign == -1) {
-            string += "'";
-        }
-        return string;
-    }
-
-    changeAxis(newAxis, negateAxis) {
-        this.axis = newAxis;
-        if (negateAxis) {
-            this.rotationSign *= -1;
-        }
-    }
-}
-
-class Solve {
-    constructor(scramble) {
-        this.scramble = scramble;
-        this.startTime = performance.now();
-        this.events = [];
-    }
-
-    logMove(move) {
-        this.events.push(["move", performance.now() - this.startTime, move]);
-    }
-
-    logCamera(pos) {
-        this.events.push(["rotation", performance.now() - this.startTime, pos.clone()]);
-    }
+    const [axis, flipped] = faceToAxis.get(face);
+    return new LayerMove(face, axis, flipped, layer_index, dir, wide, double);
 }
 
 
 
 class Cube {
-    constructor(layers, canvas) {
-        this.layers = layers;
+    constructor(n, canvas) {
+        this.n = n;
         this.scene = new THREE.Scene();
         this.canvas = canvas;
         this.camera = new THREE.PerspectiveCamera(
@@ -277,9 +267,8 @@ class Cube {
         this.solved = true;
         this.needsSolvedCheck = false;
 
-        this.firstLayerPosition = -(this.layers - 1) / 2;
+        this.firstLayerPosition = -(this.n - 1) / 2;
 
-        const n = layers
         const number_of_cubies = n*n*n;
         const cubies = []
         for (var i = 0; i < number_of_cubies; ++i) {
@@ -332,7 +321,7 @@ class Cube {
     }
 
     getStickerFace(sticker) {
-        const stickerPosition = this.layers / 2 + 0.01;
+        const stickerPosition = this.n / 2 + 0.01;
         if (Math.abs(stickerPosition - sticker.position.x) < 0.1) return "R";
         if (Math.abs(stickerPosition - sticker.position.y) < 0.1) return "U";
         if (Math.abs(stickerPosition - sticker.position.z) < 0.1) return "F";
@@ -368,9 +357,9 @@ class Cube {
     }
 
     changeLayers(newLayers) {
-        this.layers = parseInt(newLayers);
+        this.n = parseInt(newLayers);
         this.draw();
-        this.firstLayerPosition = -(this.layers - 1) / 2;
+        this.firstLayerPosition = -(this.n - 1) / 2;
     }
 
     getMesh(color) {
@@ -396,10 +385,10 @@ class Cube {
     }
 
     drawStickers() {
-        const centerOffset = -(this.layers - 1) / 2;
+        const centerOffset = -(this.n - 1) / 2;
         // const state = "RWOWWWWWWRGOGGGGGGROBOOOOOORBOBBBBBBBRORRRRRRRYOYYYYYY";
-        const state = "RROGWBOYBYGRBGGOWWYRYRRBRYYGWBWBOGBWWWBYOYGGWBOGOYROOR";
-        const n = this.layers;
+        const state = "RGGBWORYRYRYBOBOYGBGWYGYWGWORBORWOWOWOGRBRGWBYGRBYWYOB";
+        const n = this.n;
 
         let faceCenters = [
             new THREE.Vector3(0, 1, 0),
@@ -437,13 +426,13 @@ class Cube {
     }
 
     drawCubies() {
-        const centerOffset = -(this.layers - 1) / 2;
+        const centerOffset = -(this.n - 1) / 2;
         const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
         const boxMaterial = new THREE.MeshBasicMaterial({color: 0x00000});
         const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
-        for (let i = 0; i < this.layers; ++i) {
-            for (let j = 0; j < this.layers; ++j) {
-                for (let k = 0; k < this.layers; ++k) {
+        for (let i = 0; i < this.n; ++i) {
+            for (let j = 0; j < this.n; ++j) {
+                for (let k = 0; k < this.n; ++k) {
                     const cubie = boxMesh.clone();
                     cubie.position.set(i + centerOffset, j + centerOffset, k + centerOffset);
                     this.scene.add(cubie);
@@ -456,7 +445,7 @@ class Cube {
         // clear scene
         this.scene.remove.apply(this.scene, this.scene.children);
 
-        this.camera.position.set(0, this.layers + this.layers / 2 - 1.2, this.layers + this.layers / 2 + 1)
+        this.camera.position.set(0, this.n + this.n / 2 - 1.2, this.n + this.n / 2 + 1)
         this.camera.lookAt(0, 0, 0);
 
         // visualize the axes
@@ -494,8 +483,8 @@ class Cube {
         const layer = this.getLayer(axis, index);
         const rotated = nj.rot90(layer, dir).clone()
 
-        for (let i = 0; i < this.layers; ++i) {
-            for (let j = 0; j < this.layers; ++j) {
+        for (let i = 0; i < this.n; ++i) {
+            for (let j = 0; j < this.n; ++j) {
                 layer.set(i, j, rotated.get(i, j))
             }
         }
@@ -508,8 +497,7 @@ class Cube {
         }
 
         const move = parse_move(move_string);
-        const indices = get_indices(move, this.layers);
-
+        const indices = move.get_indices(this.n);
 
         let dir = move.dir;
         if (move.flipped == -1) {
@@ -518,7 +506,7 @@ class Cube {
 
         this.group = new THREE.Group();
         for (let index of indices) {
-            index = this.layers - 1 - index;
+            index = this.n - 1 - index;
             const layer = this.getLayer(move.axis, index);
             this.rotate_layer(move.axis, index, -1 * dir)
             const group_indices = layer.flatten().tolist();

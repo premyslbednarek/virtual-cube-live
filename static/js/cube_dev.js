@@ -95,12 +95,12 @@ class Move {
 }
 
 class LayerMove extends Move {
-    constructor(face, axis, flippedRotation, index, dir, wide, double) {
+    constructor(face, axis, flipped, index, dir, wide, double) {
         super(axis, dir, double);
         this.face = face;
         this.index = index;
         this.wide = wide;
-        this.flippedRotation = flippedRotation;
+        this.flipped = flipped;
     }
 
     toString() {
@@ -110,8 +110,8 @@ class LayerMove extends Move {
         if (this.wide) string += "w";
         if (this.double) string += "2";
 
-        if ((this.flippedRotation && this.dir == 1) ||
-            (!this.flippedRotation && this.dir == -1)) {
+        if ((this.flipped && this.dir == 1) ||
+            (!this.flipped && this.dir == -1)) {
                 string += "'"
         };
 
@@ -127,7 +127,7 @@ class LayerMove extends Move {
         }
 
         this.face = getFace(this.axis, this.coord);
-        this.flippedRotation = flippedRotation.get(this.face);
+        this.flipped = flippedRotation.get(this.face);
 
     }
 
@@ -150,7 +150,7 @@ class LayerMove extends Move {
             }
         }
 
-        if (MINUS_LAYERS.includes(this.face)) {
+        if (!MINUS_LAYERS.includes(this.face)) {
             for (let i = 0; i < indices.length; ++i) {
                 indices[i] = n - 1 - indices[i];
             }
@@ -163,6 +163,7 @@ class LayerMove extends Move {
 class Rotation extends Move {
     constructor(axis, dir, double=false) {
         super(axis, dir, double);
+        this.flipped = 1;
     }
 
     toString() {
@@ -312,45 +313,6 @@ class Cube {
         this.renderer.render(this.scene, this.camera);
     }
 
-
-    cleanGroup() {
-        for (var i = this.group.children.length - 1; i >= 0; --i) {
-            this.scene.attach(this.group.children[i]);
-        }
-        this.scene.remove(this.group);
-    }
-
-    getStickerFace(sticker) {
-        const stickerPosition = this.n / 2 + 0.01;
-        if (Math.abs(stickerPosition - sticker.position.x) < 0.1) return "R";
-        if (Math.abs(stickerPosition - sticker.position.y) < 0.1) return "U";
-        if (Math.abs(stickerPosition - sticker.position.z) < 0.1) return "F";
-        if (Math.abs(-stickerPosition - sticker.position.x) < 0.1) return "L";
-        if (Math.abs(-stickerPosition - sticker.position.y) < 0.1) return "D";
-        if (Math.abs(-stickerPosition - sticker.position.z) < 0.1) return "B";
-    }
-
-    isSolved() {
-        if (!this.needsSolvedCheck) return this.solved;
-        this.needsSolvedCheck = false;
-        this.cleanGroup();
-        const colorToFace = new Map();
-        for (const sticker of this.stickers) {
-            const color = sticker.material.color.getHex();
-            const face = this.getStickerFace(sticker);
-            if (colorToFace.has(color)) {
-                if (colorToFace.get(color) != face) {
-                    this.solved = false;
-                    return false;
-                }
-            } else {
-                colorToFace.set(color, face);
-            }
-        }
-        this.solved = true;
-        return true;
-    }
-
     toggleSpeedMode() {
         this.speedMode = !this.speedMode;
         this.draw();
@@ -481,7 +443,7 @@ class Cube {
     rotate_layer(axis, index, dir) {
         if (axis == "y") { dir *= -1; }
         const layer = this.getLayer(axis, index);
-        const rotated = nj.rot90(layer, dir).clone()
+        const rotated = nj.rot90(layer, -1 * dir).clone()
 
         for (let i = 0; i < this.n; ++i) {
             for (let j = 0; j < this.n; ++j) {
@@ -490,38 +452,66 @@ class Cube {
         }
     }
 
+    clearGroup() {
+        // remove all cubies from group that was used for rotating the cubies
+        // on screen and remove the group from the scene
+        for (var i = this.group.children.length - 1; i >= 0; --i) {
+            this.scene.attach(this.group.children[i]);
+        }
+        this.scene.remove(this.group);
+    }
+
     makeMove(move_string) {
+        // if previous move animation was still in progress, force it to end
+        // this would not work correctly without calling .stop() first
         if (this.tween && this.tween.isPlaying()) {
-            this.tween.stop(); // this would not work without stopping it first (+-2h debugging)
+            this.tween.stop();
             this.tween.end();
         }
 
         const move = parse_move(move_string);
+
+        // get actual move direction
+        // for example clockwise rotation of the right face and clockwise
+        // rotation of the left face rotate the pieces in opposite directions
+        // around the same axis
+        const direction = (move.flipped == -1) ? move.dir * -1 : move.dir;
+
+        // group all cubies that are being rotated
+        // the group has a pivot (the point around which we rotate)
+        // at (0, 0, 0). Rotating individual cubies before adding them first
+        // to a group with a pivot rotates them around their own axis.
+        this.group = new THREE.Group();
+        this.scene.add(this.group);
+
+        // get layer indices of layers we rotate
+        // for rotations, this is [0, ..., n-1]
         const indices = move.get_indices(this.n);
 
-        let dir = move.dir;
-        if (move.flipped == -1) {
-            dir *= -1;
-        }
-
-        this.group = new THREE.Group();
         for (let index of indices) {
-            index = this.n - 1 - index;
+            // get all cubies from given layer
             const layer = this.getLayer(move.axis, index);
-            this.rotate_layer(move.axis, index, -1 * dir)
+            // rotate cubies in internal object representation
+            this.rotate_layer(move.axis, index, direction)
+
+            // get cubies objects that will be rotated
             const group_indices = layer.flatten().tolist();
             for (const group_index of group_indices) {
                 this.group.attach(this.cubies[group_index]);
             }
         }
-        this.scene.add(this.group);
 
+        // rotate layer on screen
         this.tween = new TWEEN.Tween(this.group.rotation)
-                        .to({[move.axis]: -1 * dir * Math.PI / 2}, 200)
+                        .to({[move.axis]: -1 * direction * Math.PI / 2}, 200)
                         .easing(TWEEN.Easing.Quadratic.Out)
-                        .onComplete(() => { removeForRender(this); this.cleanGroup(); })
+                        .onComplete(() => {
+                            removeForRender(this);
+                            this.clearGroup();
+                        })
                         .start();
 
+        // add cube to render queue
         addForRender(this);
         requestRenderIfNotRequested();
     }

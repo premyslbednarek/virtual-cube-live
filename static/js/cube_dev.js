@@ -4,6 +4,7 @@ import nj from '/static/js/libs/numjs.min.js';
 import { OrbitControls } from './libs/OrbitControls.js';
 import keybinds from '/static/js/keybindings.js'
 import { addForRender, removeForRender, requestRenderIfNotRequested } from './render.js';
+import { getOrtogonalVectors, getScreenCoordinates, degToRad, drawLine, sleep } from './utils.js';
 
 const xAxis = ["x", new THREE.Vector3(1, 0, 0)];
 const yAxis = ["y", new THREE.Vector3(0, 1, 0)];
@@ -316,6 +317,11 @@ class Cube {
         });
     }
 
+    init_mouse_moves() {
+        document.addEventListener('mousedown', event => this.mouseDown(event));
+        document.addEventListener('mouseup', event => this.mouseUp(event));
+    }
+
     resizeCanvas() {
         const canvas = this.renderer.domElement;
         this.renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
@@ -571,6 +577,135 @@ class Cube {
         // add cube to render queue
         addForRender(this);
         requestRenderIfNotRequested();
+    }
+
+    mouseDown(event) {
+        // calculate pointer position in NDC - normalized device coordinates
+        // in NDC, canvas bottom left corner is [-1, -1], top right is [1, 1]
+        const pointer = new THREE.Vector2(    // const arr = nj.arange(n*n*n).reshape(n, n, n)
+            (event.clientX / this.canvas.clientWidth) * 2 - 1,
+            - (event.clientY / this.canvas.clientHeight) * 2 + 1
+        )
+
+        // find stickers under the pointer
+        // note that it is possible to click stickers, that cannot be directly
+        // seen from our point of view (e.g. stickers on the back face)
+        const raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(pointer, this.camera);
+        const intersectedStickers = raycaster.intersectObjects(this.cubies);
+
+        if (intersectedStickers.length == 0) {
+            this.mouseDownObject = undefined;
+            return;
+        }
+
+        // a sticker was clicked - the user wants to make a move
+        // disable camera rotation, so the desired mouse movement does not move the camera
+        this.controls.enabled = false;
+
+        const clickedSticker = intersectedStickers[0].object;
+        const clickedCoordinates = intersectedStickers[0].point;
+
+        this.mouseDownObject = {
+            clientX: event.clientX,
+            clientY: event.clientY,
+            sticker: clickedSticker,
+            clickedPoint: clickedCoordinates
+        }
+    }
+
+    mouseUp(event) {
+        // check whether a sticker was clicked on mouseDown event handler
+        if (this.mouseDownObject == undefined) {
+            return;
+        }
+
+        this.controls.enabled = true;
+
+        // direction of the cursor movement
+        const mouseMovementVector = new THREE.Vector2(
+            event.clientX - this.mouseDownObject.clientX,
+            event.clientY - this.mouseDownObject.clientY
+        )
+
+        if (mouseMovementVector.length() <= 3) {
+            // the mouse movement was very short - possibly just a click
+            return;
+        }
+        const clickedPosition = this.mouseDownObject.clickedPoint;
+
+        // calculate normal vector to the clicked sticker plane
+        const stickerNormal = new THREE.Vector3();
+        this.mouseDownObject.sticker.getWorldDirection(stickerNormal);
+        stickerNormal.round();
+        // visualize the normal
+        // drawLine(this.mouseDownObject.clickedPoint, stickerNormal.clone().add(this.mouseDownObject.clickedPoint), this.scene);
+
+        const orthogonalVectors = getOrtogonalVectors(stickerNormal);
+        // visualize the orthogonal vectors
+        const startPoint = this.mouseDownObject.clickedPoint;
+        const endPoints = orthogonalVectors.map((vector) => vector.clone().add(startPoint));
+        // endPoints.forEach((endPoint) => drawLine(startPoint, endPoint, this.scene));
+
+        const startPointScreen = getScreenCoordinates(startPoint, this.camera);
+        const endPointsScreen = endPoints.map((point) => getScreenCoordinates(point, this.camera));
+        const screenDirs = endPointsScreen.map((end) => end.sub(startPointScreen));
+
+        // calculate angle to mouseMovenmentVector
+        const angles = screenDirs.map((dir) => dir.angleTo(mouseMovementVector)*180/Math.PI);
+
+        // choose the vector closest to mouseMovementVector
+        let lowest = 0;
+        for (let j = 1; j < 4; ++j) {
+            if (angles[j] < angles[lowest]) {
+                lowest = j;
+            }
+        }
+        const move_dir = orthogonalVectors[lowest];
+
+        // get rotation axis
+        let axisVector;
+        let axis;
+        for (let [baseLabel, baseVector] of [xAxis, yAxis, zAxis]) {
+            if (baseVector.dot(move_dir) == 0 && baseVector.dot(stickerNormal) == 0) {
+                axisVector = baseVector;
+                axis = baseLabel;
+                break;
+            }
+        }
+
+        // get clicked sticker position along the rotations axis and round to nearest .5
+        // HERE, TAKE THE PARENT POSITION, NOT THE STICKER - todo
+        let coord = this.mouseDownObject.sticker.parent.position[axis];
+        coord = Math.round(coord * 2) / 2;
+
+        // exception fro middle layer
+        const flipped = coord < 0 || (axis == "x" && coord == 0);
+        const face = getFace(axis, flipped, coord == 0);
+        coord = Math.abs(coord);
+
+        // triple product calculation
+        // does the vector rotate around the axis in a clockwise or anticlockwise direction?
+        // positive determinant - anticlockwise
+        // negative determinant - clockwise
+        const matrix = new THREE.Matrix3();
+        matrix.set(
+            axisVector.x,  axisVector.y,  axisVector.z,
+            clickedPosition.x, clickedPosition.y, clickedPosition.z,
+            move_dir.x,      move_dir.y,      move_dir.z
+        )
+        const determinant = matrix.determinant();
+
+        let rotationSign = 1;
+        if (determinant > 0) {
+            rotationSign *= -1;
+        }
+        if (flipped) {
+            rotationSign *= -1;
+        }
+
+        const moveObj = new LayerMove(face, axis, flipped, coord, rotationSign, false, false);
+        this.makeMove(moveObj.toString());
     }
 }
 

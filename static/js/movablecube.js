@@ -292,9 +292,7 @@ class MovableCube extends Cube {
     mouseDown(event) {
         // calculate pointer position in NDC - normalized device coordinates
         // in NDC, canvas bottom left corner is [-1, -1], top right is [1, 1]
-        const pointer = new THREE.Vector2    // const arr = nj.arange(n*n*n).reshape(n, n, n)
-        // console.log(arr)
-        // window.arr = arr(
+        const pointer = new THREE.Vector2(    // const arr = nj.arange(n*n*n).reshape(n, n, n)
             (event.clientX / this.canvas.clientWidth) * 2 - 1,
             - (event.clientY / this.canvas.clientHeight) * 2 + 1
         )

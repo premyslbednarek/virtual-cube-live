@@ -8,34 +8,13 @@
 </head>
 <body>
 <script type="module">
-    import nj from '/static/js/libs/numjs.min.js';
     import { Cube } from '/static/js/cube_dev.js'
-    import keybinds from '/static/js/keybindings.js'
-    // optional: assign to global to let other code can use: globalThis.nj = nj;
-    const n = 3
-    // const arr = nj.arange(n*n*n).reshape(n, n, n)
-    // console.log(arr)
-    // window.arr = arr
-    window.nj = nj
-
-    function rototate_layer(x, y, z, dir) {
-        const layer = arr.pick(x, y, z)
-        const rotated = nj.rot90(layer, dir).clone()
-
-        for (let i = 0; i < n; ++i) {
-            for (let j = 0; j < n; ++j) {
-                layer.set(i, j, rotated.get(i, j))
-            }
-        }
-    }
-    window.rototate_layer = rototate_layer
 
     const canvas = document.getElementById("c")
     const cube = new Cube(3, canvas);
     cube.init_camera_controls();
     cube.init_keyboard_controls();
     window.cube = cube
-
 </script>
 </body>
 </html>

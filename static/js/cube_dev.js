@@ -1,5 +1,6 @@
 import * as THREE from './libs/three.module.js'
 import * as TWEEN from './libs/tween.module.js'
+import nj from '/static/js/libs/numjs.min.js';
 import { OrbitControls } from './libs/OrbitControls.js';
 import keybinds from '/static/js/keybindings.js'
 import { addForRender, removeForRender, requestRenderIfNotRequested } from './render.js';

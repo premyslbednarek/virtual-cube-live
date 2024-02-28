@@ -279,12 +279,12 @@ class MovableCube extends Cube {
     makeKeyboardMove(move) {
         const remapping = this.getAxisRemapping();
         const moveObj = this.stringToMove(move);
-        
+
         if (remapping.has(moveObj.axis)) {
             const [newAxis, negateAxis] = remapping.get(moveObj.axis);
             moveObj.changeAxis(newAxis, negateAxis);
         }
-        
+
         const newMove = moveObj.toString();
         this.makeMove(newMove);
     }
@@ -292,13 +292,15 @@ class MovableCube extends Cube {
     mouseDown(event) {
         // calculate pointer position in NDC - normalized device coordinates
         // in NDC, canvas bottom left corner is [-1, -1], top right is [1, 1]
-        const pointer = new THREE.Vector2(
+        const pointer = new THREE.Vector2    // const arr = nj.arange(n*n*n).reshape(n, n, n)
+        // console.log(arr)
+        // window.arr = arr(
             (event.clientX / this.canvas.clientWidth) * 2 - 1,
             - (event.clientY / this.canvas.clientHeight) * 2 + 1
         )
-        
+
         // find stickers under the pointer
-        // note that it is possible to click stickers, that cannot be directly 
+        // note that it is possible to click stickers, that cannot be directly
         // seen from our point of view (e.g. stickers on the back face)
         const raycaster = new THREE.Raycaster();
         raycaster.setFromCamera(pointer, this.camera);
@@ -337,7 +339,7 @@ class MovableCube extends Cube {
             event.clientX - this.mouseDownObject.clientX,
             event.clientY - this.mouseDownObject.clientY
         )
-        
+
         if (mouseMovementVector.length() <= 3) {
             // the mouse movement was very short - possibly just a click
             return;
@@ -386,7 +388,7 @@ class MovableCube extends Cube {
 
         // get clicked sticker position along the rotations axis and round to nearest .5
         let coord = this.mouseDownObject.sticker.position[axis];
-        coord = Math.round(coord * 2) / 2; 
+        coord = Math.round(coord * 2) / 2;
 
         const face = getFace(axis, coord);
         const flipped = flippedRotation.get(face);

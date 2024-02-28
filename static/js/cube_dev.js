@@ -524,12 +524,20 @@ class Cube {
         this.scene.remove(this.group);
     }
 
-    makeMove(move_string) {
+    registerMoveCallback(callback) {
+        this.sendMoveCallback = callback;
+    }
+
+    makeMove(move_string, send=true) {
         // if previous move animation was still in progress, force it to end
         // this would not work correctly without calling .stop() first
         if (this.tween && this.tween.isPlaying()) {
             this.tween.stop();
             this.tween.end();
+        }
+
+        if (send && this.sendMoveCallback) {
+            this.sendMoveCallback(move_string);
         }
 
         const move = parse_move(move_string);

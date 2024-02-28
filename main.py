@@ -59,9 +59,9 @@ def new_lobby():
 @app.route("/lobby/<int:lobby_id>")
 def lobby(lobby_id):
     # check whether the user has already joined the lobby
-    q = LobbyUsers.query.filter_by(lobby_id=lobby_id).filter_by(user_id=current_user.id).first()
-    if (q):
-        return "You have already joined this lobby!"
+    # q = LobbyUsers.query.filter_by(lobby_id=lobby_id).filter_by(user_id=current_user.id).first()
+    # if (q):
+    #     return "You have already joined this lobby!"
 
     # show start button only for the lobby creator
     q = select(Lobby.creator).filter_by(id=lobby_id)
@@ -330,6 +330,18 @@ def lobby_move(data):
         )
 
     print(current_user.username, "in lobby", lobby_id, "has made a ", move, "move")
+
+@socketio.on("lobby_camera")
+def lobby_camera(data):
+    lobby_id = data["lobby_id"]
+    position = data["position"]
+
+    socketio.emit(
+        "lobby_camera",
+        { "username": current_user.username, "position": position },
+        room=lobby_id,
+        skip_sid=request.sid
+    )
 
 
 @socketio.event

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Race</title>
 </head>
-<body>
+<body style="position: absolute; width: 100%; height:100%; margin: 0">
     <div>Lobby id: {{ lobby_id }}</div>
     <div id="userList">Users:</div>
     <button id="readyButton">ready</button>
@@ -13,16 +13,38 @@
         <button id="startButton">Start the race</button>
     {% endif %}
     <br>
-    <canvas id="mainCanvas" style="width: 100%; height: 50%"></canvas>
+    <canvas id="mainCanvas" style="position: absolute; width: 80%; height: 80%; bottom:0;"></canvas>
     <div id="otherCanvases" style="position:absolute; right: 0; top: 0; height: 100%; width: 30%;"></div>
 </body>
 <script type="module">
-    import { io } from '/static/js/libs/socket.io.esm.min.js'
-    import { Cube } from '/static/js/cube.js'
-    import keybinds from '/static/js/keybindings.js'
+    import { io } from '/static/js/libs/socket.io.esm.min.js';
+    import Cube from '/static/js/cube_new.js';
     const socket = io();
 
     const cube = new Cube(3, document.getElementById("mainCanvas"));
+    cube.init_camera_controls();
+    cube.init_keyboard_controls();
+    cube.init_mouse_moves();
+
+    function send_move(move_str) {
+        const data = {
+            lobby_id: lobby_id,
+            move: move_str
+        }
+        socket.emit("lobby_move", data);
+    }
+
+    function send_camera(new_position) {
+        const data = {
+            lobby_id: lobby_id,
+            position: new_position
+        }
+        socket.emit("lobby_camera", data);
+    }
+
+    cube.onMove(send_move);
+    cube.onCamera(send_camera);
+
     const ourUsername = "{{ current_user.username }}";
     console.log(ourUsername);
 
@@ -72,15 +94,13 @@
         user.cube.makeMove(move);
     })
 
-    // begin duplication with main.js
-    document.addEventListener("keydown", event => {
-        let move = keybinds.get(event.key);
-        if (move) {
-            cube.makeMove(move);
-            socket.emit("lobby_move", { lobby_id: lobby_id, move: move });
-        }
-    });
-    // end
+    socket.on("lobby_camera", function(data) {
+        const username = data.username;
+        const position = data.position;
+
+        const user = users.get(username);
+        user.cube.updateCamera(position);
+    })
 
     const readyButton = document.getElementById("readyButton");
     let ready = false;

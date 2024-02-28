@@ -93,6 +93,12 @@ export default class Cube {
         this.onCameraCallbacks.push(callback);
     }
 
+    updateCamera(new_position) {
+        this.camera.position.copy(new_position);
+        this.camera.lookAt(0, 0, 0);
+        this.render();
+    }
+
     onMove(callback) {
         this.onMoveCallbacks.push(callback);
     }
@@ -160,8 +166,8 @@ export default class Cube {
 
     drawStickers() {
         const centerOffset = -(this.n - 1) / 2;
+        const state = "WWWWWWWWWGGGGGGGGGOOOOOOOOOBBBBBBBBBRRRRRRRRRYYYYYYYYY";
         // const state = "RWOWWWWWWRGOGGGGGGROBOOOOOORBOBBBBBBBRORRRRRRRYOYYYYYY";
-        const state = "RGGBWORYRYRYBOBOYGBGWYGYWGWORBORWOWOWOGRBRGWBYGRBYWYOB";
         const n = this.n;
 
         let faceCenters = [
@@ -200,18 +206,12 @@ export default class Cube {
     }
 
     drawCubies() {
-        const centerOffset = -(this.n - 1) / 2;
-        const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
+        const boxGeometry = new THREE.BoxGeometry(0.98, 0.98, 0.98);
         const boxMaterial = new THREE.MeshBasicMaterial({color: 0x00000});
         const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
-        for (let i = 0; i < this.n; ++i) {
-            for (let j = 0; j < this.n; ++j) {
-                for (let k = 0; k < this.n; ++k) {
-                    const cubie = boxMesh.clone();
-                    cubie.position.set(i + centerOffset, j + centerOffset, k + centerOffset);
-                    this.scene.add(cubie);
-                }
-            }
+        for (const cubie of this.cubies) {
+            const box = boxMesh.clone();
+            cubie.add(box);
         }
     }
 
@@ -378,10 +378,12 @@ export default class Cube {
     mouseDown(event) {
         // calculate pointer position in NDC - normalized device coordinates
         // in NDC, canvas bottom left corner is [-1, -1], top right is [1, 1]
+        // offsets are useful when the canvas is not full page
         const pointer = new THREE.Vector2(    // const arr = nj.arange(n*n*n).reshape(n, n, n)
-            (event.clientX / this.canvas.clientWidth) * 2 - 1,
-            - (event.clientY / this.canvas.clientHeight) * 2 + 1
+            ((event.clientX - this.canvas.offsetLeft) / this.canvas.clientWidth) * 2 - 1,
+            - ((event.clientY - this.canvas.offsetTop) / this.canvas.clientHeight) * 2 + 1
         )
+        console.log(pointer)
 
         // find stickers under the pointer
         // note that it is possible to click stickers, that cannot be directly

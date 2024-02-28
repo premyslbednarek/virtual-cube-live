@@ -50,15 +50,16 @@ function isRotation(move) {
     return ["x", "x'", "y", "y'", "z", "z'"].includes(move);
 }
 
-function getFace(axis, coord) {
-    if (coord == 0) {
+function getFace(axis, flipped, isMiddle) {
+    if (isMiddle) {
         switch (axis) {
             case "x": return "M";
             case "y": return "E";
             case "z": return "S";
         }
     }
-    if (coord > 0) {
+
+    if (!flipped) {
         switch (axis) {
             case "x": return "R";
             case "y": return "U";
@@ -66,13 +67,13 @@ function getFace(axis, coord) {
         }
     }
 
-    // coord < 0
     switch (axis) {
         case "x": return "L";
         case "y": return "D";
         case "z": return "B";
     }
 }
+
 
 const CW = 1
 const CCW = -1
@@ -97,17 +98,17 @@ class LayerMove extends Move {
         this.index = index;
         this.wide = wide;
         this.flipped = flipped;
+        this.isMiddle = MIDDLE_LAYERS.includes(this.face);
     }
 
     toString() {
         let string = "";
-        if (this.offset > 0) string += this.offset + 1;
+        if (this.index > 1) string += this.index;
         string += this.face;
         if (this.wide) string += "w";
         if (this.double) string += "2";
 
-        if ((this.flipped && this.dir == 1) ||
-            (!this.flipped && this.dir == -1)) {
+        if (this.dir == -1) {
                 string += "'"
         };
 
@@ -118,17 +119,16 @@ class LayerMove extends Move {
         this.axis = newAxis;
 
         if (negateAxis) {
-            this.coord = -this.coord;
-            this.dir *= -1;
+            this.flipped = !this.flipped;
+            // this.dir = this.dir * -1;
         }
 
-        this.face = getFace(this.axis, this.coord);
-        this.flipped = flippedRotation.get(this.face);
-
+        this.face = getFace(this.axis, this.flipped, this.isMiddle);
+        // this.flipped = isFlipped(this.face);
     }
 
     get_indices(n) {
-        if (MIDDLE_LAYERS.includes(this.face)) {
+        if (this.isMiddle) {
             return [(n - 1) / 2]
         }
 
@@ -293,6 +293,8 @@ class Cube {
             }
         }
 
+        this.controls = null;
+
         this.draw();
     }
 
@@ -307,9 +309,9 @@ class Cube {
 
     init_keyboard_controls() {
         document.addEventListener("keydown", event => {
-            let move = keybinds.get(event.key);
-            if (move) {
-                this.makeMove(move);
+            let move_str = keybinds.get(event.key);
+            if (move_str) {
+                this.makeKeyboardMove(move_str);
             }
         });
     }
@@ -439,6 +441,47 @@ class Cube {
 
         this.drawStickers();
         this.render();
+    }
+
+    getAxisRemapping() {
+        // camera position might have changed - when resizing the cube
+        this.controls.update();
+
+        const angle = this.controls.getAzimuthalAngle()*180/Math.PI;
+        // oldAxis -> [newAxis, negateAxis]
+        const remapping = new Map();
+        if (-45 <= angle && angle <= 45) {
+            // nothing
+        } else if (45 < angle && angle < 135) {
+            // x = -z; z = x;
+            remapping.set("x", ["z", true]);
+            remapping.set("z", ["x", false]);
+        } else if (135 < angle || angle < -135) {
+            // x = -x; z = -z;
+            remapping.set("x", ["x", true]);
+            remapping.set("z", ["z", true]);
+        } else {
+            // x = z; z = -x;
+            remapping.set("x", ["z", false]);
+            remapping.set("z", ["x", true]);
+        }
+
+        return remapping;
+    }
+
+    makeKeyboardMove(move_str) {
+        if (this.controls) {
+            const remapping = this.getAxisRemapping();
+            const move = parse_move(move_str);
+
+            if (remapping.has(move.axis)) {
+                const [newAxis, negateAxis] = remapping.get(move.axis);
+                move.changeAxis(newAxis, negateAxis);
+            }
+
+            move_str = move.toString();
+        }
+        this.makeMove(move_str);
     }
 
     getLayer(axis, index) {

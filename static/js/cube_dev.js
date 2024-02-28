@@ -305,7 +305,18 @@ class Cube {
         // disable right mouse button camera panning (side to side movement)
         this.controls.enablePan = false;
         this.controls.update();
-        this.controls.addEventListener('change', () => this.render());
+        this.controls.addEventListener('change', () => this.onCameraChange());
+    }
+
+    onCameraChange() {
+        this.render();
+        if (this.cameraChangeCallback) {
+            this.cameraChangeCallback(this.camera.position);
+        }
+    }
+
+    registerCameraChangeCallback(callback) {
+        this.cameraChangeCallback = callback;
     }
 
     init_keyboard_controls() {

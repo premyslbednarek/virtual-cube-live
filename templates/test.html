@@ -16,6 +16,7 @@
     cube.init_keyboard_controls();
     cube.init_mouse_moves();
     cube.registerMoveCallback(move => console.log(move));
+    cube.registerCameraChangeCallback(position => console.log(position));
     window.cube = cube
 </script>
 </body>

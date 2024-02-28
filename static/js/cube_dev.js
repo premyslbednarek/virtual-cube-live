@@ -296,6 +296,9 @@ class Cube {
 
         this.controls = null;
 
+        this.onCameraCallbacks = [];
+        this.onMoveCallbacks = [];
+
         this.draw();
     }
 
@@ -310,14 +313,19 @@ class Cube {
 
     onCameraChange() {
         this.render();
-        if (this.cameraChangeCallback) {
-            this.cameraChangeCallback(this.camera.position);
+        for (const fun of this.onCameraCallbacks) {
+            fun(this.camera.position);
         }
     }
 
-    registerCameraChangeCallback(callback) {
-        this.cameraChangeCallback = callback;
+    onCamera(callback) {
+        this.onCameraCallbacks.push(callback);
     }
+
+    onMove(callback) {
+        this.onMoveCallbacks.push(callback);
+    }
+
 
     init_keyboard_controls() {
         document.addEventListener("keydown", event => {
@@ -535,10 +543,6 @@ class Cube {
         this.scene.remove(this.group);
     }
 
-    registerMoveCallback(callback) {
-        this.sendMoveCallback = callback;
-    }
-
     makeMove(move_string, send=true) {
         // if previous move animation was still in progress, force it to end
         // this would not work correctly without calling .stop() first
@@ -547,8 +551,10 @@ class Cube {
             this.tween.end();
         }
 
-        if (send && this.sendMoveCallback) {
-            this.sendMoveCallback(move_string);
+        if (send) {
+            for (const fun of this.onMoveCallbacks) {
+                fun(move_string);
+            }
         }
 
         const move = parse_move(move_string);

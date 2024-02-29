@@ -11,7 +11,7 @@
         <button id="readyButton">ready</button>
         <div id="info"></div>
         {% if is_creator %}
-            <button id="startButton">Start the race</button>
+            <button id="startButton" style="disabled: true; ">Start the race</button>
         {% endif %}
         <br>
     </div>
@@ -81,7 +81,7 @@ class User {
 
     renderTag() {
         let string = `${this.username} is `;
-        string += (this.ready) ? "not ready" : "ready";
+        string += (this.ready) ? "ready" : "not ready";
         const color = (this.ready) ? "green" : "red";
 
         this.userInfoDiv.innerHTML = string;

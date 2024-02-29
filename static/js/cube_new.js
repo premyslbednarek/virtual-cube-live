@@ -406,7 +406,6 @@ export default class Cube {
             ((event.clientX - this.canvas.offsetLeft) / this.canvas.clientWidth) * 2 - 1,
             - ((event.clientY - this.canvas.offsetTop) / this.canvas.clientHeight) * 2 + 1
         )
-        console.log(pointer)
 
         // find stickers under the pointer
         // note that it is possible to click stickers, that cannot be directly

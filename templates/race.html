@@ -4,179 +4,216 @@
     <meta charset="UTF-8">
     <title>Race</title>
 </head>
-<body style="position: absolute; width: 100%; height:100%; margin: 0">
-    <div>Lobby id: {{ lobby_id }}</div>
-    <div id="userList">Users:</div>
-    <button id="readyButton">ready</button>
-    <div id="info"></div>
-    {% if is_creator %}
-        <button id="startButton">Start the race</button>
-    {% endif %}
-    <br>
-    <canvas id="mainCanvas" style="position: absolute; width: 80%; height: 80%; bottom:0;"></canvas>
-    <div id="otherCanvases" style="position:absolute; right: 0; top: 0; height: 100%; width: 30%;"></div>
+<body style="position: absolute; width: 100%; height:100%; margin: 0; color:white">
+    <div style="position: absolute; z-index: 100;">
+        <div>Lobby id: {{ lobby_id }}</div>
+        <div id="userList">Users:</div>
+        <button id="readyButton">ready</button>
+        <div id="info"></div>
+        {% if is_creator %}
+            <button id="startButton">Start the race</button>
+        {% endif %}
+        <br>
+    </div>
+    <canvas id="mainCanvas" style="position: absolute; width: 80%; height: 100%; top: 0;"></canvas>
+    <div id="otherCanvases" style="position:absolute; right: 0; top: 0; height: 100%; width: 20%;"></div>
 </body>
 <script type="module">
-    import { io } from '/static/js/libs/socket.io.esm.min.js';
-    import Cube from '/static/js/cube_new.js';
-    const socket = io();
+import { io } from '/static/js/libs/socket.io.esm.min.js';
+import Cube from '/static/js/cube_new.js';
 
-    const cube = new Cube(3, document.getElementById("mainCanvas"));
-    cube.init_camera_controls();
-    cube.init_keyboard_controls();
-    cube.init_mouse_moves();
-
-    function send_move(move_str) {
-        const data = {
-            lobby_id: lobby_id,
-            move: move_str
-        }
-        socket.emit("lobby_move", data);
+class UserHandler {
+    constructor() {
+        this.users = new Map();
     }
 
-    function send_camera(new_position) {
-        const data = {
-            lobby_id: lobby_id,
-            position: new_position
+    add(username, canvas=null) {
+        if (!this.users.has(username)) {
+            const user = new User(username, canvas);
+            this.users.set(username, user);
+            return user;
         }
-        socket.emit("lobby_camera", data);
     }
 
-    cube.onMove(send_move);
-    cube.onCamera(send_camera);
-
-    const ourUsername = "{{ current_user.username }}";
-    console.log(ourUsername);
-
-    const lobby_id = {{ lobby_id }};
-
-    const userList = document.getElementById("userList");
-
-    const users = new Map();
-    function addUser(username) {
-        const div = document.createElement("div");
-        div.innerHTML = username;
-        userList.appendChild(div);
-
-        // skip adding our cube
-        if (username == ourUsername) {
-            users.set(username, { div: div, ready: false} );
-            return;
-        };
-
-        const canvasDiv = document.createElement("div");
-        canvasDiv.style = "position: relative";
-        document.getElementById("otherCanvases").appendChild(canvasDiv);
-
-        const nameDiv = document.createElement("div");
-        nameDiv.style = "position: absolute; top: 0; left: 0; color: white;"
-        nameDiv.innerHTML = username;
-        canvasDiv.appendChild(nameDiv);
-
-        // create cube
-        // begin dup with drawAnotherCube in main
-        const canvas = document.createElement("canvas");
-        canvas.style = "width: 100%; height: 250px"
-        canvasDiv.appendChild(canvas);
-
-        const _cube = new Cube(3, canvas);
-        _cube.render()
-        // end dup
-
-        users.set(username, { div: div, cube: _cube, canvasDiv: canvasDiv, ready: false} );
+    get(username) {
+        return this.users.get(username);
     }
 
-    socket.on("lobby_move", function(data) {
-        const username = data.username;
-        const move = data.move;
+    remove(username) {
+        this.users.delete(username);
+    }
 
-        const user = users.get(username);
-        user.cube.makeMove(move);
-    })
-
-    socket.on("lobby_camera", function(data) {
-        const username = data.username;
-        const position = data.position;
-
-        const user = users.get(username);
-        user.cube.updateCamera(position);
-    })
-
-    const readyButton = document.getElementById("readyButton");
-    let ready = false;
-    readyButton.addEventListener("click", () => {
-        if (!ready) {
-            socket.emit("ready", { lobby_id: lobby_id})
-            readyButton.innerHTML = "unready"
-            ready = true;
-        } else {
-            socket.emit("unready", { lobby_id: lobby_id})
-            readyButton.innerHTML = "ready"
-            ready = false;
+    forEach(fun) {
+        for (const [_, user] of this.users) {
+            console.log(user)
+            fun(user);
         }
-    });
+    }
+}
 
-    socket.on("ready", function(data) {
-        const username = data.username;
-        const user = users.get(username)
-        user.div.innerHTML = username + " [ready]";
-    });
+class User {
+    constructor(username, canvas) {
+        this.username = username;
+        this.ready = false;
 
-    socket.on("unready", function(data) {
-        const username = data.username;
-        const user = users.get(username)
-        user.div.innerHTML = username;
-    })
+        const userList = document.getElementById("userList");
+        this.userInfoDiv = document.createElement("div");
+        userList.appendChild(this.userInfoDiv);
 
-    {% if is_creator %}
-        const startButton = document.getElementById("startButton")
-        startButton.addEventListener("click", () => {
-            socket.emit("startLobby", { lobby_id: lobby_id});
-        })
-    {% endif %}
+        this.canvasInfo = null;
+        if (canvas == null) {
+            this.canvasDiv = document.createElement("div");
+            this.canvasDiv.style = "position: relative";
+            document.getElementById("otherCanvases").appendChild(this.canvasDiv);
 
-    // connect to this lobby
-    socket.emit("lobby_connection", { lobby_id: lobby_id }, function(users) {
-        users.forEach((user) => {addUser(user)});
-    })
+            canvas = document.createElement("canvas");
+            canvas.style = "width: 100%; height: 250px"
 
-
-    socket.on("lobby_connection", function(data) {
-        addUser(data.username);
-    })
-
-    socket.on("lobby-disconnect", function(data) {
-        const username = data.username;
-        console.log(username, "has left the lobby");
-
-        const user = users.get(username);
-        user.canvasDiv.remove();
-        user.div.remove();
-    })
-
-    socket.on("match_start", function(data) {
-        const state = data.state;
-        console.log(state);
-        cube.setState(state);
-        for (let [user, data] of users) {
-            const c = data.cube
-            if (c == undefined)  {
-                continue
-            }
-            c.setState(state);
+            this.canvasInfo = document.createElement("div");
+            this.canvasInfo.style = "position: absolute; top: 0; left: 0; color: white;"
+            this.canvasDiv.appendChild(this.canvasInfo);
+            this.canvasDiv.appendChild(canvas);
         }
 
-        const infoDiv = document.getElementById("info");
-        infoDiv.innerHTML += `The match is starting. <br> State: ${state}`;
-    })
+        this.cube = new Cube(3, canvas);
+        this.renderTag();
+    }
 
-    socket.on("solved", function(data) {
-        const username = data.username
-        console.log("SOLVEEED", username)
-        const user = users.get(username)
-        user.div.innerHTML += "[solved]"
-    })
+    renderTag() {
+        let string = `${this.username} is `;
+        string += (this.ready) ? "not ready" : "ready";
+        const color = (this.ready) ? "green" : "red";
 
-    console.log(socket);
+        this.userInfoDiv.innerHTML = string;
+        this.userInfoDiv.style.color = color;
+        if (this.canvasInfo != null) {
+            this.canvasInfo.innerHTML = string;
+            this.canvasInfo.style.color = color;
+        }
+    }
+
+    toggleReady() {
+        this.ready = !this.ready;
+        this.renderTag();
+    }
+
+    setReady(ready) {
+        this.ready = ready;
+        this.renderTag();
+    }
+}
+
+const socket = io();
+const ourUsername = "{{ current_user.username }}";
+console.log("our username", ourUsername);
+
+const lobby_id = {{ lobby_id }};
+
+const users = new UserHandler();
+const mainCanvas = document.getElementById("mainCanvas");
+
+const me = users.add(ourUsername, mainCanvas);
+me.cube.init_camera_controls();
+me.cube.init_keyboard_controls();
+me.cube.init_mouse_moves();
+
+function send_move(move_str) {
+    const data = {
+        lobby_id: lobby_id,
+        move: move_str
+    }
+    socket.emit("lobby_move", data);
+}
+
+function send_camera(new_position) {
+    const data = {
+        lobby_id: lobby_id,
+        position: new_position
+    }
+    socket.emit("lobby_camera", data);
+}
+
+me.cube.onMove(send_move);
+me.cube.onCamera(send_camera);
+
+socket.on("lobby_move", function(data) {
+    const username = data.username;
+    const move = data.move;
+
+    const user = users.get(username);
+    user.cube.makeMove(move, false);
+})
+
+socket.on("lobby_camera", function(data) {
+    const username = data.username;
+    const position = data.position;
+
+    const user = users.get(username);
+    user.cube.updateCamera(position);
+})
+
+const readyButton = document.getElementById("readyButton");
+readyButton.addEventListener("click", () => {
+    if (!me.ready) {
+        socket.emit("ready", { lobby_id: lobby_id })
+        readyButton.innerHTML = "unready";
+        me.toggleReady();
+    } else {
+        socket.emit("unready", { lobby_id: lobby_id })
+        readyButton.innerHTML = "ready";
+        me.toggleReady();
+    }
+});
+
+socket.on("ready", function(data) {
+    const username = data.username;
+    users.get(username).setReady(true);
+});
+
+socket.on("unready", function(data) {
+    const username = data.username;
+    users.get(username).setReady(false);
+})
+
+{% if is_creator %}
+    const startButton = document.getElementById("startButton")
+    startButton.addEventListener("click", () => {
+        socket.emit("startLobby", { lobby_id: lobby_id});
+    })
+{% endif %}
+
+// connect to this lobby
+socket.emit("lobby_connection", { lobby_id: lobby_id }, function(userList) {
+    userList.forEach((user) => { users.add(user)});
+})
+
+
+socket.on("lobby_connection", function(data) {
+    users.add(data.username);
+})
+
+socket.on("lobby-disconnect", function(data) {
+    const username = data.username;
+    console.log(username, "has left the lobby");
+
+    const user = users.get(username);
+    user.canvasDiv.remove();
+})
+
+socket.on("match_start", function(data) {
+    const state = data.state;
+    users.forEach(user => user.cube.setState(state));
+
+    const infoDiv = document.getElementById("info");
+    infoDiv.innerHTML += `The match is starting. <br> State: ${state}`;
+})
+
+socket.on("solved", function(data) {
+    const username = data.username
+    const user = users.get(username)
+    user.div.innerHTML += "[solved]"
+})
+
+console.log(socket);
 </script>
 </html>

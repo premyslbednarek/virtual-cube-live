@@ -208,6 +208,9 @@ def handle_lobby_conection(data):
     print(current_user.username, "has joined lobby", lobby_id)
     join_room(lobby_id)
 
+    q = select(User.username).join(LobbyUsers, User.id == LobbyUsers.user_id).where(LobbyUsers.lobby_id == lobby_id)
+    result = db.session.execute(q).all()
+
     # add connection to database
     cube = Cube(3)
     con = LobbyUsers(
@@ -227,8 +230,6 @@ def handle_lobby_conection(data):
         skip_sid=request.sid
     )
 
-    q = select(User.username).join(LobbyUsers, User.id == LobbyUsers.user_id).where(LobbyUsers.lobby_id == lobby_id)
-    result = db.session.execute(q).all()
     return [res[0] for res in result]
 
 @socketio.on("ready")
@@ -246,7 +247,8 @@ def handle_ready(data):
     socketio.emit(
         "ready",
         { "username": username },
-        room=lobby_id
+        room=lobby_id,
+        skip_sid=request.sid
     )
 
 @socketio.on("unready")
@@ -264,7 +266,8 @@ def handle_ready(data):
     socketio.emit(
         "unready",
         { "username": username },
-        room=lobby_id
+        room=lobby_id,
+        skip_sid=request.sid
     )
 
 @socketio.on("startLobby")
@@ -330,7 +333,8 @@ def lobby_move(data):
         socketio.emit(
             "solved",
             { "username": current_user.username },
-            room=lobby_id
+            room=lobby_id,
+            skip_sid=request.sid
         )
 
     print(current_user.username, "in lobby", lobby_id, "has made a ", move, "move")

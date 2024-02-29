@@ -208,10 +208,18 @@ socket.on("match_start", function(data) {
     infoDiv.innerHTML += `The match is starting. <br> State: ${state}`;
 })
 
-socket.on("solved", function(data) {
+socket.on("solved", async function(data) {
     const username = data.username
-    const user = users.get(username)
-    user.div.innerHTML += "[solved]"
+    const user = users.get(username);
+    const cube = user.cube;
+
+    // flash green color in the background of the solved cube
+    user.cube.renderer.setClearColor(0x4feb34, 1);
+    user.cube.render();
+
+    await new Promise(r => setTimeout(r, 1000));
+    user.cube.renderer.setClearColor(0x000000, 1);
+    user.cube.render();
 })
 
 console.log(socket);

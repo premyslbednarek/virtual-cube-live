@@ -1,6 +1,12 @@
 from dataclasses import dataclass
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
+from enum import Enum
+
+class LobbyStatus(Enum):
+    ACTIVE = 0
+    DISCONNECTED = 1
+
 
 db = SQLAlchemy()
 
@@ -27,3 +33,5 @@ class LobbyUsers(db.Model):
     user_id = db.Column(db.Integer)
     ready = db.Column(db.Integer, default=0)
     state = db.Column(db.BLOB)
+    sid = db.Column(db.Integer)
+    status = db.Column(db.Enum(LobbyStatus))

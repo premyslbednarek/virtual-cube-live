@@ -83,7 +83,7 @@
         _cube.render()
         // end dup
 
-        users.set(username, { div: div, cube: _cube, ready: false} );
+        users.set(username, { div: div, cube: _cube, canvasDiv: canvasDiv, ready: false} );
     }
 
     socket.on("lobby_move", function(data) {
@@ -140,30 +140,34 @@
         users.forEach((user) => {addUser(user)});
     })
 
+
     socket.on("lobby_connection", function(data) {
         addUser(data.username);
     })
 
+    socket.on("lobby-disconnect", function(data) {
+        const username = data.username;
+        console.log(username, "has left the lobby");
+
+        const user = users.get(username);
+        user.canvasDiv.remove();
+        user.div.remove();
+    })
+
     socket.on("match_start", function(data) {
-        let scramble = data.scramble;
-        const moves = scramble.split(' ');
-        for (const move of moves) {
-            console.log(move);
-            cube.makeMove(move);
-        }
-        console.log("users", users)
+        const state = data.state;
+        console.log(state);
+        cube.setState(state);
         for (let [user, data] of users) {
             const c = data.cube
             if (c == undefined)  {
                 continue
             }
-            for (const move of moves) {
-                c.makeMove(move)
-            }
+            c.setState(state);
         }
 
         const infoDiv = document.getElementById("info");
-        infoDiv.innerHTML += `The match is starting. <br> Scramble: ${scramble}`;
+        infoDiv.innerHTML += `The match is starting. <br> State: ${state}`;
     })
 
     socket.on("solved", function(data) {

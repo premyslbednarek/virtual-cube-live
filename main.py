@@ -4,9 +4,11 @@ from flask_login import LoginManager, login_user, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 import json
 from sqlalchemy import select
-from model import db, Solve, User, Lobby, LobbyUsers
+from model import db, Solve, User, Lobby, LobbyUsers, LobbyStatus
 from pyTwistyScrambler import scrambler333, scrambler444
 from cube import Cube
+from typing import List
+from enum import Enum
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db' # Using SQLite as the database
@@ -211,7 +213,9 @@ def handle_lobby_conection(data):
     con = LobbyUsers(
         lobby_id=lobby_id,
         user_id=current_user.id,
-        state=cube.serialize()
+        state=cube.serialize(),
+        sid=request.sid,
+        status=LobbyStatus.ACTIVE,
     )
     db.session.add(con)
     db.session.commit()
@@ -273,11 +277,11 @@ def startLobby(data):
         print("Somebody else than the creator tried to start the match")
         return
 
-    lobby_conns = LobbyUsers.query.filter_by(lobby_id=lobby_id).all()
+    lobby_conns: List[LobbyUsers] = LobbyUsers.query.filter_by(lobby_id=lobby_id).all()
     print(lobby_conns)
     for conn in lobby_conns:
         print(conn.lobby_id)
-        if conn.ready == 0:
+        if conn.status == LobbyStatus.ACTIVE and conn.ready == 0:
             print(conn.user_id, "is not ready")
             return
 
@@ -293,7 +297,7 @@ def startLobby(data):
 
     socketio.emit(
         "match_start",
-        { "scramble": scramble },
+        { "state": state.decode("UTF-8") },
         room=lobby_id
     )
     print("everyone is ready, starting the match")
@@ -362,6 +366,19 @@ def connect():
 @socketio.event
 def disconnect():
     print('disconnect ', request.sid)
+
+    # handle lobby disconnections
+    lobby_conns: List[LobbyUsers] = LobbyUsers.query.filter_by(sid = request.sid).all()
+    for lobby_conn in lobby_conns:
+        lobby_conn.status = LobbyStatus.DISCONNECTED
+        db.session.commit()
+        print("Lobby disconnection", current_user.username, "Lobbyid", lobby_conn.lobby_id)
+        socketio.emit(
+            "lobby-disconnect",
+            { "username": current_user.username },
+            room=lobby_conn.lobby_id
+        )
+
     socketio.emit("message", f"User with session id {sidToName[request.sid]} has disconnected.")
     socketio.emit("disconnection", sidToName[request.sid])
     del sidToName[request.sid]

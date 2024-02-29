@@ -12,8 +12,47 @@ const yAxis = ["y", new THREE.Vector3(0, 1, 0)];
 const zAxis = ["z", new THREE.Vector3(0, 0, 1)];
 
 export default class Cube {
-    constructor(n, canvas) {
+    constructor(n, canvas, state=null) {
         this.n = n;
+        this.speedMode = true;
+
+
+        this.controls = undefined;
+
+        this.onCameraCallbacks = [];
+        this.onMoveCallbacks = [];
+
+        this.init_scene(canvas);
+
+        this.resizeCanvas();
+        window.addEventListener("resize", () => this.resizeCanvas(), false);
+
+        if (state == null) {
+            state = this.getDefaultState();
+        }
+
+        this.init_internal_state();
+        this.draw(state);
+    }
+
+    setState(state) {
+        this.init_internal_state();
+        console.log(state);
+        this.draw(state);
+    }
+
+    getDefaultState() {
+        let state = "";
+        const colors = "WGOBRY";
+        for (const color of colors) {
+            for (let i = 0; i < this.n * this.n; ++i) {
+                state += color;
+            }
+        }
+        return state;
+    }
+
+    init_scene(canvas) {
         this.scene = new THREE.Scene();
         this.canvas = canvas;
         this.camera = new THREE.PerspectiveCamera(
@@ -23,23 +62,15 @@ export default class Cube {
             1000
         );
         this.renderer = new THREE.WebGLRenderer({antialias: true, canvas});
-        this.speedMode = true;
-        this.tween;
+    }
 
-        this.stickers = [];
-
-        this.resizeCanvas();
-        window.addEventListener("resize", () => { this.resizeCanvas(); }, false);
-
-        this.solved = true;
-        this.needsSolvedCheck = false;
-
-
+    init_internal_state() {
+        const n = this.n;
         const number_of_cubies = n*n*n;
 
         this.cubies = []
         for (var i = 0; i < number_of_cubies; ++i) {
-            this.cubies.push(new THREE.Group())
+            this.cubies.push(new THREE.Group());
         }
 
         // create NxNxN array - cube representation
@@ -64,13 +95,6 @@ export default class Cube {
                 }
             }
         }
-
-        this.controls = null;
-
-        this.onCameraCallbacks = [];
-        this.onMoveCallbacks = [];
-
-        this.draw();
     }
 
     init_camera_controls() {
@@ -164,9 +188,8 @@ export default class Cube {
         return stickerMesh;
     }
 
-    drawStickers() {
-        const centerOffset = -(this.n - 1) / 2;
-        const state = "WWWWWWWWWGGGGGGGGGOOOOOOOOOBBBBBBBBBRRRRRRRRRYYYYYYYYY";
+    drawStickers(state) {
+        // const state = "WWWWWWWWWGGGGGGGGGOOOOOOOOOBBBBBBBBBRRRRRRRRRYYYYYYYYY";
         // const state = "RWOWWWWWWRGOGGGGGGROBOOOOOORBOBBBBBBBRORRRRRRRYOYYYYYY";
         const n = this.n;
 
@@ -215,7 +238,7 @@ export default class Cube {
         }
     }
 
-    draw() {
+    draw(state) {
         // clear scene
         this.scene.remove.apply(this.scene, this.scene.children);
 
@@ -235,7 +258,7 @@ export default class Cube {
             this.drawCubies();
         }
 
-        this.drawStickers();
+        this.drawStickers(state);
         this.render();
     }
 

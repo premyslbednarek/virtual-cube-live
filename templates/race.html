@@ -11,7 +11,7 @@
         <button id="readyButton">ready</button>
         <div id="info"></div>
         {% if is_creator %}
-            <button id="startButton" style="disabled: true; ">Start the race</button>
+            <button id="startButton" style="disabled: true; " disabled>Start the race</button>
         {% endif %}
         <br>
         <button id="solveButton">Solve the cube</button>
@@ -60,9 +60,17 @@ class UserHandler {
 
     forEach(fun) {
         for (const [_, user] of this.users) {
-            console.log(user)
             fun(user);
         }
+    }
+
+    all(fun) {
+        for (const [_, user] of this.users) {
+            if (!fun(user)) {
+                return false;
+            }
+        }
+        return true;
     }
 }
 
@@ -91,6 +99,7 @@ class User {
         }
 
         this.cube = new Cube(3, canvas);
+        this.solved = false;
         this.renderTag();
     }
 
@@ -167,27 +176,39 @@ socket.on("lobby_camera", function(data) {
     user.cube.updateCamera(position);
 })
 
+function updateReady() {
+    const allReady = users.all(u => u.ready);
+    console.log("All readt:", allReady);
+    {% if is_creator %}
+    document.getElementById("startButton").disabled = !allReady;
+    {% endif %}
+}
+
 const readyButton = document.getElementById("readyButton");
 readyButton.addEventListener("click", () => {
     if (!me.ready) {
         socket.emit("ready", { lobby_id: lobby_id })
         readyButton.innerHTML = "unready";
-        me.toggleReady();
+        me.setReady(true);
+        updateReady();
     } else {
         socket.emit("unready", { lobby_id: lobby_id })
         readyButton.innerHTML = "ready";
-        me.toggleReady();
+        me.setReady(false);
+        updateReady();
     }
 });
 
 socket.on("ready", function(data) {
     const username = data.username;
     users.get(username).setReady(true);
+    updateReady();
 });
 
 socket.on("unready", function(data) {
     const username = data.username;
     users.get(username).setReady(false);
+    updateReady();
 })
 
 {% if is_creator %}
@@ -221,15 +242,26 @@ let scramble = "";
 socket.on("match_start", function(data) {
     const state = data.state;
 
+    users.forEach(user => user.cube.setState(state));
     // !! DONT FORGET TO REMOVE !!
     scramble = data.scramble;
 
-    users.forEach(user => user.cube.setState(state));
+    const countdown_timer = new easytimer.Timer();
+    const START_SECONDS = 3;
+    countdown_timer.start({countdown: true, startValues: {seconds: START_SECONDS}});
+    timerElement.innerHTML = START_SECONDS;
+    countdown_timer.addEventListener("secondsUpdated", function(e) {
+        timerElement.innerHTML = countdown_timer.getTimeValues().seconds;
+    });
+    countdown_timer.addEventListener("targetAchieved", function(e) {
+        timer.reset();
+        timer.start();
+    })
 
-    const infoDiv = document.getElementById("info");
-    infoDiv.innerHTML += `The match is starting. <br> State: ${state}`;
-    timer.reset();
-    timer.start();
+    readyButton.disabled = true;
+    {% if is_creator %}
+    document.getElementById("startButton").disabled = true;
+    {% endif %}
 })
 
 // !! DONT FORGET TO REMOVE !!
@@ -255,6 +287,20 @@ socket.on("solved", async function(data) {
         timer.stop();
     }
 
+    cube.solved = true;
+    if (users.all(user => user.cube.solved)) {
+        users.forEach(user => {
+            user.setReady(false);
+            user.solved = false;
+        })
+        readyButton.innerHTML = "ready";
+        console.log("all solved");
+
+        readyButton.disabled = false;
+        {% if is_creator %}
+        document.getElementById("startButton").disabled = true;
+        {% endif %}
+    }
     // flash green color in the background of the solved cube
     user.cube.renderer.setClearColor(0x4feb34, 1);
     user.cube.render();
@@ -264,6 +310,5 @@ socket.on("solved", async function(data) {
     user.cube.render();
 })
 
-console.log(socket);
 </script>
 </html>

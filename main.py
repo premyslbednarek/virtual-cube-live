@@ -240,8 +240,9 @@ def handle_ready(data):
 
     print(username, "is ready in lobby", lobby_id)
 
-    user = LobbyUsers.query.filter_by(lobby_id=lobby_id).filter_by(user_id=user_id).first()
+    user: LobbyUsers = LobbyUsers.query.filter_by(lobby_id=lobby_id).filter_by(user_id=user_id).first()
     user.ready = 1
+    user.status = LobbyStatus.READY
     db.session.commit()
 
     socketio.emit(
@@ -284,7 +285,7 @@ def startLobby(data):
     print(lobby_conns)
     for conn in lobby_conns:
         print(conn.lobby_id)
-        if conn.status == LobbyStatus.ACTIVE and conn.ready == 0:
+        if conn.status != LobbyStatus.READY:
             print(conn.user_id, "is not ready")
             return
 
@@ -296,6 +297,7 @@ def startLobby(data):
     lobby_conns = LobbyUsers.query.filter_by(lobby_id=lobby_id).all()
     for conn in lobby_conns:
         conn.state = state
+        conn.status = LobbyStatus.SOLVING
     db.session.commit()
 
     socketio.emit(
@@ -332,6 +334,10 @@ def lobby_move(data):
     print("state", cube.serialize())
 
     if cube.is_solved():
+        user = LobbyUsers.query.filter_by(lobby_id=lobby_id, user_id=current_user.id).first()
+        user.status = LobbyStatus.SOLVED
+        db.session.commit()
+
         print("solved!")
         socketio.emit(
             "solved",

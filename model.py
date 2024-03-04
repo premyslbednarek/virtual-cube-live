@@ -6,6 +6,9 @@ from enum import Enum
 class LobbyStatus(Enum):
     ACTIVE = 0
     DISCONNECTED = 1
+    READY = 2
+    SOLVING = 3
+    SOLVED = 4
 
 
 db = SQLAlchemy()

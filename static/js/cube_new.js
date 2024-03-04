@@ -37,7 +37,6 @@ export default class Cube {
 
     setState(state) {
         this.init_internal_state();
-        console.log(state);
         this.draw(state);
     }
 

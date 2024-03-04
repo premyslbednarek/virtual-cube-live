@@ -334,7 +334,7 @@ def lobby_move(data):
             "solved",
             { "username": current_user.username },
             room=lobby_id,
-            skip_sid=request.sid
+            # skip_sid=request.sid
         )
 
     print(current_user.username, "in lobby", lobby_id, "has made a ", move, "move")

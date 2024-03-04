@@ -17,10 +17,23 @@
     </div>
     <canvas id="mainCanvas" style="position: absolute; width: 80%; height: 100%; top: 0;"></canvas>
     <div id="otherCanvases" style="position:absolute; right: 0; top: 0; height: 100%; width: 20%;"></div>
+    <div id="timer" style="position: absolute; bottom: 0; width: 80%; text-align:center; font-size:40px"></div>
+
 </body>
 <script type="module">
 import { io } from '/static/js/libs/socket.io.esm.min.js';
 import Cube from '/static/js/cube_new.js';
+import '/static/js/libs/easytimer.js';
+
+const timer = new easytimer.Timer({precision: "secondTenths"});
+
+const timerElement = document.getElementById("timer");
+
+function updateTime() {
+    timerElement.innerHTML = timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']);
+}
+
+timer.addEventListener("secondTenthsUpdated", updateTime);
 
 class UserHandler {
     constructor() {
@@ -206,12 +219,18 @@ socket.on("match_start", function(data) {
 
     const infoDiv = document.getElementById("info");
     infoDiv.innerHTML += `The match is starting. <br> State: ${state}`;
+    timer.reset();
+    timer.start();
 })
 
 socket.on("solved", async function(data) {
     const username = data.username
     const user = users.get(username);
     const cube = user.cube;
+
+    if (username == ourUsername) {
+        timer.stop();
+    }
 
     // flash green color in the background of the solved cube
     user.cube.renderer.setClearColor(0x4feb34, 1);

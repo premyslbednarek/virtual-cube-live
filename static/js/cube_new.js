@@ -357,7 +357,7 @@ export default class Cube {
         // for example clockwise rotation of the right face and clockwise
         // rotation of the left face rotate the pieces in opposite directions
         // around the same axis
-        const direction = (move.flipped) ? move.dir * -1 : move.dir;
+        const direction = (move.double) ? 2 : ((move.flipped) ? move.dir * -1 : move.dir);
 
         // group all cubies that are being rotated
         // the group has a pivot (the point around which we rotate)

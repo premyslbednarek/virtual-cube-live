@@ -300,7 +300,10 @@ def startLobby(data):
 
     socketio.emit(
         "match_start",
-        { "state": state.decode("UTF-8") },
+        {
+            "state": state.decode("UTF-8"),
+            "scramble": scramble,
+        },
         room=lobby_id
     )
     print("everyone is ready, starting the match")

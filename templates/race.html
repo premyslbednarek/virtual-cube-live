@@ -14,6 +14,7 @@
             <button id="startButton" style="disabled: true; ">Start the race</button>
         {% endif %}
         <br>
+        <button id="solveButton">Solve the cube</button>
     </div>
     <canvas id="mainCanvas" style="position: absolute; width: 80%; height: 100%; top: 0;"></canvas>
     <div id="otherCanvases" style="position:absolute; right: 0; top: 0; height: 100%; width: 20%;"></div>
@@ -23,6 +24,7 @@
 <script type="module">
 import { io } from '/static/js/libs/socket.io.esm.min.js';
 import Cube from '/static/js/cube_new.js';
+import { sleep } from '/static/js/utils.js';
 import '/static/js/libs/easytimer.js';
 
 const timer = new easytimer.Timer({precision: "secondTenths"});
@@ -213,8 +215,15 @@ socket.on("lobby-disconnect", function(data) {
     user.canvasDiv.remove();
 })
 
+// !! DONT FORGET TO REMOVE !!
+let scramble = "";
+
 socket.on("match_start", function(data) {
     const state = data.state;
+
+    // !! DONT FORGET TO REMOVE !!
+    scramble = data.scramble;
+
     users.forEach(user => user.cube.setState(state));
 
     const infoDiv = document.getElementById("info");
@@ -222,6 +231,20 @@ socket.on("match_start", function(data) {
     timer.reset();
     timer.start();
 })
+
+// !! DONT FORGET TO REMOVE !!
+const solveButton = document.getElementById("solveButton");
+solveButton.addEventListener("click", async function(e) {
+    const moves = scramble.split(" ");
+    const cube = users.get(ourUsername).cube;
+    for (let i = moves.length - 1; i >= 0; --i) {
+        const move = moves[i];
+        for (let j = 0; j < 3; j++) {
+            await new Promise(r => setTimeout(r, 150));
+            cube.makeMove(move);
+        }
+    }
+});
 
 socket.on("solved", async function(data) {
     const username = data.username

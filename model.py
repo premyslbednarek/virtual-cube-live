@@ -94,7 +94,7 @@ class Solve(db.Model):
     start_date: Mapped[datetime] = mapped_column(insert_default=func.now())
     reattempt: Mapped[bool]
 
-    race_id: Mapped[Optional[int]]
+    race_id: Mapped[Optional[int]] = mapped_column(ForeignKey("race.id"))
     race: Mapped[Optional["Race"]] = relationship()
 
 class Race(db.Model):

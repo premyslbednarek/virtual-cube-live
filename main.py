@@ -241,8 +241,8 @@ def handle_ready(data):
 
     print(username, "is ready in lobby", lobby_id)
 
-    q = select(LobbyUser).where(lobby_id == lobby_id, user_id == user_id)
-    user: LobbyUser = db.session.scalar(q)
+    q = select(LobbyUser).where(LobbyUser.lobby_id == lobby_id, LobbyUser.user_id == user_id)
+    user: LobbyUser = db.session.scalars(q).one()
 
     user.status = LobbyUserStatus.READY
     db.session.commit()
@@ -262,8 +262,8 @@ def handle_ready(data):
 
     print(username, "clicked unready in lobby", lobby_id)
 
-    q = select(LobbyUser).where(lobby_id == lobby_id, user_id == user_id)
-    user: LobbyUser = db.session.scalar(q)
+    q = select(LobbyUser).where(LobbyUser.lobby_id == lobby_id, LobbyUser.user_id == user_id)
+    user: LobbyUser = db.session.scalars(q).one()
 
     user.status = LobbyUserStatus.NOT_READY
     db.session.commit()

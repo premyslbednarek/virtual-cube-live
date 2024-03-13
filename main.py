@@ -275,94 +275,97 @@ def handle_ready(data):
         skip_sid=request.sid
     )
 
-# @socketio.on("startLobby")
-# def startLobby(data):
-#     lobby_id = data["lobby_id"]
-#     print(current_user.username, "wants to start lobby with id", lobby_id)
+@socketio.on("startLobby")
+def startLobby(data):
+    lobby_id = data["lobby_id"]
+    print(current_user.username, "wants to start lobby with id", lobby_id)
 
-#     lobby = Lobby.query.filter_by(id=lobby_id).first()
-#     if (lobby.creator != current_user.id):
-#         print("Somebody else than the creator tried to start the match")
-#         return
+    q = select(LobbyUser).where(LobbyUser.lobby_id == lobby_id, LobbyUser.user_id == current_user.id)
+    user: LobbyUser = db.session.scalars(q).one()
 
-#     lobby_conns: List[LobbyUsers] = LobbyUsers.query.filter_by(lobby_id=lobby_id).all()
-#     print(lobby_conns)
-#     for conn in lobby_conns:
-#         print(conn.lobby_id)
-#         if conn.status != LobbyStatus.READY:
-#             print(conn.user_id, "is not ready")
-#             return
+    q = select(Lobby.creator_id).where(Lobby.id == lobby_id)
+    creator_id: Lobby = db.session.scalars(q).one()
 
-#     scramble = scrambler333.get_WCA_scramble()
-#     print(scramble)
-#     cube = Cube(3)
-#     cube.move(scramble)
-#     state = cube.serialize()
-#     lobby_conns = LobbyUsers.query.filter_by(lobby_id=lobby_id).all()
-#     for conn in lobby_conns:
-#         conn.state = state
-#         conn.status = LobbyStatus.SOLVING
-#     db.session.commit()
+    if (user.role != LobbyRole.ADMIN and creator_id != current_user.id):
+        print("Somebody else than the room admin and creator tried to start the match")
+        return
 
-#     socketio.emit(
-#         "match_start",
-#         {
-#             "state": state.decode("UTF-8"),
-#             "scramble": scramble,
-#         },
-#         room=lobby_id
-#     )
-#     print("everyone is ready, starting the match")
+    q = select(LobbyUser).where(LobbyUser.lobby_id == lobby_id)
+    users: List[LobbyUser] = db.session.scalars(q).all()
 
-# @socketio.on("lobby_move")
-# def lobby_move(data):
-#     lobby_id = data["lobby_id"]
-#     move = data["move"]
+    for user in users:
+        if user.status != LobbyUserStatus.READY:
+            print(user.user_id, "is not ready")
+            return
 
-#     socketio.emit(
-#         "lobby_move",
-#         { "username": current_user.username, "move": move},
-#         room=lobby_id,
-#         skip_sid=request.sid
-#     )
+    scramble: str = scrambler333.get_WCA_scramble()
+    cube = Cube(3)
+    cube.move(scramble)
+    state: str = cube.serialize()
 
-#     res = LobbyUsers.query.filter_by(lobby_id = lobby_id).filter_by(user_id = current_user.id).first()
-#     print(res)
-#     cube = Cube(3, res.state)
-#     cube.move(move)
-#     # update cube state in db
-#     res.state = cube.serialize()
-#     db.session.commit()
+    for user in users:
+        user.status = LobbyUserStatus.SOLVING
+    db.session.commit()
 
-#     cube.pprint()
-#     print("state", cube.serialize())
+    socketio.emit(
+        "match_start",
+        {
+            "state": state.decode("UTF-8"),
+            "scramble": scramble,
+        },
+        room=lobby_id
+    )
+    print("everyone is ready, starting the match")
 
-#     if cube.is_solved():
-#         user = LobbyUsers.query.filter_by(lobby_id=lobby_id, user_id=current_user.id).first()
-#         user.status = LobbyStatus.SOLVED
-#         db.session.commit()
+@socketio.on("lobby_move")
+def lobby_move(data):
+    lobby_id: int = data["lobby_id"]
+    move = data["move"]
 
-#         print("solved!")
-#         socketio.emit(
-#             "solved",
-#             { "username": current_user.username },
-#             room=lobby_id,
-#             # skip_sid=request.sid
-#         )
+    socketio.emit(
+        "lobby_move",
+        { "username": current_user.username, "move": move},
+        room=lobby_id,
+        skip_sid=request.sid
+    )
 
-#     print(current_user.username, "in lobby", lobby_id, "has made a ", move, "move")
+    # res = LobbyUsers.query.filter_by(lobby_id = lobby_id).filter_by(user_id = current_user.id).first()
+    # print(res)
+    # cube = Cube(3, res.state)
+    # cube.move(move)
+    # # update cube state in db
+    # res.state = cube.serialize()
+    # db.session.commit()
 
-# @socketio.on("lobby_camera")
-# def lobby_camera(data):
-#     lobby_id = data["lobby_id"]
-#     position = data["position"]
+    # cube.pprint()
+    # print("state", cube.serialize())
 
-#     socketio.emit(
-#         "lobby_camera",
-#         { "username": current_user.username, "position": position },
-#         room=lobby_id,
-#         skip_sid=request.sid
-#     )
+    # if cube.is_solved():
+    #     user = LobbyUsers.query.filter_by(lobby_id=lobby_id, user_id=current_user.id).first()
+    #     user.status = LobbyStatus.SOLVED
+    #     db.session.commit()
+
+    #     print("solved!")
+    #     socketio.emit(
+    #         "solved",
+    #         { "username": current_user.username },
+    #         room=lobby_id,
+    #         # skip_sid=request.sid
+    #     )
+
+    # print(current_user.username, "in lobby", lobby_id, "has made a ", move, "move")
+
+@socketio.on("lobby_camera")
+def lobby_camera(data):
+    lobby_id = data["lobby_id"]
+    position = data["position"]
+
+    socketio.emit(
+        "lobby_camera",
+        { "username": current_user.username, "position": position },
+        room=lobby_id,
+        skip_sid=request.sid
+    )
 
 
 # @socketio.event

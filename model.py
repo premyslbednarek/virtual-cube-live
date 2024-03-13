@@ -65,7 +65,7 @@ class LobbyUser(db.Model):
     )
     user: Mapped[User] = relationship()
 
-    connected: Mapped[bool] = mapped_column(default=True)
+    connected: Mapped[bool] = mapped_column(default=False)
     status: Mapped[LobbyUserStatus] = mapped_column(default=LobbyUserStatus.NOT_READY)
     role: Mapped[LobbyRole] = mapped_column(default=LobbyRole.USER)
     points: Mapped[int] = mapped_column(default=0)

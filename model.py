@@ -9,11 +9,10 @@ from sqlalchemy import func
 from typing import Optional
 
 class LobbyUserStatus(Enum):
-    ACTIVE = 0
-    DISCONNECTED = 1
-    READY = 2
-    SOLVING = 3
-    SOLVED = 4
+    NOT_READY = 0
+    READY = 1
+    SOLVING = 2
+    SOLVED = 3
 
 class UserRole(Enum):
     USER = 0
@@ -67,7 +66,7 @@ class LobbyUser(db.Model):
     user: Mapped[User] = relationship()
 
     connected: Mapped[bool] = mapped_column(default=True)
-    status: Mapped[LobbyUserStatus] = mapped_column(default=LobbyUserStatus.ACTIVE)
+    status: Mapped[LobbyUserStatus] = mapped_column(default=LobbyUserStatus.NOT_READY)
     role: Mapped[LobbyRole] = mapped_column(default=LobbyRole.USER)
     points: Mapped[int] = mapped_column(default=0)
 

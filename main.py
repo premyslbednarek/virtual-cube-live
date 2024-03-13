@@ -233,44 +233,47 @@ def handle_lobby_conection(data):
 
     return {"code": 0, "userList": usernames }
 
-# @socketio.on("ready")
-# def handle_ready(data):
-#     lobby_id = data["lobby_id"]
-#     username = current_user.username
-#     user_id = current_user.id
+@socketio.on("ready")
+def handle_ready(data):
+    lobby_id: int = data["lobby_id"]
+    username: str = current_user.username
+    user_id: int = current_user.id
 
-#     print(username, "is ready in lobby", lobby_id)
+    print(username, "is ready in lobby", lobby_id)
 
-#     user: LobbyUsers = LobbyUsers.query.filter_by(lobby_id=lobby_id).filter_by(user_id=user_id).first()
-#     user.ready = 1
-#     user.status = LobbyStatus.READY
-#     db.session.commit()
+    q = select(LobbyUser).where(lobby_id == lobby_id, user_id == user_id)
+    user: LobbyUser = db.session.scalar(q)
 
-#     socketio.emit(
-#         "ready",
-#         { "username": username },
-#         room=lobby_id,
-#         skip_sid=request.sid
-#     )
+    user.status = LobbyUserStatus.READY
+    db.session.commit()
 
-# @socketio.on("unready")
-# def handle_ready(data):
-#     lobby_id = data["lobby_id"]
-#     username = current_user.username
-#     user_id = current_user.id
+    socketio.emit(
+        "ready",
+        { "username": username },
+        room=lobby_id,
+        skip_sid=request.sid
+    )
 
-#     print(username, "clicked unready in lobby", lobby_id)
+@socketio.on("unready")
+def handle_ready(data):
+    lobby_id = data["lobby_id"]
+    username = current_user.username
+    user_id = current_user.id
 
-#     user = LobbyUsers.query.filter_by(lobby_id=lobby_id).filter_by(user_id=user_id).first()
-#     user.ready = 0
-#     db.session.commit()
+    print(username, "clicked unready in lobby", lobby_id)
 
-#     socketio.emit(
-#         "unready",
-#         { "username": username },
-#         room=lobby_id,
-#         skip_sid=request.sid
-#     )
+    q = select(LobbyUser).where(lobby_id == lobby_id, user_id == user_id)
+    user: LobbyUser = db.session.scalar(q)
+
+    user.status = LobbyUserStatus.NOT_READY
+    db.session.commit()
+
+    socketio.emit(
+        "unready",
+        { "username": username },
+        room=lobby_id,
+        skip_sid=request.sid
+    )
 
 # @socketio.on("startLobby")
 # def startLobby(data):

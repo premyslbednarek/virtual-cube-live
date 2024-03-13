@@ -36,7 +36,8 @@ class User(UserMixin, db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(unique=True)
     password_hash: Mapped[str]
-    role: Mapped[UserRole]
+    role: Mapped[UserRole] = mapped_column(default=UserRole.USER)
+    created_date: Mapped[datetime] = mapped_column(insert_default=func.now())
 
 # default datetime value example in:
 # https://docs.sqlalchemy.org/en/20/orm/declarative_styles.html

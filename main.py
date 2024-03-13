@@ -3,9 +3,9 @@ from flask_socketio import SocketIO, join_room, leave_room
 from flask_login import LoginManager, login_user, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 import json
-from sqlalchemy import select
-# from model import db, User, Lobby, Connection, LobbyConnection, LobbyRole, Scramble, Solve, LobbyScramble
-from model import db, User
+from sqlalchemy import select, func
+from model import db, User, Lobby, LobbyUser, Scramble, Solve, Race, SocketConnection, Cube
+from model import LobbyUserStatus, UserRole, LobbyRole, LobbyStatus
 from pyTwistyScrambler import scrambler333, scrambler444
 from cube import Cube
 from typing import List
@@ -28,9 +28,9 @@ socketio = SocketIO(app, cors_allowed_origins="*", engineio_logger=False)
 sidToName = {}
 i = 0
 
-# @login_manager.user_loader
-# def load_user(user_id):
-#     return User.query.get(user_id)
+@login_manager.user_loader
+def load_user(user_id):
+    return db.session.get(User, user_id)
 
 # @app.route("/dev")
 # def dev():
@@ -73,65 +73,69 @@ i = 0
 
 #     return render_template("race.html", lobby_id=lobby_id, is_creator=is_creator)
 
-# @app.route('/')
-# def index():
-#     return render_template("index.html")
-#     # return send_from_directory("../client", "index.html")
+@app.route('/')
+def index():
+    return render_template("index.html")
 
-# @app.route('/js/<path:path>')
-# def js(path):
-#     return send_from_directory("../client/js", path)
+@app.route('/js/<path:path>')
+def js(path):
+    return send_from_directory("../client/js", path)
 
-# @app.route('/register', methods=["GET"])
-# def register():
-#     return render_template("login.html", text="register")
+@app.route('/register', methods=["GET"])
+def register():
+    return render_template("login.html", text="register")
 
 
-# @app.route('/register', methods=["POST"])
-# def register_post():
-#     username = request.form['username']
-#     password = request.form['password']
-#     hashed_password = generate_password_hash(password)
+@app.route('/register', methods=["POST"])
+def register_post():
+    username: str = request.form['username']
+    password: str = request.form['password']
 
-#     if not username or not password:
-#         flash("insert both username and password")
-#         return redirect(url_for("register"))
+    if not username or not password:
+        flash("Enter both username and password.")
+        return redirect(url_for("register"))
 
-#     user = User.query.filter_by(username=username).first()
-#     print(user)
-#     if user:
-#         flash("user already exists")
-#         return redirect(url_for("register"))
+    # check whether an user with given username already exists
+    q = select(func.count()).select_from(User).where(User.username == username)
+    count: int = db.session.scalar(q)
 
-#     new_user = User(username=username,password_hash=hashed_password)
-#     db.session.add(new_user)
-#     db.session.commit()
-#     login_user(new_user, remember=True)
-#     return redirect("/")
+    if count != 0:
+        flash("User with entered username already exists.")
+        return redirect(url_for("register"))
 
-# @app.route('/login', methods=["GET"])
-# def login():
-#     return render_template("login.html", text="login")
+    # add new user to the database
+    password_hash: str = generate_password_hash(password)
+    new_user = User(username=username, password_hash=password_hash)
+    db.session.add(new_user)
+    db.session.commit()
 
-# @app.route('/login', methods=["POST"])
-# def login_post():
-#     username = request.form['username']
-#     password = request.form['password']
-#     print(username)
-#     user = User.query.filter_by(username=username).first()
-#     if user and check_password_hash(user.password_hash, password):
-#         login_user(user, remember=True)
-#         print("Logged in")
-#     else:
-#         flash("Wrong username or password")
-#         return redirect(url_for("login"))
+    login_user(new_user, remember=True)
+    return redirect("/")
 
-#     return redirect("/")
+@app.route('/login', methods=["GET"])
+def login():
+    return render_template("login.html", text="login")
 
-# @app.route("/logout")
-# def logout():
-#     logout_user()
-#     return redirect("/")
+@app.route('/login', methods=["POST"])
+def login_post():
+    username: str = request.form['username']
+    password: str = request.form['password']
+
+    q = select(User).where(User.username == username)
+    user: User = db.session.scalar(q)
+
+    # check whether user with given username exists and the password matches
+    if user is None or not check_password_hash(user.password_hash, password):
+        flash("Wrong username or password!")
+        return redirect(url_for("login"))
+
+    login_user(user, remember=True)
+    return redirect("/")
+
+@app.route("/logout")
+def logout():
+    logout_user()
+    return redirect("/")
 
 # @app.route('/style/<path:path>')
 # def style(path):
@@ -399,4 +403,4 @@ i = 0
 
 
 if __name__ == '__main__':
-    socketio.run(app, host="localhost", port=8080, debug=True)
+    socketio.run(app, host="localhost", port=8080, debug=False)

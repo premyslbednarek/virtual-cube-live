@@ -219,12 +219,20 @@ socket.on("unready", function(data) {
 {% endif %}
 
 // connect to this lobby
-socket.emit("lobby_connection", { lobby_id: lobby_id }, function(userList) {
+socket.emit("lobby_connect", { lobby_id: lobby_id }, function(data) {
+    const status = data.code
+    if (status == 1) {
+        alert("You have already joined this lobby.");
+        return;
+    }
+
+    const userList = data.userList
     userList.forEach((user) => { users.add(user)});
 })
 
 
 socket.on("lobby_connection", function(data) {
+    console.log(data)
     users.add(data.username);
 })
 

@@ -1,6 +1,6 @@
 from flask import Flask, request, send_from_directory, render_template, redirect, flash, url_for, jsonify
 from flask_socketio import SocketIO, join_room, leave_room
-from flask_login import LoginManager, login_user, logout_user, current_user
+from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 import json
 from sqlalchemy import select, func
@@ -43,35 +43,29 @@ def load_user(user_id):
 #         return "Solve with this ID does not exist"
 #     return render_template("solve.html", layers=solve.layers, solution=solve.solution, scramble=solve.scramble)
 
-# @app.route("/lobby")
-# def lobby_index():
-#     return render_template("lobby.html")
+@app.route("/lobby/")
+def lobby_index():
+    return render_template("lobby.html")
 
-# lobbies = {}
-# @app.route("/lobby/new")
-# def new_lobby():
-#     user_id = current_user.get_id()
-#     user = load_user(user_id)
-#     user_id = user_id if user else None
-#     lobby = Lobby(creator=user_id)
-#     db.session.add(lobby)
-#     db.session.commit()
-#     lobby_id = lobby.id
-#     return redirect(f"/lobby/{lobby_id}")
+@app.route("/lobby/new")
+@login_required
+def lobby_create():
+    lobby = Lobby(creator_id = current_user.id)
+    db.session.add(lobby)
+    db.session.commit()
 
-# @app.route("/lobby/<int:lobby_id>")
-# def lobby(lobby_id):
-#     # check whether the user has already joined the lobby
-#     # q = LobbyUsers.query.filter_by(lobby_id=lobby_id).filter_by(user_id=current_user.id).first()
-#     # if (q):
-#     #     return "You have already joined this lobby!"
+    lobby_id: int = lobby.id
+    return redirect(f"/lobby/{lobby_id}")
 
-#     # show start button only for the lobby creator
-#     q = select(Lobby.creator).filter_by(id=lobby_id)
-#     lobby_creator_id = db.session.execute(q).scalar()
-#     is_creator = lobby_creator_id == current_user.id
+@app.route("/lobby/<int:lobby_id>")
+@login_required
+def lobby_join(lobby_id: int):
+    # # show start button only for the lobby creator
+    q = select(Lobby.creator_id).filter_by(id=lobby_id)
+    lobby_creator_id = db.session.execute(q).scalar()
+    is_creator = lobby_creator_id == current_user.id
 
-#     return render_template("race.html", lobby_id=lobby_id, is_creator=is_creator)
+    return render_template("race.html", lobby_id=lobby_id, is_creator=is_creator)
 
 @app.route('/')
 def index():
@@ -137,9 +131,9 @@ def logout():
     logout_user()
     return redirect("/")
 
-# @app.route('/style/<path:path>')
-# def style(path):
-#     return send_from_directory("../client/style", path)
+@app.route('/style/<path:path>')
+def style(path):
+    return send_from_directory("../client/style", path)
 
 # @app.route('/leaderboard')
 # def leaderboard():
@@ -206,36 +200,38 @@ def logout():
 #     solve = Solve.query.filter_by(id=id).first()
 #     return { "scramble": solve.scramble, "solution": solve.solution }
 
-# @socketio.on("lobby_connection")
-# def handle_lobby_conection(data):
-#     lobby_id = data["lobby_id"]
+@socketio.on("lobby_connect")
+def handle_lobby_conection(data):
+    lobby_id: int = int(data["lobby_id"])
 
-#     print(current_user.username, "has joined lobby", lobby_id)
-#     join_room(lobby_id)
+    # check whether the user has already joined the lobby
+    q = select(func.count()).select_from(LobbyUser).where(LobbyUser.user_id == current_user.id, LobbyUser.lobby_id == lobby_id)
+    res = db.session.scalar(q)
+    if (res > 0):
+        return {"code": 1}
 
-#     q = select(User.username).join(LobbyUsers, User.id == LobbyUsers.user_id).where(LobbyUsers.lobby_id == lobby_id)
-#     result = db.session.execute(q).all()
+    # add user to the lobby room
+    print(current_user.username, "has joined lobby", lobby_id)
+    join_room(lobby_id)
 
-#     # add connection to database
-#     cube = Cube(3)
-#     con = LobbyUsers(
-#         lobby_id=lobby_id,
-#         user_id=current_user.id,
-#         state=cube.serialize(),
-#         sid=request.sid,
-#         status=LobbyStatus.ACTIVE,
-#     )
-#     db.session.add(con)
-#     db.session.commit()
+    # add connection to the database
+    lobby_user = LobbyUser(lobby_id = lobby_id, user_id = current_user.id)
+    db.session.add(lobby_user)
+    db.session.commit()
 
-#     socketio.emit(
-#         "lobby_connection",
-#         { "username": current_user.username },
-#         room=lobby_id,
-#         skip_sid=request.sid
-#     )
+    # fetch usernames of users in the room
+    q = select(User.username).join(LobbyUser, User.id == LobbyUser.user_id).where(LobbyUser.lobby_id == lobby_id)
+    usernames = db.session.scalars(q).all()
 
-#     return [res[0] for res in result]
+    # inform other users in the lobby about the connection
+    socketio.emit(
+        "lobby_connection",
+        { "username": current_user.username },
+        room=lobby_id,
+        skip_sid=request.sid
+    )
+
+    return {"code": 0, "userList": usernames }
 
 # @socketio.on("ready")
 # def handle_ready(data):
@@ -403,4 +399,4 @@ def logout():
 
 
 if __name__ == '__main__':
-    socketio.run(app, host="localhost", port=8080, debug=False)
+    socketio.run(app, host="localhost", port=8080, debug=True)

@@ -48,8 +48,8 @@ class Lobby(db.Model):
     creator_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
     creator: Mapped[User] = relationship()
     created_date: Mapped[datetime] = mapped_column(insert_default=func.now())
-    status: Mapped[LobbyStatus]
-    private: Mapped[bool] = mapped_column(insert_default=False)
+    status: Mapped[LobbyStatus] = mapped_column(default=LobbyStatus.WAITING)
+    private: Mapped[bool] = mapped_column(default=False)
 
 class LobbyUser(db.Model):
     __tablename__ = "lobby_user"
@@ -66,10 +66,10 @@ class LobbyUser(db.Model):
     )
     user: Mapped[User] = relationship()
 
-    connected: Mapped[bool]
-    status: Mapped[LobbyUserStatus]
-    role: Mapped[LobbyRole]
-    points: Mapped[int]
+    connected: Mapped[bool] = mapped_column(default=True)
+    status: Mapped[LobbyUserStatus] = mapped_column(default=LobbyUserStatus.ACTIVE)
+    role: Mapped[LobbyRole] = mapped_column(default=LobbyRole.USER)
+    points: Mapped[int] = mapped_column(default=0)
 
 class Scramble(db.Model):
     __tablename__ = "scramble"

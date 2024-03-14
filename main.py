@@ -368,6 +368,9 @@ def startLobby(data):
     db.session.commit()
 
     for user in users:
+        if (user.current_connection is None):
+            continue
+
         solve = Solve(
             scramble_id=scramble.id,
             user_id = user.user_id,
@@ -375,6 +378,11 @@ def startLobby(data):
         )
 
         db.session.add(solve)
+        db.session.commit()
+
+        user.current_connection.cube.current_solve_id = solve.id
+        user.current_connection.cube.state = scramble.cube_state
+
         user.status = LobbyUserStatus.SOLVING
 
     db.session.commit()

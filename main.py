@@ -4,7 +4,7 @@ from flask_login import LoginManager, login_user, logout_user, current_user, log
 from werkzeug.security import generate_password_hash, check_password_hash
 import json
 from sqlalchemy import select, func
-from model import db, User, Lobby, LobbyUser, Scramble, Solve, Race, SocketConnection, CubeModel
+from model import db, User, Lobby, LobbyUser, Scramble, Solve, Race, SocketConnection, CubeModel, SolveMove
 from model import LobbyUserStatus, UserRole, LobbyRole, LobbyStatus
 from pyTwistyScrambler import scrambler333, scrambler444, scrambler555, scrambler666, scrambler777
 from cube import Cube
@@ -429,12 +429,16 @@ def lobby_move(data):
 
         solve.moves += " " + move
 
+        move = SolveMove(move=move, solve_id=solve.id)
+        db.session.add(move)
+        db.session.commit()
+
         if cube.is_solved():
             solve.completed = True
 
             q = select(LobbyUser).where(LobbyUser.user_id==current_user.id, LobbyUser.lobby_id==lobby_id)
-            user: LobbyUser = db.session.scalar(q)
-            user.status = LobbyStatus.SOLVED
+            user: LobbyUser = db.session.scalars(q).one()
+            user.status = LobbyUserStatus.SOLVED
 
             socketio.emit(
                 "solved",

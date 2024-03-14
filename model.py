@@ -139,3 +139,14 @@ class CubeModel(db.Model):
     state: Mapped[str]
     current_solve_id: Mapped[Optional[int]] = mapped_column(ForeignKey("solve.id"))
     current_solve: Mapped[Optional[Solve]] = relationship()
+
+
+class SolveMove(db.Model):
+    __tablename__ = "solve_move"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    move: Mapped[str]
+    timestamp: Mapped[datetime] = mapped_column(insert_default=func.now())
+    solve_id: Mapped[int] = mapped_column(ForeignKey("solve.id"))
+    solve: Mapped[Solve] = relationship()
+

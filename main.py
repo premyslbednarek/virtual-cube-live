@@ -478,25 +478,23 @@ def lobby_camera(data):
 #     print("Welcoming message sent...")
 #     print("pripojeni")
 
-# @socketio.event
-# def disconnect():
-#     print('disconnect ', request.sid)
+@socketio.event
+def disconnect():
+    print('disconnect ', request.sid)
 
-#     # handle lobby disconnections
-#     lobby_conns: List[LobbyUsers] = LobbyUsers.query.filter_by(sid = request.sid).all()
-#     for lobby_conn in lobby_conns:
-#         lobby_conn.status = LobbyStatus.DISCONNECTED
-#         db.session.commit()
-#         print("Lobby disconnection", current_user.username, "Lobbyid", lobby_conn.lobby_id)
-#         socketio.emit(
-#             "lobby-disconnect",
-#             { "username": current_user.username },
-#             room=lobby_conn.lobby_id
-#         )
+    # handle lobby disconnections
+    q = select(SocketConnection).where(SocketConnection.socket_id == request.sid)
+    conn: SocketConnection = db.session.scalars(q).one()
 
-#     socketio.emit("message", f"User with session id {sidToName[request.sid]} has disconnected.")
-#     socketio.emit("disconnection", sidToName[request.sid])
-#     del sidToName[request.sid]
+    conn.disconnection_date = func.now()
+    db.session.commit()
+
+    if conn.lobby_id is not None:
+        socketio.emit(
+            "lobby-disconnect",
+            { "username": current_user.username },
+            room=conn.lobby_id
+        )
 
 
 if __name__ == '__main__':

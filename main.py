@@ -392,7 +392,9 @@ def startLobby(data):
 @socketio.on("lobby_move")
 def lobby_move(data):
     lobby_id: int = data["lobby_id"]
-    move = data["move"]
+    move: str = data["move"]
+
+    print(current_user.username, "in lobby", lobby_id, "has made a ", move, "move")
 
     socketio.emit(
         "lobby_move",
@@ -401,31 +403,40 @@ def lobby_move(data):
         skip_sid=request.sid
     )
 
-    # res = LobbyUsers.query.filter_by(lobby_id = lobby_id).filter_by(user_id = current_user.id).first()
-    # print(res)
-    # cube = Cube(3, res.state)
-    # cube.move(move)
-    # # update cube state in db
-    # res.state = cube.serialize()
-    # db.session.commit()
+    q = select(SocketConnection).where(SocketConnection.socket_id == request.sid)
+    connection: SocketConnection = db.session.scalar(q)
 
-    # cube.pprint()
-    # print("state", cube.serialize())
+    cube_entity: CubeModel = connection.cube
 
-    # if cube.is_solved():
-    #     user = LobbyUsers.query.filter_by(lobby_id=lobby_id, user_id=current_user.id).first()
-    #     user.status = LobbyStatus.SOLVED
-    #     db.session.commit()
+    cube = Cube(cube_entity.size, cube_entity.state)
+    cube.move(move)
 
-    #     print("solved!")
-    #     socketio.emit(
-    #         "solved",
-    #         { "username": current_user.username },
-    #         room=lobby_id,
-    #         # skip_sid=request.sid
-    #     )
+    cube.pprint()
 
-    # print(current_user.username, "in lobby", lobby_id, "has made a ", move, "move")
+    cube_entity.state = cube.serialize()
+    db.session.commit()
+
+    if (cube_entity.current_solve is not None):
+        solve: Solve = cube_entity.current_solve
+
+        solve.moves += " " + move
+
+        if cube.is_solved():
+            solve.completed = True
+
+            q = select(LobbyUser).where(LobbyUser.user_id==current_user.id, LobbyUser.lobby_id==lobby_id)
+            user: LobbyUser = db.session.scalar(q)
+            user.status = LobbyStatus.SOLVED
+
+            socketio.emit(
+                "solved",
+                { "username": current_user.username },
+                room=lobby_id,
+                # skip_sid=request.sid
+            )
+
+        db.session.commit()
+
 
 @socketio.on("lobby_camera")
 def lobby_camera(data):

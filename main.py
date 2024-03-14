@@ -4,9 +4,9 @@ from flask_login import LoginManager, login_user, logout_user, current_user, log
 from werkzeug.security import generate_password_hash, check_password_hash
 import json
 from sqlalchemy import select, func
-from model import db, User, Lobby, LobbyUser, Scramble, Solve, Race, SocketConnection, Cube
+from model import db, User, Lobby, LobbyUser, Scramble, Solve, Race, SocketConnection, CubeModel
 from model import LobbyUserStatus, UserRole, LobbyRole, LobbyStatus
-from pyTwistyScrambler import scrambler333, scrambler444
+from pyTwistyScrambler import scrambler333, scrambler444, scrambler555, scrambler666, scrambler777
 from cube import Cube
 from typing import List
 from enum import Enum
@@ -200,6 +200,32 @@ def style(path):
 #     solve = Solve.query.filter_by(id=id).first()
 #     return { "scramble": solve.scramble, "solution": solve.solution }
 
+def create_connection(size, cube_id=None, lobby_id=None):
+    default_state = Cube(size).serialize()
+
+    # if no cube_id is provided, create a new cube entity
+    if cube_id is None:
+        cube_entity = CubeModel(
+            size=size,
+            state=default_state
+        )
+        db.session.add(cube_entity)
+        db.session.commit()
+        cube_id = cube_entity.id
+
+    connection = SocketConnection(
+        socket_id=request.sid,
+        user_id=current_user.id,
+        cube_id=cube_id,
+        lobby_id=lobby_id,
+    )
+
+    db.session.add(connection)
+    db.session.commit()
+
+    return connection.id
+
+
 @socketio.on("lobby_connect")
 def handle_lobby_conection(data):
     lobby_id: int = int(data["lobby_id"])
@@ -214,8 +240,14 @@ def handle_lobby_conection(data):
     print(current_user.username, "has joined lobby", lobby_id)
     join_room(lobby_id)
 
+    connection_id = create_connection(3, None, lobby_id)
+
     # add connection to the database
-    lobby_user = LobbyUser(lobby_id = lobby_id, user_id = current_user.id)
+    lobby_user = LobbyUser(
+        lobby_id=lobby_id,
+        user_id=current_user.id,
+        current_connection_id=connection_id
+    )
     db.session.add(lobby_user)
     db.session.commit()
 
@@ -275,9 +307,30 @@ def handle_ready(data):
         skip_sid=request.sid
     )
 
+def create_scramble(size: int) -> Scramble:
+    scramble_string: str = scrambler333.get_WCA_scramble()
+
+    cube = Cube(size)
+    cube.move(scramble_string)
+
+    scramble = Scramble(
+        cube_size=size,
+        scramble_string=scramble_string,
+        cube_state=cube.serialize()
+    )
+
+    db.session.add(scramble)
+    db.session.commit()
+
+    return scramble
+
+
+
 @socketio.on("startLobby")
 def startLobby(data):
     lobby_id = data["lobby_id"]
+
+    lobby: Lobby = db.session.get(Lobby, lobby_id)
     print(current_user.username, "wants to start lobby with id", lobby_id)
 
     q = select(LobbyUser).where(LobbyUser.lobby_id == lobby_id, LobbyUser.user_id == current_user.id)
@@ -293,25 +346,44 @@ def startLobby(data):
     q = select(LobbyUser).where(LobbyUser.lobby_id == lobby_id)
     users: List[LobbyUser] = db.session.scalars(q).all()
 
-    for user in users:
-        if user.status != LobbyUserStatus.READY:
-            print(user.user_id, "is not ready")
-            return
-
-    scramble: str = scrambler333.get_WCA_scramble()
-    cube = Cube(3)
-    cube.move(scramble)
-    state: str = cube.serialize()
+    racers_count = 0
 
     for user in users:
+        if user.current_connection is not None:
+            racers_count += 1
+            if user.status != LobbyUserStatus.READY:
+                print(user.user_id, "is not ready")
+                return
+
+    scramble: Scramble = create_scramble(lobby.cube_size)
+
+    race = Race(
+        scramble_id=scramble.id,
+        lobby_id=lobby_id,
+        lobby_seq=lobby.races_finished,
+        racers_count=racers_count
+    )
+
+    db.session.add(race)
+    db.session.commit()
+
+    for user in users:
+        solve = Solve(
+            scramble_id=scramble.id,
+            user_id = user.user_id,
+            race_id=race.id
+        )
+
+        db.session.add(solve)
         user.status = LobbyUserStatus.SOLVING
+
     db.session.commit()
 
     socketio.emit(
         "match_start",
         {
-            "state": state.decode("UTF-8"),
-            "scramble": scramble,
+            "state": scramble.cube_state.decode("UTF-8"),
+            "scramble": scramble.scramble_string
         },
         room=lobby_id
     )

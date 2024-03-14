@@ -49,6 +49,8 @@ class Lobby(db.Model):
     created_date: Mapped[datetime] = mapped_column(insert_default=func.now())
     status: Mapped[LobbyStatus] = mapped_column(default=LobbyStatus.WAITING)
     private: Mapped[bool] = mapped_column(default=False)
+    cube_size: Mapped[int] = mapped_column(default=3)
+    races_finished: Mapped[int] = mapped_column(default=0)
 
 class LobbyUser(db.Model):
     __tablename__ = "lobby_user"
@@ -65,7 +67,8 @@ class LobbyUser(db.Model):
     )
     user: Mapped[User] = relationship()
 
-    connected: Mapped[bool] = mapped_column(default=False)
+    current_connection_id: Mapped[Optional[int]] = mapped_column(ForeignKey("socket_connection.id"))
+    current_connection: Mapped[Optional["SocketConnection"]] = relationship()
     status: Mapped[LobbyUserStatus] = mapped_column(default=LobbyUserStatus.NOT_READY)
     role: Mapped[LobbyRole] = mapped_column(default=LobbyRole.USER)
     points: Mapped[int] = mapped_column(default=0)
@@ -88,11 +91,11 @@ class Solve(db.Model):
     user_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
     user: Mapped[User] = relationship()
 
-    time: Mapped[int]
-    moves: Mapped[str]
-    completed: Mapped[bool]
+    time: Mapped[Optional[int]]
+    moves: Mapped[str] = mapped_column(default="")
+    completed: Mapped[bool] = mapped_column(default=False)
     start_date: Mapped[datetime] = mapped_column(insert_default=func.now())
-    reattempt: Mapped[bool]
+    reattempt: Mapped[bool] = mapped_column(default=False)
 
     race_id: Mapped[Optional[int]] = mapped_column(ForeignKey("race.id"))
     race: Mapped[Optional["Race"]] = relationship()
@@ -108,9 +111,9 @@ class Race(db.Model):
     lobby: Mapped[Lobby] = relationship()
 
     lobby_seq: Mapped[int]
-    ongoing: Mapped[bool]
+    ongoing: Mapped[bool] = mapped_column(default=True)
     racers_count: Mapped[int]
-    finishers_count: Mapped[int]
+    finishers_count: Mapped[int] = mapped_column(default=0)
     started_date: Mapped[datetime] = mapped_column(insert_default=func.now())
 
 class SocketConnection(db.Model):
@@ -124,12 +127,12 @@ class SocketConnection(db.Model):
     disconnection_date: Mapped[Optional[datetime]]
 
     cube_id: Mapped[Optional[int]] = mapped_column(ForeignKey("cube.id"))
-    cube: Mapped["Cube"] = relationship()
+    cube: Mapped["CubeModel"] = relationship()
 
     lobby_id: Mapped[Optional[int]] = mapped_column(ForeignKey("lobby.id"))
     lobby: Mapped[Lobby] = relationship()
 
-class Cube(db.Model):
+class CubeModel(db.Model):
     __tablename__ = "cube"
     id: Mapped[int] = mapped_column(primary_key=True)
     size: Mapped[int]

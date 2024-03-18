@@ -9,17 +9,17 @@
         <div id="scramble" style="position: absolute; color: white;">Scramble: </div>
     </body>
     <script type="module">
-        import { Cube } from '/static/js/cube.js';
+        import Cube from '/static/js/cube_new.js';
 
         const canvas = document.getElementById("c");
         const layers = {{ layers }};
         const cube = new Cube(layers, canvas);
 
         const div = document.getElementById("scramble");
-        var scramble = JSON.parse({{ scramble | tojson }});
-        var solution = JSON.parse({{ solution | tojson }});
+        var scramble = {{ scramble | tojson }};
+        var solution = {{ solution | tojson }};
 
-        console.log(scramble)
+        scramble = scramble.split(' ')
         for (const move of scramble) {
             cube.makeMove(move);
             div.innerHTML += move + " ";
@@ -42,10 +42,15 @@
 
         // replay the solve
         let lastTime = 0;
-        for (const [eventType, time, arg] of solution) {
-            await new Promise(r => setTimeout(r, time - lastTime));
-            replayStep(cube, eventType, arg);
-            lastTime = time;
+        console.log(solution)
+        console.log(solution.split(' '))
+        for (const move of solution.split(' ')) {
+            if (move == "") continue;
+            await new Promise(r => setTimeout(r, 250));
+            console.log(move)
+            cube.makeMove(move)
+            // replayStep(cube, eventType, arg);
+            // lastTime = time;
         }
 
     </script>

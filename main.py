@@ -1,5 +1,6 @@
 from flask import Flask, request, send_from_directory, render_template, redirect, flash, url_for, jsonify
 from flask_socketio import SocketIO, join_room, leave_room
+from datetime import datetime, timedelta
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 import json
@@ -36,12 +37,18 @@ def load_user(user_id):
 # def dev():
 #     return render_template("test.html")
 
-# @app.route("/solve/<int:solve_id>")
-# def solve(solve_id):
-#     solve = Solve.query.filter_by(id=solve_id).first()
-#     if solve is None:
-#         return "Solve with this ID does not exist"
-#     return render_template("solve.html", layers=solve.layers, solution=solve.solution, scramble=solve.scramble)
+@app.route("/solve/<int:solve_id>")
+def solve(solve_id):
+    solve = db.session.get(Solve, solve_id)
+    if solve is None:
+        return "Solve with this ID does not exist"
+    print("SCRAMBLE", solve.scramble.scramble_string)
+    return render_template(
+        "solve.html",
+        layers=solve.scramble.cube_size,
+        solution=solve.moves,
+        scramble=solve.scramble.scramble_string
+    )
 
 @app.route("/lobby/")
 def lobby_index():
@@ -367,14 +374,19 @@ def startLobby(data):
     db.session.add(race)
     db.session.commit()
 
+    now = datetime.now()
+
     for user in users:
         if (user.current_connection is None):
             continue
 
+
         solve = Solve(
             scramble_id=scramble.id,
             user_id = user.user_id,
-            race_id=race.id
+            race_id=race.id,
+            inspection_startdate=now,
+            solve_startdate=now + timedelta(seconds=3)
         )
 
         db.session.add(solve)
@@ -419,35 +431,57 @@ def lobby_move(data):
     cube = Cube(cube_entity.size, cube_entity.state)
     cube.move(move)
 
+    is_solved = cube.is_solved()
+
     cube.pprint()
 
     cube_entity.state = cube.serialize()
     db.session.commit()
 
-    if (cube_entity.current_solve is not None):
-        solve: Solve = cube_entity.current_solve
+    now = datetime.now()
 
-        solve.moves += " " + move
+    if cube_entity.current_solve is None:
+        # there is no current solve
+        return
 
-        move = SolveMove(move=move, solve_id=solve.id)
-        db.session.add(move)
-        db.session.commit()
+    solve: Solve = cube_entity.current_solve
 
-        if cube.is_solved():
-            solve.completed = True
+    if solve.completed:
+        print("Move in a done solve, ignoring")
+        return
 
-            q = select(LobbyUser).where(LobbyUser.user_id==current_user.id, LobbyUser.lobby_id==lobby_id)
-            user: LobbyUser = db.session.scalars(q).one()
-            user.status = LobbyUserStatus.SOLVED
+    solve.moves += " " + move
 
-            socketio.emit(
-                "solved",
-                { "username": current_user.username },
-                room=lobby_id,
-                # skip_sid=request.sid
-            )
+    time_delta: datetime.timedelta = now - solve.solve_startdate
+    time_delta_ms = time_delta / timedelta(milliseconds=1)
 
-        db.session.commit()
+    move = SolveMove(
+        move=move,
+        solve_id=solve.id,
+        timestamp=now,
+        since_start = time_delta_ms
+    )
+
+    db.session.add(move)
+    db.session.commit()
+
+    if is_solved:
+        solve.completed = True
+
+        solve.time = time_delta_ms
+
+        q = select(LobbyUser).where(LobbyUser.user_id==current_user.id, LobbyUser.lobby_id==lobby_id)
+        user: LobbyUser = db.session.scalars(q).one()
+        user.status = LobbyUserStatus.SOLVED
+
+        socketio.emit(
+            "solved",
+            { "username": current_user.username },
+            room=lobby_id,
+            # skip_sid=request.sid
+        )
+
+    db.session.commit()
 
 
 @socketio.on("lobby_camera")

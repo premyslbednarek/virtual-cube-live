@@ -3,10 +3,13 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey
+from sqlalchemy.dialects.sqlite import DATETIME
 from enum import Enum
 from datetime import datetime
 from sqlalchemy import func
 from typing import Optional
+
+DEFAULT_INSPECTION_TIME=3
 
 class LobbyUserStatus(Enum):
     NOT_READY = 0
@@ -50,6 +53,7 @@ class Lobby(db.Model):
     status: Mapped[LobbyStatus] = mapped_column(default=LobbyStatus.WAITING)
     private: Mapped[bool] = mapped_column(default=False)
     cube_size: Mapped[int] = mapped_column(default=3)
+    inspection_length: Mapped[int] = mapped_column(default=DEFAULT_INSPECTION_TIME)
     races_finished: Mapped[int] = mapped_column(default=0)
 
 class LobbyUser(db.Model):
@@ -94,7 +98,8 @@ class Solve(db.Model):
     time: Mapped[Optional[int]]
     moves: Mapped[str] = mapped_column(default="")
     completed: Mapped[bool] = mapped_column(default=False)
-    start_date: Mapped[datetime] = mapped_column(insert_default=func.now())
+    inspection_startdate: Mapped[datetime]
+    solve_startdate: Mapped[datetime]
     reattempt: Mapped[bool] = mapped_column(default=False)
 
     race_id: Mapped[Optional[int]] = mapped_column(ForeignKey("race.id"))
@@ -140,13 +145,14 @@ class CubeModel(db.Model):
     current_solve_id: Mapped[Optional[int]] = mapped_column(ForeignKey("solve.id"))
     current_solve: Mapped[Optional[Solve]] = relationship()
 
-
+# i dont want to use insert_defaulf=func.now as it does not contain ms
 class SolveMove(db.Model):
     __tablename__ = "solve_move"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     move: Mapped[str]
-    timestamp: Mapped[datetime] = mapped_column(insert_default=func.now())
+    timestamp: Mapped[datetime]
     solve_id: Mapped[int] = mapped_column(ForeignKey("solve.id"))
     solve: Mapped[Solve] = relationship()
+    since_start: Mapped[int] # time since the start of the solve in ms
 

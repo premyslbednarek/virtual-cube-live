@@ -57,8 +57,6 @@ def solve(solve_id):
         )
     ).all()
 
-    print(moves)
-
     print("SCRAMBLE", solve.scramble.scramble_string)
     return render_template(
         "solve.html",

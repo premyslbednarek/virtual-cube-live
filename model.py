@@ -156,3 +156,13 @@ class SolveMove(db.Model):
     solve: Mapped[Solve] = relationship()
     since_start: Mapped[int] # time since the start of the solve in ms
 
+class CameraChange(db.Model):
+    __tablename__ = "camera_change"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    timestamp: Mapped[datetime]
+    since_start: Mapped[int]
+    solve_id: Mapped[int] = mapped_column(ForeignKey("solve.id"))
+    x: Mapped[float]
+    y: Mapped[float]
+    z: Mapped[float]

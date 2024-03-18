@@ -12,12 +12,12 @@
         import Cube from '/static/js/cube_new.js';
 
         const canvas = document.getElementById("c");
-        const layers = {{ layers }};
-        const cube = new Cube(layers, canvas);
+        const cube_size = {{ cube_size }};
+        const cube = new Cube(cube_size, canvas);
 
         const div = document.getElementById("scramble");
         var scramble = {{ scramble | tojson }};
-        var solution = {{ solution | tojson }};
+        var moves = {{ moves | tojson }};
 
         scramble = scramble.split(' ')
         for (const move of scramble) {
@@ -25,7 +25,8 @@
             div.innerHTML += move + " ";
         }
 
-        div.innerHTML += "<br> Solve: "
+        div.innerHTML += "<br> Solution: "
+        div.innerHTML += moves.map(([move, time]) => move);
 
         function replayStep(cube, eventType, arg) {
             if (eventType == "move") {
@@ -42,15 +43,10 @@
 
         // replay the solve
         let lastTime = 0;
-        console.log(solution)
-        console.log(solution.split(' '))
-        for (const move of solution.split(' ')) {
-            if (move == "") continue;
-            await new Promise(r => setTimeout(r, 250));
-            console.log(move)
+        for (const [move, timestamp] of moves) {
+            await new Promise(r => setTimeout(r, timestamp - lastTime));
             cube.makeMove(move)
-            // replayStep(cube, eventType, arg);
-            // lastTime = time;
+            lastTime = timestamp;
         }
 
     </script>

@@ -1,4 +1,4 @@
-from flask import Flask, request, send_from_directory, render_template, redirect, flash, url_for, jsonify
+from flask import Flask, request, send_from_directory, render_template, redirect, flash, url_for, jsonify, abort
 from flask_socketio import SocketIO, join_room, leave_room
 from datetime import datetime, timedelta
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
@@ -6,7 +6,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import json
 from sqlalchemy import select, func
 from model import db, User, Lobby, LobbyUser, Scramble, Solve, Race, SocketConnection, CubeModel, SolveMove
-from model import LobbyUserStatus, UserRole, LobbyRole, LobbyStatus
+from model import LobbyUserStatus, UserRole, LobbyRole, LobbyStatus, CameraChange
 from pyTwistyScrambler import scrambler333, scrambler444, scrambler555, scrambler666, scrambler777
 from cube import Cube
 from typing import List
@@ -41,13 +41,19 @@ def load_user(user_id):
 def solve(solve_id):
     solve = db.session.get(Solve, solve_id)
     if solve is None:
-        return "Solve with this ID does not exist"
+        abort(404)
+
+    q = select(SolveMove.move, SolveMove.since_start).where(SolveMove.solve_id == solve_id)
+    moves = db.session.execute(q).all()
+
+    print(moves)
+
     print("SCRAMBLE", solve.scramble.scramble_string)
     return render_template(
         "solve.html",
-        layers=solve.scramble.cube_size,
-        solution=solve.moves,
-        scramble=solve.scramble.scramble_string
+        cube_size=solve.scramble.cube_size,
+        scramble=solve.scramble.scramble_string,
+        moves=list(map(lambda row: tuple(row), moves))
     )
 
 @app.route("/lobby/")
@@ -497,6 +503,29 @@ def lobby_camera(data):
         room=lobby_id,
         skip_sid=request.sid
     )
+
+    q = select(SocketConnection).where(SocketConnection.socket_id == request.sid)
+    connection: SocketConnection = db.session.scalar(q)
+
+    cube_entity: CubeModel = connection.cube
+    solve: Solve = cube_entity.current_solve
+
+    if solve is not None:
+        now = datetime.now()
+        time_delta: datetime.timedelta = now - solve.solve_startdate
+        time_delta_ms = time_delta / timedelta(milliseconds=1)
+
+        obj = CameraChange(
+            timestamp=now,
+            since_start=time_delta_ms,
+            solve_id=solve.id,
+            x=position["x"],
+            y=position["y"],
+            z=position["z"]
+        )
+        db.session.add(obj)
+        db.session.commit()
+
 
 
 # @socketio.event

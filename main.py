@@ -46,6 +46,17 @@ def solve(solve_id):
     q = select(SolveMove.move, SolveMove.since_start).where(SolveMove.solve_id == solve_id)
     moves = db.session.execute(q).all()
 
+    camera_changes = db.session.execute(
+        select(
+            CameraChange.x,
+            CameraChange.y,
+            CameraChange.z,
+            CameraChange.since_start
+        ).where(
+            CameraChange.solve_id == solve_id
+        )
+    ).all()
+
     print(moves)
 
     print("SCRAMBLE", solve.scramble.scramble_string)
@@ -53,7 +64,8 @@ def solve(solve_id):
         "solve.html",
         cube_size=solve.scramble.cube_size,
         scramble=solve.scramble.scramble_string,
-        moves=list(map(lambda row: tuple(row), moves))
+        moves=list(map(lambda row: tuple(row), moves)),
+        camera_changes=list(map(lambda row: tuple(row), camera_changes))
     )
 
 @app.route("/lobby/")

@@ -203,5 +203,6 @@ function parse_move(move) {
 export {
     parse_move,
     getFace,
-    LayerMove
+    LayerMove,
+    Rotation
 }

@@ -5,7 +5,7 @@ import { OrbitControls } from './libs/OrbitControls.js';
 import keybinds from '/static/js/keybindings.js'
 import { addForRender, removeForRender, requestRenderIfNotRequested } from './render.js';
 import { getOrtogonalVectors, getScreenCoordinates, degToRad, drawLine, sleep } from './utils.js';
-import { parse_move, getFace, LayerMove } from './move.js';
+import { parse_move, getFace, LayerMove, Rotation } from './move.js';
 
 const xAxis = ["x", new THREE.Vector3(1, 0, 0)];
 const yAxis = ["y", new THREE.Vector3(0, 1, 0)];
@@ -33,6 +33,16 @@ export default class Cube {
 
         this.init_internal_state();
         this.draw(state);
+
+        this.inspection = false;
+    }
+
+    startInspection() {
+        this.inspection = true;
+    }
+
+    startSolve() {
+        this.inspection = false;
     }
 
     setState(state) {
@@ -337,6 +347,10 @@ export default class Cube {
     }
 
     makeMove(move_string, send=true) {
+        if (this.inspection && !["x", "x'", "y", "y'", "z", "z'"].includes(move_string)) {
+            return;
+        }
+
         // if previous move animation was still in progress, force it to end
         // this would not work correctly without calling .stop() first
         if (this.tween && this.tween.isPlaying()) {
@@ -351,7 +365,6 @@ export default class Cube {
         }
 
         const move = parse_move(move_string);
-
         // get actual move direction
         // for example clockwise rotation of the right face and clockwise
         // rotation of the left face rotate the pieces in opposite directions

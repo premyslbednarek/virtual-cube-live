@@ -336,6 +336,7 @@ def create_scramble(size: int) -> Scramble:
 @socketio.on("startLobby")
 def startLobby(data):
     lobby_id = data["lobby_id"]
+    now = datetime.now()
 
     lobby: Lobby = db.session.get(Lobby, lobby_id)
     print(current_user.username, "wants to start lobby with id", lobby_id)
@@ -374,8 +375,6 @@ def startLobby(data):
     db.session.add(race)
     db.session.commit()
 
-    now = datetime.now()
-
     for user in users:
         if (user.current_connection is None):
             continue
@@ -411,6 +410,7 @@ def startLobby(data):
 
 @socketio.on("lobby_move")
 def lobby_move(data):
+    now = datetime.now()
     lobby_id: int = data["lobby_id"]
     move: str = data["move"]
 
@@ -427,6 +427,16 @@ def lobby_move(data):
     connection: SocketConnection = db.session.scalar(q)
 
     cube_entity: CubeModel = connection.cube
+    solve: Solve = cube_entity.current_solve
+
+    if solve and solve.completed:
+        print("Move in a done solve, ignoring")
+        return
+
+    if solve and now <= solve.solve_startdate and move not in ["x", "x'", "y", "y'", "z", "z'"]:
+        print("move during inspection, ignoring")
+        return
+
 
     cube = Cube(cube_entity.size, cube_entity.state)
     cube.move(move)
@@ -438,16 +448,8 @@ def lobby_move(data):
     cube_entity.state = cube.serialize()
     db.session.commit()
 
-    now = datetime.now()
-
     if cube_entity.current_solve is None:
         # there is no current solve
-        return
-
-    solve: Solve = cube_entity.current_solve
-
-    if solve.completed:
-        print("Move in a done solve, ignoring")
         return
 
     solve.moves += " " + move

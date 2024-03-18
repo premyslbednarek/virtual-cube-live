@@ -254,6 +254,7 @@ socket.on("match_start", function(data) {
     // !! DONT FORGET TO REMOVE !!
     scramble = data.scramble;
 
+    me.cube.startInspection();
     const countdown_timer = new easytimer.Timer();
     const START_SECONDS = 3;
     countdown_timer.start({countdown: true, startValues: {seconds: START_SECONDS}});
@@ -262,6 +263,7 @@ socket.on("match_start", function(data) {
         timerElement.innerHTML = countdown_timer.getTimeValues().seconds;
     });
     countdown_timer.addEventListener("targetAchieved", function(e) {
+        me.cube.startSolve();
         timer.reset();
         timer.start();
     })

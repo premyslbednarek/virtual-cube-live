@@ -158,15 +158,23 @@ def logout():
 def style(path):
     return send_from_directory("../client/style", path)
 
-# @app.route('/leaderboard')
-# def leaderboard():
-#     solves = Solve.query.all()
-#     for solve in solves:
-#         print(solve)
-#     q = db.session.query(Solve, User).outerjoin(User, User.id == Solve.user_id).order_by(Solve.time)
-#     print("Query:", q)
-#     print("result", q.all())
-#     return render_template("leaderboard.html", solves=q)
+@app.route('/leaderboard')
+def leaderboard():
+    result = db.session.execute(
+        select(
+            User.username,
+            User.id,
+            Solve.id,
+            Solve.time,
+            Solve.race_id
+        ).select_from(
+            Solve
+        ).where(
+            Solve.completed == True
+        )
+    ).all()
+    print(result)
+    return render_template("leaderboard.html", solves=list(map(tuple, result)))
 
 
 # @socketio.on('message')

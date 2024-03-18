@@ -12,19 +12,18 @@
                 <th>time</th>
                 <th>replay</th>
             </tr>
-            {% for (solve, user) in solves %}
+            {% for (username, id, solve_id, time, race_id) in solves %}
             <tr>
-                <td>{{ solve.id }}</td>
+                <td>{{ solve_id }}</td>
                 <td>
-                    {% if user.username %}
-                    {{ user.username }} 
+                    {% if True %}
+                    {{ username }}
                     {% else %}
-                    Anonymous 
+                    Anonymous
                     {% endif %}
                 </td>
-                <td>{{ solve.layers }}</td>
-                <td>{{ solve.time }}</td>
-                <td><a href="/solve/{{solve.id}}">replay</a></td>
+                <td>{{ time / 1000 }}s</td>
+                <td><a href="/solve/{{solve_id}}">replay</a></td>
             </tr>
             {% endfor %}
         </table>

@@ -33,9 +33,9 @@ i = 0
 def load_user(user_id):
     return db.session.get(User, user_id)
 
-# @app.route("/dev")
-# def dev():
-#     return render_template("test.html")
+@app.route("/dev")
+def dev():
+    return render_template("test.html")
 
 @app.route("/solve/<int:solve_id>")
 def solve(solve_id):

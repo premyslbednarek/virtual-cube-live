@@ -1,57 +1,87 @@
-class Timer {
+const MS_IN_SECOND = 1000;
+const SEC_IN_MINUTE = 60;
+
+class Timer_ {
     constructor(domElement) {
         this.domElement = domElement;
-        this.startTime;
-        this.started = false;
-        this.inspection = false;
+        this.running = false;
     }
-    
-    start() {
-        if (this.inspection) {
-            this.startTime = performance.now();
-            this.started = true;
-            this.inspection = false;
-            this.update();
-        }
+
+    stop() {
+        if (!this.running) return;
+
+        this.running = false;
+        this.updateDom();
     }
+
+    updateDom() {
+        if (this.domElement == undefined) return;
+
+        this.domElement.innerHTML = this.pretty();
+    }
+
+    pretty() {
+        const timeMs = this.getTimeMS();
+        const ms = timeMs % MS_IN_SECOND;
+
+        const timeSec = Math.floor(timeMs / MS_IN_SECOND);
+        const sec = timeSec % SEC_IN_MINUTE;
+
+        const minutes = Math.floor(timeSec / SEC_IN_MINUTE)
+
+        return ((minutes > 0) ? minutes + ":" : "") +
+            sec.toString().padStart(2, '0') + ":" +
+            ms.toString().padStart(3, '0');
+    }
+
     async update() {
-        if (!this.started) return;
+        if (!this.running) return;
 
-        const timeElapsed = performance.now() - this.startTime;
-        this.domElement.innerHTML = Math.floor(timeElapsed / 1000) + "s";
+        this.updateDom();
 
-        setTimeout(() => this.update(), 1000);
-    }
-    stop(write=true) {
-        const timeElapsed = performance.now() - this.startTime;
-        const timeString = Math.floor(timeElapsed / 1000) + "s";
-        this.started = false;
-        // if (write) {
-        //     const timeListElement = document.getElementById("times");
-        //     timeListElement.innerHTML += `<br> ${timeString}`;
-        // }
-        return timeString;
-    }
-
-    startInspection() {
-        this.domElement.innerHTML = "inspection";
-        this.inspection = true;
-    }
-
-    resetDom() {
-        this.innerHTML = "timer stopped";
+        setTimeout(() => this.update(), 50);
     }
 }
 
-const timerElement = document.getElementById("timer");
-const timer = new Timer(timerElement);
-const startTimer = () => { timer.start(); };
-const stopTimer = () => { timer.stop(); };
-const isStarted = () => { return timer.startTime != undefined; }
+export class Timer extends Timer_ {
+    start() {
+        this.startTime = performance.now();
+        this.running = true;
+        this.update();
+    }
 
-export {
-    Timer,
-    startTimer,
-    stopTimer,
-    isStarted
+    getTimeMS() {
+        return performance.now() - this.startTime;
+    }
+}
+
+export class CountdownTimer extends Timer_ {
+    start(ms) {
+        this.targetTime = Date.now() + ms;
+        this.running = true;
+        this.update();
+    }
+
+    getTimeMS() {
+        return this.targetTime - Date.now();
+    }
+
+    onTarget(callback) {
+        if (this.onTargetCallbacks == undefined) {
+            this.onTargetCallbacks = [];
+        }
+        this.onTargetCallbacks.push(callback);
+    }
+
+    update() {
+        if (this.getTimeMS() < 0) {
+            this.domElement.innerHTML = "Time's up!"
+            for (const callback of this.onTargetCallbacks) {
+                callback();
+            }
+            return;
+        };
+
+        super.update();
+    }
 }

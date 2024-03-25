@@ -5,21 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <canvas id="c" style="height: 80%; width: 80%;"></canvas>
-    <div id="t"></div>
+    <div id="t1"></div>
+    <div id="t2"></div>
+    <button id="b">Stop</button>
 </head>
 <body>
 <script type="module">
-    import Cube from '/static/js/cube_new.js'
+    import { Timer, CountdownTimer } from '/static/js/timer.js'
 
-    const canvas = document.getElementById("c")
-    const cube = new Cube(3, canvas);
-    cube.init_camera_controls();
-    cube.init_keyboard_controls();
-    cube.init_mouse_moves();
-    cube.onMove(move => console.log(move));
-    cube.onCamera(position => console.log(position));
-    window.cube = cube
+    const timerElement = document.getElementById("t1");
+    const timer = new Timer(timerElement);
+    timer.start();
+
+    const timerElement2 = document.getElementById("t2");
+    const countdownTimer = new CountdownTimer(timerElement2);
+    countdownTimer.onTarget(() => console.log("Time's up!"))
+    const targetTime = Date.now() + 5 * 1000;
+    countdownTimer.start(targetTime);
+    // timer.startCountdown(targetTime);
+
+    document.getElementById("b").addEventListener("click", () => {
+        timer.stop();
+    })
 </script>
-<script src="/static/js/test.js" type="module"></script>
+<!-- <script src="/static/js/test.js" type="module"></script> -->
 </body>
 </html>

@@ -20,8 +20,7 @@
     const timerElement2 = document.getElementById("t2");
     const countdownTimer = new CountdownTimer(timerElement2);
     countdownTimer.onTarget(() => console.log("Time's up!"))
-    const targetTime = Date.now() + 5 * 1000;
-    countdownTimer.start(targetTime);
+    countdownTimer.start(1000 * 6);
     // timer.startCountdown(targetTime);
 
     document.getElementById("b").addEventListener("click", () => {

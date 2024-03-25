@@ -25,17 +25,13 @@
 import { io } from '/static/js/libs/socket.io.esm.min.js';
 import Cube from '/static/js/cube_new.js';
 import { sleep } from '/static/js/utils.js';
-import '/static/js/libs/easytimer.js';
+// import '/static/js/libs/easytimer.js';
 
-const timer = new easytimer.Timer({precision: "secondTenths"});
+import { Timer, CountdownTimer } from '/static/js/timer.js'
+const timeElement = document.getElementById("timer");
 
-const timerElement = document.getElementById("timer");
-
-function updateTime() {
-    timerElement.innerHTML = timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']);
-}
-
-timer.addEventListener("secondTenthsUpdated", updateTime);
+const timer = new Timer(timeElement);
+const countdownTimer = new CountdownTimer(timeElement);
 
 class UserHandler {
     constructor() {
@@ -255,16 +251,12 @@ socket.on("match_start", function(data) {
     scramble = data.scramble;
 
     me.cube.startInspection();
-    const countdown_timer = new easytimer.Timer();
-    const START_SECONDS = 3;
-    countdown_timer.start({countdown: true, startValues: {seconds: START_SECONDS}});
-    timerElement.innerHTML = START_SECONDS;
-    countdown_timer.addEventListener("secondsUpdated", function(e) {
-        timerElement.innerHTML = countdown_timer.getTimeValues().seconds;
-    });
-    countdown_timer.addEventListener("targetAchieved", function(e) {
+    const START_MS = 3000;
+    countdownTimer.start(START_MS);
+    // timerElement.innerHTML = START_SECONDS;
+    countdownTimer.onTarget(() => {
         me.cube.startSolve();
-        timer.reset();
+        // timer.reset();
         timer.start();
     })
 

@@ -360,7 +360,6 @@ def create_scramble(size: int) -> Scramble:
 @socketio.on("startLobby")
 def startLobby(data):
     lobby_id = data["lobby_id"]
-    now = datetime.now()
 
     lobby: Lobby = db.session.get(Lobby, lobby_id)
     print(current_user.username, "wants to start lobby with id", lobby_id)
@@ -399,6 +398,9 @@ def startLobby(data):
     db.session.add(race)
     db.session.commit()
 
+    now = datetime.now()
+    solve_startdate: datetime = now + timedelta(seconds=3)
+
     for user in users:
         if (user.current_connection is None):
             continue
@@ -409,7 +411,7 @@ def startLobby(data):
             user_id = user.user_id,
             race_id=race.id,
             inspection_startdate=now,
-            solve_startdate=now + timedelta(seconds=3)
+            solve_startdate=solve_startdate
         )
 
         db.session.add(solve)
@@ -426,7 +428,8 @@ def startLobby(data):
         "match_start",
         {
             "state": scramble.cube_state.decode("UTF-8"),
-            "scramble": scramble.scramble_string
+            "scramble": scramble.scramble_string,
+            "startTime": solve_startdate.isoformat()
         },
         room=lobby_id
     )

@@ -245,6 +245,7 @@ let scramble = "";
 
 socket.on("match_start", function(data) {
     const state = data.state;
+    const startTime = data.startTime;
 
     users.forEach(user => user.cube.setState(state));
     // !! DONT FORGET TO REMOVE !!
@@ -252,7 +253,7 @@ socket.on("match_start", function(data) {
 
     me.cube.startInspection();
     const START_MS = 3000;
-    countdownTimer.start(START_MS);
+    countdownTimer.start(new Date(startTime));
     // timerElement.innerHTML = START_SECONDS;
     countdownTimer.onTarget(() => {
         me.cube.startSolve();

@@ -56,8 +56,8 @@ export class Timer extends Timer_ {
 }
 
 export class CountdownTimer extends Timer_ {
-    start(ms) {
-        this.targetTime = Date.now() + ms;
+    start(targetTime) {
+        this.targetTime = targetTime;
         this.running = true;
         this.update();
     }

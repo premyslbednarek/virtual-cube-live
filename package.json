@@ -1,0 +1,28 @@
+{
+  "name": "bp",
+  "version": "1.0.0",
+  "description": "## Setup ```Shell # install python3 virtualenv package pip install virtualenv",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "webpack": "^5.91.0",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "@d4c/numjs": "^0.17.34",
+    "@tweenjs/tween.js": "^23.1.1",
+    "@types/three": "^0.163.0",
+    "buffer": "^6.0.3",
+    "process": "^0.11.10",
+    "socket.io-client": "^4.7.5",
+    "three": "^0.163.0",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.4.3",
+    "util": "^0.12.5"
+  }
+}

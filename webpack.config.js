@@ -8,7 +8,7 @@ module.exports = {
   entry: './src/race.js',
   output: {
     filename: 'race.js',
-    path: path.resolve(__dirname, 'static/dist/js'),
+    path: path.resolve(__dirname, 'static/dist'),
   },
     module: {
     rules: [

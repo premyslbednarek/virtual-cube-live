@@ -1,23 +1,27 @@
 const CW = 1
 const CCW = -1
 
-function getAxis(face) {
+function getAxis(face: string) {
     // return axis for a given face
     if ("RLM".includes(face)) return "x";
     if ("UED".includes(face)) return "y";
     if ("FSB".includes(face)) return "z";
-    throw new Error("Parameter is not a valid face!");
+    // throw new Error("Parameter is not a valid face!");
 }
 
-function isFlipped(face) {
+function isFlipped(face: string) {
     // return whether rotations of given face are inverted
     if ("RUFSE".includes(face)) return false;
     if ("LDBM".includes(face)) return true;
-    return new Error("Parameter is not a valid face!")
+    // return new Error("Parameter is not a valid face!")
 }
 
 class Move {
-    constructor(axis, dir, double) {
+    axis: string
+    dir: number
+    double: boolean
+
+    constructor(axis: string, dir: number, double: boolean) {
         this.axis = axis;
         this.dir = dir;
         this.double = double;
@@ -25,7 +29,13 @@ class Move {
 }
 
 class LayerMove extends Move {
-    constructor(face, axis, flipped, index, dir, wide, double) {
+    face: string
+    index: number
+    wide: boolean
+    flipped: boolean
+    isMiddle: boolean
+
+    constructor(face: string, axis: string, flipped: boolean, index: number, dir: number, wide: boolean, double: boolean) {
         super(axis, dir, double);
         this.face = face;
         this.index = index;
@@ -48,7 +58,7 @@ class LayerMove extends Move {
         return string;
     }
 
-    changeAxis(newAxis, negateAxis) {
+    changeAxis(newAxis: string, negateAxis: boolean) {
         this.axis = newAxis;
 
         if (negateAxis) {
@@ -60,7 +70,7 @@ class LayerMove extends Move {
         // this.flipped = isFlipped(this.face);
     }
 
-    get_indices(n) {
+    get_indices(n: number) : Array<number> {
         if (this.isMiddle) {
             return [(n - 1) / 2]
         }
@@ -93,7 +103,7 @@ const MIDDLE_LAYERS = "MSE"
 const MINUS_LAYERS = "DBLM"
 const ROTATIONS = "xyz"
 
-function getFace(axis, flipped, isMiddle) {
+function getFace(axis: string, flipped: boolean, isMiddle: boolean) {
     if (isMiddle) {
         switch (axis) {
             case "x": return "M";
@@ -120,7 +130,8 @@ function getFace(axis, flipped, isMiddle) {
 
 
 class Rotation extends Move {
-    constructor(axis, dir, double=false) {
+    flipped: boolean
+    constructor(axis: string, dir: number, double=false) {
         super(axis, dir, double);
         this.flipped = false;
     }
@@ -136,14 +147,14 @@ class Rotation extends Move {
         return string;
     }
 
-    changeAxis(newAxis, negateAxis) {
+    changeAxis(newAxis: string, negateAxis: boolean) {
         this.axis = newAxis;
         if (negateAxis) {
             this.dir *= -1;
         }
     }
 
-    get_indices(n) {
+    get_indices(n: number) : Array<number> {
         const indices = []
         for (let i = 0; i < n; ++i) {
             indices.push(i);
@@ -152,12 +163,12 @@ class Rotation extends Move {
     }
 }
 
-function parse_move(move) {
+function parse_move(move: string) {
     let i = 0
     let layer_index = 0
     while ('0' < move[i] && move[i] <= '9') {
         layer_index *= 10;
-        layer_index += move[i] - '0';
+        layer_index += move[i].charCodeAt(0) - '0'.charCodeAt(0);
         ++i;
     }
 

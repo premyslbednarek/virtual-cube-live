@@ -3,9 +3,9 @@ import * as THREE from 'three';
 import * as TWEEN from '@tweenjs/tween.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import keybinds from './keybindings'
-import { addForRender, removeForRender, requestRenderIfNotRequested } from './render.js';
-import { getOrtogonalVectors, getScreenCoordinates, degToRad, drawLine, sleep } from './utils.js';
-import { parse_move, getFace, LayerMove, Rotation } from './move.js';
+import { addForRender, removeForRender, requestRenderIfNotRequested } from './render';
+import { getOrtogonalVectors, getScreenCoordinates, degToRad, drawLine, sleep } from './utils';
+import { parse_move, getFace, LayerMove, Rotation } from './move';
 
 class Axis {
     axis: string
@@ -20,7 +20,7 @@ const xAxis = new Axis("x", new THREE.Vector3(1, 0, 0));
 const yAxis = new Axis("y", new THREE.Vector3(0, 1, 0));
 const zAxis = new Axis("z", new THREE.Vector3(0, 0, 1));
 
-class Cube {
+export default class Cube {
     n: number
     speedMode: boolean
     solved: boolean
@@ -568,5 +568,3 @@ class Cube {
         this.makeMove(moveObj.toString());
     }
 }
-
-export { Cube }

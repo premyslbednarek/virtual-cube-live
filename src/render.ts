@@ -1,11 +1,12 @@
-const to_render = new Set()
 import * as TWEEN from '@tweenjs/tween.js'
+import Cube from './cube'
 
-function addForRender(cube) {
+const to_render: Set<Cube> = new Set()
+function addForRender(cube: Cube) {
     to_render.add(cube);
 }
 
-function removeForRender(cube) {
+function removeForRender(cube: Cube) {
     to_render.delete(cube)
 }
 

@@ -1,5 +1,5 @@
 import { io } from "socket.io-client";
-import { Cube } from './cube';
+import Cube from './cube';
 import * as THREE from 'three';
 import { Timer, CountdownTimer } from './timer'
 

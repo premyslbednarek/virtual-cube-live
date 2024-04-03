@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 
-function getOrtogonalVectors(vec) {
+function getOrtogonalVectors(vec: THREE.Vector3) {
     const vector = vec.clone().round();
     const possible = [
         new THREE.Vector3( 1,  0,  0),
@@ -14,7 +14,7 @@ function getOrtogonalVectors(vec) {
     return possible.filter((other) => vector.dot(other) == 0);
 }
 
-function getScreenCoordinates(vector, camera) {
+function getScreenCoordinates(vector: THREE.Vector3, camera: THREE.PerspectiveCamera) {
     const vec = vector.clone();
     vec.project(camera);
     return new THREE.Vector2(
@@ -23,11 +23,11 @@ function getScreenCoordinates(vector, camera) {
     );
 }
 
-function degToRad(deg) {
+function degToRad(deg: number) {
     return deg * Math.PI / 180;
 }
 
-function drawLine(start, end, scene) {
+function drawLine(start: THREE.Vector3, end: THREE.Vector3, scene: THREE.Scene) {
     var material = new THREE.LineBasicMaterial( { color: 0x0000ff, linewidth: 5 } );
     const points = [];
     points.push(start);
@@ -37,7 +37,7 @@ function drawLine(start, end, scene) {
     scene.add( line )
 }
 
-async function sleep(ms) {
+async function sleep(ms: number) {
     await new Promise(r => setTimeout(r, ms));
 }
 

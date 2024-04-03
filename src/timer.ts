@@ -1,8 +1,11 @@
 const MS_IN_SECOND = 1000;
 const SEC_IN_MINUTE = 60;
 
-class Timer_ {
-    constructor(domElement) {
+abstract class Timer_ {
+    domElement: HTMLElement
+    running: boolean
+
+    constructor(domElement: HTMLElement) {
         this.domElement = domElement;
         this.running = false;
     }
@@ -20,6 +23,8 @@ class Timer_ {
         this.domElement.innerHTML = this.pretty();
     }
 
+    abstract getTimeMS() : number;
+
     pretty() {
         const timeMs = this.getTimeMS();
         const ms = timeMs % MS_IN_SECOND;
@@ -34,7 +39,7 @@ class Timer_ {
             ms.toString().padStart(3, '0');
     }
 
-    async update() {
+    update() {
         if (!this.running) return;
 
         this.updateDom();
@@ -44,6 +49,8 @@ class Timer_ {
 }
 
 export class Timer extends Timer_ {
+    startTime: number
+
     start() {
         this.startTime = performance.now();
         this.running = true;
@@ -56,17 +63,20 @@ export class Timer extends Timer_ {
 }
 
 export class CountdownTimer extends Timer_ {
-    start(targetTime) {
+    targetTime: Date
+    onTargetCallbacks: Array<() => void>
+
+    start(targetTime: Date) {
         this.targetTime = targetTime;
         this.running = true;
         this.update();
     }
 
     getTimeMS() {
-        return this.targetTime - Date.now();
+        return this.targetTime.getTime() - Date.now();
     }
 
-    onTarget(callback) {
+    onTarget(callback: () => void) {
         if (this.onTargetCallbacks == undefined) {
             this.onTargetCallbacks = [];
         }

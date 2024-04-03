@@ -19,13 +19,10 @@ module.exports = {
       },
     ],
   },
-  resolve: {
-    extensions: ['.tsx', '.ts', '.js'],
-  },
-  target: 'web',
 
   // this is for numjs package to work
   resolve: {
+    extensions: ['.tsx', '.ts', '.js'],
     fallback: {
       "buffer": require.resolve("buffer/"),
       "util": require.resolve("util/")

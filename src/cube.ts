@@ -7,12 +7,38 @@ import { addForRender, removeForRender, requestRenderIfNotRequested } from './re
 import { getOrtogonalVectors, getScreenCoordinates, degToRad, drawLine, sleep } from './utils.js';
 import { parse_move, getFace, LayerMove, Rotation } from './move.js';
 
-const xAxis = ["x", new THREE.Vector3(1, 0, 0)];
-const yAxis = ["y", new THREE.Vector3(0, 1, 0)];
-const zAxis = ["z", new THREE.Vector3(0, 0, 1)];
+class Axis {
+    axis: string
+    vector: THREE.Vector3
+    constructor(axis: string, vector: THREE.Vector3) {
+        this.axis = axis;
+        this.vector = vector;
+    }
+}
 
-export default class Cube {
-    constructor(n, canvas, state=null) {
+const xAxis = new Axis("x", new THREE.Vector3(1, 0, 0));
+const yAxis = new Axis("y", new THREE.Vector3(0, 1, 0));
+const zAxis = new Axis("z", new THREE.Vector3(0, 0, 1));
+
+class Cube {
+    n: number
+    speedMode: boolean
+    solved: boolean
+    controls: OrbitControls
+    onCameraCallbacks: Array<(pos: THREE.Vector3) => void>
+    onMoveCallbacks: Array<(move: string) => void>
+    inspection: boolean
+    scene: THREE.Scene
+    canvas: HTMLCanvasElement
+    camera: THREE.PerspectiveCamera
+    renderer: THREE.WebGLRenderer
+    cubies: Array<THREE.Group>
+    arr: nj.NdArray
+    group: THREE.Group
+    tween: TWEEN.Tween<THREE.Euler>
+    mouseDownObject: any;
+
+    constructor(n: number, canvas: HTMLCanvasElement, state: string=null) {
         this.n = n;
         this.speedMode = true;
         this.solved = true;
@@ -46,7 +72,7 @@ export default class Cube {
         this.inspection = false;
     }
 
-    setState(state) {
+    setState(state: string) {
         this.init_internal_state();
         this.draw(state);
     }
@@ -62,7 +88,7 @@ export default class Cube {
         return state;
     }
 
-    init_scene(canvas) {
+    init_scene(canvas: HTMLCanvasElement) {
         this.scene = new THREE.Scene();
         this.canvas = canvas;
         this.camera = new THREE.PerspectiveCamera(
@@ -90,16 +116,16 @@ export default class Cube {
 
         // position cubies in space
         // use offset, so the middle of the cube is at (0, 0, 0)
-        this.offset = -(this.n - 1) / 2;
+        const offset = -(this.n - 1) / 2;
         for (let i = 0; i < n; ++i) {
             for (let j = 0; j < n; ++j) {
                 for (let k = 0; k < n; ++k) {
                     const cubie_index = this.arr.get(i, j, k);
                     const cubie = this.cubies[cubie_index];
                     cubie.position.set(
-                        this.offset + i,
-                        this.offset + j,
-                        this.offset + k
+                        offset + i,
+                        offset + j,
+                        offset + k
                     );
                     this.scene.add(cubie);
                 }
@@ -123,17 +149,17 @@ export default class Cube {
         }
     }
 
-    onCamera(callback) {
+    onCamera(callback: (pos: THREE.Vector3) => void) {
         this.onCameraCallbacks.push(callback);
     }
 
-    updateCamera(new_position) {
+    updateCamera(new_position: THREE.Vector3) {
         this.camera.position.copy(new_position);
         this.camera.lookAt(0, 0, 0);
         this.render();
     }
 
-    onMove(callback) {
+    onMove(callback: (move: string) => void) {
         this.onMoveCallbacks.push(callback);
     }
 
@@ -170,13 +196,13 @@ export default class Cube {
         this.draw();
     }
 
-    changeLayers(newLayers) {
+    changeLayers(newLayers: string) {
         this.n = parseInt(newLayers);
         this.draw();
-        this.offset = -(this.n - 1) / 2;
+        // this.offset = -(this.n - 1) / 2;
     }
 
-    getMesh(color) {
+    getMesh(color: string) {
         let stickerGeometry;
         if (this.speedMode) {
             stickerGeometry = new THREE.PlaneGeometry(0.85, 0.85);
@@ -184,21 +210,21 @@ export default class Cube {
             stickerGeometry = new THREE.PlaneGeometry(0.93, 0.93);
         }
 
-        let colors = {
-            "R": 0xff1100, // red
-            "O": 0xffa200, // orange
-            "W": 0xffffff, // white
-            "Y": 0xfffb00, // yellow
-            "G": 0x33ff00, // green
-            "B": 0x0800ff  // blue
-        };
+        let colors = new Map([
+            ["R", 0xff1100], // red
+            ["O", 0xffa200], // orange
+            ["W", 0xffffff], // white
+            ["Y", 0xfffb00], // yellow
+            ["G", 0x33ff00], // green
+            ["B", 0x0800ff]  // blue
+        ]);
 
-        const stickerMaterial = new THREE.MeshBasicMaterial( {color: colors[color], side: THREE.DoubleSide} );
+        const stickerMaterial = new THREE.MeshBasicMaterial( {color: colors.get(color), side: THREE.DoubleSide} );
         const stickerMesh = new THREE.Mesh(stickerGeometry, stickerMaterial);
         return stickerMesh;
     }
 
-    drawStickers(state) {
+    drawStickers(state: string = null) {
         // const state = "WWWWWWWWWGGGGGGGGGOOOOOOOOOBBBBBBBBBRRRRRRRRRYYYYYYYYY";
         // const state = "RWOWWWWWWRGOGGGGGGROBOOOOOORBOBBBBBBBRORRRRRRRYOYYYYYY";
         const n = this.n;
@@ -221,7 +247,6 @@ export default class Cube {
             nj.rot90(this.getLayer("y", 0), 1)
         ]
 
-        this.stickers = [];
         for (let face_i = 0; face_i < 6; ++face_i) {
             const face_stickers = state.slice(face_i * n*n, (face_i + 1) * (n*n));
             const face_group_indices = faces[face_i];
@@ -248,7 +273,7 @@ export default class Cube {
         }
     }
 
-    draw(state) {
+    draw(state: string = null) {
         // clear scene
         this.scene.remove.apply(this.scene, this.scene.children);
 
@@ -298,7 +323,7 @@ export default class Cube {
         return remapping;
     }
 
-    makeKeyboardMove(move_str) {
+    makeKeyboardMove(move_str: string) {
         if (this.controls) {
             const remapping = this.getAxisRemapping();
             const move = parse_move(move_str);
@@ -313,7 +338,7 @@ export default class Cube {
         this.makeMove(move_str);
     }
 
-    getLayer(axis, index) {
+    getLayer(axis: string, index: number) {
         let x = null, y = null, z = null;
         if (axis == "x") {
             x = index;
@@ -326,7 +351,7 @@ export default class Cube {
         return this.arr.pick(x, y, z);
     }
 
-    rotate_layer(axis, index, dir) {
+    rotate_layer(axis: string, index: number, dir: number) {
         if (axis == "y") { dir *= -1; }
         const layer = this.getLayer(axis, index);
         const rotated = nj.rot90(layer, -1 * dir).clone()
@@ -347,7 +372,7 @@ export default class Cube {
         this.scene.remove(this.group);
     }
 
-    makeMove(move_string, send=true) {
+    makeMove(move_string: string, send: boolean=true) {
         if (this.inspection && !["x", "x'", "y", "y'", "z", "z'"].includes(move_string)) {
             return;
         }
@@ -390,7 +415,7 @@ export default class Cube {
             this.rotate_layer(move.axis, index, direction)
 
             // get cubies objects that will be rotated
-            const group_indices = layer.flatten().tolist();
+            const group_indices = layer.flatten().tolist() as Array<number>;
             for (const group_index of group_indices) {
                 this.group.attach(this.cubies[group_index]);
             }
@@ -411,7 +436,7 @@ export default class Cube {
         requestRenderIfNotRequested();
     }
 
-    mouseDown(event) {
+    mouseDown(event: MouseEvent) {
         // calculate pointer position in NDC - normalized device coordinates
         // in NDC, canvas bottom left corner is [-1, -1], top right is [1, 1]
         // offsets are useful when the canvas is not full page
@@ -447,7 +472,7 @@ export default class Cube {
         }
     }
 
-    mouseUp(event) {
+    mouseUp(event: MouseEvent) {
         // check whether a sticker was clicked on mouseDown event handler
         if (this.mouseDownObject == undefined) {
             return;
@@ -499,7 +524,9 @@ export default class Cube {
         // get rotation axis
         let axisVector;
         let axis;
-        for (let [baseLabel, baseVector] of [xAxis, yAxis, zAxis]) {
+        for (let baseVec of [xAxis, yAxis, zAxis]) {
+            const baseLabel = baseVec.axis;
+            const baseVector = baseVec.vector;
             if (baseVector.dot(move_dir) == 0 && baseVector.dot(stickerNormal) == 0) {
                 axisVector = baseVector;
                 axis = baseLabel;
@@ -541,3 +568,5 @@ export default class Cube {
         this.makeMove(moveObj.toString());
     }
 }
+
+export { Cube }

@@ -1,5 +1,5 @@
 import { io } from "socket.io-client";
-import Cube from './cube';
+import { Cube } from './cube';
 import * as THREE from 'three';
 import { Timer, CountdownTimer } from './timer'
 
@@ -18,7 +18,7 @@ class UserHandler {
         this.users = new Map();
     }
 
-    add(username: string, canvas: HTMLElement=null) {
+    add(username: string, canvas: HTMLCanvasElement=null) {
         if (!this.users.has(username)) {
             const user = new User(username, canvas);
             this.users.set(username, user);
@@ -59,7 +59,7 @@ class User {
     cube: Cube;
     solved: boolean;
 
-    constructor(username: string, canvas: HTMLElement) {
+    constructor(username: string, canvas: HTMLCanvasElement) {
         this.username = username;
         this.ready = false;
 
@@ -116,7 +116,7 @@ console.log("our username", ourUsername);
 
 
 const users = new UserHandler();
-const mainCanvas = document.getElementById("mainCanvas");
+const mainCanvas = document.getElementById("mainCanvas") as HTMLCanvasElement;
 
 const me = users.add(ourUsername, mainCanvas);
 me.cube.init_camera_controls();

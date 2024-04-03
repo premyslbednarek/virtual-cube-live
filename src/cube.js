@@ -15,6 +15,7 @@ export default class Cube {
     constructor(n, canvas, state=null) {
         this.n = n;
         this.speedMode = true;
+        this.solved = true;
 
 
         this.controls = undefined;

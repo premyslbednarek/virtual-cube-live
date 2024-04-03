@@ -1,6 +1,10 @@
 import { io } from "socket.io-client";
 import Cube from './cube';
+import * as THREE from 'three';
 import { Timer, CountdownTimer } from './timer'
+
+declare var ourUsername: string
+declare var lobby_id: number
 
 const timeElement = document.getElementById("timer");
 
@@ -8,11 +12,13 @@ const timer = new Timer(timeElement);
 const countdownTimer = new CountdownTimer(timeElement);
 
 class UserHandler {
+    users: Map<string, User>
+
     constructor() {
         this.users = new Map();
     }
 
-    add(username, canvas=null) {
+    add(username: string, canvas: HTMLElement=null) {
         if (!this.users.has(username)) {
             const user = new User(username, canvas);
             this.users.set(username, user);
@@ -20,21 +26,21 @@ class UserHandler {
         }
     }
 
-    get(username) {
+    get(username: string) {
         return this.users.get(username);
     }
 
-    remove(username) {
+    remove(username: string) {
         this.users.delete(username);
     }
 
-    forEach(fun) {
+    forEach(fun: (a: User) => void) {
         for (const [_, user] of this.users) {
             fun(user);
         }
     }
 
-    all(fun) {
+    all(fun: (a: User) => boolean) {
         for (const [_, user] of this.users) {
             if (!fun(user)) {
                 return false;
@@ -45,7 +51,15 @@ class UserHandler {
 }
 
 class User {
-    constructor(username, canvas) {
+    username: string;
+    ready: boolean;
+    userInfoDiv: HTMLElement;
+    canvasInfo: HTMLElement;
+    canvasDiv: HTMLDivElement;
+    cube: Cube;
+    solved: boolean;
+
+    constructor(username: string, canvas: HTMLElement) {
         this.username = username;
         this.ready = false;
 
@@ -56,14 +70,14 @@ class User {
         this.canvasInfo = null;
         if (canvas == null) {
             this.canvasDiv = document.createElement("div");
-            this.canvasDiv.style = "position: relative";
+            this.canvasDiv.setAttribute("style", "position: relative")
             document.getElementById("otherCanvases").appendChild(this.canvasDiv);
 
             canvas = document.createElement("canvas");
-            canvas.style = "width: 100%; height: 250px"
+            canvas.setAttribute("style", "width: 100%; height: 250px")
 
             this.canvasInfo = document.createElement("div");
-            this.canvasInfo.style = "position: absolute; top: 0; left: 0; color: white;"
+            this.canvasInfo.setAttribute("style", "position: absolute; top: 0; left: 0; color: white;")
             this.canvasDiv.appendChild(this.canvasInfo);
             this.canvasDiv.appendChild(canvas);
         }
@@ -91,7 +105,7 @@ class User {
         this.renderTag();
     }
 
-    setReady(ready) {
+    setReady(ready: boolean) {
         this.ready = ready;
         this.renderTag();
     }
@@ -109,7 +123,7 @@ me.cube.init_camera_controls();
 me.cube.init_keyboard_controls();
 me.cube.init_mouse_moves();
 
-function send_move(move_str) {
+function send_move(move_str: string) {
     const data = {
         lobby_id: lobby_id,
         move: move_str
@@ -117,7 +131,7 @@ function send_move(move_str) {
     socket.emit("lobby_move", data);
 }
 
-function send_camera(new_position) {
+function send_camera(new_position: THREE.Vector3) {
     const data = {
         lobby_id: lobby_id,
         position: new_position
@@ -152,7 +166,7 @@ function updateReady() {
     // {% endif %}
 }
 
-const readyButton = document.getElementById("readyButton");
+const readyButton: HTMLButtonElement = document.getElementById("readyButton") as HTMLButtonElement;
 readyButton.addEventListener("click", () => {
     if (!me.ready) {
         socket.emit("ready", { lobby_id: lobby_id })
@@ -187,7 +201,7 @@ socket.on("unready", function(data) {
 // {% endif %}
 
 // connect to this lobby
-socket.emit("lobby_connect", { lobby_id: lobby_id }, function(data) {
+socket.emit("lobby_connect", { lobby_id: lobby_id }, function(data: any) {
     const status = data.code
     if (status == 1) {
         alert("You have already joined this lobby.");
@@ -195,7 +209,7 @@ socket.emit("lobby_connect", { lobby_id: lobby_id }, function(data) {
     }
 
     const userList = data.userList
-    userList.forEach((user) => { users.add(user)});
+    userList.forEach((user: string) => { users.add(user)});
 })
 
 
@@ -215,7 +229,7 @@ socket.on("lobby-disconnect", function(data) {
 // !! DONT FORGET TO REMOVE !!
 let scramble = "";
 
-socket.on("match_start", function(data) {
+socket.on("match_start", function(data: any) {
     const state = data.state;
     const startTime = data.startTime;
 
@@ -241,7 +255,7 @@ socket.on("match_start", function(data) {
 
 // !! DONT FORGET TO REMOVE !!
 const solveButton = document.getElementById("solveButton");
-solveButton.addEventListener("click", async function(e) {
+solveButton.addEventListener("click", async function() {
     const moves = scramble.split(" ");
     const cube = users.get(ourUsername).cube;
     for (let i = moves.length - 1; i >= 0; --i) {

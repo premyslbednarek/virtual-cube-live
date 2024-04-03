@@ -5,10 +5,10 @@ const webpack = require('webpack')
 module.exports = {
   mode: 'development',
 
-  entry: './src/index.ts',
+  entry: './src/race.js',
   output: {
-    filename: 'main.js',
-    path: path.resolve(__dirname, 'dist'),
+    filename: 'race.js',
+    path: path.resolve(__dirname, 'static/dist/js'),
   },
     module: {
     rules: [

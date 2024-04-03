@@ -1,6 +1,6 @@
-import { io } from '/static/js/libs/socket.io.esm.min.js';
-import Cube from '/static/js/cube_new.js';
-import { Timer, CountdownTimer } from '/static/js/timer.js'
+import { io } from "socket.io-client";
+import Cube from './cube';
+import { Timer, CountdownTimer } from './timer'
 
 const timeElement = document.getElementById("timer");
 

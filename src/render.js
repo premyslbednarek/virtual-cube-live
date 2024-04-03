@@ -1,5 +1,5 @@
 const to_render = new Set()
-import * as TWEEN from './libs/tween.module.js';
+import * as TWEEN from '@tweenjs/tween.js'
 
 function addForRender(cube) {
     to_render.add(cube);

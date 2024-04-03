@@ -1,8 +1,8 @@
-import * as THREE from './libs/three.module.js'
-import * as TWEEN from './libs/tween.module.js'
-import nj from '/static/js/libs/numjs.min.js';
-import { OrbitControls } from './libs/OrbitControls.js';
-import keybinds from '/static/js/keybindings.js'
+import nj from '@d4c/numjs';
+import * as THREE from 'three';
+import * as TWEEN from '@tweenjs/tween.js'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import keybinds from './keybindings'
 import { addForRender, removeForRender, requestRenderIfNotRequested } from './render.js';
 import { getOrtogonalVectors, getScreenCoordinates, degToRad, drawLine, sleep } from './utils.js';
 import { parse_move, getFace, LayerMove, Rotation } from './move.js';

@@ -5,6 +5,7 @@ import { Timer, CountdownTimer } from './timer'
 
 declare var ourUsername: string
 declare var lobby_id: number
+declare var is_creator: boolean
 
 const timeElement = document.getElementById("timer");
 
@@ -161,9 +162,9 @@ socket.on("lobby_camera", function(data) {
 function updateReady() {
     const allReady = users.all(u => u.ready);
     console.log("All readt:", allReady);
-    // {% if is_creator %}
-    // document.getElementById("startButton").disabled = !allReady;
-    // {% endif %}
+    if (is_creator) {
+        (document.getElementById("startButton") as HTMLButtonElement).disabled = !allReady;
+    }
 }
 
 const readyButton: HTMLButtonElement = document.getElementById("readyButton") as HTMLButtonElement;
@@ -193,12 +194,12 @@ socket.on("unready", function(data) {
     updateReady();
 })
 
-// {% if is_creator %}
-//     const startButton = document.getElementById("startButton")
-//     startButton.addEventListener("click", () => {
-//         socket.emit("startLobby", { lobby_id: lobby_id});
-//     })
-// {% endif %}
+if (is_creator) {
+    const startButton = document.getElementById("startButton")
+    startButton.addEventListener("click", () => {
+        socket.emit("startLobby", { lobby_id: lobby_id});
+    })
+}
 
 // connect to this lobby
 socket.emit("lobby_connect", { lobby_id: lobby_id }, function(data: any) {

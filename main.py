@@ -86,7 +86,7 @@ def lobby_join(lobby_id: int):
     # # show start button only for the lobby creator
     q = select(Lobby.creator_id).filter_by(id=lobby_id)
     lobby_creator_id = db.session.execute(q).scalar()
-    is_creator = lobby_creator_id == current_user.id
+    is_creator = int(lobby_creator_id == current_user.id)
 
     return render_template("race.html", lobby_id=lobby_id, is_creator=is_creator)
 

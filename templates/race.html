@@ -11,7 +11,7 @@
         <button id="readyButton">ready</button>
         <div id="info"></div>
         {% if is_creator %}
-            <button id="startButton" style="disabled: true; " disabled>Start the race</button>
+            <button id="startButton" disabled>Start the race</button>
         {% endif %}
         <br>
         <button id="solveButton">Solve the cube</button>
@@ -23,6 +23,7 @@
     <script type="text/javascript">
         const ourUsername = "{{ current_user.username }}";
         const lobby_id = {{ lobby_id }};
+        const is_creator = {{ is_creator }};
     </script>
     <script type='module' src="/static/dist/race.js"></script>
 </body>

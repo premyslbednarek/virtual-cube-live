@@ -16,4 +16,7 @@ pip install -r requirements.txt
 
 # run the server
 python3 main.py
+
+# tailwind css
+npm install -D tailwindcss
 ```

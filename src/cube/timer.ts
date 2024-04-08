@@ -49,7 +49,7 @@ abstract class Timer_ {
 }
 
 export class Timer extends Timer_ {
-    startTime: number
+    startTime!: number
 
     start() {
         this.startTime = performance.now();
@@ -63,8 +63,8 @@ export class Timer extends Timer_ {
 }
 
 export class CountdownTimer extends Timer_ {
-    targetTime: Date
-    onTargetCallbacks: Array<() => void>
+    targetTime!: Date
+    onTargetCallbacks!: Array<() => void>
 
     start(targetTime: Date) {
         this.targetTime = targetTime;

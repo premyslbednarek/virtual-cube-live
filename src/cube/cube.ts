@@ -24,27 +24,24 @@ export default class Cube {
     n: number
     speedMode: boolean
     solved: boolean
-    controls: OrbitControls
+    controls!: OrbitControls
     onCameraCallbacks: Array<(pos: THREE.Vector3) => void>
     onMoveCallbacks: Array<(move: string) => void>
     inspection: boolean
-    scene: THREE.Scene
-    canvas: HTMLCanvasElement
-    camera: THREE.PerspectiveCamera
-    renderer: THREE.WebGLRenderer
-    cubies: Array<THREE.Group>
-    arr: nj.NdArray
-    group: THREE.Group
-    tween: TWEEN.Tween<THREE.Euler>
+    scene!: THREE.Scene
+    canvas!: HTMLCanvasElement
+    camera!: THREE.PerspectiveCamera
+    renderer!: THREE.WebGLRenderer
+    cubies!: Array<THREE.Group>
+    arr!: nj.NdArray
+    group!: THREE.Group
+    tween!: TWEEN.Tween<THREE.Euler>
     mouseDownObject: any;
 
-    constructor(n: number, canvas: HTMLCanvasElement, state: string=null) {
+    constructor(n: number, canvas: HTMLCanvasElement, state: string="") {
         this.n = n;
         this.speedMode = true;
         this.solved = true;
-
-
-        this.controls = undefined;
 
         this.onCameraCallbacks = [];
         this.onMoveCallbacks = [];
@@ -224,8 +221,10 @@ export default class Cube {
         return stickerMesh;
     }
 
-    drawStickers(state: string = null) {
-        // const state = "WWWWWWWWWGGGGGGGGGOOOOOOOOOBBBBBBBBBRRRRRRRRRYYYYYYYYY";
+    drawStickers(state: string = "") {
+        if (state === "") {
+            state = "WWWWWWWWWGGGGGGGGGOOOOOOOOOBBBBBBBBBRRRRRRRRRYYYYYYYYY";
+        }
         // const state = "RWOWWWWWWRGOGGGGGGROBOOOOOORBOBBBBBBBRORRRRRRRYOYYYYYY";
         const n = this.n;
 
@@ -273,7 +272,7 @@ export default class Cube {
         }
     }
 
-    draw(state: string = null) {
+    draw(state: string = "") {
         // clear scene
         this.scene.remove.apply(this.scene, this.scene.children);
 
@@ -348,7 +347,9 @@ export default class Cube {
             z = index;
         } else {
         }
-        return this.arr.pick(x, y, z);
+        // arr.pick type annotation seems wrong - it accepts null values
+        // therefore "as any" usage
+        return this.arr.pick(x as any, y as any, z as any);
     }
 
     rotate_layer(axis: string, index: number, dir: number) {
@@ -459,7 +460,9 @@ export default class Cube {
 
         // a sticker was clicked - the user wants to make a move
         // disable camera rotation, so the desired mouse movement does not move the camera
-        this.controls.enabled = false;
+        if (this.controls != undefined) {
+            this.controls.enabled = false;
+        }
 
         const clickedSticker = intersectedStickers[0].object;
         const clickedCoordinates = intersectedStickers[0].point;
@@ -536,12 +539,12 @@ export default class Cube {
 
         // get clicked sticker position along the rotations axis and round to nearest .5
         // HERE, TAKE THE PARENT POSITION, NOT THE STICKER - todo
-        let coord = this.mouseDownObject.sticker.parent.position[axis];
+        let coord = this.mouseDownObject.sticker.parent.position[axis as any];
         coord = Math.round(coord * 2) / 2;
 
         // exception fro middle layer
         const flipped = coord < 0 || (axis == "x" && coord == 0);
-        const face = getFace(axis, flipped, coord == 0);
+        const face = getFace(axis as any, flipped, coord == 0);
         coord = Math.abs(coord);
 
         // triple product calculation
@@ -550,7 +553,7 @@ export default class Cube {
         // negative determinant - clockwise
         const matrix = new THREE.Matrix3();
         matrix.set(
-            axisVector.x,  axisVector.y,  axisVector.z,
+            (axisVector as any).x,  (axisVector as any).y,  (axisVector as any).z,
             clickedPosition.x, clickedPosition.y, clickedPosition.z,
             move_dir.x,      move_dir.y,      move_dir.z
         )
@@ -564,7 +567,7 @@ export default class Cube {
             rotationSign *= -1;
         }
 
-        const moveObj = new LayerMove(face, axis, flipped, coord, rotationSign, false, false);
+        const moveObj = new LayerMove(face as any, axis as any, flipped, coord, rotationSign, false, false);
         this.makeMove(moveObj.toString());
     }
 }

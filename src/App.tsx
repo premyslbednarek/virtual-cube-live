@@ -21,6 +21,7 @@ import {
 import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
 import Home from './components/Homepage';
+import Lobby from './components/Lobby';
 
 function Page2() {
   return (
@@ -43,6 +44,7 @@ function App() {
             <Route path="/login" element={<LoginForm />} />
             <Route path="/page2" element={<Page2 />} />
             <Route path="/register" element={<RegisterForm />} />
+            <Route path="/lobby/:lobby_id" element={<Lobby />} />
           </Routes>
         </BrowserRouter>
       </header>

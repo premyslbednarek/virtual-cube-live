@@ -125,6 +125,8 @@ function getFace(axis: string, flipped: boolean, isMiddle: boolean) {
         case "y": return "D";
         case "z": return "B";
     }
+
+    throw Error("err")
 }
 
 
@@ -208,7 +210,7 @@ function parse_move(move: string) {
     const axis = getAxis(face);
     const flipped = isFlipped(face);
 
-    return new LayerMove(face, axis, flipped, layer_index, dir, wide, double);
+    return new LayerMove(face, axis as any, flipped as any, layer_index, dir, wide, double);
 }
 
 export {

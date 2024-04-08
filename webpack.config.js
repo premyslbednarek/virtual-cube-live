@@ -5,7 +5,7 @@ const webpack = require('webpack')
 module.exports = {
   mode: 'development',
 
-  entry: './src/race.ts',
+  entry: './ts-src/race.ts',
   output: {
     filename: 'race.js',
     path: path.resolve(__dirname, 'static/dist'),

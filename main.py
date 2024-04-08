@@ -29,6 +29,19 @@ socketio = SocketIO(app, cors_allowed_origins="*", engineio_logger=False)
 sidToName = {}
 i = 0
 
+import time
+@app.route('/api/time')
+def get_current_time():
+    return {'time': time.time()}
+
+@app.route('/api/user_info')
+def get_user_info():
+    if current_user.is_authenticated:
+        username = current_user.username
+    else:
+        username = "Anonymous"
+    return {'username': username }
+
 @login_manager.user_loader
 def load_user(user_id):
     return db.session.get(User, user_id)
@@ -135,8 +148,10 @@ def login():
 
 @app.route('/login', methods=["POST"])
 def login_post():
-    username: str = request.form['username']
-    password: str = request.form['password']
+    data = json.loads(request.data)
+    print(data)
+    username: str = data['username']
+    password: str = data['password']
 
     q = select(User).where(User.username == username)
     user: User = db.session.scalar(q)
@@ -147,7 +162,8 @@ def login_post():
         return redirect(url_for("login"))
 
     login_user(user, remember=True)
-    return redirect("/")
+    print("Login succesfull")
+    return "ok"
 
 @app.route("/logout")
 def logout():
@@ -548,6 +564,9 @@ def lobby_camera(data):
         db.session.commit()
 
 
+@socketio.event
+def connect():
+    print("SOCKET CONNECTION!")
 
 # @socketio.event
 # def connect():

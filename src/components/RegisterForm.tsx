@@ -20,7 +20,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from '@mantine/form';
 import { GoogleButton } from '../GoogleButton';
 
-export default function LoginForm(props: PaperProps) {
+export default function RegisterForm(props: PaperProps) {
   const navigate = useNavigate();
   const form = useForm({
     initialValues: {
@@ -31,7 +31,7 @@ export default function LoginForm(props: PaperProps) {
 
   const onSubmit = function(e: any) {
     e.preventDefault();
-    fetch('/login', {
+    fetch('/register', {
       method: "POST",
       body: JSON.stringify(form.values)
     }).then(data => {
@@ -47,20 +47,20 @@ export default function LoginForm(props: PaperProps) {
   return (
     <Container size={420} my={40}>
       <Title ta="center" className={classes.title}>
-        Welcome back!
+        Welcome!
       </Title>
       <Text c="dimmed" size="sm" ta="center" mt={5}>
-        Do not have an account yet?{' '}
-        <Link to="/register">
+        Do you already have an account?{' '}
+        <Link to="/login">
             <Anchor size="sm" component="button" underline="never">
-            Create account
+            Login
             </Anchor>
         </Link>
       </Text>
 
     <Paper radius="md" p="xl" mt={30} withBorder>
       <Text size="lg" fw={500}>
-        Login with
+        Register with
       </Text>
 
       <Group grow mb="md" mt="md">

@@ -42,6 +42,16 @@ def get_user_info():
         username = "Anonymous"
     return {'username': username }
 
+@app.route("/api/lobby_create")
+@login_required
+def api_lobby_create():
+    lobby = Lobby(creator_id = current_user.id)
+    db.session.add(lobby)
+    db.session.commit()
+
+    lobby_id: int = lobby.id
+    return { "lobby_id": lobby_id }
+
 @login_manager.user_loader
 def load_user(user_id):
     return db.session.get(User, user_id)
@@ -118,8 +128,10 @@ def register():
 
 @app.route('/register', methods=["POST"])
 def register_post():
-    username: str = request.form['username']
-    password: str = request.form['password']
+    data = json.loads(request.data)
+    print(data)
+    username: str = data['username']
+    password: str = data['password']
 
     if not username or not password:
         flash("Enter both username and password.")
@@ -140,7 +152,8 @@ def register_post():
     db.session.commit()
 
     login_user(new_user, remember=True)
-    return redirect("/")
+    print("registration success")
+    return "ok"
 
 @app.route('/login', methods=["GET"])
 def login():
@@ -159,11 +172,11 @@ def login_post():
     # check whether user with given username exists and the password matches
     if user is None or not check_password_hash(user.password_hash, password):
         flash("Wrong username or password!")
-        return redirect(url_for("login"))
+        return "Wrong username or password", 400
 
     login_user(user, remember=True)
     print("Login succesfull")
-    return "ok"
+    return {"status": 200 }
 
 @app.route("/logout")
 def logout():
@@ -567,6 +580,8 @@ def lobby_camera(data):
 @socketio.event
 def connect():
     print("SOCKET CONNECTION!")
+    print(current_user.username)
+    print()
 
 # @socketio.event
 # def connect():

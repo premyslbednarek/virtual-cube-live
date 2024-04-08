@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { BrowserRouter, Link, Routes, Route } from 'react-router-dom';
 // import './App.css';
 import { GoogleButton } from './GoogleButton';
@@ -8,7 +8,6 @@ import { TwitterButton } from './TwitterButton';
 import {
   TextInput,
   PasswordInput,
-  Container,
   Text,
   Paper,
   Group,
@@ -19,53 +18,9 @@ import {
   Anchor,
   Stack,
 } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
-import { Modal } from '@mantine/core';
 import LoginForm from './components/LoginForm';
-
-function Demo() {
-  const [opened, { open, close }] = useDisclosure(false);
-
-  return (
-    <>
-      <Modal opened={opened} onClose={close} centered>
-        <AuthenticationForm />
-      </Modal>
-
-      <Button onClick={open}>Login</Button>
-    </>
-  );
-}
-
-function Home() {
-  const [currentTime, setCurrentTime] = useState(0);
-  const [username, setUsername] = useState("");
-
-  useEffect(() => {
-    fetch('/api/time').then(res => res.json()).then(data => {
-      setCurrentTime(data.time);
-    });
-
-    fetch('/api/user_info').then(res => res.json()).then(data => {
-      setUsername(data.username);
-    })
-  }, []);
-
-
-  return (
-    <>
-      <h1>Welcome to Rubik's cube racing!</h1>
-      <p>The current time is {currentTime}.</p>
-      <p>You are logged in as {username}</p>
-      <Link to="/register">
-        <Button>
-          Register
-        </Button>
-      </Link>
-      <Demo />
-    </>
-  );
-}
+import RegisterForm from './components/RegisterForm';
+import Home from './components/Homepage';
 
 function Page2() {
   return (
@@ -87,11 +42,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<LoginForm />} />
             <Route path="/page2" element={<Page2 />} />
-            <Route path="/register" element={
-              <Container size={400} my={40}>
-                  <AuthenticationForm />
-              </Container>
-            } />
+            <Route path="/register" element={<RegisterForm />} />
           </Routes>
         </BrowserRouter>
       </header>

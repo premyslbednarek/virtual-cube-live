@@ -3,7 +3,10 @@ import { Link } from 'react-router-dom';
 // import './App.css';
 import {
   Button,
-  Space
+  Space,
+  Container,
+  Center,
+  Divider
 } from '@mantine/core';
 import { io } from 'socket.io-client';
 import CreateLobbyButton from './CreateLobby';
@@ -27,7 +30,8 @@ export default function Home() {
 
 
   return (
-    <>
+    <Center>
+    <Container>
       <h1>Welcome to Rubik's cube racing!</h1>
       <p>The current time is {currentTime}.</p>
       <p>You are logged in as {username}</p>
@@ -44,7 +48,9 @@ export default function Home() {
             </Button>
         </Link>
       </div>
+      <Divider my="md" />
       <CreateLobbyButton />
-    </>
+    </Container>
+    </Center>
   );
 }

@@ -11,7 +11,7 @@ function getOrtogonalVectors(vec: THREE.Vector3) {
         new THREE.Vector3( 0,  0,  1),
         new THREE.Vector3( 0,  0, -1)
     ];
-    return possible.filter((other) => vector.dot(other) == 0);
+    return possible.filter((other) => vector.dot(other) === 0);
 }
 
 function getScreenCoordinates(vector: THREE.Vector3, camera: THREE.PerspectiveCamera) {

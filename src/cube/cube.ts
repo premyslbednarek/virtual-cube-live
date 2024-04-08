@@ -4,8 +4,8 @@ import * as TWEEN from '@tweenjs/tween.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import keybinds from './keybindings'
 import { addForRender, removeForRender, requestRenderIfNotRequested } from './render';
-import { getOrtogonalVectors, getScreenCoordinates, degToRad, drawLine, sleep } from './utils';
-import { parse_move, getFace, LayerMove, Rotation } from './move';
+import { getOrtogonalVectors, getScreenCoordinates } from './utils';
+import { parse_move, getFace, LayerMove } from './move';
 
 class Axis {
     axis: string
@@ -339,11 +339,11 @@ export default class Cube {
 
     getLayer(axis: string, index: number) {
         let x = null, y = null, z = null;
-        if (axis == "x") {
+        if (axis === "x") {
             x = index;
-        } else if (axis == "y") {
+        } else if (axis === "y") {
             y = index;
-        } else if (axis == "z") {
+        } else if (axis === "z") {
             z = index;
         } else {
         }
@@ -353,7 +353,7 @@ export default class Cube {
     }
 
     rotate_layer(axis: string, index: number, dir: number) {
-        if (axis == "y") { dir *= -1; }
+        if (axis === "y") { dir *= -1; }
         const layer = this.getLayer(axis, index);
         const rotated = nj.rot90(layer, -1 * dir).clone()
 
@@ -453,14 +453,14 @@ export default class Cube {
         raycaster.setFromCamera(pointer, this.camera);
         const intersectedStickers = raycaster.intersectObjects(this.cubies);
 
-        if (intersectedStickers.length == 0) {
+        if (intersectedStickers.length === 0) {
             this.mouseDownObject = undefined;
             return;
         }
 
         // a sticker was clicked - the user wants to make a move
         // disable camera rotation, so the desired mouse movement does not move the camera
-        if (this.controls != undefined) {
+        if (this.controls !== undefined) {
             this.controls.enabled = false;
         }
 
@@ -477,7 +477,7 @@ export default class Cube {
 
     mouseUp(event: MouseEvent) {
         // check whether a sticker was clicked on mouseDown event handler
-        if (this.mouseDownObject == undefined) {
+        if (this.mouseDownObject === undefined) {
             return;
         }
 
@@ -530,7 +530,7 @@ export default class Cube {
         for (let baseVec of [xAxis, yAxis, zAxis]) {
             const baseLabel = baseVec.axis;
             const baseVector = baseVec.vector;
-            if (baseVector.dot(move_dir) == 0 && baseVector.dot(stickerNormal) == 0) {
+            if (baseVector.dot(move_dir) === 0 && baseVector.dot(stickerNormal) === 0) {
                 axisVector = baseVector;
                 axis = baseLabel;
                 break;
@@ -543,8 +543,8 @@ export default class Cube {
         coord = Math.round(coord * 2) / 2;
 
         // exception fro middle layer
-        const flipped = coord < 0 || (axis == "x" && coord == 0);
-        const face = getFace(axis as any, flipped, coord == 0);
+        const flipped = coord < 0 || (axis === "x" && coord === 0);
+        const face = getFace(axis as any, flipped, coord === 0);
         coord = Math.abs(coord);
 
         // triple product calculation

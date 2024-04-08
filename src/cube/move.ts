@@ -51,7 +51,7 @@ class LayerMove extends Move {
         if (this.wide) string += "w";
         if (this.double) string += "2";
 
-        if (this.dir == -1) {
+        if (this.dir === -1) {
                 string += "'"
         };
 
@@ -79,7 +79,7 @@ class LayerMove extends Move {
         indices.push(this.index - 1)
 
         if (this.wide) {
-            if (this.index == 1) {
+            if (this.index === 1) {
                 indices = [0, 1];
             } else {
                 indices = []
@@ -100,8 +100,8 @@ class LayerMove extends Move {
 }
 
 const MIDDLE_LAYERS = "MSE"
-const MINUS_LAYERS = "DBLM"
-const ROTATIONS = "xyz"
+// const MINUS_LAYERS = "DBLM"
+// const ROTATIONS = "xyz"
 
 function getFace(axis: string, flipped: boolean, isMiddle: boolean) {
     if (isMiddle) {
@@ -143,7 +143,7 @@ class Rotation extends Move {
         if (this.double) {
             string += "2";
         }
-        if (this.dir == -1) {
+        if (this.dir === -1) {
             string += "'";
         }
         return string;
@@ -174,7 +174,7 @@ function parse_move(move: string) {
         ++i;
     }
 
-    if (layer_index == 0) {
+    if (layer_index === 0) {
         layer_index = 1
     }
 
@@ -183,7 +183,7 @@ function parse_move(move: string) {
 
     const isRotation = "xyz".includes(face);
 
-    let wide = i < move.length && move[i] == "w"
+    let wide = i < move.length && move[i] === "w"
     if (wide) {
         i += 1
     }
@@ -193,13 +193,13 @@ function parse_move(move: string) {
         face = face.toUpperCase();
     }
 
-    let double = i < move.length && move[i] == "2";
+    let double = i < move.length && move[i] === "2";
     if (double) {
         i += 1
     }
 
     let dir = CW
-    if (i < move.length && move[i] == "'") {
+    if (i < move.length && move[i] === "'") {
         dir = CCW
     }
 

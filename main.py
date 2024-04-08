@@ -289,11 +289,13 @@ def create_connection(size, cube_id=None, lobby_id=None):
 @socketio.on("lobby_connect")
 def handle_lobby_conection(data):
     lobby_id: int = int(data["lobby_id"])
+    print("LOBBY CONNECTION", lobby_id)
 
     # check whether the user has already joined the lobby
     q = select(func.count()).select_from(LobbyUser).where(LobbyUser.user_id == current_user.id, LobbyUser.lobby_id == lobby_id)
     res = db.session.scalar(q)
     if (res > 0):
+        print("COUNT", res)
         return {"code": 1}
 
     # add user to the lobby room
@@ -580,27 +582,14 @@ def lobby_camera(data):
 @socketio.event
 def connect():
     print("SOCKET CONNECTION!")
-    print(current_user.username)
+    print(request.sid)
     print()
-
-# @socketio.event
-# def connect():
-#     global i
-#     print('connect ', request.sid)
-#     connected_users = list(sidToName.values())
-#     sidToName[request.sid] = i
-#     i += 1
-#     print("Sending welcoming message...")
-#     socketio.emit("message", f"Welcome to the server. Your session user id is {sidToName[request.sid]}", to=request.sid)
-#     socketio.emit("welcome", {"nUsers": len(sidToName) - 1, "usersIds": connected_users}, to=request.sid)
-#     socketio.emit("message", f"User with session id {sidToName[request.sid]} has connected.", skip_sid=request.sid)
-#     socketio.emit("connection", sidToName[request.sid], skip_sid=request.sid)
-#     print("Welcoming message sent...")
-#     print("pripojeni")
 
 @socketio.event
 def disconnect():
-    print('disconnect ', request.sid)
+    print("SOCKET DC")
+    print(request.sid)
+    print()
 
     # handle lobby disconnections
     q = select(SocketConnection).where(SocketConnection.socket_id == request.sid)

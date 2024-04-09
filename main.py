@@ -292,10 +292,9 @@ def handle_lobby_conection(data):
     print("LOBBY CONNECTION", lobby_id)
 
     # check whether the user has already joined the lobby
-    q = select(func.count()).select_from(LobbyUser).where(LobbyUser.user_id == current_user.id, LobbyUser.lobby_id == lobby_id)
-    res = db.session.scalar(q)
-    if (res > 0):
-        print("COUNT", res)
+    q = select(LobbyUser).where(LobbyUser.user_id == current_user.id, LobbyUser.lobby_id == lobby_id)
+    lobbyuser: LobbyUser | None = db.session.scalars(q).one_or_none()
+    if (lobbyuser and lobbyuser.current_connection_id):
         return {"code": 1}
 
     # add user to the lobby room
@@ -305,12 +304,15 @@ def handle_lobby_conection(data):
     connection_id = create_connection(3, None, lobby_id)
 
     # add connection to the database
-    lobby_user = LobbyUser(
-        lobby_id=lobby_id,
-        user_id=current_user.id,
-        current_connection_id=connection_id
-    )
-    db.session.add(lobby_user)
+    if not lobbyuser:
+        lobbyuser = LobbyUser(
+            lobby_id=lobby_id,
+            user_id=current_user.id,
+        )
+        db.session.add(lobbyuser)
+        db.session.commit()
+
+    lobbyuser.current_connection_id=connection_id
     db.session.commit()
 
     # fetch usernames of users in the room
@@ -594,6 +596,12 @@ def disconnect():
     # handle lobby disconnections
     q = select(SocketConnection).where(SocketConnection.socket_id == request.sid)
     conn: SocketConnection = db.session.scalars(q).one()
+
+    if (conn.lobby_id is not None):
+        q = select(LobbyUser).where(LobbyUser.user_id == conn.user_id, LobbyUser.lobby_id == conn.lobby_id)
+        lobby_user: LobbyUser = db.session.scalar(q)
+        lobby_user.current_connection_id = None
+
 
     conn.disconnection_date = func.now()
     db.session.commit()

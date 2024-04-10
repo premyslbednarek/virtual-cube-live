@@ -42,6 +42,19 @@ def get_user_info():
         username = "Anonymous"
     return {'username': username }
 
+@app.route("/api/get_lobbies")
+def get_lobbies():
+    q = select(User.username, Lobby.id).select_from(Lobby).join(User, Lobby.creator_id == User.id).order_by(Lobby.id.desc()).limit(10)
+    res = db.session.execute(q).all();
+    print()
+    print("RESULT")
+    print(res)
+    print()
+    data = []
+    for creator, lobby_id in res:
+        data.append({"creator": creator, "lobby_id": lobby_id})
+    return {"data": data}
+
 @app.route("/api/lobby_create")
 @login_required
 def api_lobby_create():

@@ -48,7 +48,7 @@ export default class Cube {
 
         this.init_scene();
 
-        this.resizeCanvas();
+        // this.resizeCanvas();
         window.addEventListener("resize", () => this.resizeCanvas(), false);
 
         if (state == null) {
@@ -99,6 +99,7 @@ export default class Cube {
 
     mount(container: any) {
         container.appendChild(this.canvas);
+        this.resizeCanvas();
     }
 
     init_internal_state() {
@@ -181,10 +182,12 @@ export default class Cube {
 
     resizeCanvas() {
         // const canvas = this.renderer.domElement;
-        // this.renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
-        // this.camera.aspect = canvas.clientWidth / canvas.clientHeight;
-        // this.camera.updateProjectionMatrix(); // must be called after changing camera's properties
-        // this.render();
+        const container = this.canvas.parentElement;
+        if (!container) return;
+        this.renderer.setSize(container.clientWidth, container.clientHeight, false);
+        this.camera.aspect = container.clientWidth / container.clientHeight;
+        this.camera.updateProjectionMatrix(); // must be called after changing camera's properties
+        this.render();
     }
 
     render() {

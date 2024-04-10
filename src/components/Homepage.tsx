@@ -34,6 +34,10 @@ export default function Home() {
     fetch('/api/user_info').then(res => res.json()).then(data => {
       setUsername(data.username);
     })
+
+    fetch('/api/get_lobbies').then(res => res.json()).then(data => {
+      setLobbies(data.data)
+    });
   }, []);
 
   useEffect(() => {

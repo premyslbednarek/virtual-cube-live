@@ -24,13 +24,22 @@ import { UserContext } from '../userContext';
 
 export default function RegisterForm(props: PaperProps) {
   const navigate = useNavigate();
-  const {fetchData} = useContext(UserContext);
+  const {userContext, fetchData} = useContext(UserContext);
   const form = useForm({
     initialValues: {
       username: '',
       password: '',
     },
   });
+
+  const logout = () => {
+      fetch("/logout").then(res => {
+          if (res.status === 200) {
+              console.log("logout successfull");
+              fetchData();
+          }
+      });
+  }
 
   const onSubmit = function(e: any) {
     e.preventDefault();
@@ -41,11 +50,20 @@ export default function RegisterForm(props: PaperProps) {
       console.log(data)
       if (data.status === 200) {
         fetchData();
-        navigate(-1);
+        navigate("/");
       } else {
         console.log("bad")
       }
     })
+  }
+
+  if (userContext.isLogged) {
+    return (
+      <>
+        <div>You are already logged in.</div>
+        <Button onClick={logout}>Log out</Button>
+      </>
+    );
   }
 
   return (

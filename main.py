@@ -352,6 +352,12 @@ def send_ready_status(data):
     lobby_id: int = int(data["lobby_id"])
     ready_status: bool = data["ready_status"]
 
+    q = select(LobbyUser).where(LobbyUser.lobby_id == lobby_id, LobbyUser.user_id == current_user.id)
+    user: LobbyUser = db.session.scalars(q).one()
+
+    user.status = LobbyUserStatus.READY if ready_status else LobbyUserStatus.NOT_READY
+    db.session.commit()
+
     socketio.emit(
         "lobby_ready_status_",
         {"ready_status": ready_status, "username": current_user.username},
@@ -360,48 +366,6 @@ def send_ready_status(data):
     )
 
     print(lobby_id, ready_status)
-
-@socketio.on("ready")
-def handle_ready(data):
-    lobby_id: int = data["lobby_id"]
-    username: str = current_user.username
-    user_id: int = current_user.id
-
-    print(username, "is ready in lobby", lobby_id)
-
-    q = select(LobbyUser).where(LobbyUser.lobby_id == lobby_id, LobbyUser.user_id == user_id)
-    user: LobbyUser = db.session.scalars(q).one()
-
-    user.status = LobbyUserStatus.READY
-    db.session.commit()
-
-    socketio.emit(
-        "ready",
-        { "username": username },
-        room=lobby_id,
-        skip_sid=request.sid
-    )
-
-@socketio.on("unready")
-def handle_ready(data):
-    lobby_id = data["lobby_id"]
-    username = current_user.username
-    user_id = current_user.id
-
-    print(username, "clicked unready in lobby", lobby_id)
-
-    q = select(LobbyUser).where(LobbyUser.lobby_id == lobby_id, LobbyUser.user_id == user_id)
-    user: LobbyUser = db.session.scalars(q).one()
-
-    user.status = LobbyUserStatus.NOT_READY
-    db.session.commit()
-
-    socketio.emit(
-        "unready",
-        { "username": username },
-        room=lobby_id,
-        skip_sid=request.sid
-    )
 
 def create_scramble(size: int) -> Scramble:
     scramble_string: str = scrambler333.get_WCA_scramble()

@@ -140,15 +140,12 @@ export default function Lobby() {
         cube.onCamera(send_camera);
         socket.on("lobby_connection", onConnection);
         socket.on("lobby_disconnection", onDisconnection)
-        socket.on("lobby_move", onMove);
-        socket.on("lobby_camera", onCamera);
 
         return () => {
+            cube.remove_keyboard_controls();
             console.log("disconnection from socket...")
             socket.off("lobby_connection", onConnection);
             socket.off("lobby_disconnection", onDisconnection)
-            socket.off("lobby_move", onMove);
-            socket.off("lobby_camera", onCamera);
             socket.disconnect();
         };
     }, [])
@@ -163,8 +160,12 @@ export default function Lobby() {
 
     useEffect(() => {
         socket.on("lobby_ready_status_", onReadyChange);
+        socket.on("lobby_move", onMove);
+        socket.on("lobby_camera", onCamera);
         return () => {
             socket.off("lobby_ready_status_", onReadyChange);
+            socket.off("lobby_move", onMove);
+            socket.off("lobby_camera", onCamera);
         }
     })
 

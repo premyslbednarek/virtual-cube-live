@@ -37,6 +37,7 @@ export default class Cube {
     group!: THREE.Group
     tween!: TWEEN.Tween<THREE.Euler>
     mouseDownObject: any;
+    handler: any
 
     constructor(n: number, state: string="") {
         console.log("A NEW CUBE IS BEING CREATED");
@@ -166,14 +167,20 @@ export default class Cube {
         this.onMoveCallbacks.push(callback);
     }
 
-
     init_keyboard_controls() {
-        document.addEventListener("keydown", event => {
+        // We need to remove the event listener after page unload, for that
+        // we need to pass a named function into addEventListener.
+        this.handler = (event: any) => {
             let move_str = keybinds.get(event.key);
             if (move_str) {
                 this.makeKeyboardMove(move_str);
             }
-        });
+        }
+        document.addEventListener("keydown", this.handler);
+    }
+
+    remove_keyboard_controls() {
+        document.removeEventListener("keydown", this.handler);
     }
 
     init_mouse_moves() {

@@ -289,7 +289,7 @@ def create_connection(size, cube_id=None, lobby_id=None):
 @socketio.on("lobby_connect")
 def handle_lobby_conection(data):
     lobby_id: int = int(data["lobby_id"])
-    print("LOBBY CONNECTION", lobby_id)
+    print("LOBBY CONNECTION", lobby_id, current_user.username)
 
     # check whether the user has already joined the lobby
     q = select(LobbyUser).where(LobbyUser.user_id == current_user.id, LobbyUser.lobby_id == lobby_id)
@@ -298,7 +298,6 @@ def handle_lobby_conection(data):
         return {"code": 1}
 
     # add user to the lobby room
-    print(current_user.username, "has joined lobby", lobby_id)
     join_room(lobby_id)
 
     connection_id = create_connection(3, None, lobby_id)
@@ -316,7 +315,7 @@ def handle_lobby_conection(data):
     db.session.commit()
 
     # fetch usernames of users in the room
-    q = select(User.username).join(LobbyUser, User.id == LobbyUser.user_id).where(LobbyUser.lobby_id == lobby_id)
+    q = select(User.username).join(LobbyUser, User.id == LobbyUser.user_id).where(LobbyUser.lobby_id == lobby_id, User.username != current_user.username)
     usernames = db.session.scalars(q).all()
 
     # inform other users in the lobby about the connection
@@ -583,36 +582,35 @@ def lobby_camera(data):
 
 @socketio.event
 def connect():
+    print()
     print("SOCKET CONNECTION!")
     print(request.sid)
-    print()
 
 @socketio.event
 def disconnect():
+    print()
     print("SOCKET DC")
     print(request.sid)
-    print()
 
     # handle lobby disconnections
     q = select(SocketConnection).where(SocketConnection.socket_id == request.sid)
     conn: SocketConnection = db.session.scalars(q).one()
 
-    if (conn.lobby_id is not None):
+    if conn.lobby_id is not None:
+        print("Lobby disconnection", conn.lobby_id, current_user.username)
         q = select(LobbyUser).where(LobbyUser.user_id == conn.user_id, LobbyUser.lobby_id == conn.lobby_id)
         lobby_user: LobbyUser = db.session.scalar(q)
         lobby_user.current_connection_id = None
 
-
-    conn.disconnection_date = func.now()
-    db.session.commit()
-
-    if conn.lobby_id is not None:
         socketio.emit(
-            "lobby-disconnect",
+            "lobby_disconnection",
             { "username": current_user.username },
             room=conn.lobby_id
         )
 
+
+    conn.disconnection_date = func.now()
+    db.session.commit()
 
 if __name__ == '__main__':
     socketio.run(app, host="localhost", port=8080, debug=True)

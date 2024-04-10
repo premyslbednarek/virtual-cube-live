@@ -1,9 +1,13 @@
 import { useParams } from "react-router-dom"
 import { useRef, useEffect, useState } from "react"
 import Cube from "../cube/cube";
-import { Box } from "@mantine/core"
+import {
+    Box,
+    Grid
+} from "@mantine/core"
 import * as THREE from 'three';
 import { io } from "socket.io-client";
+import { socket } from "../socket";
 
 function CubeCanvas(props: any) {
     const canvasRef = useRef(null);
@@ -22,34 +26,81 @@ function CubeCanvas(props: any) {
 
 }
 
-export default function Lobby() {
-    const params = useParams();
-    const [socket, setSocket] = useState(null);
+function EnemyCubes({lobby_id} : {lobby_id : number}) {
+    const [enemies, setEnemies] = useState<Map<string, number>>(new Map());
+
+    const onConnection = ({username} : {username: string}) => {
+        console.log(username, "has joined the lobby");
+        setEnemies(new Map(enemies.set(username, 0)));
+    };
+
+    const onDisconnection = ({username} : {username: string}) => {
+        console.log(username, "has left the lobby");
+        console.log(enemies.delete(username));
+        setEnemies(new Map(enemies));
+    };
 
     useEffect(() => {
-        const socket = io();
-        socket.emit("lobby_connect", { lobby_id: params.lobby_id }, function(data: any) {
-            const status = data.code
-            if (status === 1) {
-                alert("You have already joined this lobby.");
-                return;
+        socket.emit("lobby_connect",
+            { lobby_id: lobby_id },
+            function(data: any) {
+                const status = data.code
+                if (status === 1) {
+                    alert("You have already joined this lobby.");
+                    return;
+                }
+
+                const m = new Map(enemies);
+                data.userList.forEach((username: string) => {
+                    m.set(username, 0);
+                });
+                setEnemies(m);
             }
+        )
+    }, []);
 
-            const userList = data.userList
-            userList.forEach((user: string) => { console.log(user)});
-        })
 
-        // setSocket(socket);
+    useEffect(() => {
+        socket.on("lobby_connection", onConnection);
+        socket.on("lobby_disconnection", onDisconnection)
 
-        return () => { socket.close() };
+        return () => {
+            socket.off("lobby_connection", onConnection);
+            socket.off("lobby_disconnection", onDisconnection)
+        }
     })
 
     return (
         <>
+            { [...enemies.keys()].map(enemy => <div key={enemy}>{enemy}</div>)}
+        </>
+    );
+}
+
+export default function Lobby() {
+    const params = useParams();
+
+    useEffect(() => {
+        socket.connect();
+        console.log("connection to socket...")
+
+        return () => {
+            console.log("disconnection from socket...")
+            socket.disconnect();
+        };
+    }, [])
+
+    return (
+        <>
             <p>{params.lobby_id}</p>
-            <Box>
-              <CubeCanvas lobby_id={params.lobby_id} />
-            </Box>
+            <Grid>
+              <Grid.Col span={9}>
+                <CubeCanvas lobby_id={params.lobby_id} />
+              </Grid.Col>
+              <Grid.Col span={3}>
+                <EnemyCubes lobby_id={params.lobby_id ? Number(params.lobby_id) : -1} />
+              </Grid.Col>
+            </Grid>
         </>
     );
 }

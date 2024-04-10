@@ -12,6 +12,11 @@ import { io } from "socket.io-client";
 import { socket } from "../socket";
 import './lobby.css'
 
+type Enemy = {
+    cube: Cube,
+    readyStatus: boolean
+}
+
 function RenderedCube({cube} : {cube: Cube}) {
     const containerRef = useRef(null);
 
@@ -24,55 +29,29 @@ function RenderedCube({cube} : {cube: Cube}) {
     );
 }
 
-function CubeCanvas(props: any) {
-    const canvasRef = useRef(null);
-    const lobby_id = props.lobby_id;
-
-    useEffect(() => {
-        props.cube.mount(canvasRef.current);
-    })
-
-    return <div style={{}}ref={canvasRef}></div>
-}
-
-function OurCube({lobby_id} : {lobby_id: number}) {
-    const [cube, setCube] = useState(new Cube(3));
-    cube.init_keyboard_controls();
-    cube.init_camera_controls();
-    cube.init_mouse_moves();
-
-    function send_move(move_str: string) {
-        const data = {
-            lobby_id: lobby_id,
-            move: move_str
-        }
-        socket.emit("lobby_move", data);
-    }
-
-    function send_camera(new_position: THREE.Vector3) {
-        const data = {
-            lobby_id: lobby_id,
-            position: new_position
-        }
-        socket.emit("lobby_camera", data);
-    }
-
-    cube.onMove(send_move);
-    cube.onCamera(send_camera);
-
+function DisplayEnemy({username, enemy} : {username: string, enemy: Enemy}) {
+    const readyColor = enemy.readyStatus ? "green" : "red";
+    const readyText = enemy.readyStatus ? "  READY" : "UNREADY"
     return (
-        <CubeCanvas cube={cube} />
+        <div key={username}>
+            <div className="absolute">
+                <Badge mt="sm" ml="sm" mr="sm">{username}</Badge>
+                <Badge color={readyColor}>{readyText}</Badge>
+            </div>
+            <RenderedCube cube={enemy.cube} />
+        </div>
     );
-
 }
 
-function EnemyCubes({lobby_id} : {lobby_id : number}) {
-    const [enemies, setEnemies] = useState<Map<string, Cube>>(new Map());
+export default function Lobby() {
+    const params = useParams();
+    const lobby_id = params.lobby_id;
 
-    const onConnection = ({username} : {username: string}) => {
-        console.log(username, "has joined the lobby");
-        setEnemies(new Map(enemies.set(username, new Cube(3))));
-    };
+    const [ready, setReady] = useState(false);
+    const [enemies, setEnemies] = useState<Map<string, Enemy>>(new Map());
+
+    const cube = useMemo(() => new Cube(3), []);
+
 
     const onDisconnection = ({username} : {username: string}) => {
         console.log(username, "has left the lobby");
@@ -85,7 +64,7 @@ function EnemyCubes({lobby_id} : {lobby_id : number}) {
         if (!cube) {
             return;
         }
-        cube.makeMove(move);
+        cube.cube.makeMove(move);
     }
 
     const onCamera = (data: any) => {
@@ -97,10 +76,33 @@ function EnemyCubes({lobby_id} : {lobby_id : number}) {
             return;
         }
 
-        cube.updateCamera(position);
+        cube.cube.updateCamera(position);
+    };
+
+    const onReadyChange = ({ready_status, username} : {ready_status: boolean, username: string}) => {
+        const updated = new Map(enemies);
+        console.log(enemies);
+        const enemy = updated.get(username);
+        if (!enemy) return;
+        enemy.readyStatus = ready_status;
+        console.log(enemies);
+        setEnemies(updated);
+    }
+
+    const onConnection = ({username} : {username: string}) => {
+        console.log(username, "has joined the lobby");
+        setEnemies(new Map(enemies.set(username, {cube: new Cube(3), readyStatus: false})));
     };
 
     useEffect(() => {
+        socket.connect();
+        console.log("connection to socket...")
+
+        cube.init_keyboard_controls();
+        cube.init_camera_controls();
+        cube.init_mouse_moves();
+
+
         socket.emit("lobby_connect",
             { lobby_id: lobby_id },
             function(data: any) {
@@ -112,63 +114,11 @@ function EnemyCubes({lobby_id} : {lobby_id : number}) {
 
                 const m = new Map(enemies);
                 data.userList.forEach((username: string) => {
-                    m.set(username, new Cube(3));
+                    m.set(username, {cube: new Cube(3), readyStatus: false});
                 });
                 setEnemies(m);
             }
         )
-    }, []);
-
-
-    useEffect(() => {
-        socket.on("lobby_connection", onConnection);
-        socket.on("lobby_disconnection", onDisconnection)
-        socket.on("lobby_move", onMove);
-        socket.on("lobby_camera", onCamera);
-
-        return () => {
-            socket.off("lobby_connection", onConnection);
-            socket.off("lobby_disconnection", onDisconnection)
-            socket.off("lobby_move", onMove);
-            socket.off("lobby_camera", onCamera);
-        }
-    })
-
-    return (
-        <>
-            { [...enemies.entries()].map(([username, cube]) => {
-                return (
-                    <div key={username}>
-                        <Badge className="absolute" mt="sm" ml="sm">{username}</Badge>
-                        <RenderedCube cube={cube} />
-                    </div>
-                );
-            })
-            }
-        </>
-    );
-}
-
-export default function Lobby() {
-    const params = useParams();
-    const lobby_id = params.lobby_id;
-
-    const [ready, setReady] = useState(false);
-
-    const cube = useMemo(() => new Cube(3), []);
-
-    const onReadyChange = (data: any) => {
-        console.log(data.username, "is", data.ready_status);
-    }
-
-    useEffect(() => {
-        socket.connect();
-        console.log("connection to socket...")
-        socket.on("lobby_ready_status_", onReadyChange)
-
-        cube.init_keyboard_controls();
-        cube.init_camera_controls();
-        cube.init_mouse_moves();
 
         function send_move(move_str: string) {
             const data = {
@@ -188,10 +138,17 @@ export default function Lobby() {
 
         cube.onMove(send_move);
         cube.onCamera(send_camera);
+        socket.on("lobby_connection", onConnection);
+        socket.on("lobby_disconnection", onDisconnection)
+        socket.on("lobby_move", onMove);
+        socket.on("lobby_camera", onCamera);
 
         return () => {
             console.log("disconnection from socket...")
-            socket.off("lobby_ready_status", onReadyChange)
+            socket.off("lobby_connection", onConnection);
+            socket.off("lobby_disconnection", onDisconnection)
+            socket.off("lobby_move", onMove);
+            socket.off("lobby_camera", onCamera);
             socket.disconnect();
         };
     }, [])
@@ -204,8 +161,15 @@ export default function Lobby() {
         setReady(!ready);
     }
 
+    useEffect(() => {
+        socket.on("lobby_ready_status_", onReadyChange);
+        return () => {
+            socket.off("lobby_ready_status_", onReadyChange);
+        }
+    })
+
     const readyColor = ready ? "green" : "red";
-    const readyText = (ready ? "  READY" : "UNREADY") + " (PRESS TO TOGGLE)";
+    const readyText = "YOU ARE " + (ready ? "  READY" : "UNREADY") + " (PRESS TO TOGGLE)";
 
 
     return (
@@ -219,10 +183,12 @@ export default function Lobby() {
             <Grid>
               <Grid.Col span={9}>
                 <RenderedCube cube={cube} />
-                {/* <OurCube lobby_id={params.lobby_id ? Number(params.lobby_id) : -1}/> */}
               </Grid.Col>
               <Grid.Col span={3}>
-                <EnemyCubes lobby_id={params.lobby_id ? Number(params.lobby_id) : -1} />
+             { [...enemies.entries()].map(([username, enemy]) => {
+                return <DisplayEnemy key={username} username={username} enemy={enemy} />
+             })
+             }
               </Grid.Col>
             </Grid>
             <div className="readyButton">

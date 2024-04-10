@@ -349,13 +349,13 @@ def handle_lobby_conection(data):
 
 @socketio.on("lobby_ready_status")
 def send_ready_status(data):
-    lobby_id: int = data["lobby_id"]
+    lobby_id: int = int(data["lobby_id"])
     ready_status: bool = data["ready_status"]
 
     socketio.emit(
         "lobby_ready_status_",
         {"ready_status": ready_status, "username": current_user.username},
-        # room=lobby_id,
+        room=lobby_id,
         skip_sid=request.sid
     )
 
@@ -634,6 +634,8 @@ def disconnect():
         q = select(LobbyUser).where(LobbyUser.user_id == conn.user_id, LobbyUser.lobby_id == conn.lobby_id)
         lobby_user: LobbyUser = db.session.scalar(q)
         lobby_user.current_connection_id = None
+
+        leave_room(conn.lobby_id)
 
         socketio.emit(
             "lobby_disconnection",

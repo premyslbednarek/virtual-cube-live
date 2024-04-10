@@ -39,6 +39,7 @@ export default class Cube {
     mouseDownObject: any;
 
     constructor(n: number, state: string="") {
+        console.log("A NEW CUBE IS BEING CREATED");
         this.n = n;
         this.speedMode = true;
         this.solved = true;

@@ -347,6 +347,20 @@ def handle_lobby_conection(data):
 
     return {"code": 0, "userList": usernames }
 
+@socketio.on("lobby_ready_status")
+def send_ready_status(data):
+    lobby_id: int = data["lobby_id"]
+    ready_status: bool = data["ready_status"]
+
+    socketio.emit(
+        "lobby_ready_status_",
+        {"ready_status": ready_status, "username": current_user.username},
+        # room=lobby_id,
+        skip_sid=request.sid
+    )
+
+    print(lobby_id, ready_status)
+
 @socketio.on("ready")
 def handle_ready(data):
     lobby_id: int = data["lobby_id"]

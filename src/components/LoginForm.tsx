@@ -19,9 +19,12 @@ import classes from './LoginForm.module.css';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from '@mantine/form';
 import { GoogleButton } from '../GoogleButton';
+import { useContext } from 'react';
+import { UserContext } from '../userContext';
 
 export default function LoginForm(props: PaperProps) {
   const navigate = useNavigate();
+  const {fetchData} = useContext(UserContext);
   const form = useForm({
     initialValues: {
       username: '',
@@ -37,6 +40,7 @@ export default function LoginForm(props: PaperProps) {
     }).then(data => {
       console.log(data)
       if (data.status === 200) {
+        fetchData();
         navigate(-1);
       } else {
         console.log("bad")

@@ -11,7 +11,7 @@ import * as THREE from 'three';
 import { io } from "socket.io-client";
 import { socket } from "../socket";
 import './lobby.css'
-import { UserContext, IUserContext } from "../userContext";
+import { UserContext, IUserInfo } from "../userContext";
 import { useContext } from "react";
 
 type Enemy = {
@@ -48,7 +48,7 @@ function DisplayEnemy({username, enemy} : {username: string, enemy: Enemy}) {
 export default function Lobby() {
     const params = useParams();
     const lobby_id = params.lobby_id;
-    const userContext = useContext(UserContext);
+    const { userContext, fetchData } = useContext(UserContext);
 
     const [ready, setReady] = useState(false);
     const [enemies, setEnemies] = useState<Map<string, Enemy>>(new Map());

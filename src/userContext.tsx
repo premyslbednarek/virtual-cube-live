@@ -1,28 +1,43 @@
 import React, { createContext, useState, useEffect } from "react"
 
-export interface IUserContext {
-    isLogged: boolean,
-    username: string
+export interface IUserInfo {
+    isLogged: boolean;
+    username: string;
 }
 
-const defaultContext: IUserContext = {
+export interface IUserContext {
+    userContext: IUserInfo;
+    fetchData: () => void;
+}
+
+const defaultUserInfo: IUserInfo = {
     isLogged: false,
     username: ""
 }
 
-export const UserContext = createContext(defaultContext)
+const defaultContext: IUserContext = {
+    userContext: defaultUserInfo,
+    fetchData: () => {}
+}
+
+export const UserContext = createContext<IUserContext>(defaultContext)
 
 export function UserContextProvider({children} : {children: React.ReactNode}) {
-    const [userContext, setUserContext] = useState<IUserContext>(defaultContext);
+    const [userContext, setUserContext] = useState<IUserInfo>(defaultUserInfo);
 
-    useEffect(() => {
-        fetch('/api/user_info').then(res => res.json()).then((data: IUserContext) => {
+    const fetchData = () => {
+        fetch('/api/user_info').then(res => res.json()).then((data: IUserInfo) => {
             setUserContext(data);
         })
+    }
+
+    useEffect(() => {
+        fetchData();
     }, [])
 
+
     return (
-        <UserContext.Provider value={userContext}>
+        <UserContext.Provider value={{userContext, fetchData}}>
             {children}
         </UserContext.Provider>
     );

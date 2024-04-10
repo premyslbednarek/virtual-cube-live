@@ -161,7 +161,7 @@ def register_post():
 
     if count != 0:
         flash("User with entered username already exists.")
-        return redirect(url_for("register"))
+        return "bad", 404
 
     # add new user to the database
     password_hash: str = generate_password_hash(password)
@@ -171,7 +171,7 @@ def register_post():
 
     login_user(new_user, remember=True)
     print("registration success")
-    return "ok"
+    return "ok", 200
 
 @app.route('/login', methods=["GET"])
 def login():
@@ -197,9 +197,11 @@ def login_post():
     return {"status": 200 }
 
 @app.route("/logout")
+@login_required
 def logout():
+    print(current_user.username, "logged out")
     logout_user()
-    return redirect("/")
+    return "ok", 200
 
 @app.route('/style/<path:path>')
 def style(path):

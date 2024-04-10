@@ -11,6 +11,7 @@ import {
 } from '@mantine/core';
 import CreateLobbyButton from './CreateLobby';
 import { socket } from '../socket';
+import UserInfo from './UserInfo';
 
 type LobbyInfo = {
   creator: string
@@ -71,20 +72,7 @@ export default function Home() {
     <Container>
       <h1>Welcome to Rubik's cube racing!</h1>
       <p>The current time is {currentTime}.</p>
-      <p>You are logged in as {username}</p>
-      <div style={{display: "flex"}}>
-        <Link to="/login">
-            <Button>
-            Login
-            </Button>
-        </Link>
-        <Space w="md" />
-        <Link to="/register">
-            <Button>
-            Register
-            </Button>
-        </Link>
-      </div>
+      <UserInfo />
       <Divider my="md" />
       <CreateLobbyButton />
 

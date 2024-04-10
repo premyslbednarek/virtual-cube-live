@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom"
+import { useParams, Link } from "react-router-dom"
 import { useRef, useEffect, useState } from "react"
 import Cube from "../cube/cube";
 import {
@@ -8,6 +8,7 @@ import {
 import * as THREE from 'three';
 import { io } from "socket.io-client";
 import { socket } from "../socket";
+import './lobby.css'
 
 function RenderedCube({cube} : {cube: Cube}) {
     const containerRef = useRef(null);
@@ -53,7 +54,7 @@ function CubeCanvas(props: any) {
         cube.onCamera(send_camera);
     })
 
-    return <div ref={canvasRef}></div>
+    return <div className="fhp" style={{"height": "80vh"}}ref={canvasRef}></div>
 
 }
 
@@ -154,16 +155,21 @@ export default function Lobby() {
     }, [])
 
     return (
-        <>
+        <div>
+          <div>
+            <Link className="App-link" to="/">Home</Link>
+            &nbsp;|&nbsp;
+            <Link className="App-link" to="/page2">Page2</Link>
+          </div>
             <p>{params.lobby_id}</p>
-            <Grid>
-              <Grid.Col span={9}>
+            <Grid className={"fhp"}>
+              <Grid.Col className={"fhp"} span={9}>
                 <CubeCanvas lobby_id={params.lobby_id} />
               </Grid.Col>
-              <Grid.Col span={3}>
+              <Grid.Col className={"fhp"} span={3}>
                 <EnemyCubes lobby_id={params.lobby_id ? Number(params.lobby_id) : -1} />
               </Grid.Col>
             </Grid>
-        </>
+        </div>
     );
 }

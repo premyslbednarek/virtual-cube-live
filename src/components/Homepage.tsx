@@ -22,9 +22,6 @@ export default function Home() {
   const [username, setUsername] = useState("");
   const [lobbies, setLobbies] = useState<LobbyInfo[]>([]);
 
-  const onLobbyAdd = (lobby: LobbyInfo) => {
-    setLobbies([...lobbies, lobby]);
-  }
 
   useEffect(() => {
     fetch('/api/time').then(res => res.json()).then(data => {
@@ -42,13 +39,23 @@ export default function Home() {
 
   useEffect(() => {
     socket.connect();
+
+    return () => {
+      socket.disconnect();
+    }
+  }, [])
+
+  useEffect(() => {
+    const onLobbyAdd = (lobby: LobbyInfo) => {
+      setLobbies([lobby, ...lobbies]);
+    }
+
     socket.on("lobby_add", onLobbyAdd);
 
     return () => {
       socket.off("lobby_add", onLobbyAdd)
-      socket.disconnect();
     }
-  }, [])
+  })
 
 
   const rows = lobbies.map((lobby: LobbyInfo) => (
@@ -80,6 +87,8 @@ export default function Home() {
       </div>
       <Divider my="md" />
       <CreateLobbyButton />
+
+      <Divider my="md" />
 
       <Container>
         <Table>

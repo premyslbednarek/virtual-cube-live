@@ -34,11 +34,6 @@ function App() {
     <div className="App">
       <header className="App-header">
         <BrowserRouter>
-          <div>
-            <Link className="App-link" to="/">Home</Link>
-            &nbsp;|&nbsp;
-            <Link className="App-link" to="/page2">Page2</Link>
-          </div>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<LoginForm />} />

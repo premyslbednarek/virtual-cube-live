@@ -24,7 +24,7 @@ with app.app_context():
     db.create_all()
 
 # https://github.com/miguelgrinberg/Flask-SocketIO/issues/1356#issuecomment-681830773
-socketio = SocketIO(app, cors_allowed_origins="*", engineio_logger=True)
+socketio = SocketIO(app, cors_allowed_origins="*", engineio_logger=False)
 
 sidToName = {}
 i = 0

@@ -11,6 +11,8 @@ import * as THREE from 'three';
 import { io } from "socket.io-client";
 import { socket } from "../socket";
 import './lobby.css'
+import { UserContext, IUserContext } from "../userContext";
+import { useContext } from "react";
 
 type Enemy = {
     cube: Cube,
@@ -46,6 +48,7 @@ function DisplayEnemy({username, enemy} : {username: string, enemy: Enemy}) {
 export default function Lobby() {
     const params = useParams();
     const lobby_id = params.lobby_id;
+    const userContext = useContext(UserContext);
 
     const [ready, setReady] = useState(false);
     const [enemies, setEnemies] = useState<Map<string, Enemy>>(new Map());
@@ -180,7 +183,7 @@ export default function Lobby() {
             &nbsp;|&nbsp;
             <Link className="App-link" to="/page2">Page2</Link>
           </div>
-            <p>{params.lobby_id}</p>
+            <p>{params.lobby_id} {userContext.username}</p>
             <Grid>
               <Grid.Col span={9}>
                 <RenderedCube cube={cube} />

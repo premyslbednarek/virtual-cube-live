@@ -36,11 +36,10 @@ def get_current_time():
 
 @app.route('/api/user_info')
 def get_user_info():
-    if current_user.is_authenticated:
-        username = current_user.username
-    else:
-        username = "Anonymous"
-    return {'username': username }
+    return {
+        "isLogged": current_user.is_authenticated,
+        "username": current_user.username if current_user.is_authenticated else ""
+    }
 
 @app.route("/api/get_lobbies")
 def get_lobbies():

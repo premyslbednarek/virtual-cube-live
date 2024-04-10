@@ -22,6 +22,7 @@ import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
 import Home from './components/Homepage';
 import Lobby from './components/Lobby';
+import { UserContextProvider } from './userContext';
 
 function Page2() {
   return (
@@ -31,19 +32,21 @@ function Page2() {
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<LoginForm />} />
-            <Route path="/page2" element={<Page2 />} />
-            <Route path="/register" element={<RegisterForm />} />
-            <Route path="/lobby/:lobby_id" element={<Lobby />} />
-          </Routes>
-        </BrowserRouter>
-      </header>
-    </div>
+    <UserContextProvider>
+      <div className="App">
+        <header className="App-header">
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<LoginForm />} />
+              <Route path="/page2" element={<Page2 />} />
+              <Route path="/register" element={<RegisterForm />} />
+              <Route path="/lobby/:lobby_id" element={<Lobby />} />
+            </Routes>
+          </BrowserRouter>
+        </header>
+      </div>
+    </UserContextProvider>
   );
 }
 

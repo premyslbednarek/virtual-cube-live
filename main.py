@@ -24,7 +24,7 @@ with app.app_context():
     db.create_all()
 
 # https://github.com/miguelgrinberg/Flask-SocketIO/issues/1356#issuecomment-681830773
-socketio = SocketIO(app, cors_allowed_origins="*", engineio_logger=False)
+socketio = SocketIO(app, cors_allowed_origins="*", engineio_logger=True)
 
 sidToName = {}
 i = 0
@@ -470,7 +470,7 @@ def startLobby(data):
 @socketio.on("lobby_move")
 def lobby_move(data):
     now = datetime.now()
-    lobby_id: int = data["lobby_id"]
+    lobby_id: int = int(data["lobby_id"])
     move: str = data["move"]
 
     print(current_user.username, "in lobby", lobby_id, "has made a ", move, "move")
@@ -547,7 +547,7 @@ def lobby_move(data):
 
 @socketio.on("lobby_camera")
 def lobby_camera(data):
-    lobby_id = data["lobby_id"]
+    lobby_id = int(data["lobby_id"])
     position = data["position"]
 
     socketio.emit(

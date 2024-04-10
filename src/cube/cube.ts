@@ -38,7 +38,7 @@ export default class Cube {
     tween!: TWEEN.Tween<THREE.Euler>
     mouseDownObject: any;
 
-    constructor(n: number, canvas: HTMLCanvasElement, state: string="") {
+    constructor(n: number, state: string="") {
         this.n = n;
         this.speedMode = true;
         this.solved = true;
@@ -46,7 +46,7 @@ export default class Cube {
         this.onCameraCallbacks = [];
         this.onMoveCallbacks = [];
 
-        this.init_scene(canvas);
+        this.init_scene();
 
         this.resizeCanvas();
         window.addEventListener("resize", () => this.resizeCanvas(), false);
@@ -85,16 +85,20 @@ export default class Cube {
         return state;
     }
 
-    init_scene(canvas: HTMLCanvasElement) {
+    init_scene() {
         this.scene = new THREE.Scene();
-        this.canvas = canvas;
+        this.renderer = new THREE.WebGLRenderer({antialias: true });
+        this.canvas = this.renderer.domElement;
         this.camera = new THREE.PerspectiveCamera(
             75,
-            canvas.clientWidth / canvas.clientHeight,
+            window.innerWidth / window.innerHeight,
             0.1,
             1000
         );
-        this.renderer = new THREE.WebGLRenderer({antialias: true, canvas});
+    }
+
+    mount(container: any) {
+        container.appendChild(this.canvas);
     }
 
     init_internal_state() {
@@ -176,11 +180,11 @@ export default class Cube {
     }
 
     resizeCanvas() {
-        const canvas = this.renderer.domElement;
-        this.renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
-        this.camera.aspect = canvas.clientWidth / canvas.clientHeight;
-        this.camera.updateProjectionMatrix(); // must be called after changing camera's properties
-        this.render();
+        // const canvas = this.renderer.domElement;
+        // this.renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+        // this.camera.aspect = canvas.clientWidth / canvas.clientHeight;
+        // this.camera.updateProjectionMatrix(); // must be called after changing camera's properties
+        // this.render();
     }
 
     render() {

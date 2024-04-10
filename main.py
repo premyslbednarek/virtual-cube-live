@@ -49,7 +49,13 @@ def api_lobby_create():
     db.session.add(lobby)
     db.session.commit()
 
+
     lobby_id: int = lobby.id
+
+    socketio.emit(
+        "lobby_add",
+        {"creator": current_user.username, "lobby_id": lobby_id }
+    )
     return { "lobby_id": lobby_id }
 
 @login_manager.user_loader

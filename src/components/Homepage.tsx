@@ -6,14 +6,25 @@ import {
   Space,
   Container,
   Center,
-  Divider
+  Divider,
+  Table
 } from '@mantine/core';
-import { io } from 'socket.io-client';
 import CreateLobbyButton from './CreateLobby';
+import { socket } from '../socket';
+
+type LobbyInfo = {
+  creator: string
+  lobby_id: number
+}
 
 export default function Home() {
   const [currentTime, setCurrentTime] = useState(0);
   const [username, setUsername] = useState("");
+  const [lobbies, setLobbies] = useState<LobbyInfo[]>([]);
+
+  const onLobbyAdd = (lobby: LobbyInfo) => {
+    setLobbies([...lobbies, lobby]);
+  }
 
   useEffect(() => {
     fetch('/api/time').then(res => res.json()).then(data => {
@@ -23,11 +34,26 @@ export default function Home() {
     fetch('/api/user_info').then(res => res.json()).then(data => {
       setUsername(data.username);
     })
-
-    const conn = io();
-    conn.close();
   }, []);
 
+  useEffect(() => {
+    socket.connect();
+    socket.on("lobby_add", onLobbyAdd);
+
+    return () => {
+      socket.off("lobby_add", onLobbyAdd)
+      socket.disconnect();
+    }
+  }, [])
+
+
+  const rows = lobbies.map((lobby: LobbyInfo) => (
+    <Table.Tr key={lobby.lobby_id}>
+      <Table.Td>{lobby.creator}</Table.Td>
+      <Table.Td>{lobby.lobby_id}</Table.Td>
+      <Table.Td><Link to={"/lobby/" + lobby.lobby_id}>Join</Link></Table.Td>
+    </Table.Tr>
+  ))
 
   return (
     <Center>
@@ -50,7 +76,22 @@ export default function Home() {
       </div>
       <Divider my="md" />
       <CreateLobbyButton />
+
+      <Container>
+        <Table>
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th>Lobby creator</Table.Th>
+              <Table.Th>Lobby id</Table.Th>
+              <Table.Th>Lobby join link</Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>{rows}</Table.Tbody>
+        </Table>
+
+      </Container>
     </Container>
+
     </Center>
   );
 }

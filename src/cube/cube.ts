@@ -296,8 +296,8 @@ export default class Cube {
 
         // visualize the axes
         // X is red, Y is green, Z is blue
-        const axesHelper = new THREE.AxesHelper( 10 );
-        this.scene.add( axesHelper );
+        // const axesHelper = new THREE.AxesHelper( 10 );
+        // this.scene.add( axesHelper );
 
         for (const group of this.cubies) {
             this.scene.add(group);

@@ -78,16 +78,24 @@ def load_user(user_id):
 def dev():
     return render_template("test.html")
 
-@app.route("/solve/<int:solve_id>")
-def solve(solve_id):
+@app.route("/api/solve/<int:solve_id>")
+def solve(solve_id: int):
     solve = db.session.get(Solve, solve_id)
     if solve is None:
         abort(404)
 
-    q = select(SolveMove.move, SolveMove.since_start).where(SolveMove.solve_id == solve_id)
-    moves = db.session.execute(q).all()
+    moves_result = db.session.execute(
+        select(
+            SolveMove.move,
+            SolveMove.since_start
+        ).where(
+            SolveMove.solve_id == solve_id
+        )
+    ).all()
 
-    camera_changes = db.session.execute(
+    moves = [{"move": move, "sinceStart": sinceStart} for move, sinceStart in moves_result]
+
+    camera_changes_result = db.session.execute(
         select(
             CameraChange.x,
             CameraChange.y,
@@ -98,14 +106,17 @@ def solve(solve_id):
         )
     ).all()
 
-    print("SCRAMBLE", solve.scramble.scramble_string)
-    return render_template(
-        "solve.html",
-        cube_size=solve.scramble.cube_size,
-        scramble=solve.scramble.scramble_string,
-        moves=list(map(lambda row: tuple(row), moves)),
-        camera_changes=list(map(lambda row: tuple(row), camera_changes))
-    )
+    camera_changes = [
+        {"x": x, "y": y, "z": z, "sinceStart": sinceStart}
+        for x, y, z, sinceStart in camera_changes_result
+    ]
+
+    return {
+        "cube_size": solve.scramble.cube_size,
+        "scramble": solve.scramble.scramble_string,
+        "moves": moves,
+        "camera_changes": camera_changes
+    }
 
 @app.route("/lobby/")
 def lobby_index():

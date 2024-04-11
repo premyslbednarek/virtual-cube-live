@@ -21,7 +21,7 @@ type Enemy = {
     readyStatus: boolean
 }
 
-function RenderedCube({cube, style} : {cube: Cube, style?: React.CSSProperties}) {
+export function RenderedCube({cube, style} : {cube: Cube, style?: React.CSSProperties}) {
     const containerRef = useRef(null);
 
     useEffect(() => {

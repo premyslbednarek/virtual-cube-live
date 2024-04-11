@@ -22,6 +22,7 @@ import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
 import Home from './components/Homepage';
 import Lobby from './components/Lobby';
+import Replay from './components/Replay';
 import { UserContextProvider } from './userContext';
 
 function Page2() {
@@ -42,6 +43,7 @@ function App() {
               <Route path="/page2" element={<Page2 />} />
               <Route path="/register" element={<RegisterForm />} />
               <Route path="/lobby/:lobby_id" element={<Lobby />} />
+              <Route path="/replay/:solveId" element={<Replay />} />
             </Routes>
           </BrowserRouter>
         </header>

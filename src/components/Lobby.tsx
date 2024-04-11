@@ -18,21 +18,22 @@ import { socket } from "../socket";
 import './lobby.css'
 import { UserContext, IUserInfo } from "../userContext";
 import { useContext } from "react";
+import { Timer, CountdownTimer, Timer_ } from "../cube/timer"
 
 type Enemy = {
     cube: Cube,
     readyStatus: boolean
 }
 
-function RenderedCube({cube} : {cube: Cube}) {
+function RenderedCube({cube, style} : {cube: Cube, style?: React.CSSProperties}) {
     const containerRef = useRef(null);
 
     useEffect(() => {
         cube.mount(containerRef.current);
-    })
+    }, [])
 
     return (
-        <div ref={containerRef}></div>
+        <div ref={containerRef} style={style}></div>
     );
 }
 
@@ -50,6 +51,16 @@ function DisplayEnemy({username, enemy} : {username: string, enemy: Enemy}) {
     );
 }
 
+function TimerDisplay({timer1, timer2} : {timer1: Timer_, timer2: Timer_}) {
+    const containerRef = useRef(null);
+    useEffect(() => {
+        timer1.mount(containerRef.current);
+        timer2.mount(containerRef.current);
+    })
+    return <div style={{fontSize: "40px", textAlign: "center"}} ref={containerRef}></div>
+}
+
+
 export default function Lobby() {
     const params = useParams();
     const lobby_id = params.lobby_id;
@@ -58,9 +69,11 @@ export default function Lobby() {
     const [ready, setReady] = useState(false);
     const [enemies, setEnemies] = useState<Map<string, Enemy>>(new Map());
     const [isAdmin, setIsAdmin] = useState(false);
+    const [inSolve, setInSolve] = useState(false);
 
     const cube = useMemo(() => new Cube(3), []);
-
+    const timer = useMemo(() => new Timer(), []);
+    const countdownTimer = useMemo(() => new CountdownTimer(), []);
 
     const onDisconnection = ({username} : {username: string}) => {
         console.log(username, "has left the lobby");
@@ -102,6 +115,41 @@ export default function Lobby() {
         console.log(username, "has joined the lobby");
         setEnemies(new Map(enemies.set(username, {cube: new Cube(3), readyStatus: false})));
     };
+
+    type MatchStartData = {
+        state: string;
+        startTime: string;
+    }
+
+    const onMatchStart = ({state, startTime} : MatchStartData) => {
+        console.log(state, new Date(startTime));
+
+        for (const enemy of enemies.values()) {
+            enemy.cube.setState(state);
+        }
+
+        const updatedEnemies = new Map(enemies);
+        for (const enemy of updatedEnemies.values()) {
+            enemy.readyStatus = false;
+        }
+
+        setInSolve(true);
+        setReady(false);
+        setEnemies(updatedEnemies);
+        cube.setState(state);
+        cube.startInspection();
+        countdownTimer.start(new Date(startTime));
+        countdownTimer.onTarget(() => {
+            cube.startSolve();
+            timer.start();
+        })
+    }
+
+    const onSolved = () => {
+        timer.stop();
+        // setInSolve(false);
+    }
+
 
     useEffect(() => {
         socket.connect();
@@ -170,16 +218,20 @@ export default function Lobby() {
 
     useEffect(() => {
         socket.on("lobby_ready_status_", onReadyChange);
+        socket.on("you_solved", onSolved);
         socket.on("lobby_move", onMove);
         socket.on("lobby_camera", onCamera);
         socket.on("lobby_connection", onConnection);
         socket.on("lobby_disconnection", onDisconnection)
+        socket.on("match_start", onMatchStart);
         return () => {
             socket.off("lobby_connection", onConnection);
+            socket.off("you_solved", onSolved);
             socket.off("lobby_disconnection", onDisconnection)
             socket.off("lobby_ready_status_", onReadyChange);
             socket.off("lobby_move", onMove);
             socket.off("lobby_camera", onCamera);
+            socket.off("match_start", onMatchStart);
         }
     })
 
@@ -195,6 +247,12 @@ export default function Lobby() {
         return ready;
     }
 
+    function startLobby(force: boolean) : void {
+        socket.emit(
+            "lobby_start",
+            { lobby_id: lobby_id, force: force }
+        )
+    }
 
     return (
         <div>
@@ -206,7 +264,7 @@ export default function Lobby() {
             <p>{params.lobby_id} {userContext.username}</p>
             <Grid>
               <Grid.Col span={9}>
-                <RenderedCube cube={cube} />
+                <RenderedCube cube={cube} style={{height: "500px"}}/>
               </Grid.Col>
               <Grid.Col span={3}>
              { [...enemies.entries()].map(([username, enemy]) => {
@@ -224,22 +282,33 @@ export default function Lobby() {
             <div style={{position: "absolute", bottom: 0, width: "100%"}}>
                 <Center mb="20">
                     <Stack>
-                        <div>
-                            <Center>
-                                <Button color={readyColor} onClick={onReadyClick}>{readyText}</Button>
-                            </Center>
-                        </div>
-                        <div>
-                            {
-                                isAdmin ? <Center>
-                                <div style={{display: "flex"}}>
-                                    <Button disabled={!allReady()}>Start lobby</Button>
-                                    <Space w="md" />
-                                    <Button>Start lobby (force)</Button>
+                        {
+                            inSolve ?
+                            <TimerDisplay timer1={timer} timer2={countdownTimer} />
+                            : ""
+                        }
+                        {
+                            !inSolve ?
+                            <>
+                                <div>
+                                    <Center>
+                                        <Button color={readyColor} onClick={onReadyClick}>{readyText}</Button>
+                                    </Center>
                                 </div>
-                            </Center> : ""
-                            }
-                        </div>
+                                <div>
+                                    {
+                                        isAdmin ? <Center>
+                                        <div style={{display: "flex"}}>
+                                            <Button disabled={!allReady()} onClick={() => startLobby(false)}>Start lobby</Button>
+                                            <Space w="md" />
+                                            <Button onClick={() => startLobby(true)}>Start lobby (force)</Button>
+                                        </div>
+                                    </Center> : ""
+                                    }
+                                </div>
+                            </>
+                            : ""
+                        }
                     </Stack>
                 </Center>
             </div>

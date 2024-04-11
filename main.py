@@ -389,24 +389,24 @@ def create_scramble(size: int) -> Scramble:
     return scramble
 
 
+@socketio.on("lobby_start")
+def lobby_start_request(data):
+    lobby_id = int(data["lobby_id"])
+    force = bool(data["force"])
 
-@socketio.on("startLobby")
-def startLobby(data):
-    lobby_id = data["lobby_id"]
+    print(current_user.username, "wants to start lobby with id:", lobby_id)
 
     lobby: Lobby = db.session.get(Lobby, lobby_id)
-    print(current_user.username, "wants to start lobby with id", lobby_id)
 
+    # check whether the user is the lobby creator or admin of the lobby
     q = select(LobbyUser).where(LobbyUser.lobby_id == lobby_id, LobbyUser.user_id == current_user.id)
     user: LobbyUser = db.session.scalars(q).one()
 
-    q = select(Lobby.creator_id).where(Lobby.id == lobby_id)
-    creator_id: Lobby = db.session.scalars(q).one()
-
-    if (user.role != LobbyRole.ADMIN and creator_id != current_user.id):
+    if (user.role != LobbyRole.ADMIN and lobby.creator_id != current_user.id):
         print("Somebody else than the room admin and creator tried to start the match")
         return
 
+    # check whether all connected users are ready
     q = select(LobbyUser).where(LobbyUser.lobby_id == lobby_id)
     users: List[LobbyUser] = db.session.scalars(q).all()
 
@@ -415,10 +415,11 @@ def startLobby(data):
     for user in users:
         if user.current_connection is not None:
             racers_count += 1
-            if user.status != LobbyUserStatus.READY:
+            if not force and user.status != LobbyUserStatus.READY:
                 print(user.user_id, "is not ready")
                 return
 
+    # everybody is ready, start the race
     scramble: Scramble = create_scramble(lobby.cube_size)
 
     race = Race(
@@ -461,12 +462,12 @@ def startLobby(data):
         "match_start",
         {
             "state": scramble.cube_state.decode("UTF-8"),
-            "scramble": scramble.scramble_string,
             "startTime": solve_startdate.isoformat()
         },
         room=lobby_id
     )
-    print("everyone is ready, starting the match")
+
+    print("starting the match...")
 
 @socketio.on("lobby_move")
 def lobby_move(data):
@@ -540,7 +541,13 @@ def lobby_move(data):
             "solved",
             { "username": current_user.username },
             room=lobby_id,
-            # skip_sid=request.sid
+            skip_sid=request.sid
+        )
+
+        socketio.emit(
+            "you_solved",
+            room=lobby_id,
+            to=request.sid
         )
 
     db.session.commit()

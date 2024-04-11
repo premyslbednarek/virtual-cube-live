@@ -1,13 +1,17 @@
 const MS_IN_SECOND = 1000;
 const SEC_IN_MINUTE = 60;
 
-abstract class Timer_ {
-    domElement: HTMLElement
+export abstract class Timer_ {
+    domElement: HTMLElement | undefined
     running: boolean
 
-    constructor(domElement: HTMLElement) {
-        this.domElement = domElement;
+    constructor() {
         this.running = false;
+    }
+
+    mount(domElement: HTMLElement | null) {
+        if (domElement == null) return;
+        this.domElement = domElement;
     }
 
     stop() {
@@ -18,8 +22,7 @@ abstract class Timer_ {
     }
 
     updateDom() {
-        if (this.domElement == undefined) return;
-
+        if (this.domElement === undefined) return;
         this.domElement.innerHTML = this.pretty();
     }
 
@@ -85,11 +88,13 @@ export class CountdownTimer extends Timer_ {
 
     update() {
         if (this.getTimeMS() < 0) {
-            this.domElement.innerHTML = "Time's up!"
-            for (const callback of this.onTargetCallbacks) {
-                callback();
+            if (this.domElement) {
+                this.domElement.innerHTML = "Time's up!"
+                for (const callback of this.onTargetCallbacks) {
+                    callback();
+                }
+                return;
             }
-            return;
         };
 
         super.update();

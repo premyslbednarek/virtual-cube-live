@@ -322,6 +322,9 @@ def handle_lobby_conection(data):
 
     connection_id = create_connection(3, None, lobby_id)
 
+    lobby: Lobby = db.session.get(Lobby, lobby_id)
+    is_admin: bool = lobby.creator_id == current_user.id
+
     # add connection to the database
     if not lobbyuser:
         lobbyuser = LobbyUser(
@@ -346,7 +349,7 @@ def handle_lobby_conection(data):
         skip_sid=request.sid
     )
 
-    return {"code": 0, "userList": usernames }
+    return {"code": 0, "userList": usernames, "isAdmin": is_admin }
 
 @socketio.on("lobby_ready_status")
 def send_ready_status(data):

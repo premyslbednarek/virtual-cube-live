@@ -5,7 +5,12 @@ import {
     Box,
     Grid,
     Badge,
-    Button
+    Button,
+    Container,
+    Center,
+    Text,
+    Stack,
+    Space
 } from "@mantine/core"
 import * as THREE from 'three';
 import { io } from "socket.io-client";
@@ -52,6 +57,7 @@ export default function Lobby() {
 
     const [ready, setReady] = useState(false);
     const [enemies, setEnemies] = useState<Map<string, Enemy>>(new Map());
+    const [isAdmin, setIsAdmin] = useState(false);
 
     const cube = useMemo(() => new Cube(3), []);
 
@@ -105,21 +111,26 @@ export default function Lobby() {
         cube.init_camera_controls();
         cube.init_mouse_moves();
 
+        interface ILobbyConnectResponse {
+            code: number;
+            userList: string[];
+            isAdmin: boolean;
+        }
 
         socket.emit("lobby_connect",
             { lobby_id: lobby_id },
-            function(data: any) {
-                const status = data.code
-                if (status === 1) {
+            function(response: ILobbyConnectResponse) {
+                if (response.code === 1) {
                     alert("You have already joined this lobby.");
                     return;
                 }
 
                 const m = new Map(enemies);
-                data.userList.forEach((username: string) => {
+                response.userList.forEach((username: string) => {
                     m.set(username, {cube: new Cube(3), readyStatus: false});
                 });
                 setEnemies(m);
+                setIsAdmin(response.isAdmin);
             }
         )
 
@@ -141,14 +152,10 @@ export default function Lobby() {
 
         cube.onMove(send_move);
         cube.onCamera(send_camera);
-        socket.on("lobby_connection", onConnection);
-        socket.on("lobby_disconnection", onDisconnection)
 
         return () => {
             cube.remove_keyboard_controls();
             console.log("disconnection from socket...")
-            socket.off("lobby_connection", onConnection);
-            socket.off("lobby_disconnection", onDisconnection)
             socket.disconnect();
         };
     }, [])
@@ -165,7 +172,11 @@ export default function Lobby() {
         socket.on("lobby_ready_status_", onReadyChange);
         socket.on("lobby_move", onMove);
         socket.on("lobby_camera", onCamera);
+        socket.on("lobby_connection", onConnection);
+        socket.on("lobby_disconnection", onDisconnection)
         return () => {
+            socket.off("lobby_connection", onConnection);
+            socket.off("lobby_disconnection", onDisconnection)
             socket.off("lobby_ready_status_", onReadyChange);
             socket.off("lobby_move", onMove);
             socket.off("lobby_camera", onCamera);
@@ -195,8 +206,33 @@ export default function Lobby() {
              }
               </Grid.Col>
             </Grid>
-            <div className="readyButton">
+            {/* <div className="readyButton">
                 <Button color={readyColor} onClick={onReadyClick}>{readyText}</Button>
+            </div> */}
+
+
+            {/* bottom info panel */}
+            <div style={{position: "absolute", bottom: 0, width: "100%"}}>
+                <Center mb="20">
+                    <Stack>
+                        <div>
+                            <Center>
+                                <Button color={readyColor} onClick={onReadyClick}>{readyText}</Button>
+                            </Center>
+                        </div>
+                        <div>
+                            {
+                                isAdmin ? <Center>
+                                <div style={{display: "flex"}}>
+                                    <Button disabled>Start lobby</Button>
+                                    <Space w="md" />
+                                    <Button>Start lobby (force)</Button>
+                                </div>
+                            </Center> : ""
+                            }
+                        </div>
+                    </Stack>
+                </Center>
             </div>
         </div>
     );

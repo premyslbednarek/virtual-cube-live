@@ -80,7 +80,7 @@ export class CountdownTimer extends Timer_ {
     }
 
     onTarget(callback: () => void) {
-        if (this.onTargetCallbacks == undefined) {
+        if (this.onTargetCallbacks === undefined) {
             this.onTargetCallbacks = [];
         }
         this.onTargetCallbacks.push(callback);

@@ -2,21 +2,17 @@ import { useParams, Link } from "react-router-dom"
 import React, { useRef, useEffect, useState, useMemo } from "react"
 import Cube from "../cube/cube";
 import {
-    Box,
     Grid,
     Badge,
     Button,
-    Container,
     Center,
-    Text,
     Stack,
     Space
 } from "@mantine/core"
 import * as THREE from 'three';
-import { io } from "socket.io-client";
 import { socket } from "../socket";
 import './lobby.css'
-import { UserContext, IUserInfo } from "../userContext";
+import { UserContext } from "../userContext";
 import { useContext } from "react";
 import { Timer, CountdownTimer, Timer_ } from "../cube/timer"
 
@@ -30,7 +26,7 @@ function RenderedCube({cube, style} : {cube: Cube, style?: React.CSSProperties})
 
     useEffect(() => {
         cube.mount(containerRef.current);
-    }, [])
+    }, [cube])
 
     return (
         <div ref={containerRef} style={style}></div>
@@ -64,7 +60,7 @@ function TimerDisplay({timer1, timer2} : {timer1: Timer_, timer2: Timer_}) {
 export default function Lobby() {
     const params = useParams();
     const lobby_id = params.lobby_id;
-    const { userContext, fetchData } = useContext(UserContext);
+    const { userContext } = useContext(UserContext);
 
     const [ready, setReady] = useState(false);
     const [enemies, setEnemies] = useState<Map<string, Enemy>>(new Map());
@@ -150,7 +146,6 @@ export default function Lobby() {
         // setInSolve(false);
     }
 
-
     useEffect(() => {
         socket.connect();
         console.log("connection to socket...")
@@ -206,7 +201,8 @@ export default function Lobby() {
             console.log("disconnection from socket...")
             socket.disconnect();
         };
-    }, [])
+        // eslint-disable-next-line
+    }, [cube])
 
     const onReadyClick = () => {
         socket.emit(

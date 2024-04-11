@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 // import './App.css';
 import {
-  Button,
-  Space,
   Container,
   Center,
   Divider,
@@ -20,6 +18,7 @@ type LobbyInfo = {
 
 export default function Home() {
   const [currentTime, setCurrentTime] = useState(0);
+  // eslint-disable-next-line
   const [username, setUsername] = useState("");
   const [lobbies, setLobbies] = useState<LobbyInfo[]>([]);
 

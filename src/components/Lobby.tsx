@@ -186,6 +186,15 @@ export default function Lobby() {
     const readyColor = ready ? "green" : "red";
     const readyText = "YOU ARE " + (ready ? "  READY" : "UNREADY") + " (PRESS TO TOGGLE)";
 
+    function allReady() : boolean {
+        for (const enemy of enemies.values()) {
+            if (!enemy.readyStatus) {
+                return false;
+            }
+        }
+        return ready;
+    }
+
 
     return (
         <div>
@@ -224,7 +233,7 @@ export default function Lobby() {
                             {
                                 isAdmin ? <Center>
                                 <div style={{display: "flex"}}>
-                                    <Button disabled>Start lobby</Button>
+                                    <Button disabled={!allReady()}>Start lobby</Button>
                                     <Space w="md" />
                                     <Button>Start lobby (force)</Button>
                                 </div>

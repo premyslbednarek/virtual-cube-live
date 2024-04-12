@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom"
 import { RenderedCube } from "./Lobby";
-import { Button, Text, Space, Slider, ActionIcon, Center, Tooltip } from "@mantine/core";
+import { Button, Text, Space, Slider, ActionIcon, Center, Tooltip, Flex } from "@mantine/core";
 import Cube from "../cube/cube";
 import useFetch from "@custom-react-hooks/use-fetch";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -231,9 +231,13 @@ export default function Replay() {
                     <div>Use spacebar, left and right arrows to navigate the solve</div>
 
                     <div>
-                        <ActionIcon onClick={decreasePlaybackSpeed}><IconMinus /></ActionIcon>
-                        { (playbackSpeed).toFixed(2) }x
-                        <ActionIcon onClick={increasePlaybackSpeed}><IconPlus /></ActionIcon>
+                        <Flex align="center" justify="center">
+                            <ActionIcon onClick={decreasePlaybackSpeed}><IconMinus /></ActionIcon>
+                            <Text>
+                            { (playbackSpeed).toFixed(2) }x
+                            </Text>
+                            <ActionIcon onClick={increasePlaybackSpeed}><IconPlus /></ActionIcon>
+                        </Flex>
                     </div>
                 </div>
             </div>

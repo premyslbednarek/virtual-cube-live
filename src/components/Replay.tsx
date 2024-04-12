@@ -64,7 +64,16 @@ export default function Replay() {
     const cube = useMemo(() => new Cube(solve.cube_size), [])
     const navigate = useNavigate();
 
+    function changeTime(delta: number) {
+        let newTime = time + delta;
+        if (newTime < 0) newTime = 0;
+        if (newTime > solve.time) newTime = solve.time;
+        onSliderValueChange(newTime);
+    }
+
     useHotkeys("space", () => setPaused(paused => !paused));
+    useHotkeys("left", () =>  changeTime(-1000), [time]);
+    useHotkeys("right", () => changeTime(1000), [time]);
 
     async function replayCamera() {
         let lastTimeC = 0;
@@ -188,7 +197,7 @@ export default function Replay() {
 
             </div>
             <RenderedCube cube={cube} style={{height: "100vh"}}/>
-            <div style={{position: "absolute", width: "100vw", bottom: "8vh", textAlign: "center"}}>
+            <div style={{position: "absolute", width: "100vw", bottom: "2vh", textAlign: "center"}}>
                 <div style={{ width: "80%", margin: "0 auto"}}>
                     <div>Time: {renderTime(time)}</div>
                     <Slider
@@ -198,7 +207,10 @@ export default function Replay() {
                         label={renderTime}
                         onChange={onSliderValueChange}
                     ></Slider>
+                    <Button onClick={() => changeTime(-1000)}>-1s</Button>
                     <Button onClick={onPlayButtonClick}>{paused ? "play" : "pause"}</Button>
+                    <Button onClick={() => changeTime(1000)}>+1s</Button>
+                    <div>Use spacebar, left and right arrows to navigate the solve</div>
                 </div>
             </div>
         </>

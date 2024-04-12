@@ -163,6 +163,14 @@ export default class Cube {
         this.render();
     }
 
+    cameraUpdate(x: number, y: number, z: number) {
+        this.camera.position.x = x;
+        this.camera.position.y = y;
+        this.camera.position.z = z;
+        this.camera.lookAt(0, 0, 0);
+        this.render();
+    }
+
     onMove(callback: (move: string) => void) {
         this.onMoveCallbacks.push(callback);
     }
@@ -388,6 +396,14 @@ export default class Cube {
         this.scene.remove(this.group);
     }
 
+    // cancel current move animation
+    animationForceEnd() {
+        if (this.tween) {
+            this.tween.stop();
+            this.tween.end();
+        }
+    }
+
     makeMove(move_string: string, send: boolean=true) {
         if (this.inspection && !["x", "x'", "y", "y'", "z", "z'"].includes(move_string)) {
             return;
@@ -396,8 +412,7 @@ export default class Cube {
         // if previous move animation was still in progress, force it to end
         // this would not work correctly without calling .stop() first
         if (this.tween && this.tween.isPlaying()) {
-            this.tween.stop();
-            this.tween.end();
+            this.animationForceEnd();
         }
 
         if (send) {

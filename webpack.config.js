@@ -25,7 +25,8 @@ module.exports = {
     extensions: ['.tsx', '.ts', '.js'],
     fallback: {
       "buffer": require.resolve("buffer/"),
-      "util": require.resolve("util/")
+      "util": require.resolve("util/"),
+      "timers": require.resolve("timers-browserify/")
     }
   },
 

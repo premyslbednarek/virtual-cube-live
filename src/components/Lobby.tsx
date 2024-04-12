@@ -67,6 +67,7 @@ export default function Lobby() {
     const [isAdmin, setIsAdmin] = useState(false);
     const [inSolve, setInSolve] = useState(false);
 
+
     const cube = useMemo(() => new Cube(3), []);
     const timer = useMemo(() => new Timer(), []);
     const countdownTimer = useMemo(() => new CountdownTimer(), []);

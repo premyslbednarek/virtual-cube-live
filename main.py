@@ -80,7 +80,7 @@ def dev():
 
 @app.route("/api/solve/<int:solve_id>")
 def solve(solve_id: int):
-    solve = db.session.get(Solve, solve_id)
+    solve: Solve = db.session.get(Solve, solve_id)
     if solve is None:
         abort(404)
 
@@ -114,8 +114,11 @@ def solve(solve_id: int):
     return {
         "cube_size": solve.scramble.cube_size,
         "scramble": solve.scramble.scramble_string,
+        "scramble_state": solve.scramble.cube_state.decode("UTF-8"),
         "moves": moves,
-        "camera_changes": camera_changes
+        "camera_changes": camera_changes,
+        "completed": solve.completed,
+        "time": solve.time
     }
 
 @app.route("/lobby/")

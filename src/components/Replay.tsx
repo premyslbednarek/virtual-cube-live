@@ -1,10 +1,11 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom"
 import { RenderedCube } from "./Lobby";
-import { Button, Text, Space, Slider } from "@mantine/core";
+import { Button, Text, Space, Slider, ActionIcon, Center, Tooltip } from "@mantine/core";
 import Cube from "../cube/cube";
 import useFetch from "@custom-react-hooks/use-fetch";
 import { useHotkeys } from "react-hotkeys-hook";
+import {IconPlayerPlay, IconPlayerPause, IconRewindBackward5, IconRewindForward5, IconHome, IconArrowLeft, IconPlus, IconMinus} from "@tabler/icons-react"
 
 interface IMoveInfo {
     move: string;
@@ -57,6 +58,7 @@ export default function Replay() {
     // track current time in replay in ms
     const [time, setTime] = useState(0);
     const [paused, setPaused] = useState(false);
+    const [playbackSpeed, setPlaybackSpeed] = useState(1);
 
     const { data, loading, error } = useFetch<ISolveInfo>(`/api/solve/${solveId}`);
     const solve = data ? data : defaultSolveInfo;
@@ -72,8 +74,8 @@ export default function Replay() {
     }
 
     useHotkeys("space", () => setPaused(paused => !paused));
-    useHotkeys("left", () =>  changeTime(-1000), [time]);
-    useHotkeys("right", () => changeTime(1000), [time]);
+    useHotkeys("left", () =>  changeTime(-5000), [time]);
+    useHotkeys("right", () => changeTime(5000), [time]);
 
     async function replayCamera() {
         let lastTimeC = 0;
@@ -181,14 +183,26 @@ export default function Replay() {
         return <div>Error ...</div>
     }
 
+    const increasePlaybackSpeed = () => {
+        if (playbackSpeed < 3) {
+            setPlaybackSpeed(speed => speed + 0.25);
+        }
+    }
+
+    const decreasePlaybackSpeed = () => {
+        if (playbackSpeed > 0.25) {
+            setPlaybackSpeed(speed => speed - 0.25);
+        }
+    }
+
 
     return (
         <>
             <div style={{position: "absolute", fontSize: "30px", margin: 10}}>
                 <div style={{display: "flex"}}>
-                    <Button onClick={() => navigate(-1)}>Go back</Button>
+                    <ActionIcon size="xl" radius="xl" onClick={() => navigate(-1)}><IconArrowLeft /></ActionIcon>
                     <Space w="sm" />
-                    <Button onClick={() => navigate("/")}>Home</Button>
+                    <ActionIcon size="xl" radius="xl" onClick={() => navigate("/")}><IconHome /></ActionIcon>
                 </div>
                 <Text size="2xl">
                     Scramble: {solve.scramble}
@@ -199,7 +213,7 @@ export default function Replay() {
             <RenderedCube cube={cube} style={{height: "100vh"}}/>
             <div style={{position: "absolute", width: "100vw", bottom: "2vh", textAlign: "center"}}>
                 <div style={{ width: "80%", margin: "0 auto"}}>
-                    <div>Time: {renderTime(time)}</div>
+                    <div>{renderTime(time)}</div>
                     <Slider
                         min={0}
                         max={solve.time}
@@ -207,10 +221,20 @@ export default function Replay() {
                         label={renderTime}
                         onChange={onSliderValueChange}
                     ></Slider>
-                    <Button onClick={() => changeTime(-1000)}>-1s</Button>
-                    <Button onClick={onPlayButtonClick}>{paused ? "play" : "pause"}</Button>
-                    <Button onClick={() => changeTime(1000)}>+1s</Button>
+                    <Center>
+                        <ActionIcon.Group>
+                            <ActionIcon onClick={() => changeTime(-5000)}><IconRewindBackward5 /></ActionIcon>
+                            <ActionIcon onClick={onPlayButtonClick}>{paused ? <IconPlayerPlay /> : <IconPlayerPause />}</ActionIcon>
+                            <ActionIcon onClick={() => changeTime(5000)}><IconRewindForward5 /></ActionIcon>
+                        </ActionIcon.Group>
+                    </Center>
                     <div>Use spacebar, left and right arrows to navigate the solve</div>
+
+                    <div>
+                        <ActionIcon onClick={decreasePlaybackSpeed}><IconMinus /></ActionIcon>
+                        { (playbackSpeed).toFixed(2) }x
+                        <ActionIcon onClick={increasePlaybackSpeed}><IconPlus /></ActionIcon>
+                    </div>
                 </div>
             </div>
         </>

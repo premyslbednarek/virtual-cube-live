@@ -22,6 +22,7 @@
     "eject": "react-scripts eject"
   },
   "dependencies": {
+    "@custom-react-hooks/use-fetch": "^1.4.19",
     "@d4c/numjs": "^0.17.34",
     "@mantine/core": "^7.7.1",
     "@mantine/form": "^7.7.1",

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom"
 import { RenderedCube } from "./Lobby";
 import { Button, Text, Space, Slider } from "@mantine/core";
 import Cube from "../cube/cube";
+import useFetch from "@custom-react-hooks/use-fetch";
 
 interface IMoveInfo {
     move: string;
@@ -56,7 +57,9 @@ export default function Replay() {
     const [time, setTime] = useState(0);
     const [paused, setPaused] = useState(false);
 
-    const [solve, setSolve] = useState<ISolveInfo>(defaultSolveInfo)
+    const { data, loading, error } = useFetch<ISolveInfo>(`/api/solve/${solveId}`);
+    const solve = data ? data : defaultSolveInfo;
+    // const [solve, setSolve] = useState<ISolveInfo>(defaultSolveInfo)
     const cube = useMemo(() => new Cube(solve.cube_size), [])
     const navigate = useNavigate();
 
@@ -83,14 +86,6 @@ export default function Replay() {
             lastTime = sinceStart;
         }
     }
-
-
-    useEffect(() => {
-        fetch("/api/solve/" + solveId).then(res => res.json()).then((solve: ISolveInfo) => {
-            console.log(solve);
-            setSolve(solve);
-        })
-    }, [])
 
     useEffect(() => {
         if (!paused) {
@@ -163,6 +158,15 @@ export default function Replay() {
         }
         setTime(time);
     }
+
+    if (loading) {
+        return <div>Loading ...</div>;
+    }
+
+    if (error) {
+        return <div>Error ...</div>
+    }
+
 
     return (
         <>

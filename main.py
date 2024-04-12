@@ -11,6 +11,7 @@ from pyTwistyScrambler import scrambler333, scrambler444, scrambler555, scramble
 from cube import Cube
 from typing import List
 from enum import Enum
+from time import sleep
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db3.db' # Using SQLite as the database

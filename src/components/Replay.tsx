@@ -200,9 +200,13 @@ export default function Replay() {
         <>
             <div style={{position: "absolute", fontSize: "30px", margin: 10}}>
                 <div style={{display: "flex"}}>
-                    <ActionIcon size="xl" radius="xl" onClick={() => navigate(-1)}><IconArrowLeft /></ActionIcon>
+                    <Tooltip label="go back" color="blue">
+                        <ActionIcon size="xl" radius="xl" onClick={() => navigate(-1)}><IconArrowLeft /></ActionIcon>
+                    </Tooltip>
                     <Space w="sm" />
-                    <ActionIcon size="xl" radius="xl" onClick={() => navigate("/")}><IconHome /></ActionIcon>
+                    <Tooltip label="home" color="blue">
+                        <ActionIcon size="xl" radius="xl" onClick={() => navigate("/")}><IconHome /></ActionIcon>
+                    </Tooltip>
                 </div>
                 <Text>Use <Kbd>Space</Kbd>, <Kbd>LeftArrow</Kbd> and <Kbd>RightArrow</Kbd> to navigate the solve</Text>
                 <Text size="2xl">

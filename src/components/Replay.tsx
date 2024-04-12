@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom"
 import { RenderedCube } from "./Lobby";
-import { Button, Text, Space, Slider, ActionIcon, Center, Tooltip, Flex, Kbd } from "@mantine/core";
+import { Text, Space, Slider, ActionIcon, Center, Tooltip, Flex, Kbd } from "@mantine/core";
 import Cube from "../cube/cube";
 import useFetch from "@custom-react-hooks/use-fetch";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -54,65 +54,33 @@ const UPDATE_INTERVAL = 53; // in ms
 
 export default function Replay() {
     const { solveId } = useParams();
-
-    // track current time in replay in ms
-    const [time, setTime] = useState(0);
+    const [time, setTime] = useState(0); // current time in ms
     const [paused, setPaused] = useState(false);
     const [playbackSpeed, setPlaybackSpeed] = useState(1);
-
+    const navigate = useNavigate();
     const { data, loading, error } = useFetch<ISolveInfo>(`/api/solve/${solveId}`);
     const solve = data ? data : defaultSolveInfo;
-    // const [solve, setSolve] = useState<ISolveInfo>(defaultSolveInfo)
-    const cube = useMemo(() => new Cube(solve.cube_size), [])
-    const navigate = useNavigate();
+    const cube = useMemo(() => {
+        const cube = new Cube(solve.cube_size);
+        cube.setState(solve.scramble_state);
+        return cube;
+    }, [solve])
 
-    function changeTime(delta: number) {
-        let newTime = time + delta;
-        if (newTime < 0) newTime = 0;
-        if (newTime > solve.time) newTime = solve.time;
-        onSliderValueChange(newTime);
-    }
-
-    useHotkeys("space", () => setPaused(paused => !paused));
-    useHotkeys("left", () =>  changeTime(-5000), [time]);
-    useHotkeys("right", () => changeTime(5000), [time]);
-
-    async function replayCamera() {
-        let lastTimeC = 0;
-        for (const {x, y, z, sinceStart} of solve.camera_changes) {
-            await new Promise(r => setTimeout(r, sinceStart - lastTimeC));
-            console.log("ZMENA")
-            cube.camera.position.x = x;
-            cube.camera.position.y = y;
-            cube.camera.position.z = z;
-            cube.camera.lookAt(0, 0, 0);
-            cube.render();
-            lastTimeC = sinceStart;
-        }
-    }
-
-    async function replayMoves() {
-        // replay the solve
-        let lastTime = 0;
-        for (const {move, sinceStart} of solve.moves) {
-            await new Promise(r => setTimeout(r, sinceStart - lastTime));
-            cube.makeMove(move)
-            lastTime = sinceStart;
-        }
-    }
-
-
+    // advance in time when the replay is not paused
     useEffect(() => {
         if (!paused) {
-            const interval = setInterval(() => setTime(time => time + UPDATE_INTERVAL * playbackSpeed), UPDATE_INTERVAL);
+            const interval = setInterval(() => {
+                setTime(time => time + UPDATE_INTERVAL * playbackSpeed)
+            }, UPDATE_INTERVAL);
             return () => {
                 clearInterval(interval);
             }
         }
     }, [paused, playbackSpeed])
 
+    // stop timer after reaching end of the solve
     useEffect(() => {
-        if (solve.time != 0 && time > solve.time) {
+        if (solve.time !== 0 && time > solve.time) {
             console.log(time, solve.time)
             setPaused(true);
             // this is a hack
@@ -120,6 +88,7 @@ export default function Replay() {
         }
     }, [time, solve.time])
 
+    // apply moves/camera changes that happen until next time change
     useEffect(() => {
         for (const move of solve.moves) {
             if (move.sinceStart > time + UPDATE_INTERVAL * playbackSpeed) break;
@@ -134,34 +103,48 @@ export default function Replay() {
             }
         }
 
-    }, [time, playbackSpeed]);
-
-    useEffect(() => {
-        cube.setState(solve.scramble_state);
-    }, [solve])
+    }, [time, playbackSpeed, cube, solve]);
 
     const onPlayButtonClick = () => {
         if (time > solve.time) {
             setPaused(false);
-            onSliderValueChange(0);
+            manualTimeChange(0);
         } else {
             setPaused(paused => !paused);
         }
     }
 
-    const onSliderValueChange = (time: number) => {
-        cube.animationForceEnd();
-        cube.setState(solve.scramble_state);
+    function changeTime(delta: number) {
+        let newTime = time + delta;
+        if (newTime < 0) newTime = 0;
+        if (newTime > solve.time) newTime = solve.time;
+        manualTimeChange(newTime);
+    }
+
+    useHotkeys("space", () => setPaused(paused => !paused));
+    useHotkeys("left", () =>  changeTime(-5000), [time]);
+    useHotkeys("right", () => changeTime(5000), [time]);
+
+    // when changing time by hand, we have to replay all moves and camera changes
+    // that happened until that moment
+    const manualTimeChange = (newTime: number) => {
+        cube.animationForceEnd(); // stop possible animations
+        cube.setState(solve.scramble_state); // set initial cube state
+
+        // replay all the moves
         for (const move of solve.moves) {
-            if (move.sinceStart < time) {
+            if (move.sinceStart < newTime) {
                 cube.makeMove(move.move);
             }
         }
+        // don't animate the last move
         cube.animationForceEnd();
+
+        // redo the last camera change (if any)
         let x = 0, y = 0, z = 0;
         let cameraChanged = false;
         for (const cameraChange of solve.camera_changes) {
-            if (cameraChange.sinceStart < time) {
+            if (cameraChange.sinceStart < newTime) {
                 cameraChanged = true;
                 x = cameraChange.x;
                 y = cameraChange.y;
@@ -172,16 +155,9 @@ export default function Replay() {
             cube.cameraUpdate(x, y, z);
 
         }
-        setTime(time);
+        setTime(newTime);
     }
 
-    if (loading) {
-        return <div>Loading ...</div>;
-    }
-
-    if (error) {
-        return <div>Error ...</div>
-    }
 
     const increasePlaybackSpeed = () => {
         if (playbackSpeed < 3) {
@@ -195,6 +171,15 @@ export default function Replay() {
         }
     }
 
+    // fetch loading
+    if (loading) {
+        return <div>Loading ...</div>;
+    }
+
+    // fetch error
+    if (error) {
+        return <div>Error ...</div>
+    }
 
     return (
         <>
@@ -231,7 +216,7 @@ export default function Replay() {
                         max={solve.time}
                         value={time}
                         label={renderTime}
-                        onChange={onSliderValueChange}
+                        onChange={manualTimeChange}
                     ></Slider>
                     <Flex align="center" justify="center">
                         <ActionIcon onClick={decreasePlaybackSpeed}><IconMinus /></ActionIcon>

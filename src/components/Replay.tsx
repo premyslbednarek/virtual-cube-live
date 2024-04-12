@@ -4,6 +4,7 @@ import { RenderedCube } from "./Lobby";
 import { Button, Text, Space, Slider } from "@mantine/core";
 import Cube from "../cube/cube";
 import useFetch from "@custom-react-hooks/use-fetch";
+import { useHotkeys } from "react-hotkeys-hook";
 
 interface IMoveInfo {
     move: string;
@@ -63,6 +64,8 @@ export default function Replay() {
     const cube = useMemo(() => new Cube(solve.cube_size), [])
     const navigate = useNavigate();
 
+    useHotkeys("space", () => setPaused(paused => !paused));
+
     async function replayCamera() {
         let lastTimeC = 0;
         for (const {x, y, z, sinceStart} of solve.camera_changes) {
@@ -86,6 +89,7 @@ export default function Replay() {
             lastTime = sinceStart;
         }
     }
+
 
     useEffect(() => {
         if (!paused) {
@@ -135,6 +139,7 @@ export default function Replay() {
     }
 
     const onSliderValueChange = (time: number) => {
+        cube.animationForceEnd();
         cube.setState(solve.scramble_state);
         for (const move of solve.moves) {
             if (move.sinceStart < time) {

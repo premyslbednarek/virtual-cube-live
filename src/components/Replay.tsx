@@ -1,11 +1,11 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom"
 import { RenderedCube } from "./Lobby";
-import { Button, Text, Space, Slider, ActionIcon, Center, Tooltip, Flex } from "@mantine/core";
+import { Button, Text, Space, Slider, ActionIcon, Center, Tooltip, Flex, Kbd } from "@mantine/core";
 import Cube from "../cube/cube";
 import useFetch from "@custom-react-hooks/use-fetch";
 import { useHotkeys } from "react-hotkeys-hook";
-import {IconPlayerPlay, IconPlayerPause, IconRewindBackward5, IconRewindForward5, IconHome, IconArrowLeft, IconPlus, IconMinus} from "@tabler/icons-react"
+import {IconPlayerPlay, IconPlayerPause, IconRewindBackward5, IconRewindForward5, IconHome, IconArrowLeft, IconPlus, IconMinus, IconReload} from "@tabler/icons-react"
 
 interface IMoveInfo {
     move: string;
@@ -104,12 +104,12 @@ export default function Replay() {
 
     useEffect(() => {
         if (!paused) {
-            const interval = setInterval(() => setTime(time => time + UPDATE_INTERVAL), UPDATE_INTERVAL);
+            const interval = setInterval(() => setTime(time => time + UPDATE_INTERVAL * playbackSpeed), UPDATE_INTERVAL);
             return () => {
                 clearInterval(interval);
             }
         }
-    }, [paused])
+    }, [paused, playbackSpeed])
 
     useEffect(() => {
         if (solve.time != 0 && time > solve.time) {
@@ -122,28 +122,28 @@ export default function Replay() {
 
     useEffect(() => {
         for (const move of solve.moves) {
-            if (move.sinceStart > time + UPDATE_INTERVAL) break;
-            if (time <= move.sinceStart && move.sinceStart <= time + UPDATE_INTERVAL) {
-                setTimeout(() => {cube.makeMove(move.move)}, move.sinceStart - time);
+            if (move.sinceStart > time + UPDATE_INTERVAL * playbackSpeed) break;
+            if (time <= move.sinceStart && move.sinceStart <= time + UPDATE_INTERVAL * playbackSpeed) {
+                setTimeout(() => {cube.makeMove(move.move)}, (move.sinceStart - time) / playbackSpeed);
             }
         }
         for (const cameraChange of solve.camera_changes) {
-            if (cameraChange.sinceStart > time + UPDATE_INTERVAL) break;
-            if (time <= cameraChange.sinceStart && cameraChange.sinceStart <= time + UPDATE_INTERVAL) {
-                setTimeout(() => {cube.cameraUpdate(cameraChange.x, cameraChange.y, cameraChange.z)}, cameraChange.sinceStart - time);
+            if (cameraChange.sinceStart > time + UPDATE_INTERVAL * playbackSpeed) break;
+            if (time <= cameraChange.sinceStart && cameraChange.sinceStart <= time + UPDATE_INTERVAL * playbackSpeed) {
+                setTimeout(() => {cube.cameraUpdate(cameraChange.x, cameraChange.y, cameraChange.z)}, (cameraChange.sinceStart - time) / playbackSpeed);
             }
         }
 
-    }, [time]);
+    }, [time, playbackSpeed]);
 
     useEffect(() => {
         cube.setState(solve.scramble_state);
     }, [solve])
 
     const onPlayButtonClick = () => {
-        if (time == solve.time) {
+        if (time > solve.time) {
             setPaused(false);
-            setTime(0);
+            onSliderValueChange(0);
         } else {
             setPaused(paused => !paused);
         }
@@ -204,6 +204,7 @@ export default function Replay() {
                     <Space w="sm" />
                     <ActionIcon size="xl" radius="xl" onClick={() => navigate("/")}><IconHome /></ActionIcon>
                 </div>
+                <Text>Use <Kbd>Space</Kbd>, <Kbd>LeftArrow</Kbd> and <Kbd>RightArrow</Kbd> to navigate the solve</Text>
                 <Text size="2xl">
                     Scramble: {solve.scramble}
                 </Text>
@@ -214,13 +215,6 @@ export default function Replay() {
             <div style={{position: "absolute", width: "100vw", bottom: "2vh", textAlign: "center"}}>
                 <div style={{ width: "80%", margin: "0 auto"}}>
                     <div>{renderTime(time)}</div>
-                    <Slider
-                        min={0}
-                        max={solve.time}
-                        value={time}
-                        label={renderTime}
-                        onChange={onSliderValueChange}
-                    ></Slider>
                     <Center>
                         <ActionIcon.Group>
                             <ActionIcon onClick={() => changeTime(-5000)}><IconRewindBackward5 /></ActionIcon>
@@ -228,17 +222,23 @@ export default function Replay() {
                             <ActionIcon onClick={() => changeTime(5000)}><IconRewindForward5 /></ActionIcon>
                         </ActionIcon.Group>
                     </Center>
-                    <div>Use spacebar, left and right arrows to navigate the solve</div>
-
-                    <div>
-                        <Flex align="center" justify="center">
-                            <ActionIcon onClick={decreasePlaybackSpeed}><IconMinus /></ActionIcon>
-                            <Text>
-                            { (playbackSpeed).toFixed(2) }x
-                            </Text>
-                            <ActionIcon onClick={increasePlaybackSpeed}><IconPlus /></ActionIcon>
-                        </Flex>
-                    </div>
+                    <Slider
+                        min={0}
+                        max={solve.time}
+                        value={time}
+                        label={renderTime}
+                        onChange={onSliderValueChange}
+                    ></Slider>
+                    <Flex align="center" justify="center">
+                        <ActionIcon onClick={decreasePlaybackSpeed}><IconMinus /></ActionIcon>
+                        <Space w="sm"></Space>
+                        <Text>
+                        { (playbackSpeed).toFixed(2) }x
+                        </Text>
+                        <Space w="sm"></Space>
+                        <ActionIcon onClick={increasePlaybackSpeed}><IconPlus /></ActionIcon>
+                        <ActionIcon onClick={() => setPlaybackSpeed(1)}><IconReload /></ActionIcon>
+                    </Flex>
                 </div>
             </div>
         </>

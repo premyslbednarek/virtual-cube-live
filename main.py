@@ -12,6 +12,7 @@ from cube import Cube
 from typing import List
 from enum import Enum
 from time import sleep
+from typing import TypedDict
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db3.db' # Using SQLite as the database
@@ -55,21 +56,29 @@ def get_lobbies():
         data.append({"creator": creator, "lobby_id": lobby_id})
     return {"data": data}
 
-@app.route("/api/lobby_create")
+class LobbyCreateData(TypedDict):
+    layers: int
+    private: bool
+
+class LobbyCreateResponse(TypedDict):
+    lobby_id: int
+
+@app.route("/api/lobby_create", methods=["POST"])
 @login_required
-def api_lobby_create():
-    lobby = Lobby(creator_id = current_user.id)
+def api_lobby_create() -> LobbyCreateResponse:
+    data: LobbyCreateData = json.loads(request.data)
+    lobby = Lobby(creator_id = current_user.id, private=data["private"], cube_size=data["layers"])
     db.session.add(lobby)
     db.session.commit()
 
+    # if lobby is not private, show it on homepage
+    if not data["private"]:
+        socketio.emit(
+            "lobby_add",
+            {"creator": current_user.username, "lobby_id": lobby.id }
+        )
 
-    lobby_id: int = lobby.id
-
-    socketio.emit(
-        "lobby_add",
-        {"creator": current_user.username, "lobby_id": lobby_id }
-    )
-    return { "lobby_id": lobby_id }
+    return { "lobby_id": lobby.id }
 
 @login_manager.user_loader
 def load_user(user_id):

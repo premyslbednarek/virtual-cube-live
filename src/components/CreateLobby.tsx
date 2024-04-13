@@ -1,25 +1,58 @@
 import { useDisclosure } from '@mantine/hooks';
-import { Modal, Button } from '@mantine/core';
+import { Button, Checkbox, Title, NumberInput, Group} from '@mantine/core';
 import { useNavigate } from "react-router-dom"
+import { useForm } from '@mantine/form';
+import { create } from 'domain';
+
+interface LobbyCreateResponse {
+  lobby_id: number;
+}
 
 export default function CreateLobbyButton() {
-  const [opened, { open, close }] = useDisclosure(false);
+  const form = useForm({
+    initialValues: {
+      layers: 3,
+      private: false
+    }
+  })
+
+  // const [opened, { open, close }] = useDisclosure(false);
   const navigate = useNavigate();
 
   const createLobby = function(e: any) {
-    fetch("/api/lobby_create").then(res => res.json()).then(data => {
-        const lobby_id = data.lobby_id;
-        navigate("/lobby/" + lobby_id);
+    e.preventDefault();
+    fetch("/api/lobby_create", {method: "POST", body: JSON.stringify(form.values)})
+      .then(res => res.json())
+      .then((data: LobbyCreateResponse) => {
+        navigate(`/lobby/${data.lobby_id}`);
     })
   }
 
   return (
     <>
-      <Modal opened={opened} onClose={close} title="Lobby creation">
+      {/* <Modal opened={opened} onClose={close} title="Lobby creation">
         <Button onClick={createLobby}>Create lobby</Button>
-      </Modal>
+      </Modal> */}
+      {/* <Button onClick={open}>Create lobby</Button> */}
 
-      <Button onClick={open}>Create lobby</Button>
+      <Title order={3}>Create lobby</Title>
+      <form onSubmit={createLobby}>
+        <NumberInput
+          style={{width: "30%"}}
+          {...form.getInputProps('layers')}
+          label="cube layers"
+          min={2}
+          max={7}
+        />
+        <Checkbox
+          mt="md"
+          label="Private"
+          {...form.getInputProps('private', { type: 'checkbox' })}
+        />
+        <Group mt="md">
+          <Button type="submit">Create lobby</Button>
+        </Group>
+      </form>
     </>
   );
 }

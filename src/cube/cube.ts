@@ -99,9 +99,13 @@ export default class Cube {
         );
     }
 
-    mount(container: any) {
+    mount(container: HTMLElement) {
         container.appendChild(this.canvas);
         this.resizeCanvas();
+    }
+
+    unmount(container: HTMLElement) {
+        container.removeChild(this.canvas);
     }
 
     init_internal_state() {
@@ -216,10 +220,10 @@ export default class Cube {
         this.draw();
     }
 
-    changeLayers(newLayers: string) {
-        this.n = parseInt(newLayers);
+    changeLayers(newLayers: number) {
+        this.n = newLayers;
+        this.init_internal_state();
         this.draw();
-        // this.offset = -(this.n - 1) / 2;
     }
 
     getMesh(color: string) {
@@ -246,7 +250,12 @@ export default class Cube {
 
     drawStickers(state: string = "") {
         if (state === "") {
-            state = "WWWWWWWWWGGGGGGGGGOOOOOOOOOBBBBBBBBBRRRRRRRRRYYYYYYYYY";
+            const colors = "WGOBRY";
+            for (let i = 0; i < colors.length; ++i) {
+                for (let j = 0; j < this.n * this.n; ++j) {
+                    state += colors[i];
+                }
+            }
         }
         // const state = "RWOWWWWWWRGOGGGGGGROBOOOOOORBOBBBBBBBRORRRRRRRYOYYYYYY";
         const n = this.n;

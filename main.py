@@ -344,10 +344,10 @@ def handle_lobby_conection(data):
     # add user to the lobby room
     join_room(lobby_id)
 
-    connection_id = create_connection(3, None, lobby_id)
-
     lobby: Lobby = db.session.get(Lobby, lobby_id)
     is_admin: bool = lobby.creator_id == current_user.id
+
+    connection_id = create_connection(lobby.cube_size, None, lobby_id)
 
     # add connection to the database
     if not lobbyuser:
@@ -373,7 +373,7 @@ def handle_lobby_conection(data):
         skip_sid=request.sid
     )
 
-    return {"code": 0, "userList": usernames, "isAdmin": is_admin }
+    return {"code": 0, "userList": usernames, "isAdmin": is_admin, "cubeSize": lobby.cube_size }
 
 @socketio.on("lobby_ready_status")
 def send_ready_status(data):

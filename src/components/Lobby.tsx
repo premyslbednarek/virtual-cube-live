@@ -7,7 +7,8 @@ import {
     Button,
     Center,
     Stack,
-    Space
+    Space,
+    Container
 } from "@mantine/core"
 import * as THREE from 'three';
 import { socket } from "../socket";
@@ -25,7 +26,12 @@ export function RenderedCube({cube, style} : {cube: Cube, style?: React.CSSPrope
     const containerRef = useRef(null);
 
     useEffect(() => {
+        if (!containerRef.current) return;
         cube.mount(containerRef.current);
+        return () => {
+            if (!containerRef.current) return;
+            cube.unmount(containerRef.current);
+        }
     }, [cube])
 
     return (
@@ -66,9 +72,9 @@ export default function Lobby() {
     const [enemies, setEnemies] = useState<Map<string, Enemy>>(new Map());
     const [isAdmin, setIsAdmin] = useState(false);
     const [inSolve, setInSolve] = useState(false);
+    const [cubeSize, setCubeSize] = useState(3);
 
-
-    const cube = useMemo(() => new Cube(3), []);
+    const cube = useMemo(() => new Cube(cubeSize), [cubeSize]);
     const timer = useMemo(() => new Timer(), []);
     const countdownTimer = useMemo(() => new CountdownTimer(), []);
 
@@ -110,7 +116,7 @@ export default function Lobby() {
 
     const onConnection = ({username} : {username: string}) => {
         console.log(username, "has joined the lobby");
-        setEnemies(new Map(enemies.set(username, {cube: new Cube(3), readyStatus: false})));
+        setEnemies(new Map(enemies.set(username, {cube: new Cube(cubeSize), readyStatus: false})));
     };
 
     type MatchStartData = {
@@ -159,6 +165,7 @@ export default function Lobby() {
             code: number;
             userList: string[];
             isAdmin: boolean;
+            cubeSize: number;
         }
 
         socket.emit("lobby_connect",
@@ -171,10 +178,12 @@ export default function Lobby() {
 
                 const m = new Map(enemies);
                 response.userList.forEach((username: string) => {
-                    m.set(username, {cube: new Cube(3), readyStatus: false});
+                    m.set(username, {cube: new Cube(response.cubeSize), readyStatus: false});
                 });
+
                 setEnemies(m);
                 setIsAdmin(response.isAdmin);
+                setCubeSize(response.cubeSize);
             }
         )
 

@@ -45,7 +45,7 @@ def get_user_info():
 
 @app.route("/api/get_lobbies")
 def get_lobbies():
-    q = select(User.username, Lobby.id).select_from(Lobby).join(User, Lobby.creator_id == User.id).order_by(Lobby.id.desc()).limit(10)
+    q = select(User.username, Lobby.id).select_from(Lobby).where(Lobby.private == False).join(User, Lobby.creator_id == User.id).order_by(Lobby.id.desc()).limit(10)
     res = db.session.execute(q).all();
     print()
     print("RESULT")

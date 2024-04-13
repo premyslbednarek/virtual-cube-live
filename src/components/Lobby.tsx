@@ -39,16 +39,34 @@ export function RenderedCube({cube, style} : {cube: Cube, style?: React.CSSPrope
     );
 }
 
+
+function EnemyCubes({enemies}: {enemies: Map<string, Enemy>}) {
+    const enemyDisplaySize = Math.min(50, 100 / enemies.size);
+    return (
+        <div style={{height: "100%"}}>
+            { [...enemies.entries()].map(([username, enemy]) => {
+                return (
+                    <div style={{height: `${enemyDisplaySize}%`}}>
+                        <DisplayEnemy key={username} username={username} enemy={enemy} />
+                    </div>
+                );
+            })
+            }
+        </div>
+    );
+}
+
+
 function DisplayEnemy({username, enemy} : {username: string, enemy: Enemy}) {
     const readyColor = enemy.readyStatus ? "green" : "red";
     const readyText = enemy.readyStatus ? "  READY" : "UNREADY"
     return (
-        <div key={username}>
+        <div key={username} style={{height: "100%"}}>
             <div className="absolute">
                 <Badge mt="sm" ml="sm" mr="sm">{username}</Badge>
                 <Badge color={readyColor}>{readyText}</Badge>
             </div>
-            <RenderedCube cube={enemy.cube} />
+            <RenderedCube style={{height: "100%"}}cube={enemy.cube} />
         </div>
     );
 }
@@ -83,6 +101,13 @@ export default function Lobby() {
         console.log(enemies.delete(username));
         setEnemies(new Map(enemies));
     };
+
+    useEffect(() => {
+        cube.resizeCanvas();
+        for (const enemy of enemies.values()) {
+            enemy.cube.resizeCanvas();
+        }
+    }, [enemies]);
 
     const onMove = ({username, move} : {username: string, move: string}) => {
         const cube = enemies.get(username);
@@ -261,28 +286,29 @@ export default function Lobby() {
     }
 
     return (
-        <div>
-          <div>
+        <div style={{ backgroundColor: "black", height: "100vh"}}>
+          <div style={{position: "absolute"}}>
             <Link className="App-link" to="/">Home</Link>
             &nbsp;|&nbsp;
             <Link className="App-link" to="/page2">Page2</Link>
-          </div>
             <p>{params.lobby_id} {userContext.username}</p>
-            <Grid>
-              <Grid.Col span={9}>
-                <RenderedCube cube={cube} style={{height: "500px"}}/>
-              </Grid.Col>
-              <Grid.Col span={3}>
-             { [...enemies.entries()].map(([username, enemy]) => {
-                return <DisplayEnemy key={username} username={username} enemy={enemy} />
-             })
-             }
-              </Grid.Col>
-            </Grid>
-            {/* <div className="readyButton">
-                <Button color={readyColor} onClick={onReadyClick}>{readyText}</Button>
-            </div> */}
+          </div>
+          <div style={{height: "100%", display: "flex"}}>
+            <RenderedCube
+                cube={cube}
+                style={{
+                    height: "100%",
+                    width: enemies.size == 0 ? "100%" : "70%"
+                }}
+            />
 
+            <div style={{
+                height: "100%",
+                width: enemies.size == 0 ? "0%" : "30%",
+            }}>
+                <EnemyCubes enemies={enemies} />
+            </div>
+          </div>
 
             {/* bottom info panel */}
             <div style={{position: "absolute", bottom: 0, width: "100%"}}>

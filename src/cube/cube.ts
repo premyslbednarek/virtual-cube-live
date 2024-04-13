@@ -50,7 +50,7 @@ export default class Cube {
 
         this.init_scene();
 
-        if (state == null) {
+        if (state == "") {
             state = this.getDefaultState();
         }
 
@@ -75,7 +75,7 @@ export default class Cube {
 
     getDefaultState() {
         let state = "";
-        const colors = "WGOBRY";
+        const colors = "WGRBOY";
         for (const color of colors) {
             for (let i = 0; i < this.n * this.n; ++i) {
                 state += color;
@@ -246,15 +246,6 @@ export default class Cube {
     }
 
     drawStickers(state: string = "") {
-        if (state === "") {
-            const colors = "WGOBRY";
-            for (let i = 0; i < colors.length; ++i) {
-                for (let j = 0; j < this.n * this.n; ++j) {
-                    state += colors[i];
-                }
-            }
-        }
-        // const state = "RWOWWWWWWRGOGGGGGGROBOOOOOORBOBBBBBBBRORRRRRRRYOYYYYYY";
         const n = this.n;
 
         let faceCenters = [

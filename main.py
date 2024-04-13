@@ -7,7 +7,7 @@ import json
 from sqlalchemy import select, func
 from model import db, User, Lobby, LobbyUser, Scramble, Solve, Race, SocketConnection, CubeModel, SolveMove
 from model import LobbyUserStatus, UserRole, LobbyRole, LobbyStatus, CameraChange
-from pyTwistyScrambler import scrambler333, scrambler444, scrambler555, scrambler666, scrambler777
+from pyTwistyScrambler import scrambler333, scrambler444, scrambler555, scrambler666, scrambler777, scrambler222
 from cube import Cube
 from typing import List
 from enum import Enum
@@ -395,8 +395,16 @@ def send_ready_status(data):
 
     print(lobby_id, ready_status)
 
+scrambler_dispatch = {
+    2: scrambler222,
+    3: scrambler333,
+    4: scrambler444,
+    5: scrambler555,
+    6: scrambler666,
+    7: scrambler777
+}
 def create_scramble(size: int) -> Scramble:
-    scramble_string: str = scrambler333.get_WCA_scramble()
+    scramble_string: str = scrambler_dispatch[size].get_WCA_scramble()
 
     cube = Cube(size)
     cube.move(scramble_string)

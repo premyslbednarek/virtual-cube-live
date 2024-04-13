@@ -22,13 +22,44 @@ type Enemy = {
     readyStatus: boolean
 }
 
+export function ControlledCube({cube, style} : {cube: Cube, style?: React.CSSProperties}) {
+    useEffect(() => {
+        const onMouseDown = (event: MouseEvent) => {
+            cube.mouseDown(event);
+        }
+        const onMouseUp = (event: MouseEvent) => {
+            cube.mouseUp(event);
+        }
+
+        document.addEventListener("mousedown", onMouseDown);
+        document.addEventListener("mouseup", onMouseUp);
+
+        return () => {
+            document.removeEventListener("mousedown", onMouseDown);
+            document.removeEventListener("mouseup", onMouseUp);
+        }
+
+    }, [cube])
+    return (
+        <RenderedCube cube={cube} style={style} />
+    );
+}
+
 export function RenderedCube({cube, style} : {cube: Cube, style?: React.CSSProperties}) {
     const containerRef = useRef(null);
 
     useEffect(() => {
+        console.log("Mounting")
         if (!containerRef.current) return;
         cube.mount(containerRef.current);
+
+        const onResize = () => {
+            cube.resizeCanvas();
+        }
+
+        window.addEventListener("resize", onResize);
         return () => {
+            window.removeEventListener("resize", onResize);
             if (!containerRef.current) return;
             cube.unmount(containerRef.current);
         }
@@ -46,8 +77,8 @@ function EnemyCubes({enemies}: {enemies: Map<string, Enemy>}) {
         <div style={{height: "100%"}}>
             { [...enemies.entries()].map(([username, enemy]) => {
                 return (
-                    <div style={{height: `${enemyDisplaySize}%`}}>
-                        <DisplayEnemy key={username} username={username} enemy={enemy} />
+                    <div key={username} style={{height: `${enemyDisplaySize}%`}}>
+                        <DisplayEnemy username={username} enemy={enemy} />
                     </div>
                 );
             })
@@ -294,7 +325,7 @@ export default function Lobby() {
             <p>{params.lobby_id} {userContext.username}</p>
           </div>
           <div style={{height: "100%", display: "flex"}}>
-            <RenderedCube
+            <ControlledCube
                 cube={cube}
                 style={{
                     height: "100%",

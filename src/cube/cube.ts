@@ -50,9 +50,6 @@ export default class Cube {
 
         this.init_scene();
 
-        // this.resizeCanvas();
-        window.addEventListener("resize", () => this.resizeCanvas(), false);
-
         if (state == null) {
             state = this.getDefaultState();
         }
@@ -196,8 +193,8 @@ export default class Cube {
     }
 
     init_mouse_moves() {
-        document.addEventListener('mousedown', event => this.mouseDown(event));
-        document.addEventListener('mouseup', event => this.mouseUp(event));
+        // document.addEventListener('mousedown', event => {console.log(this.n);this.mouseDown(event)});
+        // document.addEventListener('mouseup', event => this.mouseUp(event));
     }
 
     resizeCanvas() {
@@ -606,7 +603,8 @@ export default class Cube {
             rotationSign *= -1;
         }
 
-        const moveObj = new LayerMove(face as any, axis as any, flipped, coord, rotationSign, false, false);
+        const offset = -(this.n - 1) / 2;
+        const moveObj = new LayerMove(face as any, axis as any, flipped, Math.abs(coord + offset) + 1, rotationSign, false, false);
         this.makeMove(moveObj.toString());
     }
 }

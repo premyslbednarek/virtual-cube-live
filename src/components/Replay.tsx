@@ -204,13 +204,28 @@ export default function Replay() {
             <div style={{position: "absolute", width: "100vw", bottom: "2vh", textAlign: "center"}}>
                 <div style={{ width: "80%", margin: "0 auto"}}>
                     <div>{renderTime(time)}</div>
-                    <Center>
-                        <ActionIcon.Group>
-                            <ActionIcon onClick={() => changeTime(-5000)}><IconRewindBackward5 /></ActionIcon>
-                            <ActionIcon onClick={onPlayButtonClick}>{paused ? <IconPlayerPlay /> : <IconPlayerPause />}</ActionIcon>
-                            <ActionIcon onClick={() => changeTime(5000)}><IconRewindForward5 /></ActionIcon>
-                        </ActionIcon.Group>
-                    </Center>
+                    <div>
+                        <Center>
+                            <ActionIcon.Group>
+                                <ActionIcon onClick={() => changeTime(-5000)}><IconRewindBackward5 /></ActionIcon>
+                                <ActionIcon onClick={onPlayButtonClick}>{paused ? <IconPlayerPlay /> : <IconPlayerPause />}</ActionIcon>
+                                <ActionIcon onClick={() => changeTime(5000)}><IconRewindForward5 /></ActionIcon>
+                            </ActionIcon.Group>
+                        </Center>
+                        <div style={{position: "relative", right: 0}}>
+                            <Flex align="center" justify="center">
+                                <ActionIcon onClick={decreasePlaybackSpeed}><IconMinus /></ActionIcon>
+                                <Space w="sm"></Space>
+                                <Text>
+                                { (playbackSpeed).toFixed(2) }x
+                                </Text>
+                                <Space w="sm"></Space>
+                                <ActionIcon onClick={increasePlaybackSpeed}><IconPlus /></ActionIcon>
+                                <ActionIcon onClick={() => setPlaybackSpeed(1)}><IconReload /></ActionIcon>
+                            </Flex>
+                        </div>
+
+                    </div>
                     <Slider
                         min={0}
                         max={solve.time}
@@ -218,16 +233,6 @@ export default function Replay() {
                         label={renderTime}
                         onChange={manualTimeChange}
                     ></Slider>
-                    <Flex align="center" justify="center">
-                        <ActionIcon onClick={decreasePlaybackSpeed}><IconMinus /></ActionIcon>
-                        <Space w="sm"></Space>
-                        <Text>
-                        { (playbackSpeed).toFixed(2) }x
-                        </Text>
-                        <Space w="sm"></Space>
-                        <ActionIcon onClick={increasePlaybackSpeed}><IconPlus /></ActionIcon>
-                        <ActionIcon onClick={() => setPlaybackSpeed(1)}><IconReload /></ActionIcon>
-                    </Flex>
                 </div>
             </div>
         </>

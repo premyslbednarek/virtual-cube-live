@@ -41,6 +41,9 @@ class Move:
         self.double = double
         self.dir = dir
 
+    def reverse(self):
+        self.dir *= -1
+
     def get_axis(self):
         if self.face in "xyz":
             return self.face

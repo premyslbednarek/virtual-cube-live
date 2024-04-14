@@ -31,6 +31,34 @@ socketio = SocketIO(app, cors_allowed_origins="*", engineio_logger=False)
 sidToName = {}
 i = 0
 
+class RequestSolutionData(TypedDict):
+    lobby_id: int
+
+@app.route('/api/request_solution', methods=["POST"])
+def handle_solution_request():
+    # TODO handle admin privileges
+    data: RequestSolutionData = json.loads(request.data)
+
+    lobby_user: LobbyUser = db.session.scalar(
+        select(LobbyUser)
+            .where(LobbyUser.lobby_id == data["lobby_id"], LobbyUser.user_id == current_user.id)
+    )
+
+    solve = lobby_user.current_connection.cube.current_solve
+    if (solve is None):
+        abort(404)
+
+    moves = db.session.scalars(
+        select(SolveMove.move)
+            .where(SolveMove.solve_id == solve.id)
+            .order_by(SolveMove.timestamp.asc())
+    ).all()
+
+    allmoves = solve.scramble.scramble_string.split() + moves
+
+    return {"moves_done": allmoves}
+
+
 import time
 @app.route('/api/time')
 def get_current_time():

@@ -26,6 +26,10 @@ class Move {
         this.dir = dir;
         this.double = double;
     }
+
+    reverse() {
+        this.dir *= -1;
+    }
 }
 
 class LayerMove extends Move {

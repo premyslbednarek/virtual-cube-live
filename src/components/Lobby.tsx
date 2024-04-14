@@ -1,6 +1,7 @@
 import { useParams, Link } from "react-router-dom"
 import React, { useRef, useEffect, useState, useMemo } from "react"
 import Cube from "../cube/cube";
+import { parse_move } from "../cube/move";
 import {
     Grid,
     Badge,
@@ -16,6 +17,7 @@ import './lobby.css'
 import { UserContext } from "../userContext";
 import { useContext } from "react";
 import { Timer, CountdownTimer, Timer_ } from "../cube/timer"
+import { useHotkeys } from "react-hotkeys-hook";
 
 type Enemy = {
     cube: Cube,
@@ -126,6 +128,24 @@ export default function Lobby() {
     const cube = useMemo(() => new Cube(cubeSize), [cubeSize]);
     const timer = useMemo(() => new Timer(), []);
     const countdownTimer = useMemo(() => new CountdownTimer(), []);
+
+    interface requestSolution {
+        moves_done: Array<string>
+    }
+
+    useHotkeys("ctrl+1", () => {
+        fetch("/api/request_solution", {
+            method: "POST",
+            body: JSON.stringify({lobby_id: lobby_id})
+        }).then(res => res.json()).then(async function(data: requestSolution) {
+            for (let i = data.moves_done.length - 1; i >= 0; --i) {
+                const moveObj = parse_move(data.moves_done[i]);
+                moveObj.reverse();
+                cube.makeMove(moveObj.toString());
+                await new Promise(r => setTimeout(r, 200));
+            }
+        })
+    })
 
     const onDisconnection = ({username} : {username: string}) => {
         console.log(username, "has left the lobby");

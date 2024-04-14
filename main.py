@@ -599,7 +599,7 @@ def lobby_move(data):
 
         socketio.emit(
             "solved",
-            { "username": current_user.username },
+            { "username": current_user.username, "time": solve.time },
             room=lobby_id,
             skip_sid=request.sid
         )

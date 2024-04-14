@@ -18,10 +18,12 @@ import { UserContext } from "../userContext";
 import { useContext } from "react";
 import { Timer, CountdownTimer, Timer_ } from "../cube/timer"
 import { useHotkeys } from "react-hotkeys-hook";
+import { update } from "@tweenjs/tween.js";
 
 type Enemy = {
     cube: Cube,
     readyStatus: boolean
+    time: number | null
 }
 
 export function ControlledCube({cube, style} : {cube: Cube, style?: React.CSSProperties}) {
@@ -94,12 +96,15 @@ function DisplayEnemy({username, enemy} : {username: string, enemy: Enemy}) {
     const readyColor = enemy.readyStatus ? "green" : "red";
     const readyText = enemy.readyStatus ? "  READY" : "UNREADY"
     return (
-        <div key={username} style={{height: "100%"}}>
+        <div key={username} style={{height: "100%", position: "relative"}}>
             <div className="absolute">
                 <Badge mt="sm" ml="sm" mr="sm">{username}</Badge>
                 <Badge color={readyColor}>{readyText}</Badge>
             </div>
             <RenderedCube style={{height: "100%"}}cube={enemy.cube} />
+            <div style={{position: "absolute", bottom: 0, display: "flex", alignContent: "center", justifyContent: "center", margin: "auto"}}>
+                { enemy.time ? enemy.time : "" }
+            </div>
         </div>
     );
 }
@@ -192,7 +197,7 @@ export default function Lobby() {
 
     const onConnection = ({username} : {username: string}) => {
         console.log(username, "has joined the lobby");
-        setEnemies(new Map(enemies.set(username, {cube: new Cube(cubeSize), readyStatus: false})));
+        setEnemies(new Map(enemies.set(username, {cube: new Cube(cubeSize), readyStatus: false, time: null})));
     };
 
     type MatchStartData = {
@@ -229,6 +234,19 @@ export default function Lobby() {
         // setInSolve(false);
     }
 
+
+    interface IAnotherSolved {
+        "username": string;
+        "time": number;
+    }
+    const onSomebodySolved = (data: IAnotherSolved) => {
+        const updated = new Map(enemies);
+        const enemy = updated.get(data.username);
+        if (!enemy) return;
+        enemy.time = data.time;
+        setEnemies(updated);
+    }
+
     useEffect(() => {
         socket.connect();
         console.log("connection to socket...")
@@ -254,7 +272,7 @@ export default function Lobby() {
 
                 const m = new Map(enemies);
                 response.userList.forEach((username: string) => {
-                    m.set(username, {cube: new Cube(response.cubeSize), readyStatus: false});
+                    m.set(username, {cube: new Cube(response.cubeSize), readyStatus: false, time: null});
                 });
 
                 setEnemies(m);
@@ -306,6 +324,7 @@ export default function Lobby() {
         socket.on("lobby_connection", onConnection);
         socket.on("lobby_disconnection", onDisconnection)
         socket.on("match_start", onMatchStart);
+        socket.on("solved", onSomebodySolved)
         return () => {
             socket.off("lobby_connection", onConnection);
             socket.off("you_solved", onSolved);
@@ -314,6 +333,7 @@ export default function Lobby() {
             socket.off("lobby_move", onMove);
             socket.off("lobby_camera", onCamera);
             socket.off("match_start", onMatchStart);
+            socket.off("solved", onSomebodySolved)
         }
     })
 

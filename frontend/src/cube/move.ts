@@ -76,7 +76,11 @@ class LayerMove extends Move {
 
     get_indices(n: number) : Array<number> {
         if (this.isMiddle) {
-            return [(n - 1) / 2]
+            const indices = [];
+            for (let i = 1; i < n - 1; ++i) {
+                indices.push(i);
+            }
+            return indices;
         }
 
         let indices = []

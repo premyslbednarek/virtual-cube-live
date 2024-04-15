@@ -54,6 +54,7 @@ class Move:
         # self.face in "FSB"
         return "z"
 
+    # todo, remove this function
     def get_index(self, n: int):
         """
         Params:
@@ -79,9 +80,8 @@ class Move:
             int: 0-indexed layer index along the axis
         """
         if (self.face in MIDDLE_LAYERS):
-            # is possible only on odd-layered cube
-            assert n % 2 == 1
-            return [(n - 1) // 2]
+            # all inner layers
+            return list(range(1, n - 1))
 
         indices = []
         indices.append(self.index - 1)

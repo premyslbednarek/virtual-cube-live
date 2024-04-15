@@ -596,6 +596,7 @@ export default class Cube {
 
         const offset = -(this.n - 1) / 2;
         // TODO fix middle layers moves
+        // TODO M on 4x4 does not work
         const moveObj = new LayerMove(face as any, axis as any, flipped, Math.abs(coord + offset) + 1, rotationSign, false, false);
         this.makeMove(moveObj.toString());
     }

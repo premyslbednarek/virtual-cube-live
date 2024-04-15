@@ -114,27 +114,27 @@ class TestClass(unittest.TestCase):
 
     def test_index2(self):
         move = parse_move("U")
-        self.assertEqual(move.get_index(3), 0)
-        self.assertEqual(move.get_index(5), 0)
+        self.assertEqual(move.get_indices(3), [0])
+        self.assertEqual(move.get_indices(5), [0])
         move = parse_move("3U")
-        self.assertEqual(move.get_index(9), 2)
+        self.assertEqual(move.get_indices(9), [2])
         move = parse_move("2U")
-        self.assertEqual(move.get_index(9), 1)
+        self.assertEqual(move.get_indices(9), [1])
 
     def test_index3(self):
         for layer in "LDB":
             move = parse_move(layer)
-            self.assertEqual(move.get_index(3), 2)
-            self.assertEqual(move.get_index(5), 4)
+            self.assertEqual(move.get_indices(3), [2])
+            self.assertEqual(move.get_indices(5), [4])
             move = parse_move(str(3) + layer)
-            self.assertEqual(move.get_index(11), 8)
+            self.assertEqual(move.get_indices(11), [8])
 
     def test_middle(self):
         for layer in "MSE":
             move = parse_move(layer)
-            self.assertEqual(move.get_index(3), 1)
-            self.assertEqual(move.get_index(5), 2)
-            self.assertEqual(move.get_index(7), 3)
+            self.assertEqual(move.get_indices(3), [1])
+            self.assertEqual(move.get_indices(5), [1, 2, 3])
+            self.assertEqual(move.get_indices(7), [1, 2, 3, 4, 5])
 
     def test_move_basic(self):
         c = Cube(3)

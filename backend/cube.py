@@ -41,10 +41,10 @@ class Move:
         self.double = double
         self.dir = dir
 
-    def reverse(self):
+    def reverse(self) -> None:
         self.dir *= -1
 
-    def get_axis(self):
+    def get_axis(self) -> str:
         if self.face in "xyz":
             return self.face
         if self.face in "RML":
@@ -54,7 +54,7 @@ class Move:
         # self.face in "FSB"
         return "z"
 
-    def get_indices(self, n: int):
+    def get_indices(self, n: int) -> List[int]:
         """
         Params:
             n: cube dimension
@@ -79,7 +79,7 @@ class Move:
 
 
 
-def parse_move(move: str):
+def parse_move(move: str) -> Move:
     i = 0
     layer_index = 0
     while move[i].isdigit():
@@ -146,7 +146,7 @@ class Cube:
         arr = np.frombuffer(buffer, np.dtype("S1"))
         self.flat[:] = arr.copy()
 
-    def pprint(self):
+    def pprint(self) -> None:
         """
         Pretty print the cube in the following format:
 
@@ -158,7 +158,7 @@ class Cube:
         colored background.
         """
         n = self.n
-        print_table = np.chararray((3*self.n, 4*self.n))
+        print_table: np.chararray = np.chararray((3*self.n, 4*self.n))
         print_table[:] = ''
         np.set_printoptions(linewidth=200)
 
@@ -179,7 +179,7 @@ class Cube:
                       else " ", end='')
             print()
 
-    def rotate_face(self, face, dir, double=False):
+    def rotate_face(self, face, dir, double=False) -> None:
         """
         dir= 1 for clockwise face rotation
         dir=-1 for anticlockwise face rotation

@@ -531,14 +531,25 @@ def lobby_start_request(data):
 
 
 def end_current_race(lobby_id: int) -> None:
+    race: Race = db.session.scalar(
+        select(Race).where(Race.lobby_id == lobby_id, Race.ongoing)
+    )
+
+    res = db.session.execute(
+        select(User.username, Solve.time)
+            .select_from(Solve)
+            .join(User, User.id == Solve.user_id)
+            .where(Solve.race_id == race.id)
+            .order_by(Solve.time.asc())
+    )
+
+    out = [{"username": username, "time": time} for username, time in res]
     socketio.emit(
         "lobby_race_done",
+        {"results": out},
         room=lobby_id
     )
 
-    race: Race = db.session.scalar(
-        select(Race).where(Race.lobby_id == lobby_id, Race.ongoing)
-    ).one()
 
     race.ongoing = False
     db.session.commit()

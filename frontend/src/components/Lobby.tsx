@@ -9,6 +9,7 @@ import {
     Center,
     Stack,
     Space,
+    Table,
     Container
 } from "@mantine/core"
 import * as THREE from 'three';
@@ -19,6 +20,7 @@ import { useContext } from "react";
 import { Timer, CountdownTimer, Timer_ } from "../cube/timer"
 import { useHotkeys } from "react-hotkeys-hook";
 import { update } from "@tweenjs/tween.js";
+import { TupleType } from "typescript";
 
 type Enemy = {
     cube: Cube,
@@ -316,8 +318,19 @@ export default function Lobby() {
         setReady(!ready);
     }
 
-    const onRaceDone = () => {
-        console.log("the race is done")
+    interface result {
+        username: string;
+        time: number;
+    }
+    interface onRaceDoneData {
+        results: Array<result>;
+    }
+
+    const [lastRaceResults, setLastRaceResults] = useState<Array<result>>([]);
+
+    const onRaceDone = (data: onRaceDoneData) => {
+        console.log("race done", data)
+        setLastRaceResults(data.results);
         setInSolve(false);
     }
 
@@ -362,6 +375,13 @@ export default function Lobby() {
             { lobby_id: lobby_id, force: force }
         )
     }
+
+    const showLastRaceResults = lastRaceResults.map(({username, time}) => (
+        <Table.Tr key={username}>
+            <Table.Td>{username}</Table.Td>
+            <Table.Td>{time}</Table.Td>
+        </Table.Tr>
+    ))
 
     return (
         <div style={{ backgroundColor: "black", height: "100vh"}}>
@@ -421,6 +441,14 @@ export default function Lobby() {
                         }
                     </Stack>
                 </Center>
+            </div>
+            <div style={{position: "absolute", bottom: 0, left: 0}}>
+                Results
+                <Table>
+                    <Table.Tbody>
+                        { showLastRaceResults }
+                    </Table.Tbody>
+                </Table>
             </div>
         </div>
     );

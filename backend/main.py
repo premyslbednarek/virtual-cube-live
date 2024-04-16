@@ -529,6 +529,33 @@ def lobby_start_request(data):
 
     print("starting the match...")
 
+
+def end_current_race(lobby_id: int) -> None:
+    socketio.emit(
+        "lobby_race_done",
+        room=lobby_id
+    )
+
+    race: Race = db.session.scalar(
+        select(Race).where(Race.lobby_id == lobby_id, Race.ongoing)
+    ).one()
+
+    race.ongoing = False
+    db.session.commit()
+
+
+
+def check_race_done(lobby_id: int) -> None:
+    # get number of users in the lobby that are still solving the cube
+    still_solving: int = db.session.scalar(
+        select(func.count()).select_from(LobbyUser).where(LobbyUser.lobby_id == lobby_id, LobbyUser.current_connection_id is not None, LobbyUser.status == LobbyUserStatus.SOLVING)
+    )
+
+    if (still_solving == 0):
+        print(f"race in lobby {lobby_id} is over")
+        end_current_race(lobby_id)
+
+
 @socketio.on("lobby_move")
 def lobby_move(data):
     now = datetime.now()
@@ -609,6 +636,8 @@ def lobby_move(data):
             room=lobby_id,
             to=request.sid
         )
+
+        check_race_done(lobby_id)
 
     db.session.commit()
 

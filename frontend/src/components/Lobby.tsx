@@ -316,6 +316,11 @@ export default function Lobby() {
         setReady(!ready);
     }
 
+    const onRaceDone = () => {
+        console.log("the race is done")
+        setInSolve(false);
+    }
+
     useEffect(() => {
         socket.on("lobby_ready_status_", onReadyChange);
         socket.on("you_solved", onSolved);
@@ -325,6 +330,7 @@ export default function Lobby() {
         socket.on("lobby_disconnection", onDisconnection)
         socket.on("match_start", onMatchStart);
         socket.on("solved", onSomebodySolved)
+        socket.on("lobby_race_done", onRaceDone);
         return () => {
             socket.off("lobby_connection", onConnection);
             socket.off("you_solved", onSolved);
@@ -334,6 +340,7 @@ export default function Lobby() {
             socket.off("lobby_camera", onCamera);
             socket.off("match_start", onMatchStart);
             socket.off("solved", onSomebodySolved)
+            socket.off("lobby_race_done", onRaceDone);
         }
     })
 

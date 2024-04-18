@@ -10,6 +10,7 @@ import {
     Stack,
     Space,
     Table,
+    Text,
     Container
 } from "@mantine/core"
 import * as THREE from 'three';
@@ -21,6 +22,22 @@ import { Timer, CountdownTimer, Timer_ } from "../cube/timer"
 import { useHotkeys } from "react-hotkeys-hook";
 import { update } from "@tweenjs/tween.js";
 import { TupleType } from "typescript";
+
+type LobbyPoints = Array<{
+    username: string;
+    points: number;
+}>;
+
+type RaceResults = Array<{
+    username: string;
+    time: number;
+    pointsDelta: number;
+}>;
+
+interface onRaceDoneData {
+    results: RaceResults;
+    lobbyPoints: LobbyPoints;
+}
 
 type Enemy = {
     cube: Cube,
@@ -120,6 +137,62 @@ function TimerDisplay({timer1, timer2} : {timer1: Timer_, timer2: Timer_}) {
     return <div style={{fontSize: "40px", textAlign: "center"}} ref={containerRef}></div>
 }
 
+function Results({lastResult, lobbyPoints} : {lastResult: RaceResults, lobbyPoints: LobbyPoints }) {
+    const lastRaceRows = lastResult.map(({username, time, pointsDelta}) => (
+        <Table.Tr key={username}>
+            <Table.Td>{username}</Table.Td>
+            <Table.Td>{time}</Table.Td>
+            <Table.Td>+{pointsDelta}</Table.Td>
+        </Table.Tr>
+    ))
+
+    const pointsRows = lobbyPoints.map(({username, points}) => (
+        <Table.Tr key={username}>
+            <Table.Td>{username}</Table.Td>
+            <Table.Td>{points}</Table.Td>
+        </Table.Tr>
+    ))
+
+    return (
+        <div style={{position: "absolute", bottom: 0, left: 0}}>
+            { lastResult.length &&
+                <>
+                    <Text>Last race results:</Text>
+                    <Table>
+                        <Table.Thead>
+                            <Table.Tr>
+                                <Table.Th>Username</Table.Th>
+                                <Table.Th>Time</Table.Th>
+                                <Table.Th>Points</Table.Th>
+                            </Table.Tr>
+                        </Table.Thead>
+                        <Table.Tbody>
+                            { lastRaceRows }
+                        </Table.Tbody>
+                    </Table>
+                </>
+            }
+            {
+                lobbyPoints.length &&
+                <>
+                    <Text>Total points:</Text>
+                    <Table>
+                        <Table.Thead>
+                            <Table.Tr>
+                                <Table.Th>Username</Table.Th>
+                                <Table.Th>Points</Table.Th>
+                            </Table.Tr>
+                        </Table.Thead>
+                        <Table.Tbody>
+                            { pointsRows }
+                        </Table.Tbody>
+                    </Table>
+                </>
+            }
+        </div>
+    );
+}
+
 
 export default function Lobby() {
     const params = useParams();
@@ -131,6 +204,9 @@ export default function Lobby() {
     const [isAdmin, setIsAdmin] = useState(false);
     const [inSolve, setInSolve] = useState(false);
     const [cubeSize, setCubeSize] = useState(3);
+    const [lastRaceResults, setLastRaceResults] = useState<RaceResults>([]);
+    const [lobbyPoints, setLobbyPoints] = useState<LobbyPoints>([]);
+
 
     const cube = useMemo(() => new Cube(cubeSize), [cubeSize]);
     const timer = useMemo(() => new Timer(), []);
@@ -318,19 +394,9 @@ export default function Lobby() {
         setReady(!ready);
     }
 
-    interface result {
-        username: string;
-        time: number;
-    }
-    interface onRaceDoneData {
-        results: Array<result>;
-    }
-
-    const [lastRaceResults, setLastRaceResults] = useState<Array<result>>([]);
-
     const onRaceDone = (data: onRaceDoneData) => {
-        console.log("race done", data)
         setLastRaceResults(data.results);
+        setLobbyPoints(data.lobbyPoints);
         setInSolve(false);
     }
 
@@ -375,13 +441,6 @@ export default function Lobby() {
             { lobby_id: lobby_id, force: force }
         )
     }
-
-    const showLastRaceResults = lastRaceResults.map(({username, time}) => (
-        <Table.Tr key={username}>
-            <Table.Td>{username}</Table.Td>
-            <Table.Td>{time}</Table.Td>
-        </Table.Tr>
-    ))
 
     return (
         <div style={{ backgroundColor: "black", height: "100vh"}}>
@@ -442,14 +501,7 @@ export default function Lobby() {
                     </Stack>
                 </Center>
             </div>
-            <div style={{position: "absolute", bottom: 0, left: 0}}>
-                Results
-                <Table>
-                    <Table.Tbody>
-                        { showLastRaceResults }
-                    </Table.Tbody>
-                </Table>
-            </div>
+            { !inSolve && <Results lastResult={lastRaceResults} lobbyPoints={lobbyPoints} /> }
         </div>
     );
 }

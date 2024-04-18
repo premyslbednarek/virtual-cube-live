@@ -529,6 +529,20 @@ def lobby_start_request(data):
 
     print("starting the match...")
 
+class LobbyPoints(TypedDict):
+    username: str
+    points: int
+
+
+def get_lobby_points(lobby_id: int) -> List[LobbyPoints]:
+    res = db.session.execute(
+        select(User.username, LobbyUser.points)
+            .select_from(LobbyUser)
+            .join(User, User.id == LobbyUser.user_id)
+            .where(LobbyUser.lobby_id == lobby_id)
+            .order_by(LobbyUser.points.desc())
+    )
+    return [{"username": username, "points": points} for username, points in res]
 
 def end_current_race(lobby_id: int) -> None:
     race: Race = db.session.scalar(
@@ -536,17 +550,28 @@ def end_current_race(lobby_id: int) -> None:
     )
 
     res = db.session.execute(
-        select(User.username, Solve.time)
+        select(User.id, User.username, Solve.time)
             .select_from(Solve)
             .join(User, User.id == Solve.user_id)
             .where(Solve.race_id == race.id)
             .order_by(Solve.time.asc())
     )
 
-    out = [{"username": username, "time": time} for username, time in res]
+    points = 10
+    results = []
+    for id, username, time in res:
+        results.append({"username": username, "time": time, "pointsDelta": points})
+        lobbyuser: LobbyUser = db.session.scalar(
+            select(LobbyUser).where(LobbyUser.user_id == id, LobbyUser.lobby_id == lobby_id)
+        )
+        lobbyuser.points = lobbyuser.points + points
+        points -= 1
+
+
+
     socketio.emit(
         "lobby_race_done",
-        {"results": out},
+        {"results": results, "lobbyPoints": get_lobby_points(lobby_id)},
         room=lobby_id
     )
 

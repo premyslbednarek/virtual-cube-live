@@ -401,7 +401,13 @@ def handle_lobby_conection(data):
         skip_sid=request.sid
     )
 
-    return {"code": 0, "userList": usernames, "isAdmin": is_admin, "cubeSize": lobby.cube_size }
+    return {
+        "code": 0,
+        "userList": usernames,
+        "isAdmin": is_admin,
+        "cubeSize": lobby.cube_size,
+        "points": get_lobby_points(lobby_id)
+    }
 
 @socketio.on("lobby_ready_status")
 def send_ready_status(data):

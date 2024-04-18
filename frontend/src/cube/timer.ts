@@ -1,6 +1,21 @@
 const MS_IN_SECOND = 1000;
 const SEC_IN_MINUTE = 60;
 
+export function print_time(time_in_ms: number) {
+    time_in_ms = Math.round(time_in_ms);
+    const ms = time_in_ms % MS_IN_SECOND;
+
+    const timeSec = Math.floor(time_in_ms / MS_IN_SECOND);
+    const sec = timeSec % SEC_IN_MINUTE;
+
+    const minutes = Math.floor(timeSec / SEC_IN_MINUTE)
+
+    return ((minutes > 0) ? minutes + ":" : "") +
+        sec.toString().padStart(2, '0') + ":" +
+        ms.toString().padStart(3, '0');
+
+}
+
 export abstract class Timer_ {
     domElement: HTMLElement | undefined
     running: boolean
@@ -23,24 +38,10 @@ export abstract class Timer_ {
 
     updateDom() {
         if (this.domElement === undefined) return;
-        this.domElement.innerHTML = this.pretty();
+        this.domElement.innerHTML = print_time(this.getTimeMS());
     }
 
     abstract getTimeMS() : number;
-
-    pretty() {
-        const timeMs = this.getTimeMS();
-        const ms = timeMs % MS_IN_SECOND;
-
-        const timeSec = Math.floor(timeMs / MS_IN_SECOND);
-        const sec = timeSec % SEC_IN_MINUTE;
-
-        const minutes = Math.floor(timeSec / SEC_IN_MINUTE)
-
-        return ((minutes > 0) ? minutes + ":" : "") +
-            sec.toString().padStart(2, '0') + ":" +
-            ms.toString().padStart(3, '0');
-    }
 
     update() {
         if (!this.running) return;

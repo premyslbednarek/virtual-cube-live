@@ -22,6 +22,7 @@ import { Timer, CountdownTimer, Timer_ } from "../cube/timer"
 import { useHotkeys } from "react-hotkeys-hook";
 import { update } from "@tweenjs/tween.js";
 import { TupleType } from "typescript";
+import produce from "immer";
 
 type LobbyPoints = Array<{
     username: string;
@@ -275,6 +276,9 @@ export default function Lobby() {
 
     const onConnection = ({username} : {username: string}) => {
         console.log(username, "has joined the lobby");
+        setLobbyPoints(produce((draft) => {
+            draft.push({username: username, points: 0})
+        }))
         setEnemies(new Map(enemies.set(username, {cube: new Cube(cubeSize), readyStatus: false })));
     };
 
@@ -338,6 +342,7 @@ export default function Lobby() {
             userList: string[];
             isAdmin: boolean;
             cubeSize: number;
+            points: LobbyPoints;
         }
 
         socket.emit("lobby_connect",
@@ -353,6 +358,7 @@ export default function Lobby() {
                     m.set(username, {cube: new Cube(response.cubeSize), readyStatus: false});
                 });
 
+                setLobbyPoints(response.points)
                 setEnemies(m);
                 setIsAdmin(response.isAdmin);
                 setCubeSize(response.cubeSize);

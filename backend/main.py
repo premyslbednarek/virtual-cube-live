@@ -54,7 +54,12 @@ def get_user(user_id: int):
             Solve.id,
             Solve.completed,
             Solve.time,
-            Solve.race_id
+            Solve.race_id,
+            Scramble.cube_size
+        ).select_from(
+            Solve
+        ).join(
+            Scramble, Solve.scramble_id == Scramble.id
         ).where(
             Solve.user_id == user_id
         )

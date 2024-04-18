@@ -10,6 +10,7 @@ type Solve = {
     completed: boolean;
     time: number,
     race_id: number
+    cube_size: number
 }
 
 type UserInfo = {
@@ -39,6 +40,7 @@ export default function UserPage() {
     const rows = data?.solves.slice((page - 1)* rowsPerPage, page * rowsPerPage).map((solve) => (
         <Table.Tr key={solve.id}>
             <Table.Th>{solve.id}</Table.Th>
+            <Table.Th>{solve.cube_size}x{solve.cube_size}x{solve.cube_size}</Table.Th>
             <Table.Th>{solve.completed ? print_time(solve.time) : "DNF"}</Table.Th>
             <Table.Th>{solve.race_id ? solve.race_id : "-"}</Table.Th>
             <Table.Th><Link to={`/replay/${solve.id}`}>Watch replay</Link></Table.Th>
@@ -57,6 +59,7 @@ export default function UserPage() {
                     <Table.Thead>
                         <Table.Tr>
                             <Table.Th>Solve id</Table.Th>
+                            <Table.Th>Cube size</Table.Th>
                             <Table.Th>Solve time</Table.Th>
                             <Table.Th>Race id</Table.Th>
                             <Table.Th>Watch replay</Table.Th>

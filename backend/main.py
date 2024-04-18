@@ -391,19 +391,25 @@ def handle_lobby_conection(data):
 
     # fetch usernames of users in the room
     q = select(User.username).join(LobbyUser, User.id == LobbyUser.user_id).where(LobbyUser.lobby_id == lobby_id, User.username != current_user.username)
-    usernames = db.session.scalars(q).all()
+    usernames = db.session.execute(
+        select(User.username, LobbyUser.status == LobbyUserStatus.READY)
+            .join(LobbyUser, User.id == LobbyUser.user_id)
+            .where(LobbyUser.lobby_id == lobby_id, User.username != current_user.username)
+    ).all()
 
     # inform other users in the lobby about the connection
     socketio.emit(
         "lobby_connection",
-        { "username": current_user.username },
+        { "username": current_user.username, "points": lobbyuser.points },
         room=lobby_id,
         skip_sid=request.sid
     )
 
+    print("USERS", usernames)
+
     return {
         "code": 0,
-        "userList": usernames,
+        "userList": [(username, ready) for username, ready in usernames],
         "isAdmin": is_admin,
         "cubeSize": lobby.cube_size,
         "points": get_lobby_points(lobby_id)

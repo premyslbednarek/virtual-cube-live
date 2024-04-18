@@ -23,6 +23,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { update } from "@tweenjs/tween.js";
 import { TupleType } from "typescript";
 import produce from "immer";
+import { print_time } from "../cube/timer";
 
 type LobbyPoints = Array<{
     username: string;
@@ -123,7 +124,7 @@ function DisplayEnemy({username, enemy} : {username: string, enemy: Enemy}) {
             </div>
             <RenderedCube style={{height: "100%"}}cube={enemy.cube} />
             <div style={{position: "absolute", bottom: 0, display: "flex", alignContent: "center", justifyContent: "center", margin: "auto"}}>
-                { enemy.time ? enemy.time : "" }
+                { enemy.time ? print_time(enemy.time) : "" }
             </div>
         </div>
     );
@@ -142,7 +143,7 @@ function Results({lastResult, lobbyPoints} : {lastResult: RaceResults, lobbyPoin
     const lastRaceRows = lastResult.map(({username, time, pointsDelta}) => (
         <Table.Tr key={username}>
             <Table.Td>{username}</Table.Td>
-            <Table.Td>{time}</Table.Td>
+            <Table.Td>{print_time(time)}</Table.Td>
             <Table.Td>+{pointsDelta}</Table.Td>
         </Table.Tr>
     ))
@@ -274,10 +275,11 @@ export default function Lobby() {
         setEnemies(updated);
     }
 
-    const onConnection = ({username} : {username: string}) => {
+    const onConnection = ({username, points} : {username: string, points: number}) => {
         console.log(username, "has joined the lobby");
         setLobbyPoints(produce((draft) => {
-            draft.push({username: username, points: 0})
+            if (draft.find((el) => el.username == username)) return;
+            draft.push({username: username, points: points})
         }))
         setEnemies(new Map(enemies.set(username, {cube: new Cube(cubeSize), readyStatus: false })));
     };
@@ -339,23 +341,24 @@ export default function Lobby() {
 
         interface ILobbyConnectResponse {
             code: number;
-            userList: string[];
+            userList: Array<[string, boolean]>; // username, ready, points
             isAdmin: boolean;
             cubeSize: number;
-            points: LobbyPoints;
+            points: LobbyPoints
         }
 
         socket.emit("lobby_connect",
             { lobby_id: lobby_id },
             function(response: ILobbyConnectResponse) {
+                console.log(response)
                 if (response.code === 1) {
                     alert("You have already joined this lobby.");
                     return;
                 }
 
                 const m = new Map(enemies);
-                response.userList.forEach((username: string) => {
-                    m.set(username, {cube: new Cube(response.cubeSize), readyStatus: false});
+                response.userList.forEach(([username, ready]) => {
+                    m.set(username, {cube: new Cube(response.cubeSize), readyStatus: ready});
                 });
 
                 setLobbyPoints(response.points)

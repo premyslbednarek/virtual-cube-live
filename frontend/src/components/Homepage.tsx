@@ -49,11 +49,16 @@ export default function Home() {
     const onLobbyAdd = (lobby: LobbyInfo) => {
       setLobbies([lobby, ...lobbies]);
     }
+    const onLobbyDelete = ({lobby_id} : {lobby_id: number}) => {
+      setLobbies(lobbies.filter((lobby) => lobby.lobby_id != lobby_id))
+    }
 
     socket.on("lobby_add", onLobbyAdd);
+    socket.on("lobby_delete", onLobbyDelete);
 
     return () => {
       socket.off("lobby_add", onLobbyAdd)
+      socket.off("lobby_delete", onLobbyDelete);
     }
   })
 

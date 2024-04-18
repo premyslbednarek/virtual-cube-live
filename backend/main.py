@@ -12,8 +12,11 @@ from pyTwistyScrambler import scrambler333, scrambler444, scrambler555, scramble
 from cube import Cube
 from typing import List
 from enum import Enum
-from time import sleep
+# from time import sleep
 from typing import TypedDict, Tuple
+from eventlet import sleep
+import eventlet
+eventlet.monkey_patch()
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db3.db' # Using SQLite as the database
@@ -27,7 +30,7 @@ with app.app_context():
     db.create_all()
 
 # https://github.com/miguelgrinberg/Flask-SocketIO/issues/1356#issuecomment-681830773
-socketio = SocketIO(app, cors_allowed_origins="*", engineio_logger=False)
+socketio = SocketIO(app, cors_allowed_origins="*", engineio_logger=True)
 
 sidToName = {}
 i = 0
@@ -114,8 +117,20 @@ def get_user_info():
 
 @app.route("/api/get_lobbies")
 def get_lobbies():
-    q = select(User.username, Lobby.id).select_from(Lobby).where(Lobby.private == False).join(User, Lobby.creator_id == User.id).order_by(Lobby.id.desc()).limit(10)
-    res = db.session.execute(q).all();
+    res = db.session.execute(
+        select(
+            User.username,
+            Lobby.id)
+        .select_from(
+            Lobby
+        ).where(
+            Lobby.private == False,
+            Lobby.status != LobbyStatus.ENDED
+        ).join(
+            User, Lobby.creator_id == User.id
+        ).order_by(Lobby.id.desc()).limit(20)
+
+    ).all();
     print()
     print("RESULT")
     print(res)
@@ -613,12 +628,16 @@ def end_current_race(lobby_id: int) -> None:
     points = 10
     results = []
     for id, username, time in res:
-        results.append({"username": username, "time": time, "pointsDelta": points})
-        lobbyuser: LobbyUser = db.session.scalar(
-            select(LobbyUser).where(LobbyUser.user_id == id, LobbyUser.lobby_id == lobby_id)
-        )
-        lobbyuser.points = lobbyuser.points + points
-        points -= 1
+        print(id, username, time, points)
+        if time is None:
+            results.append({"username": username, "time": None, "pointsDelta": 0})
+        else:
+            results.append({"username": username, "time": time, "pointsDelta": points})
+            lobbyuser: LobbyUser = db.session.scalar(
+                select(LobbyUser).where(LobbyUser.user_id == id, LobbyUser.lobby_id == lobby_id)
+            )
+            lobbyuser.points = lobbyuser.points + points
+            points -= 1
 
 
     print("rooms", rooms())
@@ -736,7 +755,7 @@ def lobby_move(data):
                 "start_countdown",
                 room=lobby_id
             )
-            thread = socketio.start_background_task(target=end_race_if_not_ended, race_id=race.id, lobby_id=lobby_id, delay=10)
+            socketio.start_background_task(target=end_race_if_not_ended, race_id=race.id, lobby_id=lobby_id, delay=10)
             # thread.start()
             print("Thread started")
 
@@ -816,6 +835,7 @@ def disconnect():
         q = select(LobbyUser).where(LobbyUser.user_id == conn.user_id, LobbyUser.lobby_id == conn.lobby_id)
         lobby_user: LobbyUser = db.session.scalar(q)
         lobby_user.current_connection_id = None
+        db.session.commit()
 
         leave_room(conn.lobby_id)
 
@@ -825,6 +845,35 @@ def disconnect():
             room=conn.lobby_id
         )
 
+        # check after given time, if the lobby is still empty, delete it
+        @copy_current_request_context
+        def lobby_cleanup(lobby_id):
+            print("bef")
+            sleep(5)
+            print("after sleep")
+            in_lobby = db.session.scalar(
+                select(
+                    func.count()
+                ).select_from(
+                    LobbyUser
+                ).where(
+                    LobbyUser.lobby_id == lobby_id,
+                    LobbyUser.current_connection_id != None
+                )
+            )
+            print("in lobby", in_lobby)
+            if in_lobby == 0:
+                print("deleting")
+                lobby = db.session.get(Lobby, lobby_id)
+                lobby.status = LobbyStatus.ENDED
+                db.session.commit()
+                socketio.emit(
+                    "lobby_delete",
+                    { "lobby_id": lobby_id }
+                )
+
+        eventlet.spawn(lobby_cleanup, lobby_id=conn.lobby_id)
+        # socketio.start_background_task(target=lobby_cleanup)
 
     conn.disconnection_date = func.now()
     db.session.commit()

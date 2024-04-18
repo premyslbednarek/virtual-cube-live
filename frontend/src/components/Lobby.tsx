@@ -143,7 +143,7 @@ function Results({lastResult, lobbyPoints} : {lastResult: RaceResults, lobbyPoin
     const lastRaceRows = lastResult.map(({username, time, pointsDelta}) => (
         <Table.Tr key={username}>
             <Table.Td>{username}</Table.Td>
-            <Table.Td>{print_time(time)}</Table.Td>
+            <Table.Td>{time ? print_time(time) : "DNF"}</Table.Td>
             <Table.Td>+{pointsDelta}</Table.Td>
         </Table.Tr>
     ))

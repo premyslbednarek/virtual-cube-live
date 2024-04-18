@@ -25,7 +25,7 @@ import { TupleType } from "typescript";
 type Enemy = {
     cube: Cube,
     readyStatus: boolean
-    time: number | null
+    time?: number
 }
 
 export function ControlledCube({cube, style} : {cube: Cube, style?: React.CSSProperties}) {
@@ -199,7 +199,7 @@ export default function Lobby() {
 
     const onConnection = ({username} : {username: string}) => {
         console.log(username, "has joined the lobby");
-        setEnemies(new Map(enemies.set(username, {cube: new Cube(cubeSize), readyStatus: false, time: null})));
+        setEnemies(new Map(enemies.set(username, {cube: new Cube(cubeSize), readyStatus: false })));
     };
 
     type MatchStartData = {
@@ -274,7 +274,7 @@ export default function Lobby() {
 
                 const m = new Map(enemies);
                 response.userList.forEach((username: string) => {
-                    m.set(username, {cube: new Cube(response.cubeSize), readyStatus: false, time: null});
+                    m.set(username, {cube: new Cube(response.cubeSize), readyStatus: false});
                 });
 
                 setEnemies(m);

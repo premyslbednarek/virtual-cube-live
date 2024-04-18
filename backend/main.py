@@ -12,7 +12,7 @@ from cube import Cube
 from typing import List
 from enum import Enum
 from time import sleep
-from typing import TypedDict
+from typing import TypedDict, Tuple
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db3.db' # Using SQLite as the database
@@ -33,6 +33,41 @@ i = 0
 
 class RequestSolutionData(TypedDict):
     lobby_id: int
+
+@app.route('/api/user/<int:user_id>')
+def get_user(user_id: int):
+    row = db.session.execute(
+        select(
+            User.username,
+            User.role,
+            User.created_date
+        ).where(User.id == user_id)
+    ).one_or_none()
+
+    if row is None:
+        return abort(404)
+
+    username, role, created_date = row._tuple()
+
+    solves = db.session.execute(
+        select(
+            Solve.id,
+            Solve.completed,
+            Solve.time,
+            Solve.race_id
+        ).where(
+            Solve.user_id == user_id
+        )
+    ).all()
+    print(solves, type(solves))
+
+    return {
+        "username": username,
+        "role": "user" if role == UserRole.USER else "admin",
+        "created_date": created_date,
+        "solves": [solve._asdict() for solve in solves]
+    }
+
 
 @app.route('/api/request_solution', methods=["POST"])
 def handle_solution_request():
@@ -586,8 +621,6 @@ def end_current_race(lobby_id: int) -> None:
         {"results": results, "lobbyPoints": get_lobby_points(lobby_id)},
         room=lobby_id
     )
-
-
     race.ongoing = False
     db.session.commit()
 

@@ -1,5 +1,6 @@
-from flask import Flask, request, send_from_directory, render_template, redirect, flash, url_for, jsonify, abort
-from flask_socketio import SocketIO, join_room, leave_room
+from flask import Flask, request, send_from_directory, render_template, redirect, flash, url_for, jsonify, abort, copy_current_request_context
+from threading import Thread
+from flask_socketio import SocketIO, join_room, leave_room, rooms
 from datetime import datetime, timedelta
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -620,7 +621,8 @@ def end_current_race(lobby_id: int) -> None:
         points -= 1
 
 
-
+    print("rooms", rooms())
+    print("emmitting", lobby_id)
     socketio.emit(
         "lobby_race_done",
         {"results": results, "lobbyPoints": get_lobby_points(lobby_id)},
@@ -629,6 +631,8 @@ def end_current_race(lobby_id: int) -> None:
     race.ongoing = False
     db.session.commit()
 
+
+import time
 
 
 def check_race_done(lobby_id: int) -> None:
@@ -709,6 +713,34 @@ def lobby_move(data):
         q = select(LobbyUser).where(LobbyUser.user_id==current_user.id, LobbyUser.lobby_id==lobby_id)
         user: LobbyUser = db.session.scalars(q).one()
         user.status = LobbyUserStatus.SOLVED
+
+        race: Race = db.session.scalar(
+            select(Race).where(Race.lobby_id == lobby_id, Race.ongoing)
+        )
+
+        print("rooms", rooms())
+
+        @copy_current_request_context
+        def end_race_if_not_ended(race_id: int, lobby_id: int, delay: int):
+            print("rooms", rooms())
+            print("before sleep")
+            time.sleep(delay)
+            print("after sleep")
+
+            race = db.session.get(Race, race_id)
+            if race.ongoing:
+                end_current_race(lobby_id)
+
+        if race.finishers_count == 0:
+            socketio.emit(
+                "start_countdown",
+                room=lobby_id
+            )
+            thread = socketio.start_background_task(target=end_race_if_not_ended, race_id=race.id, lobby_id=lobby_id, delay=10)
+            # thread.start()
+            print("Thread started")
+
+        race.finishers_count = race.finishers_count + 1
 
         socketio.emit(
             "solved",

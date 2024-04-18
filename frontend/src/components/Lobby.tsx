@@ -404,9 +404,16 @@ export default function Lobby() {
     }
 
     const onRaceDone = (data: onRaceDoneData) => {
+        timer.stop();
         setLastRaceResults(data.results);
         setLobbyPoints(data.lobbyPoints);
         setInSolve(false);
+        setPaused(true)
+    }
+
+    const onStartCountdown = () => {
+        setTimeLeft(10);
+        setPaused(false);
     }
 
     useEffect(() => {
@@ -419,6 +426,7 @@ export default function Lobby() {
         socket.on("match_start", onMatchStart);
         socket.on("solved", onSomebodySolved)
         socket.on("lobby_race_done", onRaceDone);
+        socket.on("start_countdown", onStartCountdown);
         return () => {
             socket.off("lobby_connection", onConnection);
             socket.off("you_solved", onSolved);
@@ -429,6 +437,7 @@ export default function Lobby() {
             socket.off("match_start", onMatchStart);
             socket.off("solved", onSomebodySolved)
             socket.off("lobby_race_done", onRaceDone);
+            socket.off("start_countdown", onStartCountdown);
         }
     })
 
@@ -451,6 +460,20 @@ export default function Lobby() {
         )
     }
 
+    const [timeLeft, setTimeLeft] = useState(10);
+    const [paused, setPaused] = useState(true);
+
+    useEffect(() => {
+        if (!paused) {
+            const interval = setInterval(() => {
+                setTimeLeft(timeLeft => timeLeft - 1)
+            }, 1000);
+            return () => {
+                clearInterval(interval);
+            }
+        }
+    }, [paused])
+
     return (
         <div style={{ backgroundColor: "black", height: "100vh"}}>
           <div style={{position: "absolute"}}>
@@ -458,6 +481,7 @@ export default function Lobby() {
             &nbsp;|&nbsp;
             <Link className="App-link" to="/page2">Page2</Link>
             <p>{params.lobby_id} {userContext.username}</p>
+            { !paused && <div>{timeLeft}</div>}
           </div>
           <div style={{height: "100%", display: "flex"}}>
             <ControlledCube

@@ -307,6 +307,7 @@ export default function Lobby() {
         const updatedEnemies = new Map(enemies);
         for (const enemy of updatedEnemies.values()) {
             enemy.readyStatus = false;
+            enemy.time = undefined;
         }
 
         setInSolve(true);

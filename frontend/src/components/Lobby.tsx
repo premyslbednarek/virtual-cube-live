@@ -429,8 +429,8 @@ export default function Lobby() {
         setPaused(true)
     }
 
-    const onStartCountdown = () => {
-        setTimeLeft(10);
+    const onStartCountdown = ({waitTime} : {waitTime: number}) => {
+        setTimeLeft(waitTime);
         setPaused(false);
     }
 

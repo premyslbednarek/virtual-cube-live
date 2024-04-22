@@ -19,7 +19,7 @@ from typing import TypedDict, Tuple
 from eventlet import sleep
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db3.db' # Using SQLite as the database
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.db' # Using SQLite as the database
 app.config['SECRET_KEY'] = "secret"
 
 login_manager = LoginManager()
@@ -143,6 +143,7 @@ def get_lobbies():
 class LobbyCreateData(TypedDict):
     layers: int
     private: bool
+    waitTime: int
 
 class LobbyCreateResponse(TypedDict):
     lobby_id: int
@@ -151,7 +152,12 @@ class LobbyCreateResponse(TypedDict):
 @login_required
 def api_lobby_create() -> LobbyCreateResponse:
     data: LobbyCreateData = json.loads(request.data)
-    lobby = Lobby(creator_id = current_user.id, private=data["private"], cube_size=data["layers"])
+    lobby = Lobby(
+        creator_id = current_user.id,
+        private=data["private"],
+        cube_size=data["layers"],
+        wait_time=data["waitTime"]
+    )
     db.session.add(lobby)
     db.session.commit()
 
@@ -739,12 +745,11 @@ def lobby_move(data):
 
         print("rooms", rooms())
 
+        lobby = db.session.get(Lobby, lobby_id)
+
         @copy_current_request_context
         def end_race_if_not_ended(race_id: int, lobby_id: int, delay: int):
-            print("rooms", rooms())
-            print("before sleep")
             time.sleep(delay)
-            print("after sleep")
 
             race = db.session.get(Race, race_id)
             if race.ongoing:
@@ -753,11 +758,10 @@ def lobby_move(data):
         if race.finishers_count == 0:
             socketio.emit(
                 "start_countdown",
+                { "waitTime": lobby.wait_time },
                 room=lobby_id
             )
-            socketio.start_background_task(target=end_race_if_not_ended, race_id=race.id, lobby_id=lobby_id, delay=10)
-            # thread.start()
-            print("Thread started")
+            socketio.start_background_task(target=end_race_if_not_ended, race_id=race.id, lobby_id=lobby_id, delay=lobby.wait_time)
 
         race.finishers_count = race.finishers_count + 1
 

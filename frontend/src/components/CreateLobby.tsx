@@ -12,7 +12,8 @@ export default function CreateLobbyButton() {
   const form = useForm({
     initialValues: {
       layers: 3,
-      private: false
+      private: false,
+      waitTime: 10
     }
   })
 
@@ -43,6 +44,12 @@ export default function CreateLobbyButton() {
           label="cube layers"
           min={2}
           max={7}
+        />
+        <NumberInput
+          style={{width: "30%"}}
+          {...form.getInputProps('waitTime')}
+          label="wait time"
+          min={10}
         />
         <Checkbox
           mt="md"

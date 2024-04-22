@@ -55,6 +55,7 @@ class Lobby(db.Model):
     cube_size: Mapped[int] = mapped_column(default=3)
     inspection_length: Mapped[int] = mapped_column(default=DEFAULT_INSPECTION_TIME)
     races_finished: Mapped[int] = mapped_column(default=0)
+    wait_time: Mapped[int]
 
 class LobbyUser(db.Model):
     __tablename__ = "lobby_user"

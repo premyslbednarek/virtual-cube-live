@@ -1,4 +1,5 @@
 import eventlet
+import time
 eventlet.monkey_patch()
 from flask import Flask, request, send_from_directory, render_template, redirect, flash, url_for, jsonify, abort, copy_current_request_context
 from threading import Thread
@@ -14,7 +15,6 @@ from pyTwistyScrambler import scrambler333, scrambler444, scrambler555, scramble
 from cube import Cube
 from typing import List
 from enum import Enum
-# from time import sleep
 from typing import TypedDict, Tuple
 from eventlet import sleep
 
@@ -174,10 +174,6 @@ def api_lobby_create() -> LobbyCreateResponse:
 def load_user(user_id):
     return db.session.get(User, user_id)
 
-@app.route("/dev")
-def dev():
-    return render_template("test.html")
-
 @app.route("/api/solve/<int:solve_id>")
 def solve(solve_id: int):
     solve: Solve = db.session.get(Solve, solve_id)
@@ -221,43 +217,6 @@ def solve(solve_id: int):
         "time": solve.time
     }
 
-@app.route("/lobby/")
-def lobby_index():
-    return render_template("lobby.html")
-
-@app.route("/lobby/new")
-@login_required
-def lobby_create():
-    lobby = Lobby(creator_id = current_user.id)
-    db.session.add(lobby)
-    db.session.commit()
-
-    lobby_id: int = lobby.id
-    return redirect(f"/lobby/{lobby_id}")
-
-@app.route("/lobby/<int:lobby_id>")
-@login_required
-def lobby_join(lobby_id: int):
-    # # show start button only for the lobby creator
-    q = select(Lobby.creator_id).filter_by(id=lobby_id)
-    lobby_creator_id = db.session.execute(q).scalar()
-    is_creator = int(lobby_creator_id == current_user.id)
-
-    return render_template("race.html", lobby_id=lobby_id, is_creator=is_creator)
-
-@app.route('/')
-def index():
-    return render_template("index.html")
-
-@app.route('/js/<path:path>')
-def js(path):
-    return send_from_directory("../client/js", path)
-
-@app.route('/register', methods=["GET"])
-def register():
-    return render_template("register.html")
-
-
 @app.route('/register', methods=["POST"])
 def register_post():
     data = json.loads(request.data)
@@ -287,10 +246,6 @@ def register_post():
     print("registration success")
     return "ok", 200
 
-@app.route('/login', methods=["GET"])
-def login():
-    return render_template("login.html", text="login")
-
 @app.route('/login', methods=["POST"])
 def login_post():
     data = json.loads(request.data)
@@ -316,83 +271,6 @@ def logout():
     print(current_user.username, "logged out")
     logout_user()
     return "ok", 200
-
-@app.route('/style/<path:path>')
-def style(path):
-    return send_from_directory("../client/style", path)
-
-@app.route('/leaderboard')
-def leaderboard():
-    result = db.session.execute(
-        select(
-            User.username,
-            User.id,
-            Solve.id,
-            Solve.time,
-            Solve.race_id
-        ).select_from(
-            Solve
-        ).where(
-            Solve.completed == True
-        )
-    ).all()
-    print(result)
-    return render_template("leaderboard.html", solves=list(map(tuple, result)))
-
-
-# @socketio.on('message')
-# def print_message(message):
-#     print("Socket ID: " , request.sid)
-#     print("Incoming message: ", message)
-#     socketio.emit("ack", "the server has gotten the message")
-
-
-# @socketio.on('ack')
-# def print_ack(message):
-#     print("ACK", message)
-#     print("The client has gotten the message.")
-
-# @socketio.on("move")
-# def distributeMove(message):
-#     socketio.emit("opponentMove", [sidToName[request.sid], message], skip_sid=request.sid)
-
-# @socketio.on("layersChange")
-# def distributeMove(newLayers):
-#     print(f"{sidToName[request.sid]} changed cube to {newLayers}x{newLayers}")
-#     socketio.emit("opponentLayers", [sidToName[request.sid], newLayers], skip_sid=request.sid)
-
-# @socketio.on("camera")
-# def distributeCamera(message):
-#     socketio.emit("opponentCamera", [sidToName[request.sid], message], skip_sid=request.sid)
-
-# @socketio.on("reset")
-# def distributeReset():
-#     socketio.emit("opponentReset", [sidToName[request.sid]], skip_sid=request.sid)
-
-# @socketio.on("uploadSolve")
-# def insertSolve(data):
-#     user_id = current_user.get_id()
-#     user = load_user(user_id)
-#     id = None
-#     if user:
-#         id = user.id
-
-#     solve = Solve(
-#         user_id=id,
-#         layers=data["layers"],
-#         scramble=json.dumps(data["scramble"]),
-#         solution=json.dumps(data["solution"]),
-#         time=data["timeString"]
-#     )
-#     db.session.add(solve)
-#     db.session.commit()
-#     # db.session.refresh(solve)
-#     return solve.id
-
-# @socketio.on("getSolve")
-# def getSolve(id):
-#     solve = Solve.query.filter_by(id=id).first()
-#     return { "scramble": solve.scramble, "solution": solve.solution }
 
 def create_connection(size, cube_id=None, lobby_id=None):
     default_state = Cube(size).serialize()
@@ -655,9 +533,6 @@ def end_current_race(lobby_id: int) -> None:
     )
     race.ongoing = False
     db.session.commit()
-
-
-import time
 
 
 def check_race_done(lobby_id: int) -> None:

@@ -165,7 +165,7 @@ function Results({lastResult, lobbyPoints} : {lastResult: RaceResults, lobbyPoin
 
     return (
         <div style={{position: "absolute", bottom: 20, left: 20}}>
-            { lastResult.length &&
+            { lastResult.length !== 0 &&
                 <>
                     <Title order={4}>Last race results</Title>
                     <Table>
@@ -184,7 +184,6 @@ function Results({lastResult, lobbyPoints} : {lastResult: RaceResults, lobbyPoin
                 </>
             }
             {
-                lobbyPoints.length &&
                 <>
                     <Title mt={10} order={4}>Total points</Title>
                     <Table>

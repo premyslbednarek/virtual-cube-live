@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom"
+import { useParams } from "react-router-dom"
 import React, { useRef, useEffect, useState, useMemo } from "react"
 import Cube from "../cube/cube";
 import { parse_move } from "../cube/move";
@@ -17,11 +17,12 @@ import { socket } from "../socket";
 import './lobby.css'
 import { UserContext } from "../userContext";
 import { useContext } from "react";
-import { Timer, CountdownTimer, Timer_ } from "../cube/timer"
 import { useHotkeys } from "react-hotkeys-hook";
 import produce from "immer";
 import { print_time } from "../cube/timer";
 import NavigationPanel from "./NavigationPanel";
+import useStopwatch from "./useTimer";
+import useCountdown from "./useCountdown";
 
 type LobbyPoints = Array<{
     username: string;
@@ -128,15 +129,6 @@ function DisplayEnemy({username, enemy} : {username: string, enemy: Enemy}) {
     );
 }
 
-function TimerDisplay({timer1, timer2} : {timer1: Timer_, timer2: Timer_}) {
-    const containerRef = useRef(null);
-    useEffect(() => {
-        timer1.mount(containerRef.current);
-        timer2.mount(containerRef.current);
-    })
-    return <div style={{fontSize: "40px", textAlign: "center"}} ref={containerRef}></div>
-}
-
 function Results({lastResult, lobbyPoints} : {lastResult: RaceResults, lobbyPoints: LobbyPoints }) {
     const lastRaceRows = lastResult
             .filter((result) => result.time) // filter finished solves - time is not DNF
@@ -224,11 +216,11 @@ export default function Lobby() {
     // to match server timers
     const [solveTime, setSolveTime] = useState<number | null>(null);
 
-
+    const { formattedTime, start, stop } = useStopwatch();
+    const { secondsLeft: inspectionSecondsLeft, startCountdown, isRunning: inspectionRunning } = useCountdown();
+    const { secondsLeft: waitTimeLeft, startCountdown: startWaitTime, isRunning: waitTimeRunning} = useCountdown();
 
     const cube = useMemo(() => new Cube(cubeSize), [cubeSize]);
-    const timer = useMemo(() => new Timer(), []);
-    const countdownTimer = useMemo(() => new CountdownTimer(), []);
 
     interface requestSolution {
         moves_done: Array<string>
@@ -324,15 +316,14 @@ export default function Lobby() {
         setSolveTime(null);
         cube.setState(state);
         cube.startInspection();
-        countdownTimer.start(new Date(startTime));
-        countdownTimer.onTarget(() => {
+
+        startCountdown(3, () => {
+            start();
             cube.startSolve();
-            timer.start();
         })
     }
 
     const onSolved = ({time} : {time : number}) => {
-        timer.stop();
         setSolveTime(time);
         // setInSolve(false);
     }
@@ -423,16 +414,14 @@ export default function Lobby() {
     }
 
     const onRaceDone = (data: onRaceDoneData) => {
-        timer.stop();
+        stop();
         setLastRaceResults(data.results);
         setLobbyPoints(data.lobbyPoints);
         setInSolve(false);
-        setPaused(true)
     }
 
     const onStartCountdown = ({waitTime} : {waitTime: number}) => {
-        setTimeLeft(waitTime);
-        setPaused(false);
+        startWaitTime(waitTime, () => {});
     }
 
     useEffect(() => {
@@ -479,27 +468,14 @@ export default function Lobby() {
         )
     }
 
-    const [timeLeft, setTimeLeft] = useState(10);
-    const [paused, setPaused] = useState(true);
-
-    useEffect(() => {
-        if (!paused) {
-            const interval = setInterval(() => {
-                setTimeLeft(timeLeft => timeLeft - 1)
-            }, 1000);
-            return () => {
-                clearInterval(interval);
-            }
-        }
-    }, [paused])
-
     const displayTime = <div style={{
         textAlign: "center",
         fontSize: "40px"
     }}>
-        { inSolve && solveTime == null && <TimerDisplay timer1={timer} timer2={countdownTimer} /> }
-        { solveTime != null && <div>{print_time(solveTime)}</div>}
-        { !inSolve && !beforeFirstSolve && solveTime == null && <div>DNF</div>}
+        { inspectionRunning && <div>{inspectionSecondsLeft}</div> }
+        { !inspectionRunning && inSolve && solveTime == null && formattedTime }
+        { !inspectionRunning && solveTime != null && <div>{print_time(solveTime)}</div>}
+        { !inspectionRunning && !inSolve && !beforeFirstSolve && solveTime == null && <div>DNF</div>}
     </div>
 
     return (
@@ -532,9 +508,12 @@ export default function Lobby() {
             <div style={{position: "absolute", bottom: 0, width: "100%"}}>
                 <Center mb="20">
                     <Stack>
-                        <div style={{textAlign: "center", color: "red", fontSize: "40px"}}>
-                            { !paused && <div>{timeLeft}</div>}
-                        </div>
+                        {
+                            waitTimeRunning &&
+                            <div style={{textAlign: "center", color: "red", fontSize: "40px"}}>
+                                { waitTimeLeft }
+                            </div>
+                        }
                         {displayTime}
                         {
                             !inSolve ?

@@ -1,8 +1,6 @@
-import { useDisclosure } from '@mantine/hooks';
 import { Button, Checkbox, Title, NumberInput, Group} from '@mantine/core';
 import { useNavigate } from "react-router-dom"
 import { useForm } from '@mantine/form';
-import { create } from 'domain';
 
 interface LobbyCreateResponse {
   lobby_id: number;
@@ -17,7 +15,6 @@ export default function CreateLobbyButton() {
     }
   })
 
-  // const [opened, { open, close }] = useDisclosure(false);
   const navigate = useNavigate();
 
   const createLobby = function(e: any) {
@@ -31,11 +28,6 @@ export default function CreateLobbyButton() {
 
   return (
     <>
-      {/* <Modal opened={opened} onClose={close} title="Lobby creation">
-        <Button onClick={createLobby}>Create lobby</Button>
-      </Modal> */}
-      {/* <Button onClick={open}>Create lobby</Button> */}
-
       <Title order={3}>Create lobby</Title>
       <form onSubmit={createLobby}>
         <NumberInput

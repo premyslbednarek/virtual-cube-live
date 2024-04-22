@@ -1,3 +1,5 @@
+import eventlet
+eventlet.monkey_patch()
 from flask import Flask, request, send_from_directory, render_template, redirect, flash, url_for, jsonify, abort, copy_current_request_context
 from threading import Thread
 from flask_socketio import SocketIO, join_room, leave_room, rooms
@@ -15,8 +17,6 @@ from enum import Enum
 # from time import sleep
 from typing import TypedDict, Tuple
 from eventlet import sleep
-import eventlet
-eventlet.monkey_patch()
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db3.db' # Using SQLite as the database
@@ -770,6 +770,7 @@ def lobby_move(data):
 
         socketio.emit(
             "you_solved",
+            { "time": solve.time },
             room=lobby_id,
             to=request.sid
         )

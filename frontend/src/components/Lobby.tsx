@@ -3,15 +3,13 @@ import React, { useRef, useEffect, useState, useMemo } from "react"
 import Cube from "../cube/cube";
 import { parse_move } from "../cube/move";
 import {
-    Grid,
     Badge,
     Button,
     Center,
     Stack,
     Space,
     Table,
-    Text,
-    Container
+    Title,
 } from "@mantine/core"
 import * as THREE from 'three';
 import { socket } from "../socket";
@@ -20,8 +18,6 @@ import { UserContext } from "../userContext";
 import { useContext } from "react";
 import { Timer, CountdownTimer, Timer_ } from "../cube/timer"
 import { useHotkeys } from "react-hotkeys-hook";
-import { update } from "@tweenjs/tween.js";
-import { TupleType } from "typescript";
 import produce from "immer";
 import { print_time } from "../cube/timer";
 
@@ -75,8 +71,9 @@ export function RenderedCube({cube, style} : {cube: Cube, style?: React.CSSPrope
 
     useEffect(() => {
         console.log("Mounting")
-        if (!containerRef.current) return;
-        cube.mount(containerRef.current);
+        const container = containerRef.current;
+        if (!container) return;
+        cube.mount(container);
 
         const onResize = () => {
             cube.resizeCanvas();
@@ -85,8 +82,7 @@ export function RenderedCube({cube, style} : {cube: Cube, style?: React.CSSPrope
         window.addEventListener("resize", onResize);
         return () => {
             window.removeEventListener("resize", onResize);
-            if (!containerRef.current) return;
-            cube.unmount(containerRef.current);
+            cube.unmount(container);
         }
     }, [cube])
 
@@ -123,7 +119,7 @@ function DisplayEnemy({username, enemy} : {username: string, enemy: Enemy}) {
                 <Badge color={readyColor}>{readyText}</Badge>
             </div>
             <RenderedCube style={{height: "100%"}}cube={enemy.cube} />
-            <div style={{position: "absolute", bottom: 0, display: "flex", alignContent: "center", justifyContent: "center", margin: "auto"}}>
+            <div style={{position: "absolute", bottom: 0, textAlign: "center", width: "100%", fontSize: "25px"}}>
                 { enemy.time ? print_time(enemy.time) : "" }
             </div>
         </div>
@@ -140,26 +136,38 @@ function TimerDisplay({timer1, timer2} : {timer1: Timer_, timer2: Timer_}) {
 }
 
 function Results({lastResult, lobbyPoints} : {lastResult: RaceResults, lobbyPoints: LobbyPoints }) {
-    const lastRaceRows = lastResult.map(({username, time, pointsDelta}) => (
+    const lastRaceRows = lastResult
+            .filter((result) => result.time) // filter finished solves - time is not DNF
+            .map(({username, time, pointsDelta}) => (
         <Table.Tr key={username}>
             <Table.Td>{username}</Table.Td>
-            <Table.Td>{time ? print_time(time) : "DNF"}</Table.Td>
-            <Table.Td>+{pointsDelta}</Table.Td>
+            <Table.Td>{print_time(time)}</Table.Td>
+            <Table.Td><Center>+{pointsDelta}</Center></Table.Td>
+        </Table.Tr>
+    ))
+
+    const lastRaceDNFs = lastResult
+            .filter((result) => !result.time) // filter unfinished solves
+            .map((result) => (
+        <Table.Tr key={result.username}>
+            <Table.Td>{result.username}</Table.Td>
+            <Table.Td>{"DNF"}</Table.Td>
+            <Table.Td><Center>-</Center></Table.Td>
         </Table.Tr>
     ))
 
     const pointsRows = lobbyPoints.map(({username, points}) => (
         <Table.Tr key={username}>
             <Table.Td>{username}</Table.Td>
-            <Table.Td>{points}</Table.Td>
+            <Table.Td><Center>{points}</Center></Table.Td>
         </Table.Tr>
     ))
 
     return (
-        <div style={{position: "absolute", bottom: 0, left: 0}}>
+        <div style={{position: "absolute", bottom: 20, left: 20}}>
             { lastResult.length &&
                 <>
-                    <Text>Last race results:</Text>
+                    <Title order={4}>Last race results</Title>
                     <Table>
                         <Table.Thead>
                             <Table.Tr>
@@ -170,6 +178,7 @@ function Results({lastResult, lobbyPoints} : {lastResult: RaceResults, lobbyPoin
                         </Table.Thead>
                         <Table.Tbody>
                             { lastRaceRows }
+                            { lastRaceDNFs }
                         </Table.Tbody>
                     </Table>
                 </>
@@ -177,12 +186,12 @@ function Results({lastResult, lobbyPoints} : {lastResult: RaceResults, lobbyPoin
             {
                 lobbyPoints.length &&
                 <>
-                    <Text>Total points:</Text>
+                    <Title mt={10} order={4}>Total points</Title>
                     <Table>
                         <Table.Thead>
                             <Table.Tr>
                                 <Table.Th>Username</Table.Th>
-                                <Table.Th>Points</Table.Th>
+                                <Table.Th><Center>Points</Center></Table.Th>
                             </Table.Tr>
                         </Table.Thead>
                         <Table.Tbody>
@@ -208,6 +217,12 @@ export default function Lobby() {
     const [cubeSize, setCubeSize] = useState(3);
     const [lastRaceResults, setLastRaceResults] = useState<RaceResults>([]);
     const [lobbyPoints, setLobbyPoints] = useState<LobbyPoints>([]);
+
+    const [beforeFirstSolve, setBeforeFirstSolve] = useState(true);
+    // server timer matters - upon solve end, adjust the on-screen timer
+    // to match server timers
+    const [solveTime, setSolveTime] = useState<number | null>(null);
+
 
 
     const cube = useMemo(() => new Cube(cubeSize), [cubeSize]);
@@ -243,7 +258,7 @@ export default function Lobby() {
         for (const enemy of enemies.values()) {
             enemy.cube.resizeCanvas();
         }
-    }, [enemies]);
+    }, [enemies, cube]);
 
     const onMove = ({username, move} : {username: string, move: string}) => {
         const cube = enemies.get(username);
@@ -278,7 +293,7 @@ export default function Lobby() {
     const onConnection = ({username, points} : {username: string, points: number}) => {
         console.log(username, "has joined the lobby");
         setLobbyPoints(produce((draft) => {
-            if (draft.find((el) => el.username == username)) return;
+            if (draft.find((el) => el.username === username)) return;
             draft.push({username: username, points: points})
         }))
         setEnemies(new Map(enemies.set(username, {cube: new Cube(cubeSize), readyStatus: false })));
@@ -304,6 +319,8 @@ export default function Lobby() {
         setInSolve(true);
         setReady(false);
         setEnemies(updatedEnemies);
+        setBeforeFirstSolve(false);
+        setSolveTime(null);
         cube.setState(state);
         cube.startInspection();
         countdownTimer.start(new Date(startTime));
@@ -313,8 +330,9 @@ export default function Lobby() {
         })
     }
 
-    const onSolved = () => {
+    const onSolved = ({time} : {time : number}) => {
         timer.stop();
+        setSolveTime(time);
         // setInSolve(false);
     }
 
@@ -474,6 +492,15 @@ export default function Lobby() {
         }
     }, [paused])
 
+    const displayTime = <div style={{
+        textAlign: "center",
+        fontSize: "40px"
+    }}>
+        { inSolve && solveTime == null && <TimerDisplay timer1={timer} timer2={countdownTimer} /> }
+        { solveTime != null && <div>{print_time(solveTime)}</div>}
+        { !inSolve && !beforeFirstSolve && solveTime == null && <div>DNF</div>}
+    </div>
+
     return (
         <div style={{ backgroundColor: "black", height: "100vh"}}>
           <div style={{position: "absolute"}}>
@@ -481,20 +508,22 @@ export default function Lobby() {
             &nbsp;|&nbsp;
             <Link className="App-link" to="/page2">Page2</Link>
             <p>{params.lobby_id} {userContext.username}</p>
-            { !paused && <div>{timeLeft}</div>}
           </div>
           <div style={{height: "100%", display: "flex"}}>
             <ControlledCube
                 cube={cube}
                 style={{
                     height: "100%",
-                    width: enemies.size == 0 ? "100%" : "70%"
+                    width: "100%"
+                    // width: enemies.size == 0 ? "100%" : "70%"
                 }}
             />
 
             <div style={{
+                position: "absolute",
+                right: 0,
                 height: "100%",
-                width: enemies.size == 0 ? "0%" : "30%",
+                width: enemies.size === 0 ? "0%" : "30%",
             }}>
                 <EnemyCubes enemies={enemies} />
             </div>
@@ -504,11 +533,10 @@ export default function Lobby() {
             <div style={{position: "absolute", bottom: 0, width: "100%"}}>
                 <Center mb="20">
                     <Stack>
-                        {
-                            inSolve ?
-                            <TimerDisplay timer1={timer} timer2={countdownTimer} />
-                            : ""
-                        }
+                        <div style={{textAlign: "center", color: "red", fontSize: "40px"}}>
+                            { !paused && <div>{timeLeft}</div>}
+                        </div>
+                        {displayTime}
                         {
                             !inSolve ?
                             <>

@@ -10,6 +10,7 @@ import {
     Space,
     Table,
     Title,
+    Text
 } from "@mantine/core"
 import * as THREE from 'three';
 import { socket } from "../socket";
@@ -20,6 +21,7 @@ import { Timer, CountdownTimer, Timer_ } from "../cube/timer"
 import { useHotkeys } from "react-hotkeys-hook";
 import produce from "immer";
 import { print_time } from "../cube/timer";
+import NavigationPanel from "./NavigationPanel";
 
 type LobbyPoints = Array<{
     username: string;
@@ -503,10 +505,8 @@ export default function Lobby() {
     return (
         <div style={{ backgroundColor: "black", height: "100vh"}}>
           <div style={{position: "absolute"}}>
-            <Link className="App-link" to="/">Home</Link>
-            &nbsp;|&nbsp;
-            <Link className="App-link" to="/page2">Page2</Link>
-            <p>{params.lobby_id} {userContext.username}</p>
+            <NavigationPanel />
+            <Text ml={10}>You are logged in as {userContext.username}</Text>
           </div>
           <div style={{height: "100%", display: "flex"}}>
             <ControlledCube

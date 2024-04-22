@@ -1,11 +1,12 @@
 import { useEffect, useState, useMemo } from "react";
-import { useParams, useNavigate } from "react-router-dom"
+import { useParams } from "react-router-dom"
 import { RenderedCube } from "./Lobby";
-import { Text, Space, Slider, ActionIcon, Center, Tooltip, Flex, Kbd } from "@mantine/core";
+import { Text, Space, Slider, ActionIcon, Center, Flex, Kbd } from "@mantine/core";
 import Cube from "../cube/cube";
 import useFetch from "@custom-react-hooks/use-fetch";
 import { useHotkeys } from "react-hotkeys-hook";
-import {IconPlayerPlay, IconPlayerPause, IconRewindBackward5, IconRewindForward5, IconHome, IconArrowLeft, IconPlus, IconMinus, IconReload} from "@tabler/icons-react"
+import {IconPlayerPlay, IconPlayerPause, IconRewindBackward5, IconRewindForward5, IconPlus, IconMinus, IconReload} from "@tabler/icons-react"
+import NavigationPanel from "./NavigationPanel";
 
 interface IMoveInfo {
     move: string;
@@ -57,7 +58,6 @@ export default function Replay() {
     const [time, setTime] = useState(0); // current time in ms
     const [paused, setPaused] = useState(false);
     const [playbackSpeed, setPlaybackSpeed] = useState(1);
-    const navigate = useNavigate();
     const { data, loading, error } = useFetch<ISolveInfo>(`/api/solve/${solveId}`);
     const solve = data ? data : defaultSolveInfo;
     const cube = useMemo(() => {
@@ -184,15 +184,7 @@ export default function Replay() {
     return (
         <>
             <div style={{position: "absolute", fontSize: "30px", margin: 10}}>
-                <div style={{display: "flex"}}>
-                    <Tooltip label="go back" color="blue">
-                        <ActionIcon size="xl" radius="xl" onClick={() => navigate(-1)}><IconArrowLeft /></ActionIcon>
-                    </Tooltip>
-                    <Space w="sm" />
-                    <Tooltip label="home" color="blue">
-                        <ActionIcon size="xl" radius="xl" onClick={() => navigate("/")}><IconHome /></ActionIcon>
-                    </Tooltip>
-                </div>
+                <NavigationPanel />
                 <Text>Use <Kbd>Space</Kbd>, <Kbd>LeftArrow</Kbd> and <Kbd>RightArrow</Kbd> to navigate the solve</Text>
                 <Text size="2xl">
                     Scramble: {solve.scramble}

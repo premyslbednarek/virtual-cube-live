@@ -23,7 +23,7 @@ export default function useCountdown() {
         }
     }, [secondsLeft, onEndCallback, isRunning])
 
-    const startCountdown = (seconds: number, callback: () => void) => {
+    const start = (seconds: number, callback: () => void) => {
         setSecondsLeft(seconds);
         // avoid calling the function on assigment
         // react thinks we want to use setState(oldState => oldState + 1)
@@ -33,5 +33,9 @@ export default function useCountdown() {
         setIsRunning(true);
     }
 
-    return { secondsLeft, startCountdown, isRunning };
+    const stop = () => {
+        setIsRunning(false);
+    }
+
+    return { secondsLeft, start, isRunning, stop };
 }

@@ -3,6 +3,7 @@ import React, { createContext, useState, useEffect } from "react"
 export interface IUserInfo {
     isLogged: boolean;
     username: string;
+    isAdmin: boolean;
 }
 
 export interface IUserContext {
@@ -12,7 +13,8 @@ export interface IUserContext {
 
 const defaultUserInfo: IUserInfo = {
     isLogged: false,
-    username: ""
+    username: "",
+    isAdmin: false,
 }
 
 const defaultContext: IUserContext = {

@@ -80,7 +80,9 @@ def get_user(user_id: int):
 
 @app.route('/api/request_solution', methods=["POST"])
 def handle_solution_request():
-    # TODO handle admin privileges
+    if (current_user.role != UserRole.ADMIN):
+        return abort(405)
+
     data: RequestSolutionData = json.loads(request.data)
 
     lobby_user: LobbyUser = db.session.scalar(
@@ -112,7 +114,8 @@ def get_current_time():
 def get_user_info():
     return {
         "isLogged": current_user.is_authenticated,
-        "username": current_user.username if current_user.is_authenticated else ""
+        "username": current_user.username if current_user.is_authenticated else "",
+        "isAdmin": current_user.role == UserRole.ADMIN
     }
 
 @app.route("/api/get_lobbies")
@@ -331,10 +334,16 @@ def handle_lobby_conection(data):
 
     # fetch usernames of users in the room
     q = select(User.username).join(LobbyUser, User.id == LobbyUser.user_id).where(LobbyUser.lobby_id == lobby_id, User.username != current_user.username)
-    usernames = db.session.execute(
-        select(User.username, LobbyUser.status == LobbyUserStatus.READY)
-            .join(LobbyUser, User.id == LobbyUser.user_id)
-            .where(LobbyUser.lobby_id == lobby_id, User.username != current_user.username)
+    users = db.session.execute(
+        select(
+            User.username,
+            LobbyUser.status == LobbyUserStatus.READY,
+            LobbyUser
+        ).join(
+            LobbyUser, User.id == LobbyUser.user_id
+        ).where(
+            LobbyUser.lobby_id == lobby_id, User.username != current_user.username
+        )
     ).all()
 
     # inform other users in the lobby about the connection
@@ -349,7 +358,7 @@ def handle_lobby_conection(data):
 
     return {
         "code": 0,
-        "userList": [(username, ready) for username, ready in usernames],
+        "userList": [(username, ready, lobbyuser.current_connection.cube.state.decode("UTF-8")) for username, ready, lobbyuser in users],
         "isAdmin": is_admin,
         "cubeSize": lobby.cube_size,
         "points": get_lobby_points(lobby_id)

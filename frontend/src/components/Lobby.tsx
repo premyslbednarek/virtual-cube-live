@@ -217,8 +217,17 @@ export default function Lobby() {
     const [solveTime, setSolveTime] = useState<number | null>(null);
 
     const { formattedTime, start, stop } = useStopwatch();
-    const { secondsLeft: inspectionSecondsLeft, startCountdown, isRunning: inspectionRunning } = useCountdown();
-    const { secondsLeft: waitTimeLeft, startCountdown: startWaitTime, isRunning: waitTimeRunning} = useCountdown();
+    const {
+        secondsLeft: inspectionSecondsLeft,
+        start: startCountdown,
+        isRunning: inspectionRunning
+    } = useCountdown();
+    const {
+        secondsLeft: waitTimeLeft,
+        start: startWaitTime,
+        isRunning: waitTimeRunning,
+        stop: stopWaitTime
+    } = useCountdown();
 
     const cube = useMemo(() => new Cube(cubeSize), [cubeSize]);
 
@@ -226,7 +235,10 @@ export default function Lobby() {
         moves_done: Array<string>
     }
 
-    useHotkeys("ctrl+1", () => {
+    const solveTheCube = () => {
+        if (!inSolve) {
+            return;
+        }
         fetch("/api/request_solution", {
             method: "POST",
             body: JSON.stringify({lobby_id: lobby_id})
@@ -237,8 +249,10 @@ export default function Lobby() {
                 cube.makeMove(moveObj.toString());
                 await new Promise(r => setTimeout(r, 200));
             }
-        })
-    })
+        }).catch(error => console.log(error))
+    }
+
+    useHotkeys("ctrl+1", solveTheCube);
 
     const onDisconnection = ({username} : {username: string}) => {
         console.log(username, "has left the lobby");
@@ -352,7 +366,7 @@ export default function Lobby() {
 
         interface ILobbyConnectResponse {
             code: number;
-            userList: Array<[string, boolean]>; // username, ready, points
+            userList: Array<[string, boolean, string]>; // username, ready, points
             isAdmin: boolean;
             cubeSize: number;
             points: LobbyPoints
@@ -368,8 +382,8 @@ export default function Lobby() {
                 }
 
                 const m = new Map(enemies);
-                response.userList.forEach(([username, ready]) => {
-                    m.set(username, {cube: new Cube(response.cubeSize), readyStatus: ready});
+                response.userList.forEach(([username, ready, state]) => {
+                    m.set(username, {cube: new Cube(response.cubeSize, state), readyStatus: ready});
                 });
 
                 setLobbyPoints(response.points)
@@ -416,6 +430,7 @@ export default function Lobby() {
 
     const onRaceDone = (data: onRaceDoneData) => {
         stop();
+        stopWaitTime();
         setLastRaceResults(data.results);
         setLobbyPoints(data.lobbyPoints);
         setInSolve(false);
@@ -471,12 +486,14 @@ export default function Lobby() {
 
     const displayTime = <div style={{
         textAlign: "center",
-        fontSize: "40px"
+        fontSize: "40px",
+        lineHeight: "40px",
+        padding: 0,
     }}>
         { inspectionRunning && <div>{inspectionSecondsLeft}</div> }
         { !inspectionRunning && inSolve && solveTime == null && formattedTime }
-        { !inspectionRunning && solveTime != null && <div>{print_time(solveTime)}</div>}
-        { !inspectionRunning && !inSolve && !beforeFirstSolve && solveTime == null && <div>DNF</div>}
+        { !inspectionRunning && solveTime != null && print_time(solveTime)}
+        { !inspectionRunning && !inSolve && !beforeFirstSolve && solveTime == null && "DNF"}
     </div>
 
     return (
@@ -484,6 +501,10 @@ export default function Lobby() {
           <div style={{position: "absolute"}}>
             <NavigationPanel />
             <Text ml={10}>You are logged in as {userContext.username}</Text>
+            {
+                // show solve button for app admins
+                ( userContext.isAdmin && inSolve) && <Button onClick={solveTheCube}>Solve</Button>
+            }
           </div>
           <div style={{height: "100%", display: "flex"}}>
             <ControlledCube
@@ -508,10 +529,15 @@ export default function Lobby() {
             {/* bottom info panel */}
             <div style={{position: "absolute", bottom: 0, width: "100%"}}>
                 <Center mb="20">
-                    <Stack>
+                    <Stack gap="xs" justify="flex-end">
                         {
                             waitTimeRunning &&
-                            <div style={{textAlign: "center", color: "red", fontSize: "40px"}}>
+                            <div style={{
+                                textAlign: "center",
+                                color: "red",
+                                fontSize: "40px",
+                                lineHeight: "40px"
+                            }}>
                                 { waitTimeLeft }
                             </div>
                         }

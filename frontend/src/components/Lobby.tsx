@@ -503,7 +503,7 @@ export default function Lobby() {
             <Text ml={10}>You are logged in as {userContext.username}</Text>
             {
                 // show solve button for app admins
-                ( userContext.isAdmin && inSolve) && <Button onClick={solveTheCube}>Solve</Button>
+                ( userContext.isAdmin && inSolve) && <Button ml={10} onClick={solveTheCube}>Solve</Button>
             }
           </div>
           <div style={{height: "100%", display: "flex"}}>

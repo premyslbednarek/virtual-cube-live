@@ -17,10 +17,17 @@ from typing import List
 from enum import Enum
 from typing import TypedDict, Tuple
 from eventlet import sleep
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.db' # Using SQLite as the database
 app.config['SECRET_KEY'] = "secret"
+
+PRODUCTION = "prod"
+mode = os.environ.get("MODE", PRODUCTION)
+print(mode)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -80,7 +87,7 @@ def get_user(user_id: int):
 
 @app.route('/api/request_solution', methods=["POST"])
 def handle_solution_request():
-    if (current_user.role != UserRole.ADMIN):
+    if (mode == PRODUCTION and current_user.role != UserRole.ADMIN):
         return abort(405)
 
     data: RequestSolutionData = json.loads(request.data)
@@ -353,8 +360,6 @@ def handle_lobby_conection(data):
         room=lobby_id,
         skip_sid=request.sid
     )
-
-    print("USERS", usernames)
 
     return {
         "code": 0,

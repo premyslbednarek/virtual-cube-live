@@ -37,7 +37,7 @@ with app.app_context():
     db.create_all()
 
 # https://github.com/miguelgrinberg/Flask-SocketIO/issues/1356#issuecomment-681830773
-socketio = SocketIO(app, cors_allowed_origins="*", engineio_logger=True)
+socketio = SocketIO(app, cors_allowed_origins="*", engineio_logger=False)
 
 sidToName = {}
 i = 0
@@ -101,11 +101,13 @@ def handle_solution_request():
     if (solve is None):
         abort(404)
 
-    moves = db.session.scalars(
-        select(SolveMove.move)
-            .where(SolveMove.solve_id == solve.id)
-            .order_by(SolveMove.timestamp.asc())
-    ).all()
+    # moves = db.session.scalars(
+    #     select(SolveMove.move)
+    #         .where(SolveMove.solve_id == solve.id)
+    #         .order_by(SolveMove.timestamp.asc())
+    # ).all()
+
+    moves = list(map(lambda move: move["move"], solve.get_moves()))
 
     allmoves = solve.scramble.scramble_string.split() + moves
 
@@ -122,7 +124,7 @@ def get_user_info():
     return {
         "isLogged": current_user.is_authenticated,
         "username": current_user.username if current_user.is_authenticated else "",
-        "isAdmin": current_user.role == UserRole.ADMIN
+        "isAdmin": current_user.is_authenticated and current_user.role == UserRole.ADMIN
     }
 
 @app.route("/api/get_lobbies")
@@ -190,39 +192,39 @@ def solve(solve_id: int):
     if solve is None:
         abort(404)
 
-    moves_result = db.session.execute(
-        select(
-            SolveMove.move,
-            SolveMove.since_start
-        ).where(
-            SolveMove.solve_id == solve_id
-        )
-    ).all()
+    # moves_result = db.session.execute(
+    #     select(
+    #         SolveMove.move,
+    #         SolveMove.since_start
+    #     ).where(
+    #         SolveMove.solve_id == solve_id
+    #     )
+    # ).all()
 
-    moves = [{"move": move, "sinceStart": sinceStart} for move, sinceStart in moves_result]
+    # moves = [{"move": move, "sinceStart": sinceStart} for move, sinceStart in moves_result]
 
-    camera_changes_result = db.session.execute(
-        select(
-            CameraChange.x,
-            CameraChange.y,
-            CameraChange.z,
-            CameraChange.since_start
-        ).where(
-            CameraChange.solve_id == solve_id
-        )
-    ).all()
+    # camera_changes_result = db.session.execute(
+    #     select(
+    #         CameraChange.x,
+    #         CameraChange.y,
+    #         CameraChange.z,
+    #         CameraChange.since_start
+    #     ).where(
+    #         CameraChange.solve_id == solve_id
+    #     )
+    # ).all()
 
-    camera_changes = [
-        {"x": x, "y": y, "z": z, "sinceStart": sinceStart}
-        for x, y, z, sinceStart in camera_changes_result
-    ]
+    # camera_changes = [
+    #     {"x": x, "y": y, "z": z, "sinceStart": sinceStart}
+    #     for x, y, z, sinceStart in camera_changes_result
+    # ]
 
     return {
         "cube_size": solve.scramble.cube_size,
         "scramble": solve.scramble.scramble_string,
         "scramble_state": solve.scramble.cube_state.decode("UTF-8"),
-        "moves": moves,
-        "camera_changes": camera_changes,
+        "moves": solve.get_moves(),
+        "camera_changes": solve.get_camera_changes(),
         "completed": solve.completed,
         "time": solve.time
     }
@@ -414,6 +416,7 @@ def create_scramble(size: int) -> Scramble:
 
     return scramble
 
+INSPECTION_LENGTH_SECONDS = 3
 
 @socketio.on("lobby_start")
 def lobby_start_request(data):
@@ -477,6 +480,8 @@ def lobby_start_request(data):
         db.session.add(solve)
         db.session.commit()
 
+        solve.start_session(now + timedelta(seconds=INSPECTION_LENGTH_SECONDS))
+
         user.current_connection.cube.current_solve_id = solve.id
         user.current_connection.cube.state = scramble.cube_state
 
@@ -515,8 +520,16 @@ def end_current_race(lobby_id: int) -> None:
         select(Race).where(Race.lobby_id == lobby_id, Race.ongoing)
     )
 
+    solves = db.session.scalars(
+        select(Solve).where(Solve.race_id == race.id)
+    )
+
+    for solve in solves:
+        if solve.is_ongoing():
+            solve.end_current_session(datetime.now())
+
     res = db.session.execute(
-        select(User.id, User.username, Solve.time)
+        select(User.id, User.username, Solve.time, Solve.completed)
             .select_from(Solve)
             .join(User, User.id == Solve.user_id)
             .where(Solve.race_id == race.id)
@@ -525,9 +538,9 @@ def end_current_race(lobby_id: int) -> None:
 
     points = 10
     results = []
-    for id, username, time in res:
+    for id, username, time, completed in res:
         print(id, username, time, points)
-        if time is None:
+        if not completed:
             results.append({"username": username, "time": None, "pointsDelta": 0})
         else:
             results.append({"username": username, "time": time, "pointsDelta": points})
@@ -595,7 +608,7 @@ def lobby_move(data):
 
     is_solved = cube.is_solved()
 
-    cube.pprint()
+    # cube.pprint()
 
     cube_entity.state = cube.serialize()
     db.session.commit()
@@ -609,18 +622,21 @@ def lobby_move(data):
     time_delta: datetime.timedelta = now - solve.solve_startdate
     time_delta_ms = time_delta / timedelta(milliseconds=1)
 
-    move = SolveMove(
-        move=move,
-        solve_id=solve.id,
-        timestamp=now,
-        since_start = time_delta_ms
-    )
+    solve.add_move(move, now)
 
-    db.session.add(move)
-    db.session.commit()
+    # move = SolveMove(
+    #     move=move,
+    #     solve_id=solve.id,
+    #     timestamp=now,
+    #     since_start = time_delta_ms
+    # )
+
+    # db.session.add(move)
+    # db.session.commit()
 
     if is_solved:
         solve.completed = True
+        solve.end_current_session(now)
 
         solve.time = time_delta_ms
 

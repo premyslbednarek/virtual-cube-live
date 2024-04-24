@@ -5,9 +5,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey
 from sqlalchemy.dialects.sqlite import DATETIME
 from enum import Enum
-from datetime import datetime
+from datetime import datetime, timedelta
 from sqlalchemy import func
-from typing import Optional
+from typing import Optional, List, TypedDict
 
 DEFAULT_INSPECTION_TIME=3
 
@@ -96,7 +96,7 @@ class Solve(db.Model):
     user_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
     user: Mapped[User] = relationship()
 
-    time: Mapped[Optional[int]]
+    time: Mapped[Optional[int]] = mapped_column(default=0)
     moves: Mapped[str] = mapped_column(default="")
     completed: Mapped[bool] = mapped_column(default=False)
     inspection_startdate: Mapped[datetime]
@@ -105,6 +105,108 @@ class Solve(db.Model):
 
     race_id: Mapped[Optional[int]] = mapped_column(ForeignKey("race.id"))
     race: Mapped[Optional["Race"]] = relationship()
+
+    solving_sessions: Mapped[List["SolvingSession"]] = relationship()
+
+    def is_ongoing(self) -> bool:
+        return self.solving_sessions[-1].end is None
+
+    def add_move(self, move_str: str, timestamp: datetime) -> None:
+        move = SolveMove(
+            move=move_str,
+            timestamp=timestamp,
+            solving_session_id=self.solving_sessions[-1].id
+        )
+        db.session.add(move)
+        db.session.commit()
+
+    def add_camera_change(self, x, y, z, timestamp: datetime) -> None:
+        camera_change = CameraChange(
+            x=x,
+            y=y,
+            z=z,
+            timestamp=timestamp,
+            solving_session_id=self.solving_sessions[-1].id
+        )
+        db.session.add(camera_change)
+        db.session.commit()
+
+    class MoveType(TypedDict):
+        move: str
+        sinceStart: int
+
+    def get_moves(self) -> List[MoveType]:
+        moves = []
+        total_time = 0
+        for session in self.solving_sessions:
+            for move in session.moves:
+                moves.append({
+                    # time before this session + time since this session start
+                    "sinceStart": max(total_time + (move.timestamp - session.start) / timedelta(milliseconds=1), 0),
+                    "move": move.move
+                })
+            if session.end:
+                c = ((session.end - session.start) / timedelta(milliseconds=1))
+                print(c, type(c))
+                total_time += c
+
+        for line in moves:
+            print(line)
+        return moves
+
+    class CameraChangeType(TypedDict):
+        x: float
+        y: float
+        z: float
+        sinceStart: int
+
+    def get_camera_changes(self) -> List[CameraChangeType]:
+        camera_changes = []
+        total_time = 0
+        for session in self.solving_sessions:
+            for camera_change in session.camera_changes:
+                camera_changes.append({
+                    "x": camera_change.x,
+                    "y": camera_change.y,
+                    "z": camera_change.z,
+                    # sinceStart has to be bigger than zero - this can happen for inspection moves
+                    "sinceStart": max(total_time + (camera_change.timestamp - session.start) / timedelta(milliseconds=1), 0)
+                })
+            if session.end:
+                total_time += ((session.end - session.start) / timedelta(milliseconds=1))
+
+        return camera_changes
+
+    def start_session(self, timestamp: datetime):
+        session = SolvingSession(
+            solve_id=self.id,
+            start=timestamp
+        )
+        db.session.add(session)
+        db.session.commit()
+
+    def end_current_session(self, timestamp: datetime):
+        current_session = self.solving_sessions[-1]
+        current_session.end = timestamp
+        # convert time delta to ms
+        # https://stackoverflow.com/a/74798645
+        self.time += (current_session.end - current_session.start) / timedelta(milliseconds=1)
+        db.session.commit()
+
+
+class SolvingSession(db.Model):
+    __tablename__ = "solving_session"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    solve_id: Mapped[int] = mapped_column(ForeignKey("solve.id"))
+    # solve: Mapped[int] = relationship()
+
+    start: Mapped[datetime]
+    end: Mapped[Optional[datetime]]
+
+    moves: Mapped[List["SolveMove"]] = relationship()
+    camera_changes: Mapped[List["CameraChange"]] = relationship()
+
 
 class Race(db.Model):
     __tablename__ = "race"
@@ -151,19 +253,22 @@ class SolveMove(db.Model):
     __tablename__ = "solve_move"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    move: Mapped[str]
+
     timestamp: Mapped[datetime]
-    solve_id: Mapped[int] = mapped_column(ForeignKey("solve.id"))
-    solve: Mapped[Solve] = relationship()
-    since_start: Mapped[int] # time since the start of the solve in ms
+    solving_session_id: Mapped[int] = mapped_column(ForeignKey("solving_session.id"))
+    # solving_session: Mapped[SolvingSession] = relationship()
+
+    move: Mapped[str]
 
 class CameraChange(db.Model):
     __tablename__ = "camera_change"
 
     id: Mapped[int] = mapped_column(primary_key=True)
+
     timestamp: Mapped[datetime]
-    since_start: Mapped[int]
-    solve_id: Mapped[int] = mapped_column(ForeignKey("solve.id"))
+    solving_session_id: Mapped[int] = mapped_column(ForeignKey("solving_session.id"))
+    # solving_session: Mapped[SolvingSession] = relationship()
+
     x: Mapped[float]
     y: Mapped[float]
     z: Mapped[float]

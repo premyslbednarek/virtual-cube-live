@@ -1,5 +1,6 @@
 #!/bin/bash
 
+clear
 cd backend
 source env/bin/activate
 python3 main.py

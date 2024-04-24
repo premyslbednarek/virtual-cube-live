@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom"
-import { RenderedCube } from "./Lobby";
+import { RenderedCube } from "./CubeCanvases";
 import { Text, Space, Slider, ActionIcon, Center, Flex, Kbd } from "@mantine/core";
 import Cube from "../cube/cube";
 import useFetch from "@custom-react-hooks/use-fetch";
@@ -192,7 +192,9 @@ export default function Replay() {
                 <div>{solve.completed ? "Completed" : "Not completed"} {solve.completed ? renderTime(solve.time) : ""} </div>
 
             </div>
-            <RenderedCube cube={cube} style={{height: "100vh"}}/>
+            <div style={{position: "absolute", width: "100%", height: "100%", zIndex: -1}}>
+                <RenderedCube cube={cube} />
+            </div>
             <div style={{position: "absolute", width: "100vw", bottom: "2vh", textAlign: "center"}}>
                 <div style={{ width: "80%", margin: "0 auto"}}>
                     <div>{renderTime(time)}</div>

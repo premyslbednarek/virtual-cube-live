@@ -23,6 +23,7 @@ import { print_time } from "../cube/timer";
 import NavigationPanel from "./NavigationPanel";
 import useStopwatch from "./useTimer";
 import useCountdown from "./useCountdown";
+import { ControlledCube, RenderedCube } from "./CubeCanvases";
 
 type LobbyPoints = Array<{
     username: string;
@@ -46,53 +47,6 @@ type Enemy = {
     time?: number
 }
 
-export function ControlledCube({cube, style} : {cube: Cube, style?: React.CSSProperties}) {
-    useEffect(() => {
-        const onMouseDown = (event: MouseEvent) => {
-            cube.mouseDown(event);
-        }
-        const onMouseUp = (event: MouseEvent) => {
-            cube.mouseUp(event);
-        }
-
-        document.addEventListener("mousedown", onMouseDown);
-        document.addEventListener("mouseup", onMouseUp);
-
-        return () => {
-            document.removeEventListener("mousedown", onMouseDown);
-            document.removeEventListener("mouseup", onMouseUp);
-        }
-
-    }, [cube])
-    return (
-        <RenderedCube cube={cube} style={style} />
-    );
-}
-
-export function RenderedCube({cube, style} : {cube: Cube, style?: React.CSSProperties}) {
-    const containerRef = useRef(null);
-
-    useEffect(() => {
-        console.log("Mounting")
-        const container = containerRef.current;
-        if (!container) return;
-        cube.mount(container);
-
-        const onResize = () => {
-            cube.resizeCanvas();
-        }
-
-        window.addEventListener("resize", onResize);
-        return () => {
-            window.removeEventListener("resize", onResize);
-            cube.unmount(container);
-        }
-    }, [cube])
-
-    return (
-        <div ref={containerRef} style={style}></div>
-    );
-}
 
 
 function EnemyCubes({enemies}: {enemies: Map<string, Enemy>}) {
@@ -121,7 +75,7 @@ function DisplayEnemy({username, enemy} : {username: string, enemy: Enemy}) {
                 <Badge mt="sm" ml="sm" mr="sm">{username}</Badge>
                 <Badge color={readyColor}>{readyText}</Badge>
             </div>
-            <RenderedCube style={{height: "100%"}}cube={enemy.cube} />
+            <RenderedCube cube={enemy.cube} />
             <div style={{position: "absolute", bottom: 0, textAlign: "center", width: "100%", fontSize: "25px"}}>
                 { enemy.time ? print_time(enemy.time) : "" }
             </div>
@@ -507,14 +461,7 @@ export default function Lobby() {
             }
           </div>
           <div style={{height: "100%", display: "flex"}}>
-            <ControlledCube
-                cube={cube}
-                style={{
-                    height: "100%",
-                    width: "100%"
-                    // width: enemies.size == 0 ? "100%" : "70%"
-                }}
-            />
+            <ControlledCube cube={cube} />
 
             <div style={{
                 position: "absolute",

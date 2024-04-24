@@ -5,7 +5,8 @@ import {
   Container,
   Center,
   Divider,
-  Table
+  Table,
+  Button
 } from '@mantine/core';
 import CreateLobbyButton from './CreateLobby';
 import { socket } from '../socket';
@@ -76,9 +77,11 @@ export default function Home() {
     <Container>
       <h1>Welcome to Rubik's cube racing!</h1>
       <p>The current time is {currentTime}.</p>
+      <Link to="/solo"><Button>Singleplayer</Button></Link>
       <UserInfo />
       <Divider my="md" />
       <CreateLobbyButton />
+
 
       <Divider my="md" />
 

@@ -25,6 +25,7 @@ import Lobby from './components/Lobby';
 import Replay from './components/Replay';
 import { UserContextProvider } from './userContext';
 import UserPage from './components/UserPage';
+import SoloMode from './components/SoloMode';
 
 function Page2() {
   return (
@@ -46,6 +47,7 @@ function App() {
               <Route path="/lobby/:lobby_id" element={<Lobby />} />
               <Route path="/replay/:solveId" element={<Replay />} />
               <Route path="/user/:userId" element={<UserPage />} />
+              <Route path="/solo" element={<SoloMode />} />
             </Routes>
           </BrowserRouter>
         </header>

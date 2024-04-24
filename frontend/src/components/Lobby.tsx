@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom"
-import React, { useRef, useEffect, useState, useMemo } from "react"
+import React, { useEffect, useState, useMemo } from "react"
 import Cube from "../cube/cube";
 import { parse_move } from "../cube/move";
 import {

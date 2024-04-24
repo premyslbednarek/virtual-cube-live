@@ -84,6 +84,21 @@ def get_user(user_id: int):
         "solves": [solve._asdict() for solve in solves]
     }
 
+@socketio.on("get_solution")
+def get_solution():
+    connection = db.session.scalar(
+        select(SocketConnection).where(SocketConnection.socket_id == request.sid)
+    )
+    if connection is None:
+        return
+
+    solve = connection.cube.current_solve
+    if solve is None:
+        return
+
+    moves = list(map(lambda move: move["move"], solve.get_moves()))
+    allmoves = solve.scramble.scramble_string.split() + moves
+    return {"moves_done": allmoves}
 
 @app.route('/api/request_solution', methods=["POST"])
 def handle_solution_request():
@@ -309,6 +324,9 @@ def create_connection(size, cube_id=None, lobby_id=None):
 
     return connection.id
 
+@socketio.on("solo_join")
+def handle_solo_join(data):
+    create_connection(data["cubeSize"])
 
 @socketio.on("lobby_connect")
 def handle_lobby_conection(data):
@@ -418,6 +436,41 @@ def create_scramble(size: int) -> Scramble:
 
 INSPECTION_LENGTH_SECONDS = 3
 
+@socketio.on("solo_solve_start")
+def solo_solve_start():
+    connection = db.session.scalar(
+        select(SocketConnection).where(SocketConnection.socket_id == request.sid)
+    )
+    if connection is None:
+        return
+
+    scramble: Scramble = create_scramble(connection.cube.size)
+
+    now = datetime.now()
+
+    solve = Solve(
+        scramble_id=scramble.id,
+        user_id = current_user.id,
+        inspection_startdate=now,
+        solve_startdate=now + timedelta(seconds=INSPECTION_LENGTH_SECONDS)
+    )
+
+    db.session.add(solve)
+    db.session.commit()
+
+    solve.start_session(now + timedelta(seconds=INSPECTION_LENGTH_SECONDS))
+
+    connection.cube.current_solve_id = solve.id
+    connection.cube.state = scramble.cube_state
+
+    db.session.commit()
+
+    print("returning state", scramble.cube_state)
+    return {
+        "state": scramble.cube_state.decode("UTF-8")
+    }
+
+
 @socketio.on("lobby_start")
 def lobby_start_request(data):
     lobby_id = int(data["lobby_id"])
@@ -462,7 +515,7 @@ def lobby_start_request(data):
     db.session.commit()
 
     now = datetime.now()
-    solve_startdate: datetime = now + timedelta(seconds=3)
+    solve_startdate: datetime = now + timedelta(seconds=INSPECTION_LENGTH_SECONDS)
 
     for user in users:
         if (user.current_connection is None):
@@ -576,20 +629,29 @@ def check_race_done(lobby_id: int) -> None:
 @socketio.on("lobby_move")
 def lobby_move(data):
     now = datetime.now()
-    lobby_id: int = int(data["lobby_id"])
+    # lobby_id: int = int(data["lobby_id"])
     move: str = data["move"]
+
+    connection = db.session.scalar(
+        select(SocketConnection).where(SocketConnection.socket_id == request.sid)
+    )
+
+    if connection is None:
+        print("connection is none")
+        return
+
+    lobby_id = connection.lobby_id
 
     print(current_user.username, "in lobby", lobby_id, "has made a ", move, "move")
 
-    socketio.emit(
-        "lobby_move",
-        { "username": current_user.username, "move": move},
-        room=lobby_id,
-        skip_sid=request.sid
-    )
+    if lobby_id:
+        socketio.emit(
+            "lobby_move",
+            { "username": current_user.username, "move": move},
+            room=lobby_id,
+            skip_sid=request.sid
+        )
 
-    q = select(SocketConnection).where(SocketConnection.socket_id == request.sid)
-    connection: SocketConnection = db.session.scalar(q)
 
     cube_entity: CubeEntity = connection.cube
     solve: Solve = cube_entity.current_solve
@@ -605,7 +667,14 @@ def lobby_move(data):
 
     cube_entity.make_move(move, now)
 
-    if solve and solve.completed:
+    if not lobby_id and solve.completed:
+        socketio.emit(
+            "completed",
+            {"time": solve.time },
+            to=request.sid
+        )
+
+    if lobby_id and solve and solve.completed:
         lobby_user = db.session.scalar(
             select(LobbyUser).where(LobbyUser.user_id==current_user.id, LobbyUser.lobby_id==lobby_id)
         )
@@ -655,37 +724,31 @@ def lobby_move(data):
 
 @socketio.on("lobby_camera")
 def lobby_camera(data):
-    lobby_id = int(data["lobby_id"])
     position = data["position"]
 
-    socketio.emit(
-        "lobby_camera",
-        { "username": current_user.username, "position": position },
-        room=lobby_id,
-        skip_sid=request.sid
+    connection = db.session.scalar(
+        select(SocketConnection).where(SocketConnection.socket_id == request.sid)
     )
 
-    q = select(SocketConnection).where(SocketConnection.socket_id == request.sid)
-    connection: SocketConnection = db.session.scalar(q)
+    if connection is None:
+        print("connection is none")
+        return
+
+    lobby_id = connection.lobby_id
+
+    if lobby_id:
+        socketio.emit(
+            "lobby_camera",
+            { "username": current_user.username, "position": position },
+            room=lobby_id,
+            skip_sid=request.sid
+        )
 
     cube_entity: CubeEntity = connection.cube
     solve: Solve = cube_entity.current_solve
 
-    if solve is not None:
-        now = datetime.now()
-        time_delta: datetime.timedelta = now - solve.solve_startdate
-        time_delta_ms = time_delta / timedelta(milliseconds=1)
-
-        obj = CameraChange(
-            timestamp=now,
-            since_start=time_delta_ms,
-            solve_id=solve.id,
-            x=position["x"],
-            y=position["y"],
-            z=position["z"]
-        )
-        db.session.add(obj)
-        db.session.commit()
+    if solve:
+        solve.add_camera_change(position["x"], position["y"], position["z"], datetime.now())
 
 
 @socketio.event

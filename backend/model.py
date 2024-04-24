@@ -282,6 +282,14 @@ class CubeEntity(db.Model):
 
         db.session.commit()
 
+    def change_layers(self, new_size: int):
+        assert(self.current_solve is None)
+        self.size = new_size
+
+        db.session.commit()
+
+        self.set_default_state();
+
     def set_default_state(self):
         c = Cube(self.size)
         self.state = c.serialize()

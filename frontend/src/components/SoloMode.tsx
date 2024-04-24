@@ -14,15 +14,13 @@ import { IconDeviceFloppy } from "@tabler/icons-react";
 import ShowSolvesToContinue from "./ShowSolvesToContinue";
 import { useDisclosure } from "@mantine/hooks";
 
+const default_cube_size = 3;
 
 export default function SoloMode() {
-    const [cubeSize, setCubeSize] = useState(3);
-    // use slider value to avoid changing the cubeSize (and thus creating
-    // a new socket connection) on every slider value change
-    // eg. when going from 3->6, avoid setting 4, 5 as cubeSize
-    const [cubeSizeSliderValue, setCubeSizeSliderValue] = useState(3);
 
-    const cube = useMemo(() => new Cube(cubeSize), [cubeSize]);
+    const [cubeSize, setCubeSize] = useState(default_cube_size);
+
+    const cube = useMemo(() => new Cube(default_cube_size), []);
     const [inSolve, setInSolve] = useState(false);
     const [lastTime, setLastTime] = useState<number | null>(null);
 
@@ -79,7 +77,7 @@ export default function SoloMode() {
             socket.disconnect();
         };
         // eslint-disable-next-line
-    }, [cube, cubeSize])
+    }, [])
 
 
     const startSolve = async () => {
@@ -132,12 +130,18 @@ export default function SoloMode() {
     }
 
     const continue_solve = async (solve_id: number) => {
-        const response: {startTime: number, state: string} = await socket.emitWithAck("continue_solve", {solve_id: solve_id});
+        const response: {startTime: number, state: string, layers: number} = await socket.emitWithAck("continue_solve", {solve_id: solve_id});
         setInSolve(true);
-        console.log(response.state)
+        cube.changeLayers(response.layers)
         cube.setState(response.state)
-        close();
+        setCubeSize(response.layers);
         timer.startFromTime(response.startTime);
+        close();
+    }
+
+    const onLayersChange = (newSize: number) => {
+        socket.emit("change_layers", {newSize: newSize});
+        cube.changeLayers(newSize);
     }
 
     return (
@@ -149,9 +153,9 @@ export default function SoloMode() {
                 <NavigationPanel />
                 <Text>Cube size: {cubeSize}</Text>
                 <Slider
-                    value={cubeSizeSliderValue}
-                    onChange={setCubeSizeSliderValue}
-                    onChangeEnd={setCubeSize}
+                    value={cubeSize}
+                    onChange={setCubeSize}
+                    onChangeEnd={onLayersChange}
                     min={2}
                     max={7}
                 ></Slider>

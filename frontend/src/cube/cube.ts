@@ -49,11 +49,6 @@ export default class Cube {
         this.onMoveCallbacks = [];
 
         this.init_scene();
-
-        if (state == "") {
-            state = this.getDefaultState();
-        }
-
         this.init_internal_state();
         this.draw(state);
 
@@ -293,6 +288,10 @@ export default class Cube {
     }
 
     draw(state: string = "") {
+        if (state === "") {
+            state = this.getDefaultState();
+        }
+        console.log(state)
         // clear scene
         this.scene.remove.apply(this.scene, this.scene.children);
 

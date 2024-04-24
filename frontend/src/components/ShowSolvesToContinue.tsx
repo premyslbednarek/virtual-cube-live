@@ -1,7 +1,6 @@
-import { ActionIcon, Button } from "@mantine/core";
+import { ActionIcon } from "@mantine/core";
 import { IconPlayerPlay } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { print_time } from "../cube/timer";
 
 interface SolveInfo {

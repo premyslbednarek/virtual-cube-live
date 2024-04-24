@@ -77,8 +77,14 @@ def continue_solve(data):
 
     return {
         "startTime": solve.time,
-        "state": solve.state.decode("UTF-8")
+        "state": solve.state.decode("UTF-8"),
+        "layers": solve.scramble.cube_size
     }
+
+@socketio.on("change_layers")
+def change_layers(data):
+    connection = SocketConnection.get(request.sid)
+    connection.cube.change_layers(data["newSize"])
 
 @app.route('/api/user/<int:user_id>')
 def get_user(user_id: int):

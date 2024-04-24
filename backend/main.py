@@ -9,7 +9,7 @@ from flask_login import LoginManager, login_user, logout_user, current_user, log
 from werkzeug.security import generate_password_hash, check_password_hash
 import json
 from sqlalchemy import select, func
-from model import db, User, Lobby, LobbyUser, Scramble, Solve, Race, SocketConnection, CubeModel, SolveMove
+from model import db, User, Lobby, LobbyUser, Scramble, Solve, Race, SocketConnection, CubeEntity, SolveMove
 from model import LobbyUserStatus, UserRole, LobbyRole, LobbyStatus, CameraChange
 from pyTwistyScrambler import scrambler333, scrambler444, scrambler555, scrambler666, scrambler777, scrambler222
 from cube import Cube
@@ -289,7 +289,7 @@ def create_connection(size, cube_id=None, lobby_id=None):
 
     # if no cube_id is provided, create a new cube entity
     if cube_id is None:
-        cube_entity = CubeModel(
+        cube_entity = CubeEntity(
             size=size,
             state=default_state
         )
@@ -591,7 +591,7 @@ def lobby_move(data):
     q = select(SocketConnection).where(SocketConnection.socket_id == request.sid)
     connection: SocketConnection = db.session.scalar(q)
 
-    cube_entity: CubeModel = connection.cube
+    cube_entity: CubeEntity = connection.cube
     solve: Solve = cube_entity.current_solve
 
     if solve and solve.completed:
@@ -603,54 +603,18 @@ def lobby_move(data):
         return
 
 
-    cube = Cube(cube_entity.size, cube_entity.state)
-    cube.move(move)
+    cube_entity.make_move(move, now)
 
-    is_solved = cube.is_solved()
-
-    # cube.pprint()
-
-    cube_entity.state = cube.serialize()
-    db.session.commit()
-
-    if cube_entity.current_solve is None:
-        # there is no current solve
-        return
-
-    solve.moves += " " + move
-
-    time_delta: datetime.timedelta = now - solve.solve_startdate
-    time_delta_ms = time_delta / timedelta(milliseconds=1)
-
-    solve.add_move(move, now)
-
-    # move = SolveMove(
-    #     move=move,
-    #     solve_id=solve.id,
-    #     timestamp=now,
-    #     since_start = time_delta_ms
-    # )
-
-    # db.session.add(move)
-    # db.session.commit()
-
-    if is_solved:
-        solve.completed = True
-        solve.end_current_session(now)
-
-        solve.time = time_delta_ms
-
-        q = select(LobbyUser).where(LobbyUser.user_id==current_user.id, LobbyUser.lobby_id==lobby_id)
-        user: LobbyUser = db.session.scalars(q).one()
-        user.status = LobbyUserStatus.SOLVED
-
-        race: Race = db.session.scalar(
-            select(Race).where(Race.lobby_id == lobby_id, Race.ongoing)
+    if solve and solve.completed:
+        lobby_user = db.session.scalar(
+            select(LobbyUser).where(LobbyUser.user_id==current_user.id, LobbyUser.lobby_id==lobby_id)
         )
-
-        print("rooms", rooms())
+        lobby_user.status = LobbyUserStatus.SOLVED
 
         lobby = db.session.get(Lobby, lobby_id)
+        current_race: Race = db.session.scalar(
+            select(Race).where(Race.lobby_id == lobby_id, Race.ongoing)
+        )
 
         @copy_current_request_context
         def end_race_if_not_ended(race_id: int, lobby_id: int, delay: int):
@@ -660,15 +624,15 @@ def lobby_move(data):
             if race.ongoing:
                 end_current_race(lobby_id)
 
-        if race.finishers_count == 0:
+        if current_race.finishers_count == 0:
             socketio.emit(
                 "start_countdown",
                 { "waitTime": lobby.wait_time },
                 room=lobby_id
             )
-            socketio.start_background_task(target=end_race_if_not_ended, race_id=race.id, lobby_id=lobby_id, delay=lobby.wait_time)
+            socketio.start_background_task(target=end_race_if_not_ended, race_id=current_race.id, lobby_id=lobby_id, delay=lobby.wait_time)
 
-        race.finishers_count = race.finishers_count + 1
+        current_race.finishers_count = current_race.finishers_count + 1
 
         socketio.emit(
             "solved",
@@ -704,7 +668,7 @@ def lobby_camera(data):
     q = select(SocketConnection).where(SocketConnection.socket_id == request.sid)
     connection: SocketConnection = db.session.scalar(q)
 
-    cube_entity: CubeModel = connection.cube
+    cube_entity: CubeEntity = connection.cube
     solve: Solve = cube_entity.current_solve
 
     if solve is not None:

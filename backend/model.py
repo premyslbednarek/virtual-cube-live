@@ -8,6 +8,7 @@ from enum import Enum
 from datetime import datetime, timedelta
 from sqlalchemy import func
 from typing import Optional, List, TypedDict
+from cube import Cube
 
 DEFAULT_INSPECTION_TIME=3
 
@@ -97,7 +98,6 @@ class Solve(db.Model):
     user: Mapped[User] = relationship()
 
     time: Mapped[Optional[int]] = mapped_column(default=0)
-    moves: Mapped[str] = mapped_column(default="")
     completed: Mapped[bool] = mapped_column(default=False)
     inspection_startdate: Mapped[datetime]
     solve_startdate: Mapped[datetime]
@@ -235,18 +235,37 @@ class SocketConnection(db.Model):
     disconnection_date: Mapped[Optional[datetime]]
 
     cube_id: Mapped[Optional[int]] = mapped_column(ForeignKey("cube.id"))
-    cube: Mapped["CubeModel"] = relationship()
+    cube: Mapped["CubeEntity"] = relationship()
 
     lobby_id: Mapped[Optional[int]] = mapped_column(ForeignKey("lobby.id"))
     lobby: Mapped[Lobby] = relationship()
 
-class CubeModel(db.Model):
+class CubeEntity(db.Model):
     __tablename__ = "cube"
     id: Mapped[int] = mapped_column(primary_key=True)
     size: Mapped[int]
     state: Mapped[str]
     current_solve_id: Mapped[Optional[int]] = mapped_column(ForeignKey("solve.id"))
     current_solve: Mapped[Optional[Solve]] = relationship()
+
+    def make_move(self, move_str: str, timestamp: datetime):
+        # get new cube state after the move
+        cube = Cube(self.size, self.state)
+        cube.move(move_str)
+        new_state = cube.serialize()
+        is_solved = cube.is_solved()
+
+        self.state = new_state
+
+        # if there is a solve, add the move to the solve
+        if self.current_solve:
+            self.current_solve.add_move(move_str, timestamp)
+            if (is_solved):
+                self.current_solve.completed = True
+                self.current_solve.end_current_session(timestamp)
+                self.current_solve = None
+
+        db.session.commit()
 
 # i dont want to use insert_defaulf=func.now as it does not contain ms
 class SolveMove(db.Model):

@@ -27,9 +27,14 @@ export default function useStopwatch() {
         setIsRunning(true);
     }
 
+    const startFromTime = (time: number) => {
+        setTime(time);
+        setIsRunning(true)
+    }
+
     const stop = () => {
         setIsRunning(false);
     }
 
-    return { time, formattedTime, start, stop };
+    return { time, formattedTime, start, stop, startFromTime };
 }

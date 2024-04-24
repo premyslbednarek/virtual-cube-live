@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, select
 from sqlalchemy.dialects.sqlite import DATETIME
 from enum import Enum
 from datetime import datetime, timedelta
@@ -96,6 +96,8 @@ class Solve(db.Model):
 
     user_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
     user: Mapped[User] = relationship()
+
+    state: Mapped[str] = mapped_column(default="")
 
     time: Mapped[Optional[int]] = mapped_column(default=0)
     completed: Mapped[bool] = mapped_column(default=False)
@@ -240,6 +242,18 @@ class SocketConnection(db.Model):
     lobby_id: Mapped[Optional[int]] = mapped_column(ForeignKey("lobby.id"))
     lobby: Mapped[Lobby] = relationship()
 
+    @staticmethod
+    def get(sid: str) -> "SocketConnection":
+        connection = db.session.scalar(
+            select(SocketConnection).where(SocketConnection.socket_id == sid)
+        )
+
+        if not connection:
+            raise ValueError("Connection with this sid does not exist")
+
+        return connection
+
+
 class CubeEntity(db.Model):
     __tablename__ = "cube"
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -260,11 +274,17 @@ class CubeEntity(db.Model):
         # if there is a solve, add the move to the solve
         if self.current_solve:
             self.current_solve.add_move(move_str, timestamp)
+            self.current_solve.state = new_state
             if (is_solved):
                 self.current_solve.completed = True
                 self.current_solve.end_current_session(timestamp)
                 self.current_solve = None
 
+        db.session.commit()
+
+    def set_default_state(self):
+        c = Cube(self.size)
+        self.state = c.serialize()
         db.session.commit()
 
 # i dont want to use insert_defaulf=func.now as it does not contain ms

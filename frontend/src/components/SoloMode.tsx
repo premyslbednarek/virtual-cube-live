@@ -4,13 +4,15 @@ import { ControlledCube } from "./CubeCanvases";
 import NavigationPanel from "./NavigationPanel";
 import { socket } from "../socket";
 import * as THREE from 'three';
-import { ActionIcon, Button, Slider, Text } from "@mantine/core";
+import { ActionIcon, Button, Slider, Text, Modal } from "@mantine/core";
 import { useHotkeys } from "react-hotkeys-hook";
 import useCountdown from "./useCountdown";
 import useStopwatch from "./useTimer";
 import { parse_move } from "../cube/move";
 import { print_time } from "../cube/timer";
 import { IconDeviceFloppy } from "@tabler/icons-react";
+import ShowSolvesToContinue from "./ShowSolvesToContinue";
+import { useDisclosure } from "@mantine/hooks";
 
 
 export default function SoloMode() {
@@ -24,15 +26,18 @@ export default function SoloMode() {
     const [inSolve, setInSolve] = useState(false);
     const [lastTime, setLastTime] = useState<number | null>(null);
 
-    const { formattedTime, start, stop } = useStopwatch();
+    const timer = useStopwatch();
     const {
         secondsLeft: inspectionSecondsLeft,
         start: startCountdown,
         isRunning: inspectionRunning
     } = useCountdown();
 
+    const [opened, { open, close }] = useDisclosure(false);
+
+
     const onComplete = ({time} : {time: number}) => {
-        stop();
+        timer.stop();
         setLastTime(time);
         setInSolve(false);
         console.log("finished");
@@ -86,7 +91,7 @@ export default function SoloMode() {
         cube.startInspection();
 
         startCountdown(3, () => {
-            start();
+            timer.start();
             cube.startSolve();
         })
     }
@@ -112,7 +117,7 @@ export default function SoloMode() {
         padding: 0,
     }}>
         { inspectionRunning && <div>{inspectionSecondsLeft}</div> }
-        { !inspectionRunning && inSolve && lastTime == null && formattedTime }
+        { !inspectionRunning && inSolve && lastTime == null && timer.formattedTime }
         { !inspectionRunning && lastTime != null && print_time(lastTime)}
         {/* { !inspectionRunning && !inSolve && !beforeFirstSolve && solveTime == null && "DNF"} */}
     </div>
@@ -123,11 +128,23 @@ export default function SoloMode() {
         )
         cube.setState(cube.getDefaultState());
         setInSolve(false);
-        stop();
+        timer.stop();
+    }
+
+    const continue_solve = async (solve_id: number) => {
+        const response: {startTime: number, state: string} = await socket.emitWithAck("continue_solve", {solve_id: solve_id});
+        setInSolve(true);
+        console.log(response.state)
+        cube.setState(response.state)
+        close();
+        timer.startFromTime(response.startTime);
     }
 
     return (
         <>
+            <Modal opened={opened} onClose={close} title="Pick a solve to continue">
+                <ShowSolvesToContinue onContinue={continue_solve} />
+            </Modal>
             <div style={{position: "absolute"}}>
                 <NavigationPanel />
                 <Text>Cube size: {cubeSize}</Text>
@@ -139,6 +156,7 @@ export default function SoloMode() {
                     max={7}
                 ></Slider>
                 { inSolve && <ActionIcon onClick={save}><IconDeviceFloppy></IconDeviceFloppy></ActionIcon>}
+                { !inSolve && <Button onClick={open}>Continue solve</Button>}
             </div>
             <div style={{height: "100vh"}}>
                 <ControlledCube cube={cube} />

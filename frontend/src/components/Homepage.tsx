@@ -77,7 +77,9 @@ export default function Home() {
     <Container>
       <h1>Welcome to Rubik's cube racing!</h1>
       <p>The current time is {currentTime}.</p>
+      <Divider my="md" />
       <Link to="/solo"><Button>Singleplayer</Button></Link>
+      <Divider my="md" />
       <UserInfo />
       <Divider my="md" />
       <CreateLobbyButton />

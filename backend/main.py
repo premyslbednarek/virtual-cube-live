@@ -45,6 +45,41 @@ i = 0
 class RequestSolutionData(TypedDict):
     lobby_id: int
 
+@app.route('/api/solves_to_continue')
+def get_solves_to_continue():
+    solves = db.session.execute(
+        select(
+            Solve.id,
+            Solve.time,
+            Scramble.cube_size
+        ).select_from(
+            Solve
+        ).join(
+            Scramble, Solve.scramble_id == Scramble.id
+        ).where(
+            Solve.user_id == current_user.id,
+            Solve.completed == False
+        )
+    ).all()
+    return {"solves": [solve._asdict() for solve in solves]}
+
+@socketio.on("continue_solve")
+def continue_solve(data):
+    connection = SocketConnection.get(request.sid)
+    connection.cube.set_default_state()
+    solve = db.session.get(Solve, data["solve_id"])
+
+    solve.start_session(datetime.now())
+    connection.cube.current_solve = solve
+    connection.cube.state = solve.state
+
+    db.session.commit()
+
+    return {
+        "startTime": solve.time,
+        "state": solve.state.decode("UTF-8")
+    }
+
 @app.route('/api/user/<int:user_id>')
 def get_user(user_id: int):
     row = db.session.execute(
@@ -467,7 +502,8 @@ def solo_solve_start():
         scramble_id=scramble.id,
         user_id = current_user.id,
         inspection_startdate=now,
-        solve_startdate=now + timedelta(seconds=INSPECTION_LENGTH_SECONDS)
+        solve_startdate=now + timedelta(seconds=INSPECTION_LENGTH_SECONDS),
+        state=scramble.cube_state
     )
 
     db.session.add(solve)
@@ -778,23 +814,23 @@ def disconnect():
     print("SOCKET DC")
     print(request.sid)
 
-    # handle lobby disconnections
-    q = select(SocketConnection).where(SocketConnection.socket_id == request.sid)
-    conn: SocketConnection = db.session.scalars(q).one()
+    connection = SocketConnection.get(request.sid)
+    if (connection.cube.current_solve):
+        connection.cube.current_solve.end_current_session(datetime.now())
 
-    if conn.lobby_id is not None:
-        print("Lobby disconnection", conn.lobby_id, current_user.username)
-        q = select(LobbyUser).where(LobbyUser.user_id == conn.user_id, LobbyUser.lobby_id == conn.lobby_id)
+    if connection.lobby_id is not None:
+        print("Lobby disconnection", connection.lobby_id, current_user.username)
+        q = select(LobbyUser).where(LobbyUser.user_id == connection.user_id, LobbyUser.lobby_id == connection.lobby_id)
         lobby_user: LobbyUser = db.session.scalar(q)
         lobby_user.current_connection_id = None
         db.session.commit()
 
-        leave_room(conn.lobby_id)
+        leave_room(connection.lobby_id)
 
         socketio.emit(
             "lobby_disconnection",
             { "username": current_user.username },
-            room=conn.lobby_id
+            room=connection.lobby_id
         )
 
         # check after given time, if the lobby is still empty, delete it
@@ -824,10 +860,10 @@ def disconnect():
                     { "lobby_id": lobby_id }
                 )
 
-        eventlet.spawn(lobby_cleanup, lobby_id=conn.lobby_id)
+        eventlet.spawn(lobby_cleanup, lobby_id=connection.lobby_id)
         # socketio.start_background_task(target=lobby_cleanup)
 
-    conn.disconnection_date = func.now()
+    connection.disconnection_date = func.now()
     db.session.commit()
 
 if __name__ == '__main__':

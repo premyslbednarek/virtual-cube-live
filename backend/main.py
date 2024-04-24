@@ -436,6 +436,21 @@ def create_scramble(size: int) -> Scramble:
 
 INSPECTION_LENGTH_SECONDS = 3
 
+@socketio.on("save_solve")
+def save_solve():
+    connection = db.session.scalar(
+        select(SocketConnection).where(SocketConnection.socket_id == request.sid)
+    )
+    if connection is None:
+        return
+
+    solve = connection.cube.current_solve
+    if not solve:
+        return
+
+    solve.end_current_session(datetime.now())
+
+
 @socketio.on("solo_solve_start")
 def solo_solve_start():
     connection = db.session.scalar(

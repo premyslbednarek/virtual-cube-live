@@ -4,12 +4,13 @@ import { ControlledCube } from "./CubeCanvases";
 import NavigationPanel from "./NavigationPanel";
 import { socket } from "../socket";
 import * as THREE from 'three';
-import { Button, Slider, Text } from "@mantine/core";
+import { ActionIcon, Button, Slider, Text } from "@mantine/core";
 import { useHotkeys } from "react-hotkeys-hook";
 import useCountdown from "./useCountdown";
 import useStopwatch from "./useTimer";
 import { parse_move } from "../cube/move";
 import { print_time } from "../cube/timer";
+import { IconDeviceFloppy } from "@tabler/icons-react";
 
 
 export default function SoloMode() {
@@ -116,6 +117,15 @@ export default function SoloMode() {
         {/* { !inspectionRunning && !inSolve && !beforeFirstSolve && solveTime == null && "DNF"} */}
     </div>
 
+    const save = () => {
+        socket.emit(
+            "save_solve"
+        )
+        cube.setState(cube.getDefaultState());
+        setInSolve(false);
+        stop();
+    }
+
     return (
         <>
             <div style={{position: "absolute"}}>
@@ -128,6 +138,7 @@ export default function SoloMode() {
                     min={2}
                     max={7}
                 ></Slider>
+                { inSolve && <ActionIcon onClick={save}><IconDeviceFloppy></IconDeviceFloppy></ActionIcon>}
             </div>
             <div style={{height: "100vh"}}>
                 <ControlledCube cube={cube} />

@@ -45,6 +45,10 @@ class User(UserMixin, db.Model):
     role: Mapped[UserRole] = mapped_column(default=UserRole.USER)
     created_date: Mapped[datetime] = mapped_column(insert_default=func.now())
 
+class LobbyPoints(TypedDict):
+    username: str
+    points: int
+
 # default datetime value example in:
 # https://docs.sqlalchemy.org/en/20/orm/declarative_styles.html
 class Lobby(db.Model):
@@ -73,6 +77,17 @@ class Lobby(db.Model):
         if lobby_user is None:
             raise ValueError("Lobby User does not exist")
         return lobby_user
+
+    def get_user_points(self) -> List[LobbyPoints]:
+        res = db.session.execute(
+            select(User.username, LobbyUser.points)
+                .select_from(LobbyUser)
+                .join(User, User.id == LobbyUser.user_id)
+                .where(LobbyUser.lobby_id == self.id)
+                .order_by(LobbyUser.points.desc())
+        )
+        return [{"username": username, "points": points} for username, points in res]
+
 
 
 
@@ -276,14 +291,22 @@ class Race(db.Model):
                 lobby_user.points = lobby_user.points + points
                 points -= 1
 
-        from views import get_lobby_points
         socketio.emit(
             "lobby_race_done",
-            {"results": results, "lobbyPoints": get_lobby_points(self.lobby_id)},
+            {"results": results, "lobbyPoints": self.lobby.get_user_points()},
             room=self.lobby_id
         )
         self.ongoing = False
         db.session.commit()
+
+    def end_race_if_finished(self):
+        # get number of users in the lobby that are still solving the cube
+        still_solving = len(list(filter(lambda solve: solve.is_ongoing(), self.solves)))
+
+        if (still_solving == 0):
+            print(f"race in lobby {self.lobby_id} over")
+            self.end()
+
 
 class SocketConnection(db.Model):
     __tablename__ = "socket_connection"

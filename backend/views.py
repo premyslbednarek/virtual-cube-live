@@ -409,7 +409,7 @@ def handle_lobby_conection(data):
         "userList": [(username, ready, lobbyuser.current_connection.cube.state.decode("UTF-8")) for username, ready, lobbyuser in users],
         "isAdmin": is_admin,
         "cubeSize": lobby.cube_size,
-        "points": get_lobby_points(lobby_id)
+        "points": lobby.get_user_points()
     }
 
 @socketio.on("lobby_ready_status")
@@ -592,30 +592,6 @@ def lobby_start_request(data):
 
     print("starting the match...")
 
-class LobbyPoints(TypedDict):
-    username: str
-    points: int
-
-
-def get_lobby_points(lobby_id: int) -> List[LobbyPoints]:
-    res = db.session.execute(
-        select(User.username, LobbyUser.points)
-            .select_from(LobbyUser)
-            .join(User, User.id == LobbyUser.user_id)
-            .where(LobbyUser.lobby_id == lobby_id)
-            .order_by(LobbyUser.points.desc())
-    )
-    return [{"username": username, "points": points} for username, points in res]
-
-def check_race_done(race: Race) -> None:
-    # get number of users in the lobby that are still solving the cube
-    still_solving = len(list(filter(lambda solve: solve.is_ongoing(), race.solves)))
-
-    if (still_solving == 0):
-        print(f"race in lobby {race.lobby_id} over")
-        race.end()
-
-
 @socketio.on("lobby_move")
 def lobby_move(data):
     now = datetime.now()
@@ -681,8 +657,6 @@ def lobby_move(data):
         current_race = lobby.get_current_race()
         current_race.finishers_count = current_race.finishers_count + 1
 
-        check_race_done(current_race)
-
         @copy_current_request_context
         def end_race_if_not_ended(race_id: int, delay: int):
             time.sleep(delay)
@@ -707,6 +681,8 @@ def lobby_move(data):
                 race_id=current_race.id,
                 delay=lobby.wait_time
             )
+
+        current_race.end_race_if_finished()
 
     db.session.commit()
 

@@ -10,6 +10,8 @@ from sqlalchemy import func
 from typing import Optional, List, TypedDict
 from cube import Cube
 
+from __main__ import socketio
+
 DEFAULT_INSPECTION_TIME=3
 
 class LobbyUserStatus(Enum):
@@ -251,6 +253,7 @@ class Race(db.Model):
     started_date: Mapped[datetime] = mapped_column(insert_default=func.now())
 
     solves: Mapped[List[Solve]] = relationship()
+
 
 class SocketConnection(db.Model):
     __tablename__ = "socket_connection"

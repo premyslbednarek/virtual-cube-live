@@ -66,8 +66,10 @@ def get_solves_to_continue():
 @socketio.on("continue_solve")
 def continue_solve(data):
     connection = SocketConnection.get(request.sid)
-    connection.cube.set_default_state()
     solve = db.session.get(Solve, data["solve_id"])
+    new_size = solve.scramble.cube_size
+
+    connection.cube.change_layers(new_size)
 
     solve.start_session(datetime.now())
     connection.cube.current_solve = solve

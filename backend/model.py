@@ -285,7 +285,9 @@ class CubeEntity(db.Model):
         db.session.commit()
 
     def change_layers(self, new_size: int):
-        assert(self.current_solve is None)
+        if (self.current_solve):
+            self.current_solve.end_current_session(datetime.now())
+
         self.size = new_size
 
         db.session.commit()

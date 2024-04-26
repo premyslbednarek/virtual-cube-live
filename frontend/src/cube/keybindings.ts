@@ -26,11 +26,11 @@ keybinds.set("p", "z");
 keybinds.set("q", "z'");
 keybinds.set("w", "B");
 keybinds.set("o", "B'");
-keybinds.set(".", "M'");
-keybinds.set("x", "M'");
+keybinds.set(".", "m'");
+keybinds.set("x", "m'");
 keybinds.set("z", "Dw");
 keybinds.set("/", "Dw'");
-keybinds.set("5", "M");
-keybinds.set("6", "M");
+keybinds.set("5", "m");
+keybinds.set("6", "m");
 
 export default keybinds;

@@ -269,6 +269,8 @@ class CubeEntity(db.Model):
         new_state = cube.serialize()
         is_solved = cube.is_solved()
 
+        cube.pprint()
+
         self.state = new_state
 
         # if there is a solve, add the move to the solve

@@ -63,7 +63,10 @@ class Move:
         """
         if (self.face in MIDDLE_LAYERS):
             # all inner layers
-            return list(range(1, n - 1))
+            if (self.wide):
+                return list(range(1, n - 1))
+
+            return [n // 2]
 
         indices = []
         indices.append(self.index - 1)

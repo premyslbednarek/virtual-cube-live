@@ -724,7 +724,7 @@ def lobby_move(data):
 
     cube_entity.make_move(move, now)
 
-    if not lobby_id and solve.completed:
+    if lobby_id and solve and solve.completed:
         socketio.emit(
             "completed",
             {"time": solve.time },

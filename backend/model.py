@@ -10,7 +10,9 @@ from sqlalchemy import func
 from typing import Optional, List, TypedDict
 from cube import Cube
 
-from __main__ import socketio
+from app import socketio
+
+db = SQLAlchemy()
 
 DEFAULT_INSPECTION_TIME=3
 
@@ -33,7 +35,6 @@ class LobbyStatus(Enum):
     SOLVING = 1
     ENDED = 2
 
-db = SQLAlchemy()
 
 class User(UserMixin, db.Model):
     __tablename__ = "user"
@@ -254,6 +255,35 @@ class Race(db.Model):
 
     solves: Mapped[List[Solve]] = relationship()
 
+    def end(self):
+        now = datetime.now()
+        # end all unfinished solves in the lobby
+        for solve in self.solves:
+            if solve.is_ongoing():
+                solve.end_current_session(now)
+
+        solves_sorted: List[Solve] = sorted(self.solves, key=lambda solve: solve.time)
+
+        points = 10
+        results = []
+        for solve in solves_sorted:
+            print(id, solve.user.username, solve.time, points)
+            if not solve.completed:
+                results.append({"username": solve.user.username, "time": None, "pointsDelta": 0})
+            else:
+                results.append({"username": solve.user.username, "time": solve.time, "pointsDelta": points})
+                lobby_user = LobbyUser.get(solve.user_id, self.lobby_id)
+                lobby_user.points = lobby_user.points + points
+                points -= 1
+
+        from views import get_lobby_points
+        socketio.emit(
+            "lobby_race_done",
+            {"results": results, "lobbyPoints": get_lobby_points(self.lobby_id)},
+            room=self.lobby_id
+        )
+        self.ongoing = False
+        db.session.commit()
 
 class SocketConnection(db.Model):
     __tablename__ = "socket_connection"

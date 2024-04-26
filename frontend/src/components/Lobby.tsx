@@ -396,26 +396,26 @@ export default function Lobby() {
 
     useEffect(() => {
         socket.on("lobby_ready_status_", onReadyChange);
-        socket.on("you_solved", onSolved);
+        socket.on("solve_completed", onSomebodySolved)
+        socket.on("your_solve_completed", onSolved);
         socket.on("lobby_move", onMove);
         socket.on("lobby_camera", onCamera);
         socket.on("lobby_connection", onConnection);
         socket.on("lobby_disconnection", onDisconnection)
         socket.on("match_start", onMatchStart);
-        socket.on("solved", onSomebodySolved)
         socket.on("lobby_race_done", onRaceDone);
-        socket.on("start_countdown", onStartCountdown);
+        socket.on("solve_end_countdown", onStartCountdown);
         return () => {
             socket.off("lobby_connection", onConnection);
-            socket.off("you_solved", onSolved);
+            socket.off("solve_completed", onSomebodySolved)
+            socket.off("your_solve_completed", onSolved);
             socket.off("lobby_disconnection", onDisconnection)
             socket.off("lobby_ready_status_", onReadyChange);
             socket.off("lobby_move", onMove);
             socket.off("lobby_camera", onCamera);
             socket.off("match_start", onMatchStart);
-            socket.off("solved", onSomebodySolved)
             socket.off("lobby_race_done", onRaceDone);
-            socket.off("start_countdown", onStartCountdown);
+            socket.off("solve_end_countdown", onStartCountdown);
         }
     })
 

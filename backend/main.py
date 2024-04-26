@@ -37,7 +37,7 @@ with app.app_context():
     db.create_all()
 
 # https://github.com/miguelgrinberg/Flask-SocketIO/issues/1356#issuecomment-681830773
-socketio = SocketIO(app, cors_allowed_origins="*", engineio_logger=False)
+socketio = SocketIO(app, cors_allowed_origins="*", engineio_logger=True)
 
 sidToName = {}
 i = 0
@@ -627,87 +627,64 @@ def get_lobby_points(lobby_id: int) -> List[LobbyPoints]:
     )
     return [{"username": username, "points": points} for username, points in res]
 
-def end_current_race(lobby_id: int) -> None:
-    race: Race = db.session.scalar(
-        select(Race).where(Race.lobby_id == lobby_id, Race.ongoing)
-    )
+def end_current_race(race: Race) -> None:
+    now = datetime.now()
 
-    solves = db.session.scalars(
-        select(Solve).where(Solve.race_id == race.id)
-    )
-
-    for solve in solves:
+    # end all unfinished solves in the lobby
+    for solve in race.solves:
         if solve.is_ongoing():
-            solve.end_current_session(datetime.now())
+            solve.end_current_session(now)
 
-    res = db.session.execute(
-        select(User.id, User.username, Solve.time, Solve.completed)
-            .select_from(Solve)
-            .join(User, User.id == Solve.user_id)
-            .where(Solve.race_id == race.id)
-            .order_by(Solve.time.asc())
-    )
+    solves_sorted: List[Solve] = sorted(race.solves, key=lambda solve: solve.time)
 
     points = 10
     results = []
-    for id, username, time, completed in res:
-        print(id, username, time, points)
-        if not completed:
-            results.append({"username": username, "time": None, "pointsDelta": 0})
+    for solve in solves_sorted:
+        print(id, solve.user.username, solve.time, points)
+        if not solve.completed:
+            results.append({"username": solve.user.username, "time": None, "pointsDelta": 0})
         else:
-            results.append({"username": username, "time": time, "pointsDelta": points})
-            lobbyuser: LobbyUser = db.session.scalar(
-                select(LobbyUser).where(LobbyUser.user_id == id, LobbyUser.lobby_id == lobby_id)
-            )
-            lobbyuser.points = lobbyuser.points + points
+            results.append({"username": solve.user.username, "time": solve.time, "pointsDelta": points})
+            lobby_user = LobbyUser.get(solve.user_id, race.lobby_id)
+            lobby_user.points = lobby_user.points + points
             points -= 1
 
-
-    print("rooms", rooms())
-    print("emmitting", lobby_id)
     socketio.emit(
         "lobby_race_done",
-        {"results": results, "lobbyPoints": get_lobby_points(lobby_id)},
-        room=lobby_id
+        {"results": results, "lobbyPoints": get_lobby_points(race.lobby_id)},
+        room=race.lobby_id
     )
     race.ongoing = False
     db.session.commit()
 
 
-def check_race_done(lobby_id: int) -> None:
+def check_race_done(race: Race) -> None:
     # get number of users in the lobby that are still solving the cube
-    still_solving: int = db.session.scalar(
-        select(func.count()).select_from(LobbyUser).where(LobbyUser.lobby_id == lobby_id, LobbyUser.current_connection_id is not None, LobbyUser.status == LobbyUserStatus.SOLVING)
-    )
+    still_solving = len(list(filter(lambda solve: solve.is_ongoing(), race.solves)))
 
     if (still_solving == 0):
-        print(f"race in lobby {lobby_id} is over")
-        end_current_race(lobby_id)
+        print(f"race in lobby {race.lobby_id} over")
+        end_current_race(race)
 
 
 @socketio.on("lobby_move")
 def lobby_move(data):
     now = datetime.now()
-    # lobby_id: int = int(data["lobby_id"])
     move: str = data["move"]
 
-    connection = db.session.scalar(
-        select(SocketConnection).where(SocketConnection.socket_id == request.sid)
-    )
+    connection = SocketConnection.get(request.sid)
+    lobby = connection.lobby
 
-    if connection is None:
-        print("connection is none")
-        return
+    print(current_user.username, "in lobby", lobby.id, "has made a ", move, "move")
 
-    lobby_id = connection.lobby_id
-
-    print(current_user.username, "in lobby", lobby_id, "has made a ", move, "move")
-
-    if lobby_id:
+    if lobby:
         socketio.emit(
             "lobby_move",
-            { "username": current_user.username, "move": move},
-            room=lobby_id,
+            {
+                "username": current_user.username,
+                "move": move
+            },
+            room=lobby.id,
             skip_sid=request.sid
         )
 
@@ -726,57 +703,61 @@ def lobby_move(data):
 
     cube_entity.make_move(move, now)
 
-    if lobby_id and solve and solve.completed:
+    # if the solve was finished with this move, notify the users about it
+    # and distribute the server solve time to them
+    if solve and solve.completed:
         socketio.emit(
-            "completed",
-            {"time": solve.time },
+            "your_solve_completed",
+            {
+                "time": solve.time
+            },
             to=request.sid
         )
 
-    if lobby_id and solve and solve.completed:
-        lobby_user = db.session.scalar(
-            select(LobbyUser).where(LobbyUser.user_id==current_user.id, LobbyUser.lobby_id==lobby_id)
-        )
-        lobby_user.status = LobbyUserStatus.SOLVED
-
-        lobby = db.session.get(Lobby, lobby_id)
-        current_race: Race = db.session.scalar(
-            select(Race).where(Race.lobby_id == lobby_id, Race.ongoing)
-        )
-
-        @copy_current_request_context
-        def end_race_if_not_ended(race_id: int, lobby_id: int, delay: int):
-            time.sleep(delay)
-
-            race = db.session.get(Race, race_id)
-            if race.ongoing:
-                end_current_race(lobby_id)
-
-        if current_race.finishers_count == 0:
+        if lobby:
             socketio.emit(
-                "start_countdown",
-                { "waitTime": lobby.wait_time },
-                room=lobby_id
+                "solve_completed",
+                {
+                    "username": current_user.username,
+                    "time": solve.time
+                },
+                room=lobby.id,
+                skip_sid=request.sid
             )
-            socketio.start_background_task(target=end_race_if_not_ended, race_id=current_race.id, lobby_id=lobby_id, delay=lobby.wait_time)
 
+
+    if lobby and solve and solve.completed:
+        lobby_user = lobby.get_user(current_user.id)
+        lobby_user.status = LobbyUserStatus.SOLVED
+        current_race = lobby.get_current_race()
         current_race.finishers_count = current_race.finishers_count + 1
 
-        socketio.emit(
-            "solved",
-            { "username": current_user.username, "time": solve.time },
-            room=lobby_id,
-            skip_sid=request.sid
-        )
+        check_race_done(current_race)
 
-        socketio.emit(
-            "you_solved",
-            { "time": solve.time },
-            room=lobby_id,
-            to=request.sid
-        )
+        @copy_current_request_context
+        def end_race_if_not_ended(race_id: int, delay: int):
+            time.sleep(delay)
+            # passing race directly is not possible due to sqlalchemy object
+            # expiration
+            race = db.session.get(Race, race_id)
+            if race.ongoing:
+                end_current_race(race)
 
-        check_race_done(lobby_id)
+        # it the user was the first to finish in the lobby, start
+        # solve end countdown (all users have to finish within the time limit,
+        # or they get DNF)
+        if current_race.finishers_count == 1:
+            socketio.emit(
+                "solve_end_countdown",
+                { "waitTime": lobby.wait_time },
+                room=lobby.id
+            )
+
+            socketio.start_background_task(
+                target=end_race_if_not_ended,
+                race_id=current_race.id,
+                delay=lobby.wait_time
+            )
 
     db.session.commit()
 

@@ -68,11 +68,11 @@ export default function SoloMode() {
 
         cube.onMove(send_move);
         cube.onCamera(send_camera);
-        socket.on("completed", onComplete)
+        socket.on("your_solve_completed", onComplete)
 
         return () => {
             cube.remove_keyboard_controls();
-            socket.off("completed", onComplete)
+            socket.off("your_solve_completed", onComplete)
             console.log("disconnection from socket...")
             socket.disconnect();
         };

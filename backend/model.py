@@ -58,6 +58,21 @@ class Lobby(db.Model):
     races_finished: Mapped[int] = mapped_column(default=0)
     wait_time: Mapped[int]
 
+    def get_current_race(self) -> Optional["Race"]:
+        return db.session.scalar(
+            select(Race).where(Race.lobby_id == self.id, Race.ongoing)
+        )
+
+    def get_user(self, user_id: int) -> "LobbyUser":
+        lobby_user = db.session.scalar(
+            select(LobbyUser).where(LobbyUser.user_id==user_id, LobbyUser.lobby_id==self.id)
+        )
+        if lobby_user is None:
+            raise ValueError("Lobby User does not exist")
+        return lobby_user
+
+
+
 class LobbyUser(db.Model):
     __tablename__ = "lobby_user"
 
@@ -78,6 +93,15 @@ class LobbyUser(db.Model):
     status: Mapped[LobbyUserStatus] = mapped_column(default=LobbyUserStatus.NOT_READY)
     role: Mapped[LobbyRole] = mapped_column(default=LobbyRole.USER)
     points: Mapped[int] = mapped_column(default=0)
+
+    @staticmethod
+    def get(user_id: int, lobby_id: int) -> "LobbyUser":
+        lobby_user = db.session.scalar(
+            select(LobbyUser).where(LobbyUser.user_id==user_id, LobbyUser.lobby_id==lobby_id)
+        )
+        if lobby_user is None:
+            raise ValueError("Lobby User does not exist")
+        return lobby_user
 
 class Scramble(db.Model):
     __tablename__ = "scramble"
@@ -225,6 +249,8 @@ class Race(db.Model):
     racers_count: Mapped[int]
     finishers_count: Mapped[int] = mapped_column(default=0)
     started_date: Mapped[datetime] = mapped_column(insert_default=func.now())
+
+    solves: Mapped[List[Solve]] = relationship()
 
 class SocketConnection(db.Model):
     __tablename__ = "socket_connection"

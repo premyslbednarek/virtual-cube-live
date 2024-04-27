@@ -18,8 +18,6 @@ import {
   Anchor,
   Stack,
 } from '@mantine/core';
-import LoginForm from './components/LoginForm';
-import RegisterForm from './components/RegisterForm';
 import Home from './components/Homepage';
 import Lobby from './components/Lobby';
 import Replay from './components/Replay';
@@ -41,9 +39,7 @@ function App() {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Home />} />
-              <Route path="/login" element={<LoginForm />} />
               <Route path="/page2" element={<Page2 />} />
-              <Route path="/register" element={<RegisterForm />} />
               <Route path="/lobby/:lobby_id" element={<Lobby />} />
               <Route path="/replay/:solveId" element={<Replay />} />
               <Route path="/user/:userId" element={<UserPage />} />

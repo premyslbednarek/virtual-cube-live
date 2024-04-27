@@ -9,6 +9,7 @@ import {
 import CreateLobbyDiv from './CreateLobby';
 import LobbyList from './LobbyList';
 import Authentication from './Auth';
+import { IconUser } from '@tabler/icons-react';
 
 export default function Home() {
   return (
@@ -16,7 +17,7 @@ export default function Home() {
       <Container>
         <h1>Welcome to Rubik's cube racing!</h1>
 
-        <Link to="/solo"><Button>Solo mode</Button></Link>
+        <Link to="/solo"><Button leftSection={<IconUser />}>Solo mode</Button></Link>
 
         <Divider my="md" />
 

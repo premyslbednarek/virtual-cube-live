@@ -1,6 +1,7 @@
 import { Button, Checkbox, Title, NumberInput, Group } from '@mantine/core';
 import { useNavigate } from "react-router-dom"
 import { useForm } from '@mantine/form';
+import { IconUsers } from '@tabler/icons-react';
 
 interface LobbyCreateResponse {
   lobby_id: number;
@@ -49,7 +50,7 @@ export default function CreateLobbyDiv() {
           {...form.getInputProps('private', { type: 'checkbox' })}
         />
         <Group mt="md">
-          <Button type="submit">Create lobby</Button>
+          <Button type="submit" leftSection={<IconUsers />}>Create lobby</Button>
         </Group>
       </form>
     </>

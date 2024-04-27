@@ -1,9 +1,10 @@
 import { FormEvent, useContext, useState } from "react";
 import { UserContext } from "../userContext";
-import { Anchor, Button, Flex, Modal, PasswordInput, Space, Stack, TextInput, Alert } from "@mantine/core";
+import { Anchor, Button, Flex, Modal, PasswordInput, Space, Stack, TextInput, Alert, ActionIcon, Group } from "@mantine/core";
 import { useDisclosure, useToggle } from "@mantine/hooks";
 import { useForm } from "@mantine/form";
-import { IconExclamationCircle } from "@tabler/icons-react";
+import { IconExclamationCircle, IconLogin, IconLogout, IconUserCircle, IconUserPlus } from "@tabler/icons-react";
+import { Link } from "react-router-dom";
 
 function capitalizeFirstLetter(string: string) {
     // https://www.squash.io/how-to-capitalize-first-letter-in-javascript/
@@ -50,10 +51,13 @@ export default function UserInfo() {
 
     if (userContext.isLogged) {
         return (
-            <>
-                <p>You are logged in as {userContext.username}</p>
-                <Button onClick={logout}>Logout</Button>
-            </>
+            <Group>
+                <p>Welcome, {userContext.username}!</p>
+                <Link to="/profile">
+                    <Button leftSection={<IconUserCircle />}> Profile</Button>
+                </Link>
+                <Button leftSection={<IconLogout />} onClick={logout}>Logout</Button>
+            </Group>
         );
     }
 
@@ -114,19 +118,21 @@ export default function UserInfo() {
 
 
                 <Flex justify="flex-end">
-                    <Button type="submit" radius="xl">
-                    Login
+                    <Button type="submit">
+                        {type === 'register'
+                        ? 'Register'
+                        : 'Login'}
                     </Button>
                 </Flex>
                 </form>
             </Modal>
 
             <div style={{display: "flex"}}>
-                    <Button onClick={() => openModal("login")}>
+                    <Button leftSection={<IconLogin />} onClick={() => openModal("login")}>
                     Login
                     </Button>
                 <Space w="md" />
-                    <Button onClick={() => openModal("register")}>
+                    <Button leftSection={<IconUserPlus />} onClick={() => openModal("register")}>
                     Register
                     </Button>
             </div>

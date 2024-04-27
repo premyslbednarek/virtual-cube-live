@@ -597,7 +597,7 @@ def lobby_move(data):
     connection = SocketConnection.get(request.sid)
     lobby = connection.lobby
 
-    print(current_user.username, "in lobby", lobby.id, "has made a ", move, "move")
+    # print(current_user.username, "in lobby", lobby.id, "has made a ", move, "move")
 
     if lobby:
         socketio.emit(

@@ -29,7 +29,7 @@ export default function CreateLobbyDiv() {
 
   return (
     <>
-      <Title order={3}>Create online lobby</Title>
+      {/* <Title order={3}>Create online lobby</Title> */}
       <form onSubmit={createLobby}>
         <NumberInput
           style={{width: "30%"}}

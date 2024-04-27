@@ -17,17 +17,19 @@ export default function Home() {
       <Container>
         <h1>Welcome to Rubik's cube racing!</h1>
 
-        <Link to="/solo"><Button leftSection={<IconUser />}>Solo mode</Button></Link>
-
-        <Divider my="md" />
-
         <Authentication />
 
-        <Divider my="md" />
+        <Divider my="md" label="You can solve in solo mode" />
+
+        <Center>
+          <Link to="/solo"><Button leftSection={<IconUser />}>Solo mode</Button></Link>
+        </Center>
+
+        <Divider my="md" label="create online lobby" />
 
         <CreateLobbyDiv />
 
-        <Divider my="md" />
+        <Divider my="md" label="or join an existing lobby" />
 
         <LobbyList />
       </Container>

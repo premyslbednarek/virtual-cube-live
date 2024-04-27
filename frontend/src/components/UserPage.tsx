@@ -1,5 +1,5 @@
 import useFetch from "@custom-react-hooks/use-fetch";
-import { Center, Container, Pagination, ScrollArea, Table } from "@mantine/core";
+import { Center, Container, Pagination, Table } from "@mantine/core";
 import { Link, useParams } from "react-router-dom";
 import { print_time } from "../cube/timer";
 import { useState } from "react";
@@ -20,12 +20,11 @@ type UserInfo = {
     solves: Array<Solve>;
 }
 
-export default function UserPage() {
-    const { userId } = useParams()
+export function User({username} : {username: string}) {
     const rowsPerPage = 20;
     const [page, setPage] = useState(1);
 
-    const { data, loading, error } = useFetch<UserInfo>(`/api/user/${userId}`)
+    const { data, loading, error } = useFetch<UserInfo>(`/api/user/${username}`)
 
     if (loading) {
         return <div>Loading...</div>;
@@ -75,4 +74,14 @@ export default function UserPage() {
             </Container>
         </>
     );
+}
+
+export default function UserPage() {
+    const { username } = useParams()
+
+    if (!username) {
+        return <div>User with this username does not exist.</div>;
+    }
+
+    return <User username={username} />
 }

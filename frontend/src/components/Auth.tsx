@@ -10,7 +10,6 @@ function capitalizeFirstLetter(string: string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-
 export default function UserInfo() {
     const { userContext, updateUserContext } = useContext(UserContext);
     const [type, toggle] = useToggle(["login", "register"])

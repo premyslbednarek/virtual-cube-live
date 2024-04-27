@@ -68,20 +68,14 @@ def change_layers(data):
     connection = SocketConnection.get(request.sid)
     connection.cube.change_layers(data["newSize"])
 
-@app.route('/api/user/<int:user_id>')
-def get_user(user_id: int):
-    row = db.session.execute(
-        select(
-            User.username,
-            User.role,
-            User.created_date
-        ).where(User.id == user_id)
+@app.route('/api/user/<string:username>')
+def get_user(username: str):
+    user = db.session.scalars(
+        select(User).where(User.username == username)
     ).one_or_none()
 
-    if row is None:
+    if user is None:
         return abort(404)
-
-    username, role, created_date = row._tuple()
 
     solves = db.session.execute(
         select(
@@ -95,15 +89,15 @@ def get_user(user_id: int):
         ).join(
             Scramble, Solve.scramble_id == Scramble.id
         ).where(
-            Solve.user_id == user_id
+            Solve.user_id == user.id
         )
     ).all()
     print(solves, type(solves))
 
     return {
-        "username": username,
-        "role": "user" if role == UserRole.USER else "admin",
-        "created_date": created_date,
+        "username": user.username,
+        "role": "user" if user.role == UserRole.USER else "admin",
+        "created_date": user.created_date,
         "solves": [solve._asdict() for solve in solves]
     }
 

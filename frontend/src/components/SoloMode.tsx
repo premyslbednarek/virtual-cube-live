@@ -144,6 +144,7 @@ export default function SoloMode() {
         cube.changeLayers(response.layers)
         cube.setState(response.state)
         setCubeSize(response.layers);
+        setLastTime(null);
         timer.startFromTime(response.startTime);
         close();
     }

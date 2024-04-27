@@ -90,6 +90,7 @@ export default function SoloMode() {
 
     const startSolve = async () => {
         setInSolve(true);
+        setLastTime(null);
         console.log("start")
         const data: {state: string} = await socket.emitWithAck("solo_solve_start");
 

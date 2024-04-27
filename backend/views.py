@@ -267,18 +267,24 @@ def register_post():
     print(data)
     username: str = data['username']
     password: str = data['password']
+    confirmPassword: str = data['confirmPassword']
 
-    if not username or not password:
-        flash("Enter both username and password.")
-        return redirect(url_for("register"))
+    if not username or not password or not confirmPassword:
+        return {"msg": "Fill in all form fields"}, 400
 
-    # check whether an user with given username already exists
-    q = select(func.count()).select_from(User).where(User.username == username)
-    count: int = db.session.scalar(q)
+    if password != confirmPassword:
+        return {"msg": "Passwords do not match"}, 400
 
-    if count != 0:
-        flash("User with entered username already exists.")
-        return "bad", 404
+    if len(password) < 6:
+        return {"msg": "Password should be at least 6 characters long"}, 400
+
+    # check whether user with given username already exists
+    user = db.session.execute(
+        select(User).where(func.lower(User.username) == func.lower(username))
+    ).first()
+
+    if user is not None:
+        return {"msg": "User with entered username already exists"}, 400
 
     # add new user to the database
     password_hash: str = generate_password_hash(password)
@@ -287,8 +293,7 @@ def register_post():
     db.session.commit()
 
     login_user(new_user, remember=True)
-    print("registration success")
-    return "ok", 200
+    return {"msg": "ok"}, 200
 
 @app.route('/login', methods=["POST"])
 def login_post():
@@ -297,17 +302,21 @@ def login_post():
     username: str = data['username']
     password: str = data['password']
 
-    q = select(User).where(User.username == username)
-    user: User = db.session.scalar(q)
+    if not username or not password:
+        return {"msg": "Fill in all form fields"}, 400
+
+    user = db.session.scalars(
+        select(User).where(User.username == username)
+    ).one_or_none()
 
     # check whether user with given username exists and the password matches
     if user is None or not check_password_hash(user.password_hash, password):
         flash("Wrong username or password!")
-        return "Wrong username or password", 400
+        return {"msg": "Wrong username or password"}, 400
 
     login_user(user, remember=True)
     print("Login succesfull")
-    return {"status": 200 }
+    return {"msg": "ok" }
 
 @app.route("/logout")
 @login_required

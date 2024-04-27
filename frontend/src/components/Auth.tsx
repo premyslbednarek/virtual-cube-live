@@ -30,14 +30,12 @@ export default function UserInfo() {
         fetch(`/${type}`, {
             method: "POST",
             body: JSON.stringify(form.values)
-        }).then(data => {
-            console.log(data)
-            if (data.status === 200) {
+        }).then(data=>data.json()).then(data => {
+            if (data.msg === "ok") {
                 closeModal();
                 updateUserContext();
             } else {
-                console.log("bad")
-                setErrorMessage("something bad happened")
+                setErrorMessage(data.msg)
             }
         })
     }
@@ -81,7 +79,7 @@ export default function UserInfo() {
                 <form onSubmit={onSubmit}>
                     <Stack>
                         <TextInput
-                        required
+                        withAsterisk
                         label="Username"
                         placeholder="Your username"
                         value={form.values.username}
@@ -90,7 +88,7 @@ export default function UserInfo() {
                         />
 
                         <PasswordInput
-                        required
+                        withAsterisk
                         label="Password"
                         placeholder="Your password"
                         value={form.values.password}
@@ -99,7 +97,7 @@ export default function UserInfo() {
                         />
 
                         { type === "register" && <PasswordInput
-                            required
+                            withAsterisk
                             label="Confirm password"
                             placeholder="Your password"
                             value={form.values.confirmPassword}

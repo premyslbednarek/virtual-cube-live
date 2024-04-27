@@ -631,7 +631,8 @@ def lobby_move(data):
         socketio.emit(
             "your_solve_completed",
             {
-                "time": solve.time
+                "time": solve.time,
+                "solve_id": solve.id
             },
             to=request.sid
         )

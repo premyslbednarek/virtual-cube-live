@@ -13,6 +13,7 @@ import { print_time } from "../cube/timer";
 import { IconDeviceFloppy } from "@tabler/icons-react";
 import ShowSolvesToContinue from "./ShowSolvesToContinue";
 import { useDisclosure } from "@mantine/hooks";
+import TimeHistory, { Time } from "./TimeHistory";
 
 const default_cube_size = 3;
 
@@ -23,6 +24,7 @@ export default function SoloMode() {
     const cube = useMemo(() => new Cube(default_cube_size), []);
     const [inSolve, setInSolve] = useState(false);
     const [lastTime, setLastTime] = useState<number | null>(null);
+    const [times, setTimes] = useState<Array<Time>>([]);
 
     const timer = useStopwatch();
     const {
@@ -34,9 +36,10 @@ export default function SoloMode() {
     const [opened, { open, close }] = useDisclosure(false);
 
 
-    const onComplete = ({time} : {time: number}) => {
+    const onComplete = ({time, solve_id} : {time: number, solve_id: number}) => {
         timer.stop();
         setLastTime(time);
+        setTimes([{time: time, solve_id: solve_id}, ...times]);
         setInSolve(false);
         console.log("finished");
     }
@@ -68,16 +71,21 @@ export default function SoloMode() {
 
         cube.onMove(send_move);
         cube.onCamera(send_camera);
-        socket.on("your_solve_completed", onComplete)
 
         return () => {
             cube.remove_keyboard_controls();
-            socket.off("your_solve_completed", onComplete)
             console.log("disconnection from socket...")
             socket.disconnect();
         };
         // eslint-disable-next-line
     }, [])
+
+    useEffect(() => {
+        socket.on("your_solve_completed", onComplete)
+        return () => {
+            socket.off("your_solve_completed", onComplete)
+        }
+    })
 
 
     const startSolve = async () => {
@@ -175,6 +183,9 @@ export default function SoloMode() {
                 <div>
                 {/* { inSolve && inspectionRunning && inspectionSecondsLeft } */}
                 </div>
+            </div>
+            <div style={{position: "absolute", width: "20%", top: "20%"}}>
+                <TimeHistory timeList={times}/>
             </div>
         </>
     );

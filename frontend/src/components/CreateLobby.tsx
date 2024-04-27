@@ -1,4 +1,4 @@
-import { Button, Checkbox, Title, NumberInput, Group} from '@mantine/core';
+import { Button, Checkbox, Title, NumberInput, Group } from '@mantine/core';
 import { useNavigate } from "react-router-dom"
 import { useForm } from '@mantine/form';
 
@@ -28,7 +28,7 @@ export default function CreateLobbyDiv() {
 
   return (
     <>
-      <Title order={3}>Create an online lobby</Title>
+      <Title order={3}>Create online lobby</Title>
       <form onSubmit={createLobby}>
         <NumberInput
           style={{width: "30%"}}
@@ -40,7 +40,7 @@ export default function CreateLobbyDiv() {
         <NumberInput
           style={{width: "30%"}}
           {...form.getInputProps('waitTime')}
-          label="Wait time after the solve"
+          label="Wait time (seconds)"
           min={10}
         />
         <Checkbox

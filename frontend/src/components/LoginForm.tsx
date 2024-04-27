@@ -24,7 +24,7 @@ import { UserContext } from '../userContext';
 
 export default function LoginForm(props: PaperProps) {
   const navigate = useNavigate();
-  const {userContext, fetchData} = useContext(UserContext);
+  const {userContext, updateUserContext} = useContext(UserContext);
   const form = useForm({
     initialValues: {
       username: '',
@@ -40,7 +40,7 @@ export default function LoginForm(props: PaperProps) {
     }).then(data => {
       console.log(data)
       if (data.status === 200) {
-        fetchData();
+        updateUserContext();
         navigate("/");
       } else {
         console.log("bad")
@@ -52,7 +52,7 @@ export default function LoginForm(props: PaperProps) {
       fetch("/logout").then(res => {
           if (res.status === 200) {
               console.log("logout successfull");
-              fetchData();
+              updateUserContext();
           }
       });
   }

@@ -8,7 +8,7 @@ export interface IUserInfo {
 
 export interface IUserContext {
     userContext: IUserInfo;
-    fetchData: () => void;
+    updateUserContext: () => void;
 }
 
 const defaultUserInfo: IUserInfo = {
@@ -19,7 +19,7 @@ const defaultUserInfo: IUserInfo = {
 
 const defaultContext: IUserContext = {
     userContext: defaultUserInfo,
-    fetchData: () => {}
+    updateUserContext: () => {}
 }
 
 export const UserContext = createContext<IUserContext>(defaultContext)
@@ -27,19 +27,19 @@ export const UserContext = createContext<IUserContext>(defaultContext)
 export function UserContextProvider({children} : {children: React.ReactNode}) {
     const [userContext, setUserContext] = useState<IUserInfo>(defaultUserInfo);
 
-    const fetchData = () => {
+    const updateUserContext = () => {
         fetch('/api/user_info').then(res => res.json()).then((data: IUserInfo) => {
             setUserContext(data);
         })
     }
 
     useEffect(() => {
-        fetchData();
+        updateUserContext();
     }, [])
 
 
     return (
-        <UserContext.Provider value={{userContext, fetchData}}>
+        <UserContext.Provider value={{userContext, updateUserContext}}>
             {children}
         </UserContext.Provider>
     );

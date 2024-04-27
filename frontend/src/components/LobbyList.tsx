@@ -2,6 +2,7 @@ import { Table } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { socket } from "../socket";
+import { Text } from "@mantine/core"
 
 type LobbyInfo = {
   creator: string
@@ -50,6 +51,10 @@ export default function LobbyList() {
         socket.off("lobby_delete", onLobbyDelete);
         }
     })
+
+    if (lobbies.length === 0) {
+      return <Text>There aren't any online lobbies right now</Text>
+    }
 
     return (
         <Table>

@@ -24,7 +24,7 @@ import { UserContext } from '../userContext';
 
 export default function RegisterForm(props: PaperProps) {
   const navigate = useNavigate();
-  const {userContext, fetchData} = useContext(UserContext);
+  const {userContext, updateUserContext} = useContext(UserContext);
   const form = useForm({
     initialValues: {
       username: '',
@@ -36,7 +36,7 @@ export default function RegisterForm(props: PaperProps) {
       fetch("/logout").then(res => {
           if (res.status === 200) {
               console.log("logout successfull");
-              fetchData();
+              updateUserContext();
           }
       });
   }
@@ -49,7 +49,7 @@ export default function RegisterForm(props: PaperProps) {
     }).then(data => {
       console.log(data)
       if (data.status === 200) {
-        fetchData();
+        updateUserContext();
         navigate("/");
       } else {
         console.log("bad")

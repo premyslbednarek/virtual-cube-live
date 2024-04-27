@@ -1,6 +1,4 @@
-import { useContext } from "react";
-import { UserContext } from "../userContext";
-import { Link } from "react-router-dom";
+import { useContext } from "react"; import { UserContext } from "../userContext"; import { Link } from "react-router-dom";
 import { Button, Space } from "@mantine/core";
 
 export default function UserInfo() {

@@ -6,7 +6,7 @@ interface LobbyCreateResponse {
   lobby_id: number;
 }
 
-export default function CreateLobbyButton() {
+export default function CreateLobbyDiv() {
   const form = useForm({
     initialValues: {
       layers: 3,
@@ -28,19 +28,19 @@ export default function CreateLobbyButton() {
 
   return (
     <>
-      <Title order={3}>Create lobby</Title>
+      <Title order={3}>Create an online lobby</Title>
       <form onSubmit={createLobby}>
         <NumberInput
           style={{width: "30%"}}
           {...form.getInputProps('layers')}
-          label="cube layers"
+          label="Cube size (2-7)"
           min={2}
           max={7}
         />
         <NumberInput
           style={{width: "30%"}}
           {...form.getInputProps('waitTime')}
-          label="wait time"
+          label="Wait time after the solve"
           min={10}
         />
         <Checkbox

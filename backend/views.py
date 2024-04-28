@@ -43,6 +43,25 @@ def get_solves_to_continue():
     ).all()
     return {"solves": [solve._asdict() for solve in solves]}
 
+@app.route('/api/get_solves/<string:username>/<int:cube_size>')
+def get_solves(username: str, cube_size: int):
+    solves = db.session.execute(
+        select(
+            Solve.id,
+            Solve.time,
+            Solve.completed
+        ).join(
+            Scramble, Solve.scramble_id == Scramble.id,
+        ).join(
+            User, Solve.user_id == User.id
+        ).where(
+            User.username == username,
+            Scramble.cube_size == cube_size
+        )
+    ).all()
+    return [solve._asdict() for solve in solves]
+
+
 @socketio.on("continue_solve")
 def continue_solve(data):
     connection = SocketConnection.get(request.sid)

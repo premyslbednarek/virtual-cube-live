@@ -13,7 +13,7 @@ import { print_time } from "../cube/timer";
 import { IconDeviceFloppy } from "@tabler/icons-react";
 import ShowSolvesToContinue from "./ShowSolvesToContinue";
 import { useDisclosure } from "@mantine/hooks";
-import TimeHistory, { Time } from "./TimeHistory";
+import TimeHistory, { Solve } from "./TimeHistory";
 
 const default_cube_size = 3;
 
@@ -24,7 +24,7 @@ export default function SoloMode() {
     const cube = useMemo(() => new Cube(default_cube_size), []);
     const [inSolve, setInSolve] = useState(false);
     const [lastTime, setLastTime] = useState<number | null>(null);
-    const [times, setTimes] = useState<Array<Time>>([]);
+    const [times, setTimes] = useState<Array<Solve>>([]);
 
     const timer = useStopwatch();
     const {
@@ -39,7 +39,7 @@ export default function SoloMode() {
     const onComplete = ({time, solve_id} : {time: number, solve_id: number}) => {
         timer.stop();
         setLastTime(time);
-        setTimes([{time: time, solve_id: solve_id}, ...times]);
+        setTimes([{time: time, id: solve_id, completed: true}, ...times]);
         setInSolve(false);
         console.log("finished");
     }
@@ -152,6 +152,7 @@ export default function SoloMode() {
     const onLayersChange = (newSize: number) => {
         socket.emit("change_layers", {newSize: newSize});
         cube.changeLayers(newSize);
+        setTimes([]);
     }
 
     return (
@@ -187,7 +188,7 @@ export default function SoloMode() {
                 </div>
             </div>
             <div style={{position: "absolute", width: "20%", top: "20%"}}>
-                <TimeHistory timeList={times}/>
+                <TimeHistory cubeSize={cubeSize} timeList={times}/>
             </div>
         </>
     );

@@ -1,6 +1,6 @@
 import { FormEvent, useContext, useState } from "react";
 import { UserContext } from "../userContext";
-import { Anchor, Button, Flex, Modal, PasswordInput, Space, Stack, TextInput, Alert, ActionIcon, Group } from "@mantine/core";
+import { Anchor, Button, Flex, Modal, PasswordInput, Space, Stack, TextInput, Alert, Group } from "@mantine/core";
 import { useDisclosure, useToggle } from "@mantine/hooks";
 import { useForm } from "@mantine/form";
 import { IconExclamationCircle, IconLogin, IconLogout, IconUserCircle, IconUserPlus } from "@tabler/icons-react";

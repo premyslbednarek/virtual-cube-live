@@ -429,6 +429,15 @@ class Invitation(db.Model):
         db.session.commit()
         return invitation
 
+    @staticmethod
+    def get_lobby(uuid_str: str) -> Optional[int]:
+        invitation = db.session.scalars(
+            select(Invitation).where(Invitation.url == UUID(uuid_str))
+        ).one_or_none()
+        if not invitation:
+            return None
+        return invitation.lobby_id
+
 
 def setup_admin():
     import os

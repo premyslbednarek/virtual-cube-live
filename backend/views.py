@@ -65,6 +65,21 @@ def generate_invitation():
 
     return {"url": invitation.url}, 200
 
+@app.route('/api/invite/<string:uuid_str>')
+@login_required
+def handle_invite(uuid_str: str):
+    lobby_id = Invitation.get_lobby(uuid_str)
+    if not lobby_id:
+        return abort(404)
+
+    lobbyuser = LobbyUser(
+        lobby_id=lobby_id,
+        user_id=current_user.id,
+    )
+    db.session.add(lobbyuser)
+    db.session.commit()
+    return {"lobby_id": lobby_id}, 200
+
 
 @app.route('/api/solves_to_continue')
 def get_solves_to_continue():

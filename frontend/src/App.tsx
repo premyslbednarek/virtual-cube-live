@@ -25,6 +25,7 @@ import { UserContextProvider } from './userContext';
 import UserPage from './components/UserPage';
 import SoloMode from './components/SoloMode';
 import Profile from './components/Profile';
+import Invite from './components/Invite';
 
 function Page2() {
   return (
@@ -46,6 +47,7 @@ function App() {
               <Route path="/user/:username" element={<UserPage />} />
               <Route path="/solo" element={<SoloMode />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/invite/:uuid" element={<Invite />} />
             </Routes>
           </BrowserRouter>
         </header>

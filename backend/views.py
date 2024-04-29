@@ -21,9 +21,33 @@ from typing import TypedDict, Tuple
 from eventlet import sleep
 from dotenv import load_dotenv
 import os
+from functools import wraps
 
 class RequestSolutionData(TypedDict):
     lobby_id: int
+
+# https://flask.palletsprojects.com/en/2.3.x/patterns/viewdecorators/
+def admin_required(fun):
+    @wraps(fun)
+    def decorator(*args, **kwargs):
+        if not current_user.is_authenticated or current_user.role != UserRole.ADMIN:
+            return abort(401) # unauthorized
+        return fun(*args, **kwargs)
+    return decorator
+
+@app.route('/api/<string:username>/make_admin')
+@admin_required
+def make_admin(username: str):
+    user = db.session.scalars(
+        select(User).where(User.username == username)
+    ).one_or_none()
+
+    if user:
+        user.role = UserRole.ADMIN
+        db.session.commit()
+        return "success", 200
+
+    return "error", 400
 
 @app.route('/api/solves_to_continue')
 def get_solves_to_continue():

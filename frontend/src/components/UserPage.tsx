@@ -1,10 +1,12 @@
 import useFetch from "@custom-react-hooks/use-fetch";
-import { Center, Container, Flex, Pagination, Slider, Table, Text, Title } from "@mantine/core";
+import { Button, Center, Container, Flex, Pagination, Slider, Table, Text, Title, Tooltip } from "@mantine/core";
 import { Link, useParams } from "react-router-dom";
 import { print_time } from "../cube/timer";
 import { useState } from "react";
 import NavigationPanel from "./NavigationPanel";
 import { Statistics } from "./TimeHistory";
+import { UserContext } from "../userContext";
+import { IconTool } from "@tabler/icons-react";
 
 
 type Solve = {
@@ -27,7 +29,7 @@ export function User({username} : {username: string}) {
     const [page, setPage] = useState(1);
     const [statsCubeSize, setStatsCubeSize] = useState(3);
 
-    const { data, loading, error } = useFetch<UserInfo>(`/api/user/${username}`)
+    const { data: user, loading, error } = useFetch<UserInfo>(`/api/user/${username}`)
 
     if (loading) {
         return <div>Loading...</div>;
@@ -37,9 +39,9 @@ export function User({username} : {username: string}) {
         return <div>Error while fetching...</div>
     }
 
-    console.log(data);
+    console.log(user);
 
-    const rows = data?.solves.slice((page - 1)* rowsPerPage, page * rowsPerPage).map((solve) => (
+    const rows = user?.solves.slice((page - 1)* rowsPerPage, page * rowsPerPage).map((solve) => (
         <Table.Tr key={solve.id}>
             <Table.Th>{solve.id}</Table.Th>
             <Table.Th>{solve.cube_size}x{solve.cube_size}x{solve.cube_size}</Table.Th>
@@ -49,7 +51,17 @@ export function User({username} : {username: string}) {
         </Table.Tr>
     ))
 
-    const maxPages = data?.solves ? Math.ceil(data.solves.length / rowsPerPage) : 0;
+    const maxPages = user?.solves ? Math.ceil(user.solves.length / rowsPerPage) : 0;
+
+    const adminIcon = user?.role == "admin" ? (
+        <Tooltip label="Administrator">
+            <IconTool />
+        </Tooltip>
+    ) : "";
+
+    const makeAdmin = () => {
+        fetch(`/api/${username}/make_admin`).then(res => console.log(res)).catch(err => console.log(err));
+    }
 
     return (
         <>
@@ -59,10 +71,15 @@ export function User({username} : {username: string}) {
 
             <Container mt="xl">
                 <Title order={3} mb="sm">Profile page</Title>
-                <Title order={1} style={{textDecoration: "underline"}}>{data?.username}</Title>
-                <Text>Profile created on: {data?.created_date}</Text>
-                <Text>Total solves: {data?.solves.length}</Text>
+                <Title order={1} style={{textDecoration: "underline"}}>{user?.username} { adminIcon }</Title>
+                <Text>Profile created on: {user?.created_date}</Text>
+                <Text>Total solves: {user?.solves.length}</Text>
+
+                <Button onClick={makeAdmin}>
+                    Make admin
+                </Button>
             </Container>
+
 
             <Container mt="xl">
                 <Title order={3}>{statsCubeSize}x{statsCubeSize} Statistics</Title>
@@ -70,7 +87,7 @@ export function User({username} : {username: string}) {
                     <Text>Set cube size: </Text>
                     <Slider w="20vh" min={2} max={7} value={statsCubeSize} onChange={setStatsCubeSize}></Slider>
                 </Flex>
-                { data && data.solves && <Statistics solves={data.solves.filter(solve => solve.cube_size === statsCubeSize)} />}
+                { user && user.solves && <Statistics solves={user.solves.filter(solve => solve.cube_size === statsCubeSize)} />}
             </Container>
 
 

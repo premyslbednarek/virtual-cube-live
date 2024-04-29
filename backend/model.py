@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from uuid import uuid4, UUID
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -406,6 +407,27 @@ class CameraChange(db.Model):
     x: Mapped[float]
     y: Mapped[float]
     z: Mapped[float]
+
+class Invitation(db.Model):
+    __tablename__ = "invitation"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    url: Mapped[UUID] = mapped_column(default=uuid4)
+    lobby_id: Mapped[int] = mapped_column(ForeignKey("lobby.id"))
+    lobby: Mapped[Lobby] = relationship()
+    created_by_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
+    created_by: Mapped[User] = relationship()
+    active: Mapped[bool] = mapped_column(default=True)
+
+    @staticmethod
+    def create(created_by_id: int, lobby_id: int) -> "Invitation":
+        invitation = Invitation(
+            created_by_id=created_by_id,
+            lobby_id=lobby_id
+        )
+        db.session.add(invitation)
+        db.session.commit()
+        return invitation
 
 
 def setup_admin():

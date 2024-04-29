@@ -12,7 +12,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import json
 from sqlalchemy import select, func
 from model import db, User, Lobby, LobbyUser, Scramble, Solve, Race, SocketConnection, CubeEntity, SolveMove
-from model import LobbyUserStatus, UserRole, LobbyRole, LobbyStatus, CameraChange
+from model import LobbyUserStatus, UserRole, LobbyRole, LobbyStatus, Invitation
 from pyTwistyScrambler import scrambler333, scrambler444, scrambler555, scrambler666, scrambler777, scrambler222
 from cube import Cube
 from typing import List
@@ -61,10 +61,9 @@ def generate_invitation():
     if not lobbyuser:
         return abort(401) # unauthorized
 
-    invitation_url = uuid4()
-    return {"url": invitation_url}, 200
+    invitation = Invitation.create(current_user.username, lobby_id)
 
-
+    return {"url": invitation.url}, 200
 
 
 @app.route('/api/solves_to_continue')

@@ -2,11 +2,12 @@ import useFetch from "@custom-react-hooks/use-fetch";
 import { Button, Center, Container, Flex, Pagination, Slider, Table, Text, Title, Tooltip } from "@mantine/core";
 import { Link, useParams } from "react-router-dom";
 import { print_time } from "../cube/timer";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import NavigationPanel from "./NavigationPanel";
 import { Statistics } from "./TimeHistory";
 import { UserContext } from "../userContext";
 import { IconTool } from "@tabler/icons-react";
+import UserInfo from "./Auth";
 
 
 type Solve = {
@@ -29,15 +30,25 @@ export function User({username} : {username: string}) {
     const [page, setPage] = useState(1);
     const [statsCubeSize, setStatsCubeSize] = useState(3);
 
-    const { data: user, loading, error } = useFetch<UserInfo>(`/api/user/${username}`)
+    const {userContext : me} = useContext(UserContext);
 
-    if (loading) {
-        return <div>Loading...</div>;
+    const [user, setUser] = useState<UserInfo | null>(null);
+
+    function fetchData() {
+        fetch(
+            `/api/user/${username}`
+        ).then(
+            res => res.json()
+        ).then(
+            data => setUser(data)
+        ).catch(err => console.log(err));
+
     }
 
-    if (error) {
-        return <div>Error while fetching...</div>
-    }
+    useEffect(() => {
+        fetchData();
+    }, [])
+
 
     console.log(user);
 
@@ -60,7 +71,15 @@ export function User({username} : {username: string}) {
     ) : "";
 
     const makeAdmin = () => {
-        fetch(`/api/${username}/make_admin`).then(res => console.log(res)).catch(err => console.log(err));
+        fetch(`/api/${username}/make_admin`).then(res => {
+            if (res.status == 200) {
+                fetchData();
+            }
+        }).catch(err => console.log(err));
+    }
+
+    if (!user) {
+        return <Container>User not found..</Container>;
     }
 
     return (
@@ -74,10 +93,7 @@ export function User({username} : {username: string}) {
                 <Title order={1} style={{textDecoration: "underline"}}>{user?.username} { adminIcon }</Title>
                 <Text>Profile created on: {user?.created_date}</Text>
                 <Text>Total solves: {user?.solves.length}</Text>
-
-                <Button onClick={makeAdmin}>
-                    Make admin
-                </Button>
+                { me.isAdmin && user?.role != "admin" && <Button onClick={makeAdmin}>Make admin</Button> }
             </Container>
 
 

@@ -12,7 +12,6 @@ function removeForRender(cube: Cube) {
 
 let renderRequested = false;
 function renderAll() {
-    console.log("rendered woken up")
     renderRequested = false;
     TWEEN.update();
     for (const cube of to_render) {

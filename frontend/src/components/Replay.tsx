@@ -53,7 +53,7 @@ export function ReplayPage() {
 
     return (
         <>
-            <div style={{position: "absolute", fontSize: "30px", margin: 10}}>
+            <div style={{position: "absolute", fontSize: "30px", margin: 10, zIndex: 5}}>
                 <NavigationPanel />
             </div>
             <div style={{height: "100vh", width: "100vw"}}>
@@ -70,9 +70,13 @@ export function Replay({solveId} : {solveId : string}) {
     const [playbackSpeed, setPlaybackSpeed] = useState(1);
     const { data, loading, error } = useFetch<ISolveInfo>(`/api/solve/${solveId}`);
     const solve = data ? data : defaultSolveInfo;
-    for (const move of solve.moves) {
-        move.sinceStart = Math.floor(move.sinceStart);
-    }
+
+    useEffect(() => {
+        for (const move of solve.moves) {
+            move.sinceStart = Math.floor(move.sinceStart);
+        }
+    }, [solve])
+
     const cube = useMemo(() => {
         const cube = new Cube(solve.cube_size);
         cube.setState(solve.scramble_state);
@@ -94,7 +98,6 @@ export function Replay({solveId} : {solveId : string}) {
     // stop timer after reaching end of the solve
     useEffect(() => {
         if (solve.time !== 0 && time > solve.time) {
-            console.log(time, solve.time)
             setPaused(true);
             // this is a hack
             setTime(solve.time);
@@ -104,15 +107,14 @@ export function Replay({solveId} : {solveId : string}) {
     // apply moves/camera changes that happen until next time change
     useEffect(() => {
         for (const move of solve.moves) {
-            console.log(move.sinceStart)
             if (move.sinceStart > time + UPDATE_INTERVAL * playbackSpeed) break;
-            if (time <= move.sinceStart && move.sinceStart <= time + UPDATE_INTERVAL * playbackSpeed) {
+            if (time <= move.sinceStart && move.sinceStart < time + UPDATE_INTERVAL * playbackSpeed) {
                 setTimeout(() => {cube.makeMove(move.move)}, (move.sinceStart - time) / playbackSpeed);
             }
         }
         for (const cameraChange of solve.camera_changes) {
             if (cameraChange.sinceStart > time + UPDATE_INTERVAL * playbackSpeed) break;
-            if (time <= cameraChange.sinceStart && cameraChange.sinceStart <= time + UPDATE_INTERVAL * playbackSpeed) {
+            if (time <= cameraChange.sinceStart && cameraChange.sinceStart < time + UPDATE_INTERVAL * playbackSpeed) {
                 setTimeout(() => {cube.cameraUpdate(cameraChange.x, cameraChange.y, cameraChange.z)}, (cameraChange.sinceStart - time) / playbackSpeed);
             }
         }
@@ -120,7 +122,7 @@ export function Replay({solveId} : {solveId : string}) {
     }, [time, playbackSpeed, cube, solve]);
 
     const onPlayButtonClick = () => {
-        if (time > solve.time) {
+        if (time === solve.time) {
             setPaused(false);
             manualTimeChange(0);
         } else {
@@ -197,7 +199,7 @@ export function Replay({solveId} : {solveId : string}) {
 
     return (
         <>
-            <div style={{position: "absolute", width: "100vw"}}>
+            <div style={{position: "absolute", width: "100%"}}>
                 <Container mt={10}>
                     <Center>
                         <Stack>

@@ -57,6 +57,8 @@ def get_solves(username: str, cube_size: int):
         ).where(
             User.username == username,
             Scramble.cube_size == cube_size
+        ).order_by(
+            Solve.id.desc()
         )
     ).all()
     return [solve._asdict() for solve in solves]

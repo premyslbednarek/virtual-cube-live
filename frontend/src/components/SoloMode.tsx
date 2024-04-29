@@ -150,6 +150,7 @@ export default function SoloMode() {
     }
 
     const onLayersChange = (newSize: number) => {
+        setCubeSize(newSize);
         socket.emit("change_layers", {newSize: newSize});
         cube.changeLayers(newSize);
         setTimes([]);
@@ -165,8 +166,7 @@ export default function SoloMode() {
                 <Text>Cube size: {cubeSize}</Text>
                 <Slider
                     value={cubeSize}
-                    onChange={setCubeSize}
-                    onChangeEnd={onLayersChange}
+                    onChange={onLayersChange}
                     min={2}
                     max={7}
                 ></Slider>
@@ -187,9 +187,12 @@ export default function SoloMode() {
                 {/* { inSolve && inspectionRunning && inspectionSecondsLeft } */}
                 </div>
             </div>
-            <div style={{position: "absolute", width: "20%", top: "20%"}}>
-                <TimeHistory cubeSize={cubeSize} timeList={times}/>
-            </div>
+            {
+                !inSolve &&
+                <div style={{position: "absolute", bottom: 0}}>
+                    <TimeHistory cubeSize={cubeSize} />
+                </div>
+            }
         </>
     );
 }

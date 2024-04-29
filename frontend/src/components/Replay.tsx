@@ -53,8 +53,17 @@ function renderTime(time: number) {
 
 const UPDATE_INTERVAL = 53; // in ms
 
-export default function Replay() {
+export function ReplayPage() {
     const { solveId } = useParams();
+    if ( !solveId ) {
+        return null;
+    }
+
+    return <Replay solveId={solveId} />
+
+}
+
+export function Replay({solveId} : {solveId : string}) {
     const [time, setTime] = useState(0); // current time in ms
     const [paused, setPaused] = useState(false);
     const [playbackSpeed, setPlaybackSpeed] = useState(1);

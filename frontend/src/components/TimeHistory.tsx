@@ -11,7 +11,7 @@ export type Solve = {
 }
 
 function getAverage(solves: Array<Solve>, allowDNF: boolean) : number {
-    if (solves.length == 0) {
+    if (solves.length === 0) {
         return Infinity;
     }
     // if AllowDNF is true, any not completed solve will result in a DNF

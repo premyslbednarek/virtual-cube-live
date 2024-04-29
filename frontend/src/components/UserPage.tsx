@@ -2,7 +2,7 @@ import useFetch from "@custom-react-hooks/use-fetch";
 import { Center, Container, Flex, Pagination, Slider, Table, Text, Title } from "@mantine/core";
 import { Link, useParams } from "react-router-dom";
 import { print_time } from "../cube/timer";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import NavigationPanel from "./NavigationPanel";
 import { Statistics } from "./TimeHistory";
 
@@ -70,7 +70,7 @@ export function User({username} : {username: string}) {
                     <Text>Set cube size: </Text>
                     <Slider w="20vh" min={2} max={7} value={statsCubeSize} onChange={setStatsCubeSize}></Slider>
                 </Flex>
-                { data && data.solves && <Statistics solves={data.solves.filter(solve => solve.cube_size == statsCubeSize)} />}
+                { data && data.solves && <Statistics solves={data.solves.filter(solve => solve.cube_size === statsCubeSize)} />}
             </Container>
 
 

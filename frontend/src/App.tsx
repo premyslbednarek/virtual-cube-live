@@ -20,7 +20,7 @@ import {
 } from '@mantine/core';
 import Home from './components/Homepage';
 import Lobby from './components/Lobby';
-import Replay from './components/Replay';
+import { ReplayPage } from './components/Replay';
 import { UserContextProvider } from './userContext';
 import UserPage from './components/UserPage';
 import SoloMode from './components/SoloMode';
@@ -42,7 +42,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/page2" element={<Page2 />} />
               <Route path="/lobby/:lobby_id" element={<Lobby />} />
-              <Route path="/replay/:solveId" element={<Replay />} />
+              <Route path="/replay/:solveId" element={<ReplayPage />} />
               <Route path="/user/:username" element={<UserPage />} />
               <Route path="/solo" element={<SoloMode />} />
               <Route path="/profile" element={<Profile />} />

@@ -1,10 +1,14 @@
 from app import app, socketio
 
-from model import db
+from model import db, setup_admin
 # db = SQLAlchemy()
 db.init_app(app)
+
 with app.app_context():
     db.create_all()
+
+with app.app_context():
+    setup_admin()
 
 # import paths from views.py
 import views

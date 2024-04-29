@@ -10,9 +10,11 @@ from sqlalchemy import func
 from typing import Optional, List, TypedDict
 from cube import Cube
 
-from app import socketio
+from app import app, socketio
+
 
 db = SQLAlchemy()
+
 
 DEFAULT_INSPECTION_TIME=3
 
@@ -148,7 +150,7 @@ class Solve(db.Model):
     reattempt: Mapped[bool] = mapped_column(default=False)
 
     race_id: Mapped[Optional[int]] = mapped_column(ForeignKey("race.id"))
-    race: Mapped[Optional["Race"]] = relationship()
+    race: Mapped[Optional["Race"]] = relationship(back_populates="solves")
 
     solving_sessions: Mapped[List["SolvingSession"]] = relationship()
 
@@ -268,7 +270,7 @@ class Race(db.Model):
     finishers_count: Mapped[int] = mapped_column(default=0)
     started_date: Mapped[datetime] = mapped_column(insert_default=func.now())
 
-    solves: Mapped[List[Solve]] = relationship()
+    solves: Mapped[List[Solve]] = relationship(back_populates="race")
 
     def end(self):
         now = datetime.now()
@@ -405,3 +407,18 @@ class CameraChange(db.Model):
     x: Mapped[float]
     y: Mapped[float]
     z: Mapped[float]
+
+
+def setup_admin():
+    username = "admin_acc3"
+    user = db.session.scalars(
+        select(User).where(User.username == username)
+    ).one_or_none()
+    if user is None:
+        user = User(
+            username=username,
+            password_hash="aaa",
+            role=UserRole.ADMIN
+        )
+        db.session.add(user)
+        db.session.commit()

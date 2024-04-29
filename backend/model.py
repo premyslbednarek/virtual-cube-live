@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from sqlalchemy import func
 from typing import Optional, List, TypedDict
 from cube import Cube
+from werkzeug.security import generate_password_hash
 
 from app import app, socketio
 
@@ -410,14 +411,23 @@ class CameraChange(db.Model):
 
 
 def setup_admin():
-    username = "admin_acc3"
+    import os
+    from dotenv import load_dotenv
+
+    load_dotenv()
+
+    admin_username = os.environ.get("ADMIN_USERNAME")
+
     user = db.session.scalars(
-        select(User).where(User.username == username)
+        select(User).where(User.username == admin_username)
     ).one_or_none()
+
     if user is None:
+
+
         user = User(
-            username=username,
-            password_hash="aaa",
+            username=admin_username,
+            password_hash=generate_password_hash(os.environ.get("ADMIN_PASSWORD")),
             role=UserRole.ADMIN
         )
         db.session.add(user)

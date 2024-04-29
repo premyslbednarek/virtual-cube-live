@@ -20,3 +20,10 @@ python3 main.py
 # tailwind css
 npm install -D tailwindcss
 ```
+
+Create .env file in backend/ folder with the following contents:
+
+ADMIN_USERNAME=admin_username
+ADMIN_PASSWORD=admin_password
+
+Make sure to change the values

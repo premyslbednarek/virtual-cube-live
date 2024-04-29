@@ -70,6 +70,9 @@ export function Replay({solveId} : {solveId : string}) {
     const [playbackSpeed, setPlaybackSpeed] = useState(1);
     const { data, loading, error } = useFetch<ISolveInfo>(`/api/solve/${solveId}`);
     const solve = data ? data : defaultSolveInfo;
+    for (const move of solve.moves) {
+        move.sinceStart = Math.floor(move.sinceStart);
+    }
     const cube = useMemo(() => {
         const cube = new Cube(solve.cube_size);
         cube.setState(solve.scramble_state);
@@ -94,13 +97,14 @@ export function Replay({solveId} : {solveId : string}) {
             console.log(time, solve.time)
             setPaused(true);
             // this is a hack
-            setTime(solve.time + 100);
+            setTime(solve.time);
         }
     }, [time, solve.time])
 
     // apply moves/camera changes that happen until next time change
     useEffect(() => {
         for (const move of solve.moves) {
+            console.log(move.sinceStart)
             if (move.sinceStart > time + UPDATE_INTERVAL * playbackSpeed) break;
             if (time <= move.sinceStart && move.sinceStart <= time + UPDATE_INTERVAL * playbackSpeed) {
                 setTimeout(() => {cube.makeMove(move.move)}, (move.sinceStart - time) / playbackSpeed);

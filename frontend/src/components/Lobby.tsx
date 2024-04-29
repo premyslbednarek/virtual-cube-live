@@ -24,6 +24,7 @@ import NavigationPanel from "./NavigationPanel";
 import useStopwatch from "./useTimer";
 import useCountdown from "./useCountdown";
 import { ControlledCube, RenderedCube } from "./CubeCanvases";
+import Invitation from "./Invitation";
 
 type LobbyPoints = Array<{
     username: string;
@@ -450,8 +451,13 @@ export default function Lobby() {
         { !inspectionRunning && !inSolve && !beforeFirstSolve && solveTime == null && "DNF"}
     </div>
 
+    if (!lobby_id) {
+        return null;
+    }
+
     return (
         <div style={{ backgroundColor: "black", height: "100vh"}}>
+          <Invitation show={!inSolve} lobbyId={lobby_id} />
           <div style={{position: "absolute"}}>
             <NavigationPanel />
             <Text ml={10}>You are logged in as {userContext.username}</Text>

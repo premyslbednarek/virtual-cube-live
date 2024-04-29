@@ -1,13 +1,11 @@
-import useFetch from "@custom-react-hooks/use-fetch";
 import { Button, Center, Container, Flex, Pagination, Slider, Table, Text, Title, Tooltip } from "@mantine/core";
 import { Link, useParams } from "react-router-dom";
 import { print_time } from "../cube/timer";
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import NavigationPanel from "./NavigationPanel";
 import { Statistics } from "./TimeHistory";
 import { UserContext } from "../userContext";
 import { IconTool } from "@tabler/icons-react";
-import UserInfo from "./Auth";
 
 
 type Solve = {
@@ -34,7 +32,7 @@ export function User({username} : {username: string}) {
 
     const [user, setUser] = useState<UserInfo | null>(null);
 
-    function fetchData() {
+    const fetchData = useCallback(() => {
         fetch(
             `/api/user/${username}`
         ).then(
@@ -42,12 +40,11 @@ export function User({username} : {username: string}) {
         ).then(
             data => setUser(data)
         ).catch(err => console.log(err));
-
-    }
+    }, [username])
 
     useEffect(() => {
         fetchData();
-    }, [])
+    }, [fetchData])
 
 
     console.log(user);
@@ -64,7 +61,7 @@ export function User({username} : {username: string}) {
 
     const maxPages = user?.solves ? Math.ceil(user.solves.length / rowsPerPage) : 0;
 
-    const adminIcon = user?.role == "admin" ? (
+    const adminIcon = user?.role === "admin" ? (
         <Tooltip label="Administrator">
             <IconTool />
         </Tooltip>
@@ -72,7 +69,7 @@ export function User({username} : {username: string}) {
 
     const makeAdmin = () => {
         fetch(`/api/${username}/make_admin`).then(res => {
-            if (res.status == 200) {
+            if (res.status === 200) {
                 fetchData();
             }
         }).catch(err => console.log(err));
@@ -93,7 +90,7 @@ export function User({username} : {username: string}) {
                 <Title order={1} style={{textDecoration: "underline"}}>{user?.username} { adminIcon }</Title>
                 <Text>Profile created on: {user?.created_date}</Text>
                 <Text>Total solves: {user?.solves.length}</Text>
-                { me.isAdmin && user?.role != "admin" && <Button onClick={makeAdmin}>Make admin</Button> }
+                { me.isAdmin && user?.role !== "admin" && <Button onClick={makeAdmin}>Make admin</Button> }
             </Container>
 
 

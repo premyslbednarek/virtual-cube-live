@@ -73,12 +73,10 @@ class Lobby(db.Model):
             select(Race).where(Race.lobby_id == self.id, Race.ongoing)
         )
 
-    def get_user(self, user_id: int) -> "LobbyUser":
+    def get_user(self, user_id: int) -> Optional["LobbyUser"]:
         lobby_user = db.session.scalar(
             select(LobbyUser).where(LobbyUser.user_id==user_id, LobbyUser.lobby_id==self.id)
         )
-        if lobby_user is None:
-            raise ValueError("Lobby User does not exist")
         return lobby_user
 
     def get_user_points(self) -> List[LobbyPoints]:

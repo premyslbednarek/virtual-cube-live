@@ -22,6 +22,7 @@ from eventlet import sleep
 from dotenv import load_dotenv
 import os
 from functools import wraps
+from uuid import uuid4
 
 class RequestSolutionData(TypedDict):
     lobby_id: int
@@ -48,6 +49,23 @@ def make_admin(username: str):
         return "success", 200
 
     return "error", 400
+
+@app.route('/api/generate_invitation', methods=["POST"])
+@login_required
+def generate_invitation():
+    data = json.loads(request.data)
+    lobby_id: int = data["lobbyId"]
+
+    # check whether the user is in the given lobby
+    lobbyuser = LobbyUser.get(current_user.id, lobby_id)
+    if not lobbyuser:
+        return abort(401) # unauthorized
+
+    invitation_url = uuid4()
+    return {"url": invitation_url}, 200
+
+
+
 
 @app.route('/api/solves_to_continue')
 def get_solves_to_continue():

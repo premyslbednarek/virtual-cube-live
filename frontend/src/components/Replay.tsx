@@ -1,12 +1,14 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom"
 import { RenderedCube } from "./CubeCanvases";
-import { Text, Space, Slider, ActionIcon, Center, Flex, Kbd } from "@mantine/core";
+import { Text, Space, Slider, ActionIcon, Center, Flex, Kbd, Container, Stack } from "@mantine/core";
 import Cube from "../cube/cube";
 import useFetch from "@custom-react-hooks/use-fetch";
 import { useHotkeys } from "react-hotkeys-hook";
 import {IconPlayerPlay, IconPlayerPause, IconRewindBackward5, IconRewindForward5, IconPlus, IconMinus, IconReload} from "@tabler/icons-react"
 import NavigationPanel from "./NavigationPanel";
+import { print_time } from "../cube/timer";
+import CopyButton from "../CopyButton";
 
 interface IMoveInfo {
     move: string;
@@ -40,16 +42,6 @@ const defaultSolveInfo: ISolveInfo = {
     time: 0,
 }
 
-function renderTime(time: number) {
-    const ms = Math.round(time % 1000);
-    const timeSec = Math.floor(time / 1000);
-    const sec = timeSec % 60;
-    const minutes = Math.floor(timeSec / 60)
-    return <div>{((minutes > 0) ? minutes + ":" : "") +
-            sec.toString().padStart(2, '0') + ":" +
-            ms.toString().padStart(3, '0')
-    }</div>
-}
 
 const UPDATE_INTERVAL = 53; // in ms
 
@@ -59,7 +51,16 @@ export function ReplayPage() {
         return null;
     }
 
-    return <Replay solveId={solveId} />
+    return (
+        <>
+            <div style={{position: "absolute", fontSize: "30px", margin: 10}}>
+                <NavigationPanel />
+            </div>
+            <div style={{height: "100vh", width: "100vw"}}>
+                <Replay solveId={solveId} />
+            </div>
+        </>
+    );
 
 }
 
@@ -192,21 +193,26 @@ export function Replay({solveId} : {solveId : string}) {
 
     return (
         <>
-            <div style={{position: "absolute", fontSize: "30px", margin: 10}}>
-                <NavigationPanel />
-                <Text>Use <Kbd>Space</Kbd>, <Kbd>LeftArrow</Kbd> and <Kbd>RightArrow</Kbd> to navigate the solve</Text>
-                <Text size="2xl">
-                    Scramble: {solve.scramble}
-                </Text>
-                <div>{solve.completed ? "Completed" : "Not completed"} {solve.completed ? renderTime(solve.time) : ""} </div>
-
+            <div style={{position: "absolute", width: "100vw"}}>
+                <Container mt={10}>
+                    <Center>
+                        <Stack>
+                            <Text ta="center">Use <Kbd>Space</Kbd>, <Kbd>LeftArrow</Kbd> and <Kbd>RightArrow</Kbd> to navigate the solve</Text>
+                            <Flex align="bottom">
+                                <Text ta="center" size="xl">Scramble: {solve.scramble}</Text>
+                                <CopyButton value={solve.scramble} />
+                            </Flex>
+                            <Text ta="center" size="xl">Time: {solve.completed ? print_time(solve.time) : "DNF"}</Text>
+                        </Stack>
+                    </Center>
+                </Container>
             </div>
-            <div style={{position: "absolute", width: "100%", height: "100%", zIndex: -1}}>
+            <div style={{width: "100%", height: "100%", zIndex: -1}}>
                 <RenderedCube cube={cube} />
             </div>
-            <div style={{position: "absolute", width: "100vw", bottom: "2vh", textAlign: "center"}}>
+            <div style={{position: "absolute", width: "100%", bottom: "2vh", textAlign: "center"}}>
                 <div style={{ width: "80%", margin: "0 auto"}}>
-                    <div>{renderTime(time)}</div>
+                    <div>{print_time(time)}</div>
                     <div>
                         <Center>
                             <ActionIcon.Group>
@@ -233,7 +239,7 @@ export function Replay({solveId} : {solveId : string}) {
                         min={0}
                         max={solve.time}
                         value={time}
-                        label={renderTime}
+                        label={print_time(time)}
                         onChange={manualTimeChange}
                     ></Slider>
                 </div>

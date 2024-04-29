@@ -1,8 +1,10 @@
-import { Paper, ScrollArea, Space, Table, Title } from "@mantine/core";
-import { Link } from "react-router-dom";
+import { ActionIcon, Button, Modal, Paper, ScrollArea, Space, Table, Title } from "@mantine/core";
 import { print_time } from "../cube/timer";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { UserContext } from "../userContext";
+import { useDisclosure } from "@mantine/hooks";
+import { Replay } from "./Replay";
+import { IconX } from "@tabler/icons-react";
 
 export type Solve = {
     id: number
@@ -128,11 +130,21 @@ export function Statistics({solves, showCurrent = true} : {solves: Array<Solve>,
 }
 
 export function TimeList({solves} : {solves: Array<Solve>}) {
+    const [opened, { open, close }] = useDisclosure(false);
+    const [modalSolveId, setModalSolveId] = useState<string | null>(null);
+
     const rows = solves.map((solve, idx) => (
         <Table.Tr key={solve.id}>
             <Table.Th>{idx + 1}</Table.Th>
             <Table.Th>{solve.completed ? print_time(solve.time) : "DNF"}</Table.Th>
-            <Table.Th><Link to={`/replay/${solve.id}`}>replay</Link></Table.Th>
+            <Table.Th><Button onClick={() => {
+                    setModalSolveId(String(solve.id));
+                    open();
+                }}
+                >
+                    Replay
+                </Button>
+            </Table.Th>
         </Table.Tr>
     ))
 
@@ -142,6 +154,15 @@ export function TimeList({solves} : {solves: Array<Solve>}) {
 
     return (
         <>
+            <Modal opened={opened} onClose={close} size="xl" withCloseButton={false} padding={0}>
+                <div style={{height: "80vh"}}>
+                    <div style={{position: "absolute", right: 0, zIndex: 5}}>
+                        <ActionIcon onClick={close} size="xl" radius="xl"><IconX /></ActionIcon>
+                    </div>
+                    { modalSolveId && <Replay solveId={modalSolveId} /> }
+                </div>
+            </Modal>
+
             <ScrollArea h={"50vh"}>
                 <Table>
                     <Table.Tbody>

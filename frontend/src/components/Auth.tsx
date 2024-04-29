@@ -14,7 +14,7 @@ function capitalizeFirstLetter(string: string) {
 export default function UserInfo() {
     const { userContext, updateUserContext } = useContext(UserContext);
     const [type, toggle] = useToggle(["login", "register"])
-    const [modalOpened, {open, close: closeModal}] = useDisclosure(false)
+    const [modalOpened, {open, close}] = useDisclosure(false)
     const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
     const form = useForm({
@@ -32,7 +32,7 @@ export default function UserInfo() {
             body: JSON.stringify(form.values)
         }).then(data=>data.json()).then(data => {
             if (data.msg === "ok") {
-                closeModal();
+                close();
                 updateUserContext();
             } else {
                 setErrorMessage(data.msg)
@@ -76,7 +76,7 @@ export default function UserInfo() {
 
     return (
         <>
-            <Modal opened={modalOpened} onClose={closeModal} title={capitalizeFirstLetter(type)} centered>
+            <Modal opened={modalOpened} onClose={close} title={capitalizeFirstLetter(type)} centered>
                 { errorMessage && errorMessageDiv}
 
                 <form onSubmit={onSubmit}>

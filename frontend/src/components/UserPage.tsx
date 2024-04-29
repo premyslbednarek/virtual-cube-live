@@ -1,8 +1,10 @@
 import useFetch from "@custom-react-hooks/use-fetch";
-import { Center, Container, Pagination, Table } from "@mantine/core";
+import { Center, Container, Flex, Pagination, Slider, Table, Text, Title } from "@mantine/core";
 import { Link, useParams } from "react-router-dom";
 import { print_time } from "../cube/timer";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import NavigationPanel from "./NavigationPanel";
+import { Statistics } from "./TimeHistory";
 
 
 type Solve = {
@@ -21,8 +23,9 @@ type UserInfo = {
 }
 
 export function User({username} : {username: string}) {
-    const rowsPerPage = 20;
+    const rowsPerPage = 10;
     const [page, setPage] = useState(1);
+    const [statsCubeSize, setStatsCubeSize] = useState(3);
 
     const { data, loading, error } = useFetch<UserInfo>(`/api/user/${username}`)
 
@@ -46,14 +49,33 @@ export function User({username} : {username: string}) {
         </Table.Tr>
     ))
 
-    const maxPages = data?.solves ? data.solves.length / rowsPerPage + 1: 0;
+    const maxPages = data?.solves ? Math.ceil(data.solves.length / rowsPerPage) : 0;
 
     return (
         <>
-            <div>
-                { data?.username } is {data?.role} and was created on {data?.created_date}
+            <div style={{position: "absolute", top: 0}}>
+                <NavigationPanel />
             </div>
-            <Container>
+
+            <Container mt="xl">
+                <Title order={3} mb="sm">Profile page</Title>
+                <Title order={1} style={{textDecoration: "underline"}}>{data?.username}</Title>
+                <Text>Profile created on: {data?.created_date}</Text>
+                <Text>Total solves: {data?.solves.length}</Text>
+            </Container>
+
+            <Container mt="xl">
+                <Title order={3}>{statsCubeSize}x{statsCubeSize} Statistics</Title>
+                <Flex align="center" gap="md">
+                    <Text>Set cube size: </Text>
+                    <Slider w="20vh" min={2} max={7} value={statsCubeSize} onChange={setStatsCubeSize}></Slider>
+                </Flex>
+                { data && data.solves && <Statistics solves={data.solves.filter(solve => solve.cube_size == statsCubeSize)} />}
+            </Container>
+
+
+            <Container mt="xl">
+                <Title order={3}>Solve history</Title>
                 <Table stickyHeader striped>
                     <Table.Thead>
                         <Table.Tr>
@@ -68,7 +90,7 @@ export function User({username} : {username: string}) {
                         { rows }
                     </Table.Tbody>
                 </Table>
-                <Center>
+                <Center mt="sm">
                     <Pagination value={page} onChange={setPage} total={maxPages}></Pagination>
                 </Center>
             </Container>

@@ -100,8 +100,7 @@ export function Statistics({solves, showCurrent = true} : {solves: Array<Solve>,
     }, [solves])
 
     return (
-        <Paper p={10} radius="md">
-            <Title order={3} ml={10}>Statistics</Title>
+        <>
             <Table>
                 <Table.Tbody>
                     <Table.Tr>
@@ -124,7 +123,7 @@ export function Statistics({solves, showCurrent = true} : {solves: Array<Solve>,
                     }
                 </Table.Tbody>
             </Table>
-        </Paper>
+        </>
     );
 }
 
@@ -142,8 +141,7 @@ export function TimeList({solves} : {solves: Array<Solve>}) {
     }
 
     return (
-        <Paper p={10} radius="md">
-            <Title order={3} ml={10}>Time list</Title>
+        <>
             <ScrollArea h={"50vh"}>
                 <Table>
                     <Table.Tbody>
@@ -151,7 +149,7 @@ export function TimeList({solves} : {solves: Array<Solve>}) {
                     </Table.Tbody>
                 </Table>
             </ScrollArea>
-        </Paper>
+        </>
     );
 }
 
@@ -168,9 +166,15 @@ export default function TimeHistory({cubeSize} : {cubeSize: number}) {
 
     return (
         <>
-            <Statistics solves={solves} />
+            <Paper p={10} radius="md">
+                <Title order={3} ml={10}>Statistics</Title>
+                <Statistics solves={solves} />
+            </Paper>
             <Space h="sm" />
-            <TimeList solves={solves} />
+            <Paper p={10} radius="md">
+                <Title order={3} ml={10}>Time list</Title>
+                <TimeList solves={solves} />
+            </Paper>
         </>
     );
 }

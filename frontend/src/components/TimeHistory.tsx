@@ -1,4 +1,4 @@
-import { ActionIcon, Button, Modal, Paper, ScrollArea, Space, Table, Title } from "@mantine/core";
+import { Text, ActionIcon, Button, Modal, Paper, ScrollArea, Space, Table, Title } from "@mantine/core";
 import { print_time } from "../cube/timer";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { UserContext } from "../userContext";
@@ -34,7 +34,10 @@ function getAverage(solves: Array<Solve>, allowDNF: boolean) : number {
 }
 
 
-function get_ao(solves: Array<Solve>, size: number, to_ignore: number, index = 0) {
+function get_ao(solves: Array<Solve>, size: number, index = 0) {
+    // ignore at 5% of slowest and fastest solves (always ignore at least one solve)
+    const to_ignore = Math.max(1, Math.floor(size * 0.05))
+
     solves = [...solves]; // create shallow copy
     // sort solve times, not completed solves come last
     solves = solves.sort((a, b) => {
@@ -80,14 +83,11 @@ export function Statistics({solves, showCurrent = true} : {solves: Array<Solve>,
                 return {solvesCount: solveCount, best: "-", last: "-"};
             }
 
-            // ignore at 5% of slowest and fastest solves (always ignore at least one solve)
-            const solves_to_ignore = Math.max(1, Math.floor(solveCount * 0.05))
-
-            let last = get_ao(solves, solveCount, solves_to_ignore);
+            let last = get_ao(solves, solveCount);
             let best = last;
 
             for (let i = 1; i < solves.length - solveCount; ++i) {
-                const avg = get_ao(solves, solveCount, solves_to_ignore, i);
+                const avg = get_ao(solves, solveCount, i);
                 if (avg < best) {
                     best = avg;
                 }
@@ -136,8 +136,8 @@ export function TimeList({solves} : {solves: Array<Solve>}) {
     const rows = solves.map((solve, idx) => (
         <Table.Tr key={solve.id}>
             <Table.Th>{idx + 1}</Table.Th>
-            <Table.Th>{solve.completed ? print_time(solve.time) : "DNF"}</Table.Th>
-            <Table.Th><Button onClick={() => {
+            <Table.Th><Text size="lg">{solve.completed ? print_time(solve.time) : "DNF"}</Text></Table.Th>
+            <Table.Th><Button size="xs" onClick={() => {
                     setModalSolveId(String(solve.id));
                     open();
                 }}
@@ -145,6 +145,7 @@ export function TimeList({solves} : {solves: Array<Solve>}) {
                     Replay
                 </Button>
             </Table.Th>
+            <Table.Th>{idx + 5 <= solves.length  ? print_avg(get_ao(solves, 5, idx)) : "-" }</Table.Th>
         </Table.Tr>
     ))
 
@@ -165,6 +166,14 @@ export function TimeList({solves} : {solves: Array<Solve>}) {
 
             <ScrollArea h={"50vh"}>
                 <Table>
+                    <Table.Thead>
+                        <Table.Tr>
+                            <Table.Th>#</Table.Th>
+                            <Table.Th>Time</Table.Th>
+                            <Table.Th>Replay</Table.Th>
+                            <Table.Th>AO5</Table.Th>
+                        </Table.Tr>
+                    </Table.Thead>
                     <Table.Tbody>
                         {rows}
                     </Table.Tbody>

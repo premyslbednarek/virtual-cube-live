@@ -25,6 +25,7 @@ import useStopwatch from "./useTimer";
 import useCountdown from "./useCountdown";
 import { ControlledCube, RenderedCube } from "./CubeCanvases";
 import Invitation from "./Invitation";
+import ErrorPage from "./ErrorPage";
 
 type LobbyPoints = Array<{
     username: string;
@@ -113,7 +114,7 @@ function Results({lastResult, lobbyPoints} : {lastResult: RaceResults, lobbyPoin
     ))
 
     return (
-        <div style={{position: "absolute", bottom: 20, left: 20}}>
+        <div>
             { lastResult.length !== 0 &&
                 <>
                     <Title order={4}>Last race results</Title>
@@ -463,75 +464,87 @@ export default function Lobby() {
     }
 
     if (errorMSG) {
-        return <div>{errorMSG}</div>
+        return <ErrorPage message={errorMSG} />
     }
 
-    return (
-        <div style={{ backgroundColor: "black", height: "100vh"}}>
-          <Invitation show={!inSolve} lobbyId={lobby_id} />
-          <div style={{position: "absolute"}}>
+    const bottomPanel = (
+        <div style={{position: "absolute", bottom: 10, width: "100%"}}>
+            <Stack gap="xs">
+                {
+                    waitTimeRunning &&
+                    <div style={{
+                        textAlign: "center",
+                        color: "red",
+                        fontSize: "40px",
+                        lineHeight: "40px"
+                    }}>
+                        { waitTimeLeft }
+                    </div>
+                }
+                {displayTime}
+                {
+                    !inSolve ?
+                    <>
+                        <div>
+                            <Center>
+                                <Button color={readyColor} onClick={onReadyClick}>{readyText}</Button>
+                            </Center>
+                        </div>
+                        <div>
+                            {
+                                isAdmin ? <Center>
+                                <div style={{display: "flex"}}>
+                                    <Button disabled={!allReady()} onClick={() => startLobby(false)}>Start lobby</Button>
+                                    <Space w="md" />
+                                    <Button onClick={() => startLobby(true)}>Start lobby (force)</Button>
+                                </div>
+                            </Center> : ""
+                            }
+                        </div>
+                    </>
+                    : ""
+                }
+            </Stack>
+        </div>
+    );
+
+    const rightPanel = (
+        <>{
+            enemies.size
+                ?
+                    <div style={{position: "absolute", top: 0, right: 0, height: "100%",
+                    }}>
+                        <EnemyCubes enemies={enemies} />
+                    </div>
+                : null
+        }</>
+    );
+
+    const leftPanel = (
+        <div style={{position: "absolute", top: 0, left: 0}}>
             <NavigationPanel />
             <Text ml={10}>You are logged in as {userContext.username}</Text>
             {
                 // show solve button for app admins
                 ( userContext.isAdmin && inSolve) && <Button ml={10} onClick={solveTheCube}>Solve</Button>
             }
-          </div>
-          <div style={{height: "100%", display: "flex"}}>
-            <ControlledCube cube={cube} />
-
-            <div style={{
-                position: "absolute",
-                right: 0,
-                height: "100%",
-                width: enemies.size === 0 ? "0%" : "30%",
-            }}>
-                <EnemyCubes enemies={enemies} />
-            </div>
-          </div>
-
-            {/* bottom info panel */}
-            <div style={{position: "absolute", bottom: 0, width: "100%"}}>
-                <Center mb="20">
-                    <Stack gap="xs" justify="flex-end">
-                        {
-                            waitTimeRunning &&
-                            <div style={{
-                                textAlign: "center",
-                                color: "red",
-                                fontSize: "40px",
-                                lineHeight: "40px"
-                            }}>
-                                { waitTimeLeft }
-                            </div>
-                        }
-                        {displayTime}
-                        {
-                            !inSolve ?
-                            <>
-                                <div>
-                                    <Center>
-                                        <Button color={readyColor} onClick={onReadyClick}>{readyText}</Button>
-                                    </Center>
-                                </div>
-                                <div>
-                                    {
-                                        isAdmin ? <Center>
-                                        <div style={{display: "flex"}}>
-                                            <Button disabled={!allReady()} onClick={() => startLobby(false)}>Start lobby</Button>
-                                            <Space w="md" />
-                                            <Button onClick={() => startLobby(true)}>Start lobby (force)</Button>
-                                        </div>
-                                    </Center> : ""
-                                    }
-                                </div>
-                            </>
-                            : ""
-                        }
-                    </Stack>
-                </Center>
-            </div>
             { !inSolve && <Results lastResult={lastRaceResults} lobbyPoints={lobbyPoints} /> }
+        </div>
+    );
+
+    const cubeCanvas = (
+        <div style={{height: "100%"}}>
+        <ControlledCube cube={cube} />
+        </div>
+    );
+
+    return (
+        <div style={{ backgroundColor: "black", height: "100vh"}}>
+          <Invitation show={!inSolve} lobbyId={lobby_id} />
+          { cubeCanvas }
+          { rightPanel }
+          { bottomPanel }
+          { leftPanel }
         </div>
     );
 }

@@ -427,22 +427,30 @@ def handle_solo_join(data):
 
 @socketio.on("lobby_connect")
 def handle_lobby_conection(data):
+    # this is handled through a socket message instead to synchronize
+    # with other events in this lobby. Otherwise, all socket messages between
+    # the request and socket connection would be lost
     lobby_id: int = int(data["lobby_id"])
-    print("LOBBY CONNECTION", lobby_id, current_user.username)
 
-    # check whether the user has already joined the lobby
-    q = select(LobbyUser).where(LobbyUser.user_id == current_user.id, LobbyUser.lobby_id == lobby_id)
-    lobbyuser: LobbyUser | None = db.session.scalars(q).one_or_none()
-    if (lobbyuser and lobbyuser.current_connection_id):
-        return {"code": 1}
-
-    # add user to the lobby room
-    join_room(lobby_id)
+    print("new connection to lobby:", lobby_id, "user_id", current_user.username)
 
     lobby: Lobby = db.session.get(Lobby, lobby_id)
     is_admin: bool = lobby.creator_id == current_user.id
 
-    connection_id = create_connection(lobby.cube_size, None, lobby_id)
+    # check whether the user has already joined the lobby before
+    lobbyuser = LobbyUser.get(current_user.id, lobby_id)
+    if lobbyuser and lobbyuser.current_connection_id:
+        return {"status": 400, "msg": "You have already joined this lobby"}
+
+    # lobby admin can always join
+    # otherwise, if the lobby is private, other users can only join
+    # if the their LobbyUser object is already present (it is create through
+    # /api/invite/<invitation_uuid>
+    if not is_admin and not lobbyuser and lobby.private:
+        return {"status": 400, "msg": "This lobby is private. You can join only via an invitation"}
+
+    # add user to the lobby room
+    join_room(lobby_id)
 
     # add connection to the database
     if not lobbyuser:
@@ -453,24 +461,19 @@ def handle_lobby_conection(data):
         db.session.add(lobbyuser)
         db.session.commit()
 
-    lobbyuser.current_connection_id=connection_id
+    lobbyuser.current_connection_id=create_connection(lobby.cube_size, None, lobby_id)
     db.session.commit()
 
-    # fetch usernames of users in the room
-    q = select(User.username).join(LobbyUser, User.id == LobbyUser.user_id).where(LobbyUser.lobby_id == lobby_id, User.username != current_user.username)
+    # fetch info about other users in the lobby of users in the room
     users = db.session.execute(
         select(
-            User.username,
-            LobbyUser.status == LobbyUserStatus.READY,
             LobbyUser
-        ).join(
-            LobbyUser, User.id == LobbyUser.user_id
         ).where(
             LobbyUser.lobby_id == lobby_id, User.username != current_user.username
         )
     ).all()
 
-    # inform other users in the lobby about the connection
+    # inform other users in the lobby about this the connection
     socketio.emit(
         "lobby_connection",
         { "username": current_user.username, "points": lobbyuser.points },
@@ -478,9 +481,21 @@ def handle_lobby_conection(data):
         skip_sid=request.sid
     )
 
+    # fetch info about other users in the lobby of users in the room
+    users = db.session.scalars(
+        select(LobbyUser).where(LobbyUser.lobby_id == lobby_id, LobbyUser.user_id != current_user.id)
+    ).all()
+
+    userlist = [(
+            lobbyuser.user.username,
+            lobbyuser.status == LobbyUserStatus.READY,
+            lobbyuser.current_connection.cube.state.decode("UTF-8")
+        ) for lobbyuser in users
+    ]
+
     return {
-        "code": 0,
-        "userList": [(username, ready, lobbyuser.current_connection.cube.state.decode("UTF-8")) for username, ready, lobbyuser in users],
+        "status": 200,
+        "userList": userlist,
         "isAdmin": is_admin,
         "cubeSize": lobby.cube_size,
         "points": lobby.get_user_points()

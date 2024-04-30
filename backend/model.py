@@ -115,12 +115,10 @@ class LobbyUser(db.Model):
     points: Mapped[int] = mapped_column(default=0)
 
     @staticmethod
-    def get(user_id: int, lobby_id: int) -> "LobbyUser":
+    def get(user_id: int, lobby_id: int) -> Optional["LobbyUser"]:
         lobby_user = db.session.scalar(
             select(LobbyUser).where(LobbyUser.user_id==user_id, LobbyUser.lobby_id==lobby_id)
         )
-        if lobby_user is None:
-            raise ValueError("Lobby User does not exist")
         return lobby_user
 
 class Scramble(db.Model):

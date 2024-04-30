@@ -171,6 +171,8 @@ export default function Lobby() {
     // to match server timers
     const [solveTime, setSolveTime] = useState<number | null>(null);
 
+    const [errorMSG, setErrorMSG] = useState<string | null>(null);
+
     const { formattedTime, start, stop } = useStopwatch();
     const {
         secondsLeft: inspectionSecondsLeft,
@@ -319,20 +321,25 @@ export default function Lobby() {
         cube.init_camera_controls();
         cube.init_mouse_moves();
 
-        interface ILobbyConnectResponse {
-            code: number;
+        interface LobbyConnectResponseSuccess {
+            status: 200;
             userList: Array<[string, boolean, string]>; // username, ready, points
             isAdmin: boolean;
             cubeSize: number;
             points: LobbyPoints
         }
 
+        interface LobbyConnectResponseError {
+            status: 400;
+            msg: string;
+        }
+
         socket.emit("lobby_connect",
             { lobby_id: lobby_id },
-            function(response: ILobbyConnectResponse) {
+            function(response: LobbyConnectResponseSuccess | LobbyConnectResponseError) {
                 console.log(response)
-                if (response.code === 1) {
-                    alert("You have already joined this lobby.");
+                if (response.status === 400) {
+                    setErrorMSG(response.msg)
                     return;
                 }
 
@@ -453,6 +460,10 @@ export default function Lobby() {
 
     if (!lobby_id) {
         return null;
+    }
+
+    if (errorMSG) {
+        return <div>{errorMSG}</div>
     }
 
     return (

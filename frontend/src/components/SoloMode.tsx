@@ -4,7 +4,7 @@ import { ControlledCube } from "./CubeCanvases";
 import NavigationPanel from "./NavigationPanel";
 import { socket } from "../socket";
 import * as THREE from 'three';
-import { ActionIcon, Button, Slider, Text, Modal } from "@mantine/core";
+import { Flex, ActionIcon, Button, Slider, Text, Modal, Space } from "@mantine/core";
 import { useHotkeys } from "react-hotkeys-hook";
 import useCountdown from "./useCountdown";
 import useStopwatch from "./useTimer";
@@ -161,8 +161,11 @@ export default function SoloMode() {
             <Modal opened={opened} onClose={close} title="Pick a solve to continue">
                 <ShowSolvesToContinue onContinue={continue_solve} />
             </Modal>
-            <div style={{position: "absolute"}}>
-                <NavigationPanel />
+            <div style={{position: "absolute", left: 10}}>
+                <Flex align="center">
+                    <NavigationPanel />
+                    { !inSolve && <Button onClick={open} size="md" radius="md">Continue solve</Button>}
+                </Flex>
                 <Text>Cube size: {cubeSize}</Text>
                 <Slider
                     value={cubeSize}
@@ -171,7 +174,8 @@ export default function SoloMode() {
                     max={7}
                 ></Slider>
                 { inSolve && <ActionIcon onClick={save}><IconDeviceFloppy></IconDeviceFloppy></ActionIcon>}
-                { !inSolve && <Button onClick={open}>Continue solve</Button>}
+                <Space h="sm"></Space>
+                { !inSolve && <TimeHistory cubeSize={cubeSize} /> }
             </div>
             <div style={{height: "100vh"}}>
                 <ControlledCube cube={cube} />
@@ -179,20 +183,7 @@ export default function SoloMode() {
             <div style={{position: "absolute", bottom: 20, margin: "auto", width: "100%", textAlign: "center"}}>
                 {displayTime}
                 { !inSolve && <Button onClick={startSolve}>Start solve [spacebar]</Button> }
-                <div>
-                {/* { !inSolve && lastTime && print_time(lastTime)} */}
-                {/* { inSolve && !inspectionRunning && formattedTime } */}
-                </div>
-                <div>
-                {/* { inSolve && inspectionRunning && inspectionSecondsLeft } */}
-                </div>
             </div>
-            {
-                !inSolve &&
-                <div style={{position: "absolute", bottom: 0}}>
-                    <TimeHistory cubeSize={cubeSize} />
-                </div>
-            }
         </>
     );
 }

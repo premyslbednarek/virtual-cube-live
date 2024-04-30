@@ -11,7 +11,7 @@ with app.app_context():
     setup_admin()
 
 # import paths from views.py
-import views
+import api
 
 if __name__ == '__main__':
     socketio.run(app, host="localhost", port=8080, debug=True)

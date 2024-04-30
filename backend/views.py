@@ -435,18 +435,18 @@ def handle_lobby_conection(data):
     print("new connection to lobby:", lobby_id, "user_id", current_user.username)
 
     lobby: Lobby = db.session.get(Lobby, lobby_id)
-    is_admin: bool = lobby.creator_id == current_user.id
+    is_creator: bool = lobby.creator_id == current_user.id
 
     # check whether the user has already joined the lobby before
     lobbyuser = LobbyUser.get(current_user.id, lobby_id)
     if lobbyuser and lobbyuser.current_connection_id:
         return {"status": 400, "msg": "You have already joined this lobby"}
 
-    # lobby admin can always join
+    # lobby creator can always join
     # otherwise, if the lobby is private, other users can only join
     # if the their LobbyUser object is already present (it is create through
     # /api/invite/<invitation_uuid>
-    if not is_admin and not lobbyuser and lobby.private:
+    if not is_creator and not lobbyuser and lobby.private:
         return {"status": 400, "msg": "This lobby is private. You can join only via an invitation"}
 
     # add user to the lobby room
@@ -457,6 +457,7 @@ def handle_lobby_conection(data):
         lobbyuser = LobbyUser(
             lobby_id=lobby_id,
             user_id=current_user.id,
+            role=LobbyRole.ADMIN if is_creator else LobbyRole.USER
         )
         db.session.add(lobbyuser)
         db.session.commit()
@@ -476,7 +477,11 @@ def handle_lobby_conection(data):
     # inform other users in the lobby about this the connection
     socketio.emit(
         "lobby_connection",
-        { "username": current_user.username, "points": lobbyuser.points },
+        {
+            "username": current_user.username,
+            "points": lobbyuser.points,
+            "isAdmin": lobbyuser.role == LobbyRole.ADMIN
+        },
         room=lobby_id,
         skip_sid=request.sid
     )
@@ -489,6 +494,7 @@ def handle_lobby_conection(data):
     userlist = [(
             lobbyuser.user.username,
             lobbyuser.status == LobbyUserStatus.READY,
+            lobbyuser.role == LobbyRole.ADMIN,
             lobbyuser.current_connection.cube.state.decode("UTF-8")
         ) for lobbyuser in users
     ]
@@ -496,10 +502,36 @@ def handle_lobby_conection(data):
     return {
         "status": 200,
         "userList": userlist,
-        "isAdmin": is_admin,
+        "isAdmin": is_creator,
         "cubeSize": lobby.cube_size,
         "points": lobby.get_user_points()
     }
+
+@socketio.on("lobby_make_admin")
+@login_required
+def make_admin(data):
+    connection = SocketConnection.get(request.sid)
+    lobby_user = LobbyUser.get(current_user.id, connection.lobby_id)
+    if not lobby_user or lobby_user.role != LobbyRole.ADMIN:
+        return
+
+    user = db.session.scalars(
+        select(User).where(User.username == data["username"])
+    ).first()
+
+    if not user:
+        return
+
+    lobby_user = LobbyUser.get(user.id, connection.lobby_id)
+    lobby_user.role = LobbyRole.ADMIN
+    db.session.commit()
+
+    socketio.emit(
+        "lobby_new_admin",
+        {"username": data["username"]},
+        room=connection.lobby_id
+    )
+
 
 @socketio.on("lobby_ready_status")
 def send_ready_status(data):

@@ -11,7 +11,10 @@ import {
     Table,
     Title,
     Text,
-    Paper
+    Paper,
+    Flex,
+    ActionIcon,
+    Tooltip
 } from "@mantine/core"
 import * as THREE from 'three';
 import { socket } from "../socket";
@@ -28,6 +31,8 @@ import { ControlledCube, RenderedCube } from "./CubeCanvases";
 import Invitation from "./Invitation";
 import ErrorPage from "./ErrorPage";
 import TimeHistory from "./TimeHistory";
+import AdminPanelButton from "./LobbyAdminPanel";
+import { IconCrown } from "@tabler/icons-react";
 
 type LobbyPoints = Array<{
     username: string;
@@ -45,9 +50,10 @@ interface onRaceDoneData {
     lobbyPoints: LobbyPoints;
 }
 
-type Enemy = {
+export type Enemy = {
     cube: Cube,
     readyStatus: boolean
+    isAdmin: boolean
     time?: number
 }
 
@@ -76,7 +82,9 @@ function DisplayEnemy({username, enemy} : {username: string, enemy: Enemy}) {
     return (
         <div key={username} style={{height: "100%", position: "relative"}}>
             <div className="absolute">
-                <Badge mt="sm" ml="sm" mr="sm">{username}</Badge>
+                <Badge mt="sm" ml="sm" mr="sm" rightSection={enemy.isAdmin ? <Tooltip label="lobby admin"><IconCrown size={15} /></Tooltip> : null}>
+                        {username}
+                </Badge>
                 <Badge color={readyColor}>{readyText}</Badge>
             </div>
             <RenderedCube cube={enemy.cube} />
@@ -257,13 +265,13 @@ export default function Lobby() {
         setEnemies(updated);
     }
 
-    const onConnection = ({username, points} : {username: string, points: number}) => {
+    const onConnection = ({username, points, isAdmin} : {username: string, points: number, isAdmin: boolean}) => {
         console.log(username, "has joined the lobby");
         setLobbyPoints(produce((draft) => {
             if (draft.find((el) => el.username === username)) return;
             draft.push({username: username, points: points})
         }))
-        setEnemies(new Map(enemies.set(username, {cube: new Cube(cubeSize), readyStatus: false })));
+        setEnemies(new Map(enemies.set(username, {cube: new Cube(cubeSize), readyStatus: false, isAdmin: isAdmin })));
     };
 
     type MatchStartData = {
@@ -326,7 +334,7 @@ export default function Lobby() {
 
         interface LobbyConnectResponseSuccess {
             status: 200;
-            userList: Array<[string, boolean, string]>; // username, ready, points
+            userList: Array<[string, boolean, boolean, string]>; // username, ready, points
             isAdmin: boolean;
             cubeSize: number;
             points: LobbyPoints
@@ -347,8 +355,8 @@ export default function Lobby() {
                 }
 
                 const m = new Map(enemies);
-                response.userList.forEach(([username, ready, state]) => {
-                    m.set(username, {cube: new Cube(response.cubeSize, state), readyStatus: ready});
+                response.userList.forEach(([username, ready, isAdmin, state]) => {
+                    m.set(username, {cube: new Cube(response.cubeSize, state), readyStatus: ready, isAdmin: isAdmin});
                 });
 
                 setLobbyPoints(response.points)
@@ -405,6 +413,18 @@ export default function Lobby() {
         startWaitTime(waitTime, () => {});
     }
 
+    const onNewAdmin = ({username} : {username: string}) => {
+        if (username == userContext.username) {
+            setIsAdmin(true);
+        } else {
+            const updated = new Map(enemies);
+            const enemy = updated.get(username);
+            if (!enemy) return;
+            enemy.isAdmin = true;
+            setEnemies(updated);
+        }
+    }
+
     useEffect(() => {
         socket.on("lobby_ready_status_", onReadyChange);
         socket.on("solve_completed", onSomebodySolved)
@@ -416,6 +436,7 @@ export default function Lobby() {
         socket.on("match_start", onMatchStart);
         socket.on("lobby_race_done", onRaceDone);
         socket.on("solve_end_countdown", onStartCountdown);
+        socket.on("lobby_new_admin", onNewAdmin);
         return () => {
             socket.off("lobby_connection", onConnection);
             socket.off("solve_completed", onSomebodySolved)
@@ -427,6 +448,7 @@ export default function Lobby() {
             socket.off("match_start", onMatchStart);
             socket.off("lobby_race_done", onRaceDone);
             socket.off("solve_end_countdown", onStartCountdown);
+            socket.off("lobby_new_admin", onNewAdmin);
         }
     })
 
@@ -524,7 +546,10 @@ export default function Lobby() {
 
     const leftPanel = (
         <div style={{position: "absolute", top: 0, left: 0}}>
-            <NavigationPanel />
+            <Flex align="center">
+                <NavigationPanel />
+                { isAdmin && <AdminPanelButton enemies={enemies} /> }
+            </Flex>
             {
                 // show solve button for app admins
                 ( userContext.isAdmin && inSolve) && <Button ml={10} onClick={solveTheCube}>Solve</Button>

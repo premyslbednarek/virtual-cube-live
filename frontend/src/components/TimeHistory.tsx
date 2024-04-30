@@ -1,8 +1,8 @@
 import { Text, ActionIcon, Button, Modal, Paper, ScrollArea, Space, Table, Title } from "@mantine/core";
 import { print_time } from "../cube/timer";
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { UserContext } from "../userContext";
-import { useDisclosure } from "@mantine/hooks";
+import { useDisclosure, useViewportSize } from "@mantine/hooks";
 import { Replay } from "./Replay";
 import { IconX } from "@tabler/icons-react";
 
@@ -133,6 +133,18 @@ export function TimeList({solves} : {solves: Array<Solve>}) {
     const [opened, { open, close }] = useDisclosure(false);
     const [modalSolveId, setModalSolveId] = useState<string | null>(null);
 
+    const { height: viewportHeight } = useViewportSize();
+    const ref = useRef<HTMLDivElement | null>(null);
+    const [height, setHeight] = useState(150);
+
+    useEffect(() => {
+        if (!ref.current) {
+            return;
+        }
+        console.log("set")
+        setHeight(viewportHeight - ref.current.offsetTop - 20)
+    })
+
     const rows = solves.map((solve, idx) => (
         <Table.Tr key={solve.id}>
             <Table.Th>{idx + 1}</Table.Th>
@@ -164,7 +176,7 @@ export function TimeList({solves} : {solves: Array<Solve>}) {
                 </div>
             </Modal>
 
-            <ScrollArea h={"50vh"}>
+            <ScrollArea ref={ref} h={height}>
                 <Table>
                     <Table.Thead>
                         <Table.Tr>

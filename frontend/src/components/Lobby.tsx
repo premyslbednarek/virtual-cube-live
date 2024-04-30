@@ -10,7 +10,8 @@ import {
     Space,
     Table,
     Title,
-    Text
+    Text,
+    Paper
 } from "@mantine/core"
 import * as THREE from 'three';
 import { socket } from "../socket";
@@ -26,6 +27,7 @@ import useCountdown from "./useCountdown";
 import { ControlledCube, RenderedCube } from "./CubeCanvases";
 import Invitation from "./Invitation";
 import ErrorPage from "./ErrorPage";
+import TimeHistory from "./TimeHistory";
 
 type LobbyPoints = Array<{
     username: string;
@@ -116,8 +118,8 @@ function Results({lastResult, lobbyPoints} : {lastResult: RaceResults, lobbyPoin
     return (
         <div>
             { lastResult.length !== 0 &&
-                <>
-                    <Title order={4}>Last race results</Title>
+                <Paper p={10} radius="md" mb="sm">
+                    <Title order={3}>Last race results</Title>
                     <Table>
                         <Table.Thead>
                             <Table.Tr>
@@ -131,11 +133,11 @@ function Results({lastResult, lobbyPoints} : {lastResult: RaceResults, lobbyPoin
                             { lastRaceDNFs }
                         </Table.Tbody>
                     </Table>
-                </>
+                </Paper>
             }
             {
-                <>
-                    <Title mt={10} order={4}>Total points</Title>
+                <Paper p={10} radius="md">
+                    <Title order={3}>Total points</Title>
                     <Table>
                         <Table.Thead>
                             <Table.Tr>
@@ -147,7 +149,7 @@ function Results({lastResult, lobbyPoints} : {lastResult: RaceResults, lobbyPoin
                             { pointsRows }
                         </Table.Tbody>
                     </Table>
-                </>
+                </Paper>
             }
         </div>
     );
@@ -523,12 +525,15 @@ export default function Lobby() {
     const leftPanel = (
         <div style={{position: "absolute", top: 0, left: 0}}>
             <NavigationPanel />
-            <Text ml={10}>You are logged in as {userContext.username}</Text>
             {
                 // show solve button for app admins
                 ( userContext.isAdmin && inSolve) && <Button ml={10} onClick={solveTheCube}>Solve</Button>
             }
-            { !inSolve && <Results lastResult={lastRaceResults} lobbyPoints={lobbyPoints} /> }
+            { !inSolve && <>
+                <Results lastResult={lastRaceResults} lobbyPoints={lobbyPoints} />
+                <Space h="sm" />
+                <TimeHistory cubeSize={cubeSize} />
+            </>}
         </div>
     );
 

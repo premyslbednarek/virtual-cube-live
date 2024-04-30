@@ -425,6 +425,18 @@ export default function Lobby() {
         }
     }
 
+    const [isKicked, setIsKicked] = useState(false);
+
+    const onKick = ({username} : {username: string}) => {
+        if (username == userContext.username) {
+            setIsKicked(true);
+        } else {
+            const updated = new Map(enemies);
+            updated.delete(username);
+            setEnemies(updated);
+        }
+    }
+
     useEffect(() => {
         socket.on("lobby_ready_status_", onReadyChange);
         socket.on("solve_completed", onSomebodySolved)
@@ -437,6 +449,7 @@ export default function Lobby() {
         socket.on("lobby_race_done", onRaceDone);
         socket.on("solve_end_countdown", onStartCountdown);
         socket.on("lobby_new_admin", onNewAdmin);
+        socket.on("lobby_kick", onKick);
         return () => {
             socket.off("lobby_connection", onConnection);
             socket.off("solve_completed", onSomebodySolved)
@@ -449,6 +462,7 @@ export default function Lobby() {
             socket.off("lobby_race_done", onRaceDone);
             socket.off("solve_end_countdown", onStartCountdown);
             socket.off("lobby_new_admin", onNewAdmin);
+            socket.off("lobby_kick", onKick);
         }
     })
 
@@ -561,6 +575,11 @@ export default function Lobby() {
             </>}
         </div>
     );
+
+    if (isKicked) {
+        return <ErrorPage message="You have been kicked from this lobby"></ErrorPage>
+    }
+
 
     const cubeCanvas = (
         <div style={{height: "100%"}}>

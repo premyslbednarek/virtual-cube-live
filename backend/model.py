@@ -25,6 +25,7 @@ class LobbyUserStatus(Enum):
     READY = 1
     SOLVING = 2
     SOLVED = 3
+    KICKED = 4
 
 class UserRole(Enum):
     USER = 0

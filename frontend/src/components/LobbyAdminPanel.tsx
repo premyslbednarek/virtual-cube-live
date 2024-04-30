@@ -16,7 +16,7 @@ export default function AdminPanelButton({enemies} : {enemies: Map<string, Enemy
 
     function kick(username: string) {
         socket.emit(
-            "kick",
+            "lobby_kick",
             { "username": username }
         )
     }
@@ -34,7 +34,7 @@ export default function AdminPanelButton({enemies} : {enemies: Map<string, Enemy
                     Make admin
                 </Button>
             </Table.Td>
-            <Table.Td><Button onClick={() => kick(username)} color="red">Kick out of lobby</Button></Table.Td>
+            <Table.Td><Button onClick={() => kick(username)} disabled={enemy.isAdmin} color="red">Kick out of lobby</Button></Table.Td>
         </Table.Tr>
     ))
 
@@ -42,6 +42,7 @@ export default function AdminPanelButton({enemies} : {enemies: Map<string, Enemy
     return (
         <>
             <Modal opened={opened} onClose={close} title="admin panel" size="auto">
+                { enemies.size === 0 && "There are no other users in this lobby"}
                 <Table>
                     <Table.Tbody>
                         {rows}

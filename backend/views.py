@@ -442,6 +442,9 @@ def handle_lobby_conection(data):
     if lobbyuser and lobbyuser.current_connection_id:
         return {"status": 400, "msg": "You have already joined this lobby"}
 
+    if lobbyuser and lobbyuser.status == LobbyUserStatus.KICKED:
+        return {"status": 400, "msg": "You have been kicked from this lobby"}
+
     # lobby creator can always join
     # otherwise, if the lobby is private, other users can only join
     # if the their LobbyUser object is already present (it is create through
@@ -577,6 +580,36 @@ def create_scramble(size: int) -> Scramble:
     db.session.commit()
 
     return scramble
+
+
+@socketio.on("lobby_kick")
+@login_required
+def lobby_kick(data):
+    connection = SocketConnection.get(request.sid)
+    lobby_user = LobbyUser.get(current_user.id, connection.lobby_id)
+    if not lobby_user or lobby_user.role != LobbyRole.ADMIN:
+        return
+
+    user = db.session.scalars(
+        select(User).where(User.username == data["username"])
+    ).first()
+
+    if not user:
+        return
+
+    lobby_user = LobbyUser.get(user.id, connection.lobby_id)
+
+    if lobby_user.role == LobbyRole.ADMIN:
+        return
+
+    lobby_user.status = LobbyUserStatus.KICKED
+    db.session.commit()
+
+    socketio.emit(
+        "lobby_kick",
+        {"username": data["username"]},
+        room=connection.lobby_id
+    )
 
 INSPECTION_LENGTH_SECONDS = 3
 

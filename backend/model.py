@@ -8,7 +8,7 @@ from sqlalchemy.dialects.sqlite import DATETIME
 from enum import Enum
 from datetime import datetime, timedelta
 from sqlalchemy import func
-from typing import Optional, List, TypedDict
+from typing import Optional, List, TypedDict, Set
 from cube import Cube
 from werkzeug.security import generate_password_hash
 
@@ -309,6 +309,30 @@ class Race(db.Model):
             self.end()
 
 
+class TogetherUser(db.Model):
+    __tablename__ = "together_user"
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("user.id"),
+        primary_key=True
+    )
+    user: Mapped[User] = relationship()
+
+    together_lobby_id: Mapped[int] = mapped_column(
+        ForeignKey("together_lobby.id"),
+        primary_key=True
+    )
+
+
+class TogetherLobby(db.Model):
+    __tablename__ = "together_lobby"
+    id: Mapped[int] = mapped_column(primary_key=True)
+
+    cube_id: Mapped[int] = mapped_column(ForeignKey("cube.id"))
+    cube: Mapped["CubeEntity"] = relationship()
+
+    users: Mapped[List[TogetherUser]] = relationship()
+
+
 class SocketConnection(db.Model):
     __tablename__ = "socket_connection"
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -323,7 +347,11 @@ class SocketConnection(db.Model):
     cube: Mapped["CubeEntity"] = relationship()
 
     lobby_id: Mapped[Optional[int]] = mapped_column(ForeignKey("lobby.id"))
-    lobby: Mapped[Lobby] = relationship()
+    lobby: Mapped[Optional[Lobby]] = relationship()
+
+    together_lobby_id: Mapped[Optional[int]] = mapped_column(ForeignKey("together_lobby.id"))
+    together_lobby: Mapped[Optional[TogetherLobby]] = relationship()
+
 
     @staticmethod
     def get(sid: str) -> "SocketConnection":

@@ -11,7 +11,7 @@ from flask_login import LoginManager, login_user, logout_user, current_user, log
 from werkzeug.security import generate_password_hash, check_password_hash
 import json
 from sqlalchemy import select, func
-from model import db, User, Lobby, LobbyUser, Scramble, Solve, Race, SocketConnection, CubeEntity, SolveMove
+from model import db, User, Lobby, LobbyUser, Scramble, Solve, Race, SocketConnection, CubeEntity, SolveMove, TogetherLobby
 from model import LobbyUserStatus, UserRole, LobbyRole, LobbyStatus, Invitation
 from pyTwistyScrambler import scrambler333, scrambler444, scrambler555, scrambler666, scrambler777, scrambler222
 from cube import Cube
@@ -26,6 +26,23 @@ from uuid import uuid4
 
 class RequestSolutionData(TypedDict):
     lobby_id: int
+
+@app.route('/together/new')
+@login_required
+def new_together_lobby():
+    cube = CubeEntity(size=3)
+    cube.set_default_state()
+
+    together_lobby = TogetherLobby(
+        cube=cube
+    )
+
+    db.session.add(cube)
+    db.session.add(together_lobby)
+    db.session.commit()
+
+    return { "id": together_lobby.id }, 200
+
 
 # https://flask.palletsprojects.com/en/2.3.x/patterns/viewdecorators/
 def admin_required(fun):

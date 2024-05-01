@@ -6,6 +6,8 @@ import Cube from "../cube/cube";
 import { ControlledCube } from "./CubeCanvases";
 import { UserContext } from "../userContext";
 import * as THREE from 'three';
+import { Button } from "@mantine/core";
+import CopyButton from "../CopyButton";
 
 interface TogetherJoinResponse {
     users: string[];
@@ -65,26 +67,42 @@ function TogetherLobby({id} : {id: number}) {
         cube.updateCamera(position);
     }
 
+    const onSetState = ({state} : {state: string}) => {
+        cube.setState(state);
+    }
+
     useEffect(() => {
         socket.on("together_join", onJoin);
         socket.on("together_dc", onDc);
         socket.on("together_move", onMove);
         socket.on("together_camera", onCamera);
+        socket.on("together_set_state", onSetState);
         return () => {
             socket.off("together_join", onJoin);
             socket.off("together_dc", onDc);
             socket.off("together_move", onMove);
             socket.off("together_camera", onCamera);
+            socket.off("together_set_state", onSetState);
         }
     })
+
+    const inviteURL = window.location.host + "/together/" + uuid;
     return (
         <>
             <div style={{position: "absolute"}}>
-                { uuid }
-                Users in the lobby:
-                { users.map(user => (
-                    <div key={user}>{user} {userContext.username == user && " (you)"}</div>
-                ))}
+                <div>
+                    <Button onClick={() => socket.emit("together_reset")}>Reset cube</Button>
+                </div>
+                <div>
+                    {inviteURL}
+                    <CopyButton value={inviteURL}></CopyButton>
+                </div>
+                <div>
+                    Users in the lobby:
+                    { users.map(user => (
+                        <div key={user}>{user} {userContext.username == user && " (you)"}</div>
+                    ))}
+                </div>
             </div>
             <div style={{height: "100vh"}}>
                 <ControlledCube cube={cube} />

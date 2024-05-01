@@ -135,6 +135,26 @@ def together_camera(data):
     )
 
 
+@socketio.on("together_reset")
+@login_required
+def together_reset():
+    connection = SocketConnection.get(request.sid)
+    if not connection:
+        return abort(400)
+
+    together_lobby = connection.together_lobby
+    if not together_lobby:
+        return abort(400)
+
+    together_lobby.cube.set_default_state()
+    socketio.emit(
+        "together_set_state",
+        { "state": together_lobby.cube.state.decode("UTF-8")},
+        room=together_lobby.get_room()
+    )
+
+
+
 # https://flask.palletsprojects.com/en/2.3.x/patterns/viewdecorators/
 def admin_required(fun):
     @wraps(fun)

@@ -38,6 +38,7 @@ export default class Cube {
     tween!: TWEEN.Tween<THREE.Euler>
     mouseDownObject: any;
     handler: any
+    defaultMake = true;
 
     constructor(n: number, state: string="") {
         console.log("A NEW CUBE IS BEING CREATED");
@@ -400,7 +401,7 @@ export default class Cube {
         }
     }
 
-    makeMove(move_string: string, send: boolean=true) {
+    makeMove(move_string: string, send: boolean=true, make=this.defaultMake) {
         if (this.inspection && !["x", "x'", "y", "y'", "z", "z'"].includes(move_string)) {
             return;
         }
@@ -415,6 +416,10 @@ export default class Cube {
             for (const fun of this.onMoveCallbacks) {
                 fun(move_string);
             }
+        }
+
+        if (!make) {
+            return;
         }
 
         const move = parse_move(move_string);

@@ -27,6 +27,7 @@ function TogetherLobby({id} : {id: number}) {
         cube.init_keyboard_controls();
         cube.init_camera_controls();
         cube.init_mouse_moves();
+        cube.defaultMake = false;
 
         cube.onMove((move_str: string) => socket.emit("together_move", { move: move_str }));
         cube.onCamera((new_position: THREE.Vector3) => socket.emit("together_camera", { position: new_position }));
@@ -57,9 +58,7 @@ function TogetherLobby({id} : {id: number}) {
     }
 
     const onMove = ({move, username} : {move: string, username: string}) => {
-        if (username != userContext.username) {
-            cube.makeMove(move);
-        }
+        cube.makeMove(move, false, true);
     }
 
     const onCamera = ({position, username} : {position: THREE.Vector3, username: string}) => {

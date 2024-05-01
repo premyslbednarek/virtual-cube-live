@@ -22,7 +22,7 @@ from eventlet import sleep
 from dotenv import load_dotenv
 import os
 from functools import wraps
-from uuid import uuid4
+from uuid import uuid4, UUID
 
 class RequestSolutionData(TypedDict):
     lobby_id: int
@@ -77,7 +77,20 @@ def together_user_join(data: TogetherJoinData):
         "users": [together_user.user.username for together_user in together_lobby.users],
         "cube_size": together_lobby.cube.size,
         "cube_state": together_lobby.cube.state.decode("UTF-8"),
+        "uuid": str(together_lobby.uuid),
     }
+
+@app.route("/api/get_together_id", methods=["POST"])
+@login_required
+def get_together_id():
+    data = json.loads(request.data)
+    together_lobby = db.session.scalar(
+        select(TogetherLobby).where(TogetherLobby.uuid == UUID(data["uuid"]))
+    )
+    if not together_lobby:
+        return abort(400)
+
+    return { "id": together_lobby.id }, 200
 
 
 # https://flask.palletsprojects.com/en/2.3.x/patterns/viewdecorators/

@@ -327,6 +327,7 @@ class TogetherLobby(db.Model):
     __tablename__ = "together_lobby"
     id: Mapped[int] = mapped_column(primary_key=True)
 
+    uuid: Mapped[UUID] = mapped_column(default=uuid4)
     cube_id: Mapped[int] = mapped_column(ForeignKey("cube.id"))
     cube: Mapped["CubeEntity"] = relationship()
 

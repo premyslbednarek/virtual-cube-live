@@ -11,7 +11,7 @@ from flask_login import LoginManager, login_user, logout_user, current_user, log
 from werkzeug.security import generate_password_hash, check_password_hash
 import json
 from sqlalchemy import select, func
-from model import db, User, Lobby, LobbyUser, Scramble, Solve, Race, SocketConnection, CubeEntity, SolveMove, TogetherLobby
+from model import db, User, Lobby, LobbyUser, Scramble, Solve, Race, SocketConnection, CubeEntity, SolveMove, TogetherLobby, TogetherUser
 from model import LobbyUserStatus, UserRole, LobbyRole, LobbyStatus, Invitation
 from pyTwistyScrambler import scrambler333, scrambler444, scrambler555, scrambler666, scrambler777, scrambler222
 from cube import Cube
@@ -27,7 +27,7 @@ from uuid import uuid4
 class RequestSolutionData(TypedDict):
     lobby_id: int
 
-@app.route('/together/new')
+@app.route("/together/new")
 @login_required
 def new_together_lobby():
     cube = CubeEntity(size=3)
@@ -42,6 +42,42 @@ def new_together_lobby():
     db.session.commit()
 
     return { "id": together_lobby.id }, 200
+
+
+class TogetherJoinData(TypedDict):
+    id: int
+
+@socketio.on("together_join")
+@login_required
+def together_user_join(data: TogetherJoinData):
+    together_lobby = db.session.get(TogetherLobby, data["id"])
+
+    connection = SocketConnection()
+    connection.user = current_user
+    connection.socket_id = request.sid
+    connection.together_lobby = together_lobby
+
+    together_user = TogetherUser()
+    together_user.user = current_user
+    together_lobby.users.append(together_user)
+
+    db.session.add(connection)
+    db.session.add(together_user)
+    db.session.commit()
+
+    socketio.emit(
+        "together_join",
+        { "username": current_user.username },
+        room=together_lobby.get_room()
+    )
+
+    join_room(together_lobby.get_room())
+
+    return {
+        "users": [together_user.user.username for together_user in together_lobby.users],
+        "cube_size": together_lobby.cube.size,
+        "cube_state": together_lobby.cube.state.decode("UTF-8"),
+    }
 
 
 # https://flask.palletsprojects.com/en/2.3.x/patterns/viewdecorators/
@@ -901,8 +937,28 @@ def disconnect():
     print(request.sid)
 
     connection = SocketConnection.get(request.sid)
-    if (connection.cube.current_solve):
+
+    if not connection:
+        return
+
+    if connection.cube and connection.cube.current_solve:
         connection.cube.current_solve.end_current_session(datetime.now())
+
+    if connection.together_lobby:
+        socket_room = connection.together_lobby.get_room()
+        leave_room(socket_room)
+        socketio.emit(
+            "together_dc",
+            { "username": connection.user.username },
+            room=socket_room
+        )
+        users = connection.together_lobby.users
+        for together_user in users:
+            if together_user.user == current_user:
+                print("delete this user", together_user)
+                users.remove(together_user)
+                db.session.delete(together_user)
+                db.session.commit()
 
     if connection.lobby_id is not None:
         print("Lobby disconnection", connection.lobby_id, current_user.username)

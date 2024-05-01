@@ -332,6 +332,10 @@ class TogetherLobby(db.Model):
 
     users: Mapped[List[TogetherUser]] = relationship()
 
+    def get_room(self) -> str:
+        # get socketio room id
+        return f"together/{self.id}"
+
 
 class SocketConnection(db.Model):
     __tablename__ = "socket_connection"
@@ -358,10 +362,6 @@ class SocketConnection(db.Model):
         connection = db.session.scalar(
             select(SocketConnection).where(SocketConnection.socket_id == sid)
         )
-
-        if not connection:
-            raise ValueError("Connection with this sid does not exist")
-
         return connection
 
 

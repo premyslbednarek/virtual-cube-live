@@ -10,6 +10,7 @@ import CreateLobbyDiv from './CreateLobby';
 import LobbyList from './LobbyList';
 import Authentication from './Auth';
 import { IconUser } from '@tabler/icons-react';
+import TogetherCreate from './LobbyTogetherCreate';
 
 export default function Home() {
   return (
@@ -24,6 +25,10 @@ export default function Home() {
         <Center>
           <Link to="/solo"><Button leftSection={<IconUser />}>Solo mode</Button></Link>
         </Center>
+
+        <Divider my="md" label="go to solve together" />
+
+        <TogetherCreate />
 
         <Divider my="md" label="create online lobby" />
 

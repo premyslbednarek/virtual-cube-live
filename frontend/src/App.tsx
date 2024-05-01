@@ -27,6 +27,7 @@ import SoloMode from './components/SoloMode';
 import Profile from './components/Profile';
 import Invite from './components/Invite';
 import ErrorPage from './components/ErrorPage';
+import Together from './components/Together';
 
 function Page2() {
   return (
@@ -49,6 +50,7 @@ function App() {
               <Route path="/solo" element={<SoloMode />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/invite/:uuid" element={<Invite />} />
+              <Route path="/together" element={<Together />} />
               <Route path="*" element={<ErrorPage message="This page does not exist." />} />
             </Routes>
           </BrowserRouter>

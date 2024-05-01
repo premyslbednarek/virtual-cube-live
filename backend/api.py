@@ -93,6 +93,48 @@ def get_together_id():
     return { "id": together_lobby.id }, 200
 
 
+@socketio.on("together_move")
+@login_required
+def together_move(data):
+    move_str = data["move"]
+
+    connection = SocketConnection.get(request.sid)
+    if not connection:
+        return abort(400)
+
+    together_lobby = connection.together_lobby
+    if not together_lobby:
+        return abort(400)
+
+    together_lobby.cube.make_move(move_str, datetime.now())
+
+    socketio.emit(
+        "together_move",
+        { "move": move_str, "username": current_user.username},
+        room=together_lobby.get_room()
+    )
+
+
+@socketio.on("together_camera")
+@login_required
+def together_camera(data):
+    new_position = data["position"]
+
+    connection = SocketConnection.get(request.sid)
+    if not connection:
+        return abort(400)
+
+    together_lobby = connection.together_lobby
+    if not together_lobby:
+        return abort(400)
+
+    socketio.emit(
+        "together_camera",
+        { "position": new_position, "username": current_user.username},
+        room=together_lobby.get_room()
+    )
+
+
 # https://flask.palletsprojects.com/en/2.3.x/patterns/viewdecorators/
 def admin_required(fun):
     @wraps(fun)

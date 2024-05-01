@@ -5,6 +5,7 @@ import { socket } from "../socket";
 import Cube from "../cube/cube";
 import { ControlledCube } from "./CubeCanvases";
 import { UserContext } from "../userContext";
+import * as THREE from 'three';
 
 interface TogetherJoinResponse {
     users: string[];
@@ -23,6 +24,13 @@ function TogetherLobby({id} : {id: number}) {
     useEffect(() => {
         socket.connect();
 
+        cube.init_keyboard_controls();
+        cube.init_camera_controls();
+        cube.init_mouse_moves();
+
+        cube.onMove((move_str: string) => socket.emit("together_move", { move: move_str }));
+        cube.onCamera((new_position: THREE.Vector3) => socket.emit("together_camera", { position: new_position }));
+
         socket.emit(
             "together_join",
             { "id": id },
@@ -35,6 +43,7 @@ function TogetherLobby({id} : {id: number}) {
         )
 
         return () => {
+            cube.remove_keyboard_controls();
             socket.disconnect();
         }
     }, [])
@@ -47,12 +56,26 @@ function TogetherLobby({id} : {id: number}) {
         setUsers(users.filter(username => username != oldUserUsername));
     }
 
+    const onMove = ({move, username} : {move: string, username: string}) => {
+        if (username != userContext.username) {
+            cube.makeMove(move);
+        }
+    }
+
+    const onCamera = ({position, username} : {position: THREE.Vector3, username: string}) => {
+        cube.updateCamera(position);
+    }
+
     useEffect(() => {
         socket.on("together_join", onJoin);
         socket.on("together_dc", onDc);
+        socket.on("together_move", onMove);
+        socket.on("together_camera", onCamera);
         return () => {
             socket.off("together_join", onJoin);
             socket.off("together_dc", onDc);
+            socket.off("together_move", onMove);
+            socket.off("together_camera", onCamera);
         }
     })
     return (

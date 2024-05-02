@@ -8,6 +8,9 @@ import { UserContext } from "../userContext";
 import * as THREE from 'three';
 import { Button } from "@mantine/core";
 import CopyButton from "../CopyButton";
+import useStopwatch from "./useTimer";
+import useCountdown from "./useCountdown";
+import TimerDisplay from "./TimerDisplay";
 
 interface TogetherJoinResponse {
     users: string[];
@@ -16,12 +19,38 @@ interface TogetherJoinResponse {
     uuid: string;
 }
 
+export type RoomInfo = {
+    inSolve: boolean;
+    lastTime: number | null;
+    beforeFirstSolve: boolean;
+    stopwatch: ReturnType<typeof useStopwatch>;
+    countdown: ReturnType<typeof useCountdown>;
+}
+
 function TogetherLobby({id} : {id: number}) {
     const [users, setUsers] = useState<string[]>([]);
     const [uuid, setUuid] = useState<string | null>(null);
     const { userContext } = useContext(UserContext)
 
     const cube = useMemo(() => new Cube(3), []);
+
+    const stopwatch = useStopwatch()
+    const countdown = useCountdown()
+    const [beforeFirstSolve, setBeforeFirstSolve] = useState(true);
+    const [lastTime, setLastTime] = useState<number | null>(null);
+    const [inSolve, setInSolve] = useState(false);
+
+    const info: RoomInfo = {
+        inSolve: inSolve,
+        lastTime: lastTime,
+        beforeFirstSolve: beforeFirstSolve,
+        stopwatch: stopwatch,
+        countdown: countdown
+    }
+
+    const timerDisplay = TimerDisplay(info);
+
+
 
     useEffect(() => {
         socket.connect();
@@ -71,18 +100,41 @@ function TogetherLobby({id} : {id: number}) {
         cube.setState(state);
     }
 
+    const onSolveStart = ({state} : {state: string}) => {
+        cube.setState(state);
+        setInSolve(true);
+        setBeforeFirstSolve(false);
+
+        cube.startInspection()
+
+        countdown.start(3, () => {
+            cube.startSolve();
+            stopwatch.start();
+        })
+    }
+
+    const onSolveEnd = ({time} : {time: number}) => {
+        stopwatch.stop()
+        setInSolve(false);
+        setLastTime(time);
+    }
+
     useEffect(() => {
         socket.on("together_join", onJoin);
         socket.on("together_dc", onDc);
         socket.on("together_move", onMove);
         socket.on("together_camera", onCamera);
         socket.on("together_set_state", onSetState);
+        socket.on("together_solve_start", onSolveStart);
+        socket.on("together_solve_end", onSolveEnd);
         return () => {
             socket.off("together_join", onJoin);
             socket.off("together_dc", onDc);
             socket.off("together_move", onMove);
             socket.off("together_camera", onCamera);
             socket.off("together_set_state", onSetState);
+            socket.off("together_solve_start", onSolveStart);
+            socket.off("together_solve_end", onSolveEnd);
         }
     })
 
@@ -92,6 +144,8 @@ function TogetherLobby({id} : {id: number}) {
             <div style={{position: "absolute"}}>
                 <div>
                     <Button onClick={() => socket.emit("together_reset")}>Reset cube</Button>
+                    <Button onClick={() => socket.emit("together_solve_start")}>Solve start</Button>
+                    { timerDisplay }
                 </div>
                 <div>
                     {inviteURL}

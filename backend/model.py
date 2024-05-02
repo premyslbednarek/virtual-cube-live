@@ -137,8 +137,8 @@ class Solve(db.Model):
     scramble_id: Mapped[int] = mapped_column(ForeignKey("scramble.id"))
     scramble: Mapped[Scramble] = relationship()
 
-    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
-    user: Mapped[User] = relationship()
+    user_id: Mapped[Optional[int]] = mapped_column(ForeignKey("user.id"))
+    user: Mapped[Optional[User]] = relationship()
 
     state: Mapped[str] = mapped_column(default="")
 

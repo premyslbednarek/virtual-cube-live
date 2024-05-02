@@ -27,6 +27,18 @@ from uuid import uuid4, UUID
 class RequestSolutionData(TypedDict):
     lobby_id: int
 
+
+INSPECTION_LENGTH_SECONDS = 3
+
+scrambler_dispatch = {
+    2: scrambler222,
+    3: scrambler333,
+    4: scrambler444,
+    5: scrambler555,
+    6: scrambler666,
+    7: scrambler777
+}
+
 @app.route("/together/new")
 @login_required
 def new_together_lobby():
@@ -80,6 +92,19 @@ def together_user_join(data: TogetherJoinData):
         "uuid": str(together_lobby.uuid),
     }
 
+
+def get_together_lobby() -> TogetherLobby | None:
+    connection = SocketConnection.get(request.sid)
+    if not connection:
+        return None
+
+    together_lobby = connection.together_lobby
+    if not together_lobby:
+        return None
+
+    return together_lobby
+
+
 @app.route("/api/get_together_id", methods=["POST"])
 @login_required
 def get_together_id():
@@ -98,14 +123,11 @@ def get_together_id():
 def together_move(data):
     move_str = data["move"]
 
-    connection = SocketConnection.get(request.sid)
-    if not connection:
-        return abort(400)
-
-    together_lobby = connection.together_lobby
+    together_lobby = get_together_lobby()
     if not together_lobby:
         return abort(400)
 
+    solve = together_lobby.cube.current_solve
     together_lobby.cube.make_move(move_str, datetime.now())
 
     socketio.emit(
@@ -113,6 +135,13 @@ def together_move(data):
         { "move": move_str, "username": current_user.username},
         room=together_lobby.get_room()
     )
+
+    if solve and solve.completed:
+        socketio.emit(
+            "together_solve_end",
+            { "time": solve.time },
+            room=together_lobby.get_room()
+        )
 
 
 @socketio.on("together_camera")
@@ -150,6 +179,46 @@ def together_reset():
     socketio.emit(
         "together_set_state",
         { "state": together_lobby.cube.state.decode("UTF-8")},
+        room=together_lobby.get_room()
+    )
+
+
+
+
+
+@socketio.on("together_solve_start")
+@login_required
+def together_lobby_start():
+    together_lobby = get_together_lobby()
+    if not together_lobby:
+        return
+
+    cube = together_lobby.cube
+
+    scramble = create_scramble(cube.size)
+
+    inspection_start = datetime.now()
+    solve_start = inspection_start + timedelta(seconds=INSPECTION_LENGTH_SECONDS)
+
+    solve = Solve()
+    solve.scramble = scramble
+    solve.inspection_startdate = inspection_start
+    solve.solve_startdate = solve_start
+    solve.state = scramble.cube_state
+
+    cube.current_solve = solve
+    cube.state = scramble.cube_state
+
+    db.session.add(solve)
+    db.session.commit() # obtain solve id for session start
+
+    solve.start_session(solve_start)
+
+    socketio.emit(
+        "together_solve_start",
+        {
+            "state": scramble.cube_state.decode("UTF-8"),
+        },
         room=together_lobby.get_room()
     )
 
@@ -684,14 +753,7 @@ def send_ready_status(data):
 
     print(lobby_id, ready_status)
 
-scrambler_dispatch = {
-    2: scrambler222,
-    3: scrambler333,
-    4: scrambler444,
-    5: scrambler555,
-    6: scrambler666,
-    7: scrambler777
-}
+
 def create_scramble(size: int) -> Scramble:
     scramble_string: str = scrambler_dispatch[size].get_WCA_scramble()
 
@@ -739,7 +801,6 @@ def lobby_kick(data):
         room=connection.lobby_id
     )
 
-INSPECTION_LENGTH_SECONDS = 3
 
 @socketio.on("save_solve")
 def save_solve():

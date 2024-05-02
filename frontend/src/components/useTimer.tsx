@@ -36,5 +36,5 @@ export default function useStopwatch() {
         setIsRunning(false);
     }
 
-    return { time, formattedTime, start, stop, startFromTime };
+    return { time, formattedTime, start, stop, startFromTime, isRunning };
 }

@@ -1,16 +1,13 @@
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import ErrorPage from "./ErrorPage";
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { socket } from "../socket";
-import Cube from "../cube/cube";
 import { ControlledCube } from "./CubeCanvases";
 import { UserContext } from "../userContext";
 import * as THREE from 'three';
 import { Button } from "@mantine/core";
 import CopyButton from "../CopyButton";
-import useStopwatch from "./useTimer";
-import useCountdown from "./useCountdown";
-import TimerDisplay from "./TimerDisplay";
+import useRoom from "./useRoom";
 
 interface TogetherJoinResponse {
     users: string[];
@@ -19,45 +16,16 @@ interface TogetherJoinResponse {
     uuid: string;
 }
 
-export type RoomInfo = {
-    inSolve: boolean;
-    lastTime: number | null;
-    beforeFirstSolve: boolean;
-    stopwatch: ReturnType<typeof useStopwatch>;
-    countdown: ReturnType<typeof useCountdown>;
-}
-
 function TogetherLobby({id} : {id: number}) {
     const [users, setUsers] = useState<string[]>([]);
     const [uuid, setUuid] = useState<string | null>(null);
     const { userContext } = useContext(UserContext)
 
-    const cube = useMemo(() => new Cube(3), []);
-
-    const stopwatch = useStopwatch()
-    const countdown = useCountdown()
-    const [beforeFirstSolve, setBeforeFirstSolve] = useState(true);
-    const [lastTime, setLastTime] = useState<number | null>(null);
-    const [inSolve, setInSolve] = useState(false);
-
-    const info: RoomInfo = {
-        inSolve: inSolve,
-        lastTime: lastTime,
-        beforeFirstSolve: beforeFirstSolve,
-        stopwatch: stopwatch,
-        countdown: countdown
-    }
-
-    const timerDisplay = TimerDisplay(info);
-
-
+    const { cube, setIsSolving, addTime, startSolve, stopwatch, timeString } = useRoom()
 
     useEffect(() => {
         socket.connect();
 
-        cube.init_keyboard_controls();
-        cube.init_camera_controls();
-        cube.init_mouse_moves();
         cube.defaultMake = false;
 
         cube.onMove((move_str: string) => socket.emit("together_move", { move: move_str }));
@@ -75,7 +43,6 @@ function TogetherLobby({id} : {id: number}) {
         )
 
         return () => {
-            cube.remove_keyboard_controls();
             socket.disconnect();
         }
     }, [])
@@ -100,23 +67,10 @@ function TogetherLobby({id} : {id: number}) {
         cube.setState(state);
     }
 
-    const onSolveStart = ({state} : {state: string}) => {
-        cube.setState(state);
-        setInSolve(true);
-        setBeforeFirstSolve(false);
-
-        cube.startInspection()
-
-        countdown.start(3, () => {
-            cube.startSolve();
-            stopwatch.start();
-        })
-    }
-
     const onSolveEnd = ({time} : {time: number}) => {
         stopwatch.stop()
-        setInSolve(false);
-        setLastTime(time);
+        setIsSolving(false);
+        addTime(time);
     }
 
     useEffect(() => {
@@ -125,7 +79,7 @@ function TogetherLobby({id} : {id: number}) {
         socket.on("together_move", onMove);
         socket.on("together_camera", onCamera);
         socket.on("together_set_state", onSetState);
-        socket.on("together_solve_start", onSolveStart);
+        socket.on("together_solve_start", startSolve);
         socket.on("together_solve_end", onSolveEnd);
         return () => {
             socket.off("together_join", onJoin);
@@ -133,7 +87,7 @@ function TogetherLobby({id} : {id: number}) {
             socket.off("together_move", onMove);
             socket.off("together_camera", onCamera);
             socket.off("together_set_state", onSetState);
-            socket.off("together_solve_start", onSolveStart);
+            socket.off("together_solve_start", startSolve);
             socket.off("together_solve_end", onSolveEnd);
         }
     })
@@ -145,7 +99,7 @@ function TogetherLobby({id} : {id: number}) {
                 <div>
                     <Button onClick={() => socket.emit("together_reset")}>Reset cube</Button>
                     <Button onClick={() => socket.emit("together_solve_start")}>Solve start</Button>
-                    { timerDisplay }
+                    { timeString }
                 </div>
                 <div>
                     {inviteURL}

@@ -30,10 +30,22 @@ export default function useRoom() {
         cube.init_camera_controls();
         cube.init_mouse_moves();
 
+        const onMouseDown = (event: MouseEvent) => {
+            cube.mouseDown(event);
+        }
+        const onMouseUp = (event: MouseEvent) => {
+            cube.mouseUp(event);
+        }
+
+        document.addEventListener("mousedown", onMouseDown);
+        document.addEventListener("mouseup", onMouseUp);
+
         return () => {
+            document.removeEventListener("mousedown", onMouseDown);
+            document.removeEventListener("mouseup", onMouseUp);
             cube.remove_keyboard_controls();
         }
-    }, [])
+    }, [cube])
 
     const addTime = (time: number) => {
         setTimes([...times, time]);

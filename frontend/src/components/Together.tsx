@@ -2,12 +2,12 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import ErrorPage from "./ErrorPage";
 import { useContext, useEffect, useState } from "react";
 import { socket } from "../socket";
-import { ControlledCube } from "./CubeCanvases";
 import { UserContext } from "../userContext";
 import * as THREE from 'three';
 import { Button } from "@mantine/core";
 import CopyButton from "../CopyButton";
 import useRoom from "./useRoom";
+import { RenderedCube } from "./CubeCanvases";
 
 interface TogetherJoinResponse {
     users: string[];
@@ -113,7 +113,7 @@ function TogetherLobby({id} : {id: number}) {
                 </div>
             </div>
             <div style={{height: "100vh"}}>
-                <ControlledCube cube={cube} />
+                <RenderedCube cube={cube} />
             </div>
         </>
     );

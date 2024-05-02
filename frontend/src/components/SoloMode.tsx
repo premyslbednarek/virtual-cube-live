@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import Cube from "../cube/cube";
-import { ControlledCube } from "./CubeCanvases";
+import { RenderedCube } from "./CubeCanvases";
 import NavigationPanel from "./NavigationPanel";
 import { socket } from "../socket";
 import * as THREE from 'three';
@@ -178,7 +178,7 @@ export default function SoloMode() {
                 { !inSolve && <TimeHistory cubeSize={cubeSize} /> }
             </div>
             <div style={{height: "100vh"}}>
-                <ControlledCube cube={cube} />
+                <RenderedCube cube={cube} />
             </div>
             <div style={{position: "absolute", bottom: 20, margin: "auto", width: "100%", textAlign: "center"}}>
                 {displayTime}

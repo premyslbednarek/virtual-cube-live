@@ -94,6 +94,7 @@ export default class Cube {
 
     mount(container: HTMLElement) {
         container.appendChild(this.canvas);
+        this.canvas = this.renderer.domElement;
         this.resizeCanvas();
     }
 

@@ -1,29 +1,6 @@
 import { useEffect, useRef } from "react";
 import Cube from "../cube/cube";
 
-export function ControlledCube({cube} : {cube: Cube}) {
-    useEffect(() => {
-        const onMouseDown = (event: MouseEvent) => {
-            cube.mouseDown(event);
-        }
-        const onMouseUp = (event: MouseEvent) => {
-            cube.mouseUp(event);
-        }
-
-        document.addEventListener("mousedown", onMouseDown);
-        document.addEventListener("mouseup", onMouseUp);
-
-        return () => {
-            document.removeEventListener("mousedown", onMouseDown);
-            document.removeEventListener("mouseup", onMouseUp);
-        }
-
-    }, [cube])
-    return (
-        <RenderedCube cube={cube} />
-    );
-}
-
 export function RenderedCube({cube} : {cube: Cube}) {
     const containerRef = useRef(null);
 

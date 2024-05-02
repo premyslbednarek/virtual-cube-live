@@ -27,7 +27,7 @@ import { print_time } from "../cube/timer";
 import NavigationPanel from "./NavigationPanel";
 import useStopwatch from "./useTimer";
 import useCountdown from "./useCountdown";
-import { ControlledCube, RenderedCube } from "./CubeCanvases";
+import { RenderedCube } from "./CubeCanvases";
 import Invitation from "./Invitation";
 import ErrorPage from "./ErrorPage";
 import TimeHistory from "./TimeHistory";
@@ -583,7 +583,7 @@ export default function Lobby() {
 
     const cubeCanvas = (
         <div style={{height: "100%"}}>
-        <ControlledCube cube={cube} />
+        <RenderedCube cube={cube} />
         </div>
     );
 

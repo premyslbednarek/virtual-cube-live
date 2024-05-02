@@ -10,10 +10,8 @@ import {
     Space,
     Table,
     Title,
-    Text,
     Paper,
     Flex,
-    ActionIcon,
     Tooltip
 } from "@mantine/core"
 import * as THREE from 'three';
@@ -414,7 +412,7 @@ export default function Lobby() {
     }
 
     const onNewAdmin = ({username} : {username: string}) => {
-        if (username == userContext.username) {
+        if (username === userContext.username) {
             setIsAdmin(true);
         } else {
             const updated = new Map(enemies);
@@ -428,7 +426,7 @@ export default function Lobby() {
     const [isKicked, setIsKicked] = useState(false);
 
     const onKick = ({username} : {username: string}) => {
-        if (username == userContext.username) {
+        if (username === userContext.username) {
             setIsKicked(true);
         } else {
             const updated = new Map(enemies);

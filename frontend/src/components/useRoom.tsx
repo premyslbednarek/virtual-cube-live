@@ -63,14 +63,18 @@ export default function useRoom() {
         })
     }
 
-    let timeString: string = "";
-    if (countdown.isRunning) {
-        timeString = countdown.secondsLeft.toString();
-    } else if (stopwatch.isRunning) {
-        timeString = stopwatch.formattedTime;
-    } else {
-        timeString = times.length ? print_solve_time(times[times.length - 1]) : "";
-    }
+    let timeString = countdown.isRunning ? countdown.secondsLeft.toString()
+                   : stopwatch.isRunning ? stopwatch.formattedTime
+                   : times.length        ? print_solve_time(times[times.length - 1])
+                   : "";
 
-    return { timeString, cube, isSolving, setIsSolving, addTime, startSolve, stopwatch }
+    return {
+        timeString,
+        cube,
+        isSolving,
+        setIsSolving,
+        addTime,
+        startSolve,
+        stopwatch
+    }
 }

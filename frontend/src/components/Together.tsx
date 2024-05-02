@@ -45,14 +45,14 @@ function TogetherLobby({id} : {id: number}) {
         return () => {
             socket.disconnect();
         }
-    }, [])
+    }, [cube, id])
 
     const onJoin = ({username: newUser} : {username: string}) => {
         setUsers([...users, newUser]);
     }
 
     const onDc = ({username: oldUserUsername} : {username: string}) => {
-        setUsers(users.filter(username => username != oldUserUsername));
+        setUsers(users.filter(username => username !== oldUserUsername));
     }
 
     const onMove = ({move, username} : {move: string, username: string}) => {
@@ -60,7 +60,9 @@ function TogetherLobby({id} : {id: number}) {
     }
 
     const onCamera = ({position, username} : {position: THREE.Vector3, username: string}) => {
-        cube.updateCamera(position);
+        if (username !== userContext.username) {
+            cube.updateCamera(position);
+        }
     }
 
     const onSetState = ({state} : {state: string}) => {
@@ -108,7 +110,7 @@ function TogetherLobby({id} : {id: number}) {
                 <div>
                     Users in the lobby:
                     { users.map(user => (
-                        <div key={user}>{user} {userContext.username == user && " (you)"}</div>
+                        <div key={user}>{user} {userContext.username === user && " (you)"}</div>
                     ))}
                 </div>
             </div>

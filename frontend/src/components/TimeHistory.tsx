@@ -143,7 +143,7 @@ export function TimeList({solves} : {solves: Array<Solve>}) {
         }
         console.log("set")
         setHeight(viewportHeight - ref.current.offsetTop - 20)
-    })
+    }, [viewportHeight])
 
     const rows = solves.map((solve, idx) => (
         <Table.Tr key={solve.id}>

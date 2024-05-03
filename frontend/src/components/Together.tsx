@@ -6,7 +6,7 @@ import { UserContext } from "../userContext";
 import * as THREE from 'three';
 import { Button, Center, Flex } from "@mantine/core";
 import CopyButton from "../CopyButton";
-import useTimedCube from "./useRoom";
+import useTimedCube from "./useTimedCube";
 import { RenderedCube } from "./CubeCanvases";
 import { Panel } from "./Panels";
 import TimerDisplay from "./TimerDisplay";

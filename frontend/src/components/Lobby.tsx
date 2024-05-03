@@ -31,7 +31,7 @@ import TimeHistory from "./TimeHistory";
 import AdminPanelButton from "./LobbyAdminPanel";
 import { IconCrown } from "@tabler/icons-react";
 import { Panel } from "./Panels";
-import useTimedCube from "./useRoom";
+import useTimedCube from "./useTimedCube";
 import TimerDisplay from "./TimerDisplay";
 
 type LobbyPoints = Array<{

@@ -10,7 +10,7 @@ import { IconDeviceFloppy } from "@tabler/icons-react";
 import ShowSolvesToContinue from "./ShowSolvesToContinue";
 import { useDisclosure } from "@mantine/hooks";
 import TimeHistory, { Solve } from "./TimeHistory";
-import useTimedCube from "./useRoom";
+import useTimedCube from "./useTimedCube";
 import TimerDisplay from "./TimerDisplay";
 import { Panel } from "./Panels";
 

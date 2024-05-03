@@ -4,10 +4,12 @@ import { useContext, useEffect, useState } from "react";
 import { socket } from "../socket";
 import { UserContext } from "../userContext";
 import * as THREE from 'three';
-import { Button } from "@mantine/core";
+import { Button, Center, Container, Flex } from "@mantine/core";
 import CopyButton from "../CopyButton";
 import useTimedCube from "./useRoom";
 import { RenderedCube } from "./CubeCanvases";
+import { Panel } from "./Panels";
+import TimerDisplay from "./TimerDisplay";
 
 interface TogetherJoinResponse {
     users: string[];
@@ -97,26 +99,30 @@ function TogetherLobby({id} : {id: number}) {
     const inviteURL = window.location.host + "/together/" + uuid;
     return (
         <>
-            <div style={{position: "absolute"}}>
-                <div>
-                    <Button onClick={() => socket.emit("together_reset")}>Reset cube</Button>
-                    <Button onClick={() => socket.emit("together_solve_start")}>Solve start</Button>
-                    { timeString }
-                </div>
-                <div>
+            <Panel position="top">
+                <Center>
                     {inviteURL}
                     <CopyButton value={inviteURL}></CopyButton>
-                </div>
+                </Center>
                 <div>
                     Users in the lobby:
                     { users.map(user => (
                         <div key={user}>{user} {userContext.username === user && " (you)"}</div>
                     ))}
                 </div>
-            </div>
-            <div style={{height: "100vh"}}>
-                <RenderedCube cube={cube} />
-            </div>
+
+            </Panel>
+
+            <RenderedCube cube={cube} fullscreen />
+
+            <Panel position="bottom">
+                <TimerDisplay time={timeString} />
+                <Flex justify="center" gap="md">
+                    <Button onClick={() => socket.emit("together_reset")}>Reset cube</Button>
+                    <Button onClick={() => socket.emit("together_solve_start")}>Solve start</Button>
+                </Flex>
+
+            </Panel>
         </>
     );
 }

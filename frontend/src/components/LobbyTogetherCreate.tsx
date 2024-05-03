@@ -1,4 +1,5 @@
-import { Button } from "@mantine/core";
+import { Button, Center } from "@mantine/core";
+import { IconUsers } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 
 export default function TogetherCreate() {
@@ -9,6 +10,8 @@ export default function TogetherCreate() {
         }).catch(err => console.log(err));
     }
     return (
-        <Button onClick={createLobby}>Lobby together</Button>
+        <Center>
+            <Button onClick={createLobby} leftSection={<IconUsers />}>Lobby together</Button>
+        </Center>
     );
 }

@@ -20,21 +20,21 @@ export default function Home() {
 
         <Authentication />
 
-        <Divider my="md" label="You can solve in solo mode" />
+        <Divider my="md" label="You can solve on your own" />
 
         <Center>
           <Link to="/solo"><Button leftSection={<IconUser />}>Solo mode</Button></Link>
         </Center>
 
-        <Divider my="md" label="go to solve together" />
+        <Divider my="md" label="You can share a cube with your friends" />
 
         <TogetherCreate />
 
-        <Divider my="md" label="create online lobby" />
+        <Divider my="md" label="You can challenge your friends to a battle" />
 
         <CreateLobbyDiv />
 
-        <Divider my="md" label="or join an existing lobby" />
+        <Divider my="md" label="Or join an existing battle" />
 
         <LobbyList />
       </Container>

@@ -120,17 +120,13 @@ export default function UserInfo() {
 
     const buttons = userContext.isLogged ?
         <>
-            <Link to="/profile">
-                <Button leftSection={<IconUserCircle />}> Profile</Button>
-            </Link>
-            <Space w="md" />
             <Button leftSection={<IconLogout />} onClick={logout}>Logout</Button>
         </> :
         <>
             <Button leftSection={<IconLogin />} onClick={() => openModal("login")}>
             Login
             </Button>
-            <Space w="md" />
+            <Space w="sm" />
             <Button leftSection={<IconUserPlus />} onClick={() => openModal("register")}>
             Register
             </Button>
@@ -145,6 +141,10 @@ export default function UserInfo() {
 
             <Text size="xl" ta="center">Welcome, {userContext.username }</Text>
             <Flex mt="sm" justify="center">
+                <Link to="/profile">
+                    <Button leftSection={<IconUserCircle />}>Profile</Button>
+                </Link>
+                <Space w="sm" />
                 { buttons }
             </Flex>
         </>

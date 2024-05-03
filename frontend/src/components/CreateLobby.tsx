@@ -1,7 +1,7 @@
-import { Button, Checkbox, NumberInput, Group } from '@mantine/core';
+import { Button, Checkbox, NumberInput, Stack } from '@mantine/core';
 import { useNavigate } from "react-router-dom"
 import { useForm } from '@mantine/form';
-import { IconUsers } from '@tabler/icons-react';
+import { IconSwords } from '@tabler/icons-react';
 
 interface LobbyCreateResponse {
   lobby_id: number;
@@ -28,9 +28,8 @@ export default function CreateLobbyDiv() {
   }
 
   return (
-    <>
-      {/* <Title order={3}>Create online lobby</Title> */}
-      <form onSubmit={createLobby}>
+    <form onSubmit={createLobby}>
+      <Stack align="center" gap="xs">
         <NumberInput
           style={{width: "30%"}}
           {...form.getInputProps('layers')}
@@ -45,14 +44,12 @@ export default function CreateLobbyDiv() {
           min={10}
         />
         <Checkbox
-          mt="md"
           label="Private"
           {...form.getInputProps('private', { type: 'checkbox' })}
         />
-        <Group mt="md">
-          <Button type="submit" leftSection={<IconUsers />}>Create lobby</Button>
-        </Group>
-      </form>
-    </>
+
+        <Button type="submit" leftSection={<IconSwords />}>Create lobby</Button>
+      </Stack>
+    </form>
   );
 }

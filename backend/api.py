@@ -12,7 +12,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import json
 from sqlalchemy import select, func
 from model import db, User, Lobby, LobbyUser, Scramble, Solve, Race, SocketConnection, CubeEntity, SolveMove, TogetherLobby, TogetherUser
-from model import LobbyUserStatus, UserRole, LobbyRole, LobbyStatus, Invitation
+from model import LobbyUserStatus, UserRole, LobbyRole, LobbyStatus, Invitation, ANONYMOUS_PREFIX
 from pyTwistyScrambler import scrambler333, scrambler444, scrambler555, scrambler666, scrambler777, scrambler222
 from cube import Cube
 from typing import List
@@ -556,6 +556,7 @@ def register_post():
     username: str = data['username']
     password: str = data['password']
     confirmPassword: str = data['confirmPassword']
+    keep_data: bool = data['keepData']
 
     if not username or not password or not confirmPassword:
         return {"msg": "Fill in all form fields"}, 400
@@ -566,6 +567,9 @@ def register_post():
     if len(password) < 6:
         return {"msg": "Password should be at least 6 characters long"}, 400
 
+    if username.startswith(ANONYMOUS_PREFIX):
+        return {"msg", "Username cannot start with Anonymous#"}, 400
+
     # check whether user with given username already exists
     user = db.session.execute(
         select(User).where(func.lower(User.username) == func.lower(username))
@@ -574,13 +578,20 @@ def register_post():
     if user is not None:
         return {"msg": "User with entered username already exists"}, 400
 
-    # add new user to the database
     password_hash: str = generate_password_hash(password)
-    new_user = User(username=username, password_hash=password_hash)
-    db.session.add(new_user)
+
+    if keep_data:
+        current_user.username = username
+        current_user.password_hash = password_hash
+    else:
+        user = User(
+            username=username,
+            password_hash=password_hash,
+        )
+        db.session.add(user)
+
     db.session.commit()
 
-    login_user(new_user, remember=True)
     return {"msg": "ok"}, 200
 
 @app.route('/login', methods=["POST"])

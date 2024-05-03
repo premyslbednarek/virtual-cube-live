@@ -222,6 +222,22 @@ def together_lobby_start():
         room=together_lobby.get_room()
     )
 
+@socketio.on("together_layers_change")
+@login_required
+def together_layers_change(data):
+    new_size = data["newSize"]
+    together_lobby = get_together_lobby()
+    if not together_lobby:
+        return
+
+    together_lobby.cube.change_layers(new_size)
+
+    socketio.emit(
+        "together_layers_change",
+        data,
+        room=together_lobby.get_room()
+    )
+
 
 
 # https://flask.palletsprojects.com/en/2.3.x/patterns/viewdecorators/

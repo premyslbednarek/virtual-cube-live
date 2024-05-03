@@ -4,12 +4,13 @@ import { useContext, useEffect, useState } from "react";
 import { socket } from "../socket";
 import { UserContext } from "../userContext";
 import * as THREE from 'three';
-import { Button, Center, Flex } from "@mantine/core";
+import { Text, Button, Center, Flex, Title } from "@mantine/core";
 import CopyButton from "../CopyButton";
-import useTimedCube, { useSpeedMode } from "./useTimedCube";
+import useTimedCube, { CubeSizeController, DEFAULT_CUBE_SIZE, useSpeedMode } from "./useTimedCube";
 import { RenderedCube } from "./CubeCanvases";
 import { Panel } from "./Panels";
 import TimerDisplay from "./TimerDisplay";
+import NavigationPanel from "./NavigationPanel";
 
 interface TogetherJoinResponse {
     users: string[];
@@ -23,6 +24,7 @@ function TogetherLobby({id} : {id: number}) {
     const [uuid, setUuid] = useState<string | null>(null);
     const { userContext } = useContext(UserContext)
 
+    const [cubeSize, setCubeSize] = useState(DEFAULT_CUBE_SIZE);
     const { cube, setIsSolving, addTime, startSolve, stopwatch, timeString } = useTimedCube()
     const speedModeController = useSpeedMode(cube);
 
@@ -78,6 +80,11 @@ function TogetherLobby({id} : {id: number}) {
         addTime(time);
     }
 
+    const onLayersChange = ({newSize} : {newSize: number}) => {
+        setCubeSize(newSize);
+        cube.changeLayers(newSize);
+    }
+
     useEffect(() => {
         socket.on("together_join", onJoin);
         socket.on("together_dc", onDc);
@@ -86,6 +93,7 @@ function TogetherLobby({id} : {id: number}) {
         socket.on("together_set_state", onSetState);
         socket.on("together_solve_start", startSolve);
         socket.on("together_solve_end", onSolveEnd);
+        socket.on("together_layers_change", onLayersChange);
         return () => {
             socket.off("together_join", onJoin);
             socket.off("together_dc", onDc);
@@ -94,25 +102,30 @@ function TogetherLobby({id} : {id: number}) {
             socket.off("together_set_state", onSetState);
             socket.off("together_solve_start", startSolve);
             socket.off("together_solve_end", onSolveEnd);
+            socket.off("together_layers_change", onLayersChange);
         }
     })
+
+    const changeCubeSize = (newSize: number) => {
+        socket.emit("together_layers_change", {newSize: newSize})
+    }
 
     const inviteURL = window.location.host + "/together/" + uuid;
     return (
         <>
             <Panel position="top">
                 <Center>
-                    {inviteURL}
-                    <CopyButton value={inviteURL}></CopyButton>
+                    {inviteURL} <CopyButton value={inviteURL}></CopyButton>
                 </Center>
+            </Panel>
+            <Panel position="left">
+                <NavigationPanel />
                 {speedModeController}
-                <div>
-                    Users in the lobby:
-                    { users.map(user => (
-                        <div key={user}>{user} {userContext.username === user && " (you)"}</div>
-                    ))}
-                </div>
-
+                <CubeSizeController value={cubeSize} onChange={changeCubeSize} />
+                <Title order={3}>Users in the lobby:</Title>
+                { users.map(user => (
+                    <Text key={user}>{user} {userContext.username === user && " (you)"}</Text>
+                ))}
             </Panel>
 
             <RenderedCube cube={cube} fullscreen />

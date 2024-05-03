@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import Cube from "../cube/cube";
+import Cube, { DEFAULT_SPEED_MODE } from "../cube/cube";
 import useStopwatch from "./useTimer";
 import useCountdown from "./useCountdown";
 import { print_time } from "../cube/timer";
+import { Switch } from "@mantine/core";
 
 const INSPECTION_LENGTH = 3 // solve inspection length in seconds
+const DEFAULT_CUBE_SIZE = 3
 
 function print_solve_time(time: number | null) {
     if (!time) {
@@ -14,8 +16,28 @@ function print_solve_time(time: number | null) {
 }
 
 
+export function useSpeedMode(cube: Cube, onChange? : (newValue: boolean) => void) {
+    const [speedMode, setSpeedMode] = useState(DEFAULT_SPEED_MODE);
+
+    const speedModeController = <Switch
+        m={10}
+        checked={speedMode}
+        onChange={(event) => {
+            const newValue = event.currentTarget.checked;
+            cube.setSpeedMode(newValue);
+            setSpeedMode(newValue)
+            if (onChange) {
+                onChange(newValue);
+            }
+        }}
+        label="Speed mode" />
+
+    return speedModeController;
+}
+
+
 export default function useTimedCube() {
-    const cube = useMemo(() => new Cube(3), []);
+    const cube = useMemo(() => new Cube(DEFAULT_CUBE_SIZE), []);
 
     const stopwatch = useStopwatch()
     const countdown = useCountdown()
@@ -28,7 +50,6 @@ export default function useTimedCube() {
     useEffect(() => {
         cube.init_keyboard_controls();
         cube.init_camera_controls();
-        cube.init_mouse_moves();
 
         const onMouseDown = (event: MouseEvent) => {
             cube.mouseDown(event);
@@ -80,6 +101,6 @@ export default function useTimedCube() {
         setIsSolving,
         addTime,
         startSolve,
-        stopwatch
+        stopwatch,
     }
 }

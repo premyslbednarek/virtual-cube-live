@@ -10,7 +10,7 @@ import { IconDeviceFloppy } from "@tabler/icons-react";
 import ShowSolvesToContinue from "./ShowSolvesToContinue";
 import { useDisclosure } from "@mantine/hooks";
 import TimeHistory, { Solve } from "./TimeHistory";
-import useTimedCube from "./useTimedCube";
+import useTimedCube, { useSpeedMode } from "./useTimedCube";
 import TimerDisplay from "./TimerDisplay";
 import { Panel } from "./Panels";
 
@@ -26,8 +26,10 @@ export default function SoloMode() {
         setIsSolving,
         addTime,
         startSolve: startSolve_,
-        stopwatch
+        stopwatch,
     } = useTimedCube()
+
+    const speedModeController = useSpeedMode(cube);
 
     const [times, setTimes] = useState<Array<Solve>>([]);
 
@@ -136,6 +138,7 @@ export default function SoloMode() {
                     { !isSolving && <Button onClick={open} size="md" radius="md">Continue solve</Button>}
                 </Flex>
                 <Text>Cube size: {cubeSize}</Text>
+                {speedModeController}
                 <Slider
                     value={cubeSize}
                     onChange={onLayersChange}

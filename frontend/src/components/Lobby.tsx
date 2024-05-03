@@ -31,7 +31,7 @@ import TimeHistory from "./TimeHistory";
 import AdminPanelButton from "./LobbyAdminPanel";
 import { IconCrown } from "@tabler/icons-react";
 import { Panel } from "./Panels";
-import useTimedCube from "./useTimedCube";
+import useTimedCube, { useSpeedMode } from "./useTimedCube";
 import TimerDisplay from "./TimerDisplay";
 
 type LobbyPoints = Array<{
@@ -180,6 +180,16 @@ export default function Lobby() {
 
     const { cube, isSolving, setIsSolving, addTime, startSolve, stopwatch, timeString } = useTimedCube()
 
+    // togle speed mode for enemy cubes
+    const toggleSpeedMode = (newValue: boolean) => {
+        for (const enemy of enemies.values()) {
+            enemy.cube.setSpeedMode(newValue);
+        }
+    }
+
+    const speedModeController = useSpeedMode(cube, toggleSpeedMode);
+
+    // countdown timer for waiting after the first finisher in the lobby finishes their solve
     const waitTime = useCountdown();
 
 
@@ -525,6 +535,7 @@ export default function Lobby() {
                 // show solve button for app admins
                 ( userContext.isAdmin && isSolving) && <Button ml={10} onClick={solveTheCube}>Solve</Button>
             }
+            { speedModeController }
             { !isSolving && <>
                 <Results lastResult={lastRaceResults} lobbyPoints={lobbyPoints} />
                 <Space h="sm" />

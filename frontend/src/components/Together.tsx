@@ -6,7 +6,7 @@ import { UserContext } from "../userContext";
 import * as THREE from 'three';
 import { Button, Center, Flex } from "@mantine/core";
 import CopyButton from "../CopyButton";
-import useTimedCube from "./useTimedCube";
+import useTimedCube, { useSpeedMode } from "./useTimedCube";
 import { RenderedCube } from "./CubeCanvases";
 import { Panel } from "./Panels";
 import TimerDisplay from "./TimerDisplay";
@@ -24,6 +24,7 @@ function TogetherLobby({id} : {id: number}) {
     const { userContext } = useContext(UserContext)
 
     const { cube, setIsSolving, addTime, startSolve, stopwatch, timeString } = useTimedCube()
+    const speedModeController = useSpeedMode(cube);
 
     useEffect(() => {
         socket.connect();
@@ -104,6 +105,7 @@ function TogetherLobby({id} : {id: number}) {
                     {inviteURL}
                     <CopyButton value={inviteURL}></CopyButton>
                 </Center>
+                {speedModeController}
                 <div>
                     Users in the lobby:
                     { users.map(user => (

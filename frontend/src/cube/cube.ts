@@ -7,6 +7,8 @@ import { addForRender, removeForRender, requestRenderIfNotRequested } from './re
 import { getOrtogonalVectors, getScreenCoordinates } from './utils';
 import { parse_move, getFace, LayerMove } from './move';
 
+export const DEFAULT_SPEED_MODE=true;
+
 class Axis {
     axis: string
     vector: THREE.Vector3
@@ -22,7 +24,7 @@ const zAxis = new Axis("z", new THREE.Vector3(0, 0, 1));
 
 export default class Cube {
     n: number
-    speedMode: boolean
+    speedMode: boolean = DEFAULT_SPEED_MODE;
     solved: boolean
     controls!: OrbitControls
     onCameraCallbacks: Array<(pos: THREE.Vector3) => void>
@@ -33,6 +35,7 @@ export default class Cube {
     camera!: THREE.PerspectiveCamera
     renderer!: THREE.WebGLRenderer
     cubies!: Array<THREE.Group>
+    boxes: Array<THREE.Mesh> = []
     arr!: nj.NdArray
     group!: THREE.Group
     tween!: TWEEN.Tween<THREE.Euler>
@@ -41,9 +44,7 @@ export default class Cube {
     defaultMake = true;
 
     constructor(n: number, state: string="") {
-        console.log("A NEW CUBE IS BEING CREATED");
         this.n = n;
-        this.speedMode = true;
         this.solved = true;
 
         this.onCameraCallbacks = [];
@@ -110,6 +111,8 @@ export default class Cube {
         for (var i = 0; i < number_of_cubies; ++i) {
             this.cubies.push(new THREE.Group());
         }
+
+        this.generateCubies()
 
         // create NxNxN array - cube representation
         // elements of this array are indices to this.cubies array
@@ -189,11 +192,6 @@ export default class Cube {
         document.removeEventListener("keydown", this.handler);
     }
 
-    init_mouse_moves() {
-        // document.addEventListener('mousedown', event => {console.log(this.n);this.mouseDown(event)});
-        // document.addEventListener('mouseup', event => this.mouseUp(event));
-    }
-
     resizeCanvas() {
         // const canvas = this.renderer.domElement;
         const container = this.canvas.parentElement;
@@ -209,9 +207,24 @@ export default class Cube {
         this.renderer.render(this.scene, this.camera);
     }
 
-    toggleSpeedMode() {
-        this.speedMode = !this.speedMode;
-        this.draw();
+    toggleBoxes() {
+        if (this.speedMode) {
+            for (const box of this.boxes) {
+                box.visible = false;
+            }
+        } else {
+            for (const box of this.boxes) {
+                box.visible = true;
+            }
+        }
+    }
+
+    setSpeedMode(speedMode: boolean) {
+        if (this.speedMode === speedMode) return; // no change
+
+        this.speedMode = speedMode;
+        this.toggleBoxes();
+        this.render();
     }
 
     changeLayers(newLayers: number) {
@@ -279,12 +292,14 @@ export default class Cube {
         }
     }
 
-    drawCubies() {
+    generateCubies() {
+        this.boxes = []
         const boxGeometry = new THREE.BoxGeometry(0.98, 0.98, 0.98);
         const boxMaterial = new THREE.MeshBasicMaterial({color: 0x00000});
         const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
         for (const cubie of this.cubies) {
             const box = boxMesh.clone();
+            this.boxes.push(box);
             cubie.add(box);
         }
     }
@@ -293,7 +308,6 @@ export default class Cube {
         if (state === "") {
             state = this.getDefaultState();
         }
-        console.log(state)
         // clear scene
         this.scene.remove.apply(this.scene, this.scene.children);
 
@@ -309,9 +323,7 @@ export default class Cube {
             this.scene.add(group);
         }
 
-        if (!this.speedMode) {
-            this.drawCubies();
-        }
+        this.toggleBoxes();
 
         this.drawStickers(state);
         this.render();

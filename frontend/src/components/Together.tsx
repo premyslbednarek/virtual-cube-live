@@ -6,7 +6,7 @@ import { UserContext } from "../userContext";
 import * as THREE from 'three';
 import { Button } from "@mantine/core";
 import CopyButton from "../CopyButton";
-import useRoom from "./useRoom";
+import useTimedCube from "./useRoom";
 import { RenderedCube } from "./CubeCanvases";
 
 interface TogetherJoinResponse {
@@ -21,7 +21,7 @@ function TogetherLobby({id} : {id: number}) {
     const [uuid, setUuid] = useState<string | null>(null);
     const { userContext } = useContext(UserContext)
 
-    const { cube, setIsSolving, addTime, startSolve, stopwatch, timeString } = useRoom()
+    const { cube, setIsSolving, addTime, startSolve, stopwatch, timeString } = useTimedCube()
 
     useEffect(() => {
         socket.connect();

@@ -1,56 +1,49 @@
-import { useEffect, useMemo, useState } from "react";
-import Cube from "../cube/cube";
+import { useEffect, useState } from "react";
 import { RenderedCube } from "./CubeCanvases";
 import NavigationPanel from "./NavigationPanel";
 import { socket } from "../socket";
 import * as THREE from 'three';
-import { Flex, ActionIcon, Button, Slider, Text, Modal, Space } from "@mantine/core";
+import { Flex, ActionIcon, Button, Slider, Text, Modal, Space, Center } from "@mantine/core";
 import { useHotkeys } from "react-hotkeys-hook";
-import useCountdown from "./useCountdown";
-import useStopwatch from "./useTimer";
 import { parse_move } from "../cube/move";
-import { print_time } from "../cube/timer";
 import { IconDeviceFloppy } from "@tabler/icons-react";
 import ShowSolvesToContinue from "./ShowSolvesToContinue";
 import { useDisclosure } from "@mantine/hooks";
 import TimeHistory, { Solve } from "./TimeHistory";
+import useTimedCube from "./useRoom";
+import TimerDisplay from "./TimerDisplay";
+import { Panel } from "./Panels";
 
 const default_cube_size = 3;
 
 export default function SoloMode() {
-
     const [cubeSize, setCubeSize] = useState(default_cube_size);
 
-    const cube = useMemo(() => new Cube(default_cube_size), []);
-    const [inSolve, setInSolve] = useState(false);
-    const [lastTime, setLastTime] = useState<number | null>(null);
-    const [times, setTimes] = useState<Array<Solve>>([]);
-
-    const timer = useStopwatch();
     const {
-        secondsLeft: inspectionSecondsLeft,
-        start: startCountdown,
-        isRunning: inspectionRunning
-    } = useCountdown();
+        timeString,
+        cube,
+        isSolving,
+        setIsSolving,
+        addTime,
+        startSolve: startSolve_,
+        stopwatch
+    } = useTimedCube()
+
+    const [times, setTimes] = useState<Array<Solve>>([]);
 
     const [opened, { open, close }] = useDisclosure(false);
 
-
     const onComplete = ({time, solve_id} : {time: number, solve_id: number}) => {
-        timer.stop();
-        setLastTime(time);
+        stopwatch.stop();
+        addTime(time);
         setTimes([{time: time, id: solve_id, completed: true}, ...times]);
-        setInSolve(false);
+        setIsSolving(false);
         console.log("finished");
     }
 
     useEffect(() => {
         socket.connect();
         console.log("connection to socket...")
-
-        cube.init_keyboard_controls();
-        cube.init_camera_controls();
-        cube.init_mouse_moves();
 
         socket.emit("solo_join", {cubeSize: cubeSize})
 
@@ -73,12 +66,10 @@ export default function SoloMode() {
         cube.onCamera(send_camera);
 
         return () => {
-            cube.remove_keyboard_controls();
             console.log("disconnection from socket...")
             socket.disconnect();
         };
-        // eslint-disable-next-line
-    }, [])
+    }, [cube, cubeSize])
 
     useEffect(() => {
         socket.on("your_solve_completed", onComplete)
@@ -89,21 +80,11 @@ export default function SoloMode() {
 
 
     const startSolve = async () => {
-        setInSolve(true);
-        setLastTime(null);
-        console.log("start")
         const data: {state: string} = await socket.emitWithAck("solo_solve_start");
-
-        cube.setState(data.state);
-        cube.startInspection();
-
-        startCountdown(3, () => {
-            timer.start();
-            cube.startSolve();
-        })
+        startSolve_(data);
     }
 
-    useHotkeys("space", startSolve, {enabled: !inSolve})
+    useHotkeys("space", startSolve, {enabled: !isSolving})
 
     const solveTheCube = async () => {
         const data : {moves_done: Array<string>} = await socket.emitWithAck("get_solution")
@@ -115,37 +96,24 @@ export default function SoloMode() {
         }
     }
 
-    useHotkeys("ctrl+1", solveTheCube, {enabled: inSolve});
-
-    const displayTime = <div style={{
-        textAlign: "center",
-        fontSize: "40px",
-        lineHeight: "40px",
-        padding: 0,
-    }}>
-        { inspectionRunning && <div>{inspectionSecondsLeft}</div> }
-        { !inspectionRunning && inSolve && lastTime == null && timer.formattedTime }
-        { !inspectionRunning && lastTime != null && print_time(lastTime)}
-        {/* { !inspectionRunning && !inSolve && !beforeFirstSolve && solveTime == null && "DNF"} */}
-    </div>
+    useHotkeys("ctrl+1", solveTheCube, {enabled: isSolving});
 
     const save = () => {
         socket.emit(
             "save_solve"
         )
         cube.setState(cube.getDefaultState());
-        setInSolve(false);
-        timer.stop();
+        setIsSolving(false);
+        stopwatch.stop();
     }
 
     const continue_solve = async (solve_id: number) => {
         const response: {startTime: number, state: string, layers: number} = await socket.emitWithAck("continue_solve", {solve_id: solve_id});
-        setInSolve(true);
+        setIsSolving(true);
         cube.changeLayers(response.layers)
         cube.setState(response.state)
         setCubeSize(response.layers);
-        setLastTime(null);
-        timer.startFromTime(response.startTime);
+        stopwatch.startFromTime(response.startTime);
         close();
     }
 
@@ -161,10 +129,11 @@ export default function SoloMode() {
             <Modal opened={opened} onClose={close} title="Pick a solve to continue">
                 <ShowSolvesToContinue onContinue={continue_solve} />
             </Modal>
-            <div style={{position: "absolute", left: 10}}>
+
+            <Panel position="left">
                 <Flex align="center">
                     <NavigationPanel />
-                    { !inSolve && <Button onClick={open} size="md" radius="md">Continue solve</Button>}
+                    { !isSolving && <Button onClick={open} size="md" radius="md">Continue solve</Button>}
                 </Flex>
                 <Text>Cube size: {cubeSize}</Text>
                 <Slider
@@ -173,17 +142,19 @@ export default function SoloMode() {
                     min={2}
                     max={7}
                 ></Slider>
-                { inSolve && <ActionIcon onClick={save}><IconDeviceFloppy></IconDeviceFloppy></ActionIcon>}
+                { isSolving && <ActionIcon onClick={save}><IconDeviceFloppy></IconDeviceFloppy></ActionIcon>}
                 <Space h="sm"></Space>
-                { !inSolve && <TimeHistory cubeSize={cubeSize} /> }
-            </div>
-            <div style={{height: "100vh"}}>
-                <RenderedCube cube={cube} />
-            </div>
-            <div style={{position: "absolute", bottom: 20, margin: "auto", width: "100%", textAlign: "center"}}>
-                {displayTime}
-                { !inSolve && <Button onClick={startSolve}>Start solve [spacebar]</Button> }
-            </div>
+                { !isSolving && <TimeHistory cubeSize={cubeSize} /> }
+            </Panel>
+
+            <RenderedCube cube={cube} fullscreen />
+
+            <Panel position="bottom">
+                <TimerDisplay time={timeString} />
+                <Center>
+                    { !isSolving && <Button onClick={startSolve}>Start solve [spacebar]</Button> }
+                </Center>
+            </Panel>
         </>
     );
 }

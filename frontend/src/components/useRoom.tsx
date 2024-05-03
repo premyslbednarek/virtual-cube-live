@@ -14,7 +14,7 @@ function print_solve_time(time: number | null) {
 }
 
 
-export default function useRoom() {
+export default function useTimedCube() {
     const cube = useMemo(() => new Cube(3), []);
 
     const stopwatch = useStopwatch()
@@ -36,11 +36,16 @@ export default function useRoom() {
         const onMouseUp = (event: MouseEvent) => {
             cube.mouseUp(event);
         }
+        const onResize = () => {
+            cube.resizeCanvas();
+        }
 
+        window.addEventListener("resize", onResize);
         document.addEventListener("mousedown", onMouseDown);
         document.addEventListener("mouseup", onMouseUp);
 
         return () => {
+            window.removeEventListener("resize", onResize);
             document.removeEventListener("mousedown", onMouseDown);
             document.removeEventListener("mouseup", onMouseUp);
             cube.remove_keyboard_controls();

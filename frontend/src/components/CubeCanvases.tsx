@@ -1,7 +1,7 @@
-import { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import Cube from "../cube/cube";
 
-export function RenderedCube({cube} : {cube: Cube}) {
+export function RenderedCube({cube, fullscreen} : {cube: Cube, fullscreen?:boolean}) {
     const containerRef = useRef(null);
 
     useEffect(() => {
@@ -10,19 +10,17 @@ export function RenderedCube({cube} : {cube: Cube}) {
         if (!container) return;
         cube.mount(container);
 
-        const onResize = () => {
-            cube.resizeCanvas();
-        }
-
-        window.addEventListener("resize", onResize);
         return () => {
-            window.removeEventListener("resize", onResize);
             console.log("Unmounting")
             cube.unmount(container);
         }
     }, [cube])
 
+    const style: React.CSSProperties = fullscreen
+        ? {position: "absolute", height: "100vh", width: "100vw", zIndex: -1}
+        : {width: "100%", height: "100%"};
+
     return (
-        <div ref={containerRef} style={{width: "100%", height: "100%"}}></div>
+        <div ref={containerRef} style={style}></div>
     );
 }

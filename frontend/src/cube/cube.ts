@@ -22,19 +22,31 @@ const xAxis = new Axis("x", new THREE.Vector3(1, 0, 0));
 const yAxis = new Axis("y", new THREE.Vector3(0, 1, 0));
 const zAxis = new Axis("z", new THREE.Vector3(0, 0, 1));
 
+function getDefaultCubeState(size: number) : string {
+    let state = "";
+    const colors = "WGRBOY";
+    for (const color of colors) {
+        for (let i = 0; i < size * size; ++i) {
+            state += color;
+        }
+    }
+    return state;
+}
+
+
 export default class Cube {
     size: number
     speedMode: boolean = DEFAULT_SPEED_MODE;
     solved: boolean
     controls!: OrbitControls
-    onCameraCallbacks: Array<(pos: THREE.Vector3) => void>
-    onMoveCallbacks: Array<(move: string) => void>
-    inspection: boolean
-    scene!: THREE.Scene
-    canvas!: HTMLCanvasElement
-    camera!: THREE.PerspectiveCamera
-    renderer!: THREE.WebGLRenderer
-    cubies!: Array<THREE.Group>
+    onCameraCallbacks: Array<(pos: THREE.Vector3) => void> = []
+    onMoveCallbacks: Array<(move: string) => void> = []
+    inspection: boolean = false
+    scene: THREE.Scene
+    camera: THREE.PerspectiveCamera
+    renderer: THREE.WebGLRenderer
+
+    cubies: Array<THREE.Group> = []
     boxes: Array<THREE.Mesh> = []
     arr!: nj.NdArray
     group!: THREE.Group
@@ -47,14 +59,18 @@ export default class Cube {
         this.size = n;
         this.solved = true;
 
-        this.onCameraCallbacks = [];
-        this.onMoveCallbacks = [];
+        // initialize three.js scene
+        this.scene = new THREE.Scene();
+        this.renderer = new THREE.WebGLRenderer({antialias: true});
+        this.camera = new THREE.PerspectiveCamera(
+            75,
+            window.innerWidth / window.innerHeight,
+            0.1,
+            1000
+        );
 
-        this.init_scene();
         this.init_internal_state();
         this.draw(state);
-
-        this.inspection = false;
     }
 
     startInspection() {
@@ -65,42 +81,22 @@ export default class Cube {
         this.inspection = false;
     }
 
+    reset() {
+        this.setState(getDefaultCubeState(this.size));
+    }
+
     setState(state: string) {
         this.init_internal_state();
         this.draw(state);
     }
 
-    getDefaultState() {
-        let state = "";
-        const colors = "WGRBOY";
-        for (const color of colors) {
-            for (let i = 0; i < this.size * this.size; ++i) {
-                state += color;
-            }
-        }
-        return state;
-    }
-
-    init_scene() {
-        this.scene = new THREE.Scene();
-        this.renderer = new THREE.WebGLRenderer({antialias: true });
-        this.canvas = this.renderer.domElement;
-        this.camera = new THREE.PerspectiveCamera(
-            75,
-            window.innerWidth / window.innerHeight,
-            0.1,
-            1000
-        );
-    }
-
     mount(container: HTMLElement) {
-        container.appendChild(this.canvas);
-        this.canvas = this.renderer.domElement;
+        container.appendChild(this.renderer.domElement);
         this.resizeCanvas();
     }
 
     unmount(container: HTMLElement) {
-        container.removeChild(this.canvas);
+        container.removeChild(this.renderer.domElement);
     }
 
     init_internal_state() {
@@ -193,8 +189,7 @@ export default class Cube {
     }
 
     resizeCanvas() {
-        // const canvas = this.renderer.domElement;
-        const container = this.canvas.parentElement;
+        const container = this.renderer.domElement.parentElement;
         if (!container) return;
         this.renderer.setSize(container.clientWidth, container.clientHeight, false);
         this.camera.aspect = container.clientWidth / container.clientHeight;
@@ -306,7 +301,7 @@ export default class Cube {
 
     draw(state: string = "") {
         if (state === "") {
-            state = this.getDefaultState();
+            state = getDefaultCubeState(this.size);
         }
         // clear scene
         this.scene.remove.apply(this.scene, this.scene.children);
@@ -485,9 +480,10 @@ export default class Cube {
         // calculate pointer position in NDC - normalized device coordinates
         // in NDC, canvas bottom left corner is [-1, -1], top right is [1, 1]
         // offsets are useful when the canvas is not full page
+        const canvas = this.renderer.domElement;
         const pointer = new THREE.Vector2(    // const arr = nj.arange(n*n*n).reshape(n, n, n)
-            ((event.clientX - this.canvas.offsetLeft) / this.canvas.clientWidth) * 2 - 1,
-            - ((event.clientY - this.canvas.offsetTop) / this.canvas.clientHeight) * 2 + 1
+            ((event.clientX - canvas.offsetLeft) / canvas.clientWidth) * 2 - 1,
+            - ((event.clientY - canvas.offsetTop) / canvas.clientHeight) * 2 + 1
         )
 
         // find stickers under the pointer

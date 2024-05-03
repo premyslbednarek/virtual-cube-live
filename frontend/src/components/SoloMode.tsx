@@ -101,7 +101,7 @@ export default function SoloMode() {
         socket.emit(
             "save_solve"
         )
-        cube.setState(cube.getDefaultState());
+        cube.reset();
         setIsSolving(false);
         stopwatch.stop();
     }

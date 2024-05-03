@@ -1032,7 +1032,7 @@ def lobby_move(data):
         if current_race.finishers_count == 1:
             socketio.emit(
                 "solve_end_countdown",
-                { "waitTime": lobby.wait_time },
+                { "time": lobby.wait_time },
                 room=lobby.id
             )
 

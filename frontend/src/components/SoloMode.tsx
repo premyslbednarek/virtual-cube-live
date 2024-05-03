@@ -10,14 +10,12 @@ import { IconDeviceFloppy } from "@tabler/icons-react";
 import ShowSolvesToContinue from "./ShowSolvesToContinue";
 import { useDisclosure } from "@mantine/hooks";
 import TimeHistory, { Solve } from "./TimeHistory";
-import useTimedCube, { useSpeedMode } from "./useTimedCube";
+import useTimedCube, { CubeSizeController, DEFAULT_CUBE_SIZE, useSpeedMode } from "./useTimedCube";
 import TimerDisplay from "./TimerDisplay";
 import { Panel } from "./Panels";
 
-const default_cube_size = 3;
-
 export default function SoloMode() {
-    const [cubeSize, setCubeSize] = useState(default_cube_size);
+    const [cubeSize, setCubeSize] = useState(DEFAULT_CUBE_SIZE);
 
     const {
         timeString,
@@ -47,8 +45,7 @@ export default function SoloMode() {
         socket.connect();
         console.log("connection to socket...")
 
-        socket.emit("solo_join", {cubeSize: cubeSize})
-
+        socket.emit("solo_join")
 
         function send_move(move_str: string) {
             const data = {
@@ -71,7 +68,7 @@ export default function SoloMode() {
             console.log("disconnection from socket...")
             socket.disconnect();
         };
-    }, [cube, cubeSize])
+    }, [cube])
 
     useEffect(() => {
         socket.on("your_solve_completed", onComplete)
@@ -137,14 +134,10 @@ export default function SoloMode() {
                     <NavigationPanel />
                     { !isSolving && <Button onClick={open} size="md" radius="md">Continue solve</Button>}
                 </Flex>
-                <Text>Cube size: {cubeSize}</Text>
+
                 {speedModeController}
-                <Slider
-                    value={cubeSize}
-                    onChange={onLayersChange}
-                    min={2}
-                    max={7}
-                ></Slider>
+                <CubeSizeController value={cubeSize} onChange={onLayersChange} />
+
                 { isSolving && <ActionIcon onClick={save}><IconDeviceFloppy></IconDeviceFloppy></ActionIcon>}
                 <Space h="sm"></Space>
                 { !isSolving && <TimeHistory cubeSize={cubeSize} /> }

@@ -619,8 +619,8 @@ def create_connection(size, cube_id=None, lobby_id=None):
     return connection.id
 
 @socketio.on("solo_join")
-def handle_solo_join(data):
-    create_connection(data["cubeSize"])
+def handle_solo_join():
+    create_connection(3)
 
 @socketio.on("lobby_connect")
 def handle_lobby_conection(data):

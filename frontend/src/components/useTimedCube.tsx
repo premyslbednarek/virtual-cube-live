@@ -3,10 +3,31 @@ import Cube, { DEFAULT_SPEED_MODE } from "../cube/cube";
 import useStopwatch from "./useTimer";
 import useCountdown from "./useCountdown";
 import { print_time } from "../cube/timer";
-import { Switch } from "@mantine/core";
+import { NumberInput, Switch } from "@mantine/core";
 
-const INSPECTION_LENGTH = 3 // solve inspection length in seconds
-const DEFAULT_CUBE_SIZE = 3
+export const INSPECTION_LENGTH = 3 // solve inspection length in seconds
+export const DEFAULT_CUBE_SIZE = 3
+export const MIN_CUBE_SIZE = 2
+export const MAX_CUBE_SIZE = 7
+
+
+export function CubeSizeController({value, onChange} : {value: number, onChange: (newSize: number)=>void}) {
+    return (
+        <NumberInput
+            m={10}
+            min={MIN_CUBE_SIZE}
+            max={MAX_CUBE_SIZE}
+            label="Cube size"
+            value={value}
+            onChange={(newValue) => {
+                const val = Number(newValue)
+                if (MIN_CUBE_SIZE <= val && val <= MAX_CUBE_SIZE) {
+                    onChange(Number(newValue));
+                }
+            }}
+        />
+    );
+}
 
 function print_solve_time(time: number | null) {
     if (!time) {

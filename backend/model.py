@@ -41,14 +41,30 @@ class LobbyStatus(Enum):
     ENDED = 2
 
 
+ANONYMOUS_PREFIX = "Anonymous#"
+
 class User(UserMixin, db.Model):
     __tablename__ = "user"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(unique=True)
-    password_hash: Mapped[str]
+    # TODO DELETE default value
+    password_hash: Mapped[str] = mapped_column(default="")
     role: Mapped[UserRole] = mapped_column(default=UserRole.USER)
     created_date: Mapped[datetime] = mapped_column(insert_default=func.now())
+
+    @staticmethod
+    def create_anonymous():
+        user = User()
+        user.username = ANONYMOUS_PREFIX
+        db.session.add(user)
+        db.session.flush() # obtain user id
+        user.username = user.username + f"{user.id:04d}"
+        db.session.commit()
+        return user
+
+    def is_anonymous(self):
+        return self.username.startswith(ANONYMOUS_PREFIX)
 
 class LobbyPoints(TypedDict):
     username: str

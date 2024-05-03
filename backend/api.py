@@ -437,10 +437,14 @@ def handle_solution_request():
 
 @app.route('/api/user_info')
 def get_user_info():
+    if not current_user.is_authenticated:
+        # create anonymous account for this user and log them
+        login_user(User.create_anonymous(), remember=True)
+
     return {
-        "isLogged": current_user.is_authenticated,
-        "username": current_user.username if current_user.is_authenticated else "",
-        "isAdmin": current_user.is_authenticated and current_user.role == UserRole.ADMIN
+        "username": current_user.username,
+        "isLogged": not current_user.is_anonymous(),
+        "isAdmin": current_user.role == UserRole.ADMIN
     }
 
 @app.route("/api/get_lobbies")

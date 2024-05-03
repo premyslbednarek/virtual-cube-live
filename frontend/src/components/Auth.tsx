@@ -1,6 +1,6 @@
 import { FormEvent, useContext, useState } from "react";
 import { UserContext } from "../userContext";
-import { Anchor, Button, Flex, Modal, PasswordInput, Space, Stack, TextInput, Alert, Group } from "@mantine/core";
+import { Text, Anchor, Button, Flex, Modal, PasswordInput, Space, Stack, TextInput, Alert, } from "@mantine/core";
 import { useDisclosure, useToggle } from "@mantine/hooks";
 import { useForm } from "@mantine/form";
 import { IconExclamationCircle, IconLogin, IconLogout, IconUserCircle, IconUserPlus } from "@tabler/icons-react";
@@ -49,17 +49,23 @@ export default function UserInfo() {
         });
     }
 
-    if (userContext.isLogged) {
-        return (
-            <Group>
-                <p>Welcome, {userContext.username}!</p>
-                <Link to="/profile">
-                    <Button leftSection={<IconUserCircle />}> Profile</Button>
-                </Link>
-                <Button leftSection={<IconLogout />} onClick={logout}>Logout</Button>
-            </Group>
-        );
-    }
+    const buttons = userContext.isLogged ?
+        <>
+            <Link to="/profile">
+                <Button leftSection={<IconUserCircle />}> Profile</Button>
+            </Link>
+            <Space w="md" />
+            <Button leftSection={<IconLogout />} onClick={logout}>Logout</Button>
+        </> :
+        <>
+            <Button leftSection={<IconLogin />} onClick={() => openModal("login")}>
+            Login
+            </Button>
+            <Space w="md" />
+            <Button leftSection={<IconUserPlus />} onClick={() => openModal("register")}>
+            Register
+            </Button>
+        </>;
 
     const openModal = (type: string) => {
         setErrorMessage(null);
@@ -127,15 +133,10 @@ export default function UserInfo() {
                 </form>
             </Modal>
 
-            <div style={{display: "flex"}}>
-                    <Button leftSection={<IconLogin />} onClick={() => openModal("login")}>
-                    Login
-                    </Button>
-                <Space w="md" />
-                    <Button leftSection={<IconUserPlus />} onClick={() => openModal("register")}>
-                    Register
-                    </Button>
-            </div>
+            <Text size="xl" ta="center">Welcome, {userContext.username }</Text>
+            <Flex mt="sm" justify="center">
+                { buttons }
+            </Flex>
         </>
     );
 }

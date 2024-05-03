@@ -1,9 +1,9 @@
 import React, { createContext, useState, useEffect } from "react"
 
 export interface IUserInfo {
-    isLogged: boolean;
     username: string;
     isAdmin: boolean;
+    isLogged: boolean;
 }
 
 export interface IUserContext {

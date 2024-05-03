@@ -10,7 +10,7 @@ export default function Invite() {
             navigate(`/lobby/${data.lobby_id}`);
         }).catch(err=>console.log(err));
 
-    }, [uuid]);
+    }, [uuid, navigate]);
 
     return <div>Wrong url</div>;
 }

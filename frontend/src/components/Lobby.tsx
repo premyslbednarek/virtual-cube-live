@@ -170,6 +170,7 @@ export default function Lobby() {
     const { userContext } = useContext(UserContext);
 
     const [ready, setReady] = useState(false);
+    const [isKicked, setIsKicked] = useState(false);
     const [enemies, setEnemies] = useState<Map<string, Enemy>>(new Map());
     const [isAdmin, setIsAdmin] = useState(false);
     const [cubeSize, setCubeSize] = useState(3);
@@ -179,6 +180,8 @@ export default function Lobby() {
     const [errorMSG, setErrorMSG] = useState<string | null>(null);
 
     const { cube, isSolving, setIsSolving, addTime, startSolve, stopwatch, timeString } = useTimedCube()
+    // countdown timer for waiting after the first finisher in the lobby finishes their solve
+    const waitTime = useCountdown();
 
     // togle speed mode for enemy cubes
     const toggleSpeedMode = (newValue: boolean) => {
@@ -189,14 +192,6 @@ export default function Lobby() {
 
     const speedModeController = useSpeedMode(cube, toggleSpeedMode);
 
-    // countdown timer for waiting after the first finisher in the lobby finishes their solve
-    const waitTime = useCountdown();
-
-
-    interface requestSolution {
-        moves_done: Array<string>
-    }
-
     const solveTheCube = () => {
         if (!isSolving) {
             return;
@@ -204,7 +199,7 @@ export default function Lobby() {
         fetch("/api/request_solution", {
             method: "POST",
             body: JSON.stringify({lobby_id: lobby_id})
-        }).then(res => res.json()).then(async function(data: requestSolution) {
+        }).then(res => res.json()).then(async function(data: {moves_done: string[]}) {
             for (let i = data.moves_done.length - 1; i >= 0; --i) {
                 const moveObj = parse_move(data.moves_done[i]);
                 moveObj.reverse();
@@ -214,99 +209,7 @@ export default function Lobby() {
         }).catch(error => console.log(error))
     }
 
-    useHotkeys("ctrl+1", solveTheCube);
-
-    const onDisconnection = ({username} : {username: string}) => {
-        console.log(username, "has left the lobby");
-        console.log(enemies.delete(username));
-        setEnemies(new Map(enemies));
-    };
-
-    useEffect(() => {
-        cube.resizeCanvas();
-        for (const enemy of enemies.values()) {
-            enemy.cube.resizeCanvas();
-        }
-    }, [enemies, cube]);
-
-    const onMove = ({username, move} : {username: string, move: string}) => {
-        const cube = enemies.get(username);
-        if (!cube) {
-            return;
-        }
-        cube.cube.makeMove(move);
-    }
-
-    const onCamera = (data: any) => {
-        const username = data.username;
-        const position = data.position;
-
-        const cube = enemies.get(username);
-        if (!cube) {
-            return;
-        }
-
-        cube.cube.updateCamera(position);
-    };
-
-    const onReadyChange = ({ready_status, username} : {ready_status: boolean, username: string}) => {
-        const updated = new Map(enemies);
-        console.log(enemies);
-        const enemy = updated.get(username);
-        if (!enemy) return;
-        enemy.readyStatus = ready_status;
-        console.log(enemies);
-        setEnemies(updated);
-    }
-
-    const onConnection = ({username, points, isAdmin} : {username: string, points: number, isAdmin: boolean}) => {
-        console.log(username, "has joined the lobby");
-        setLobbyPoints(produce((draft) => {
-            if (draft.find((el) => el.username === username)) return;
-            draft.push({username: username, points: points})
-        }))
-        setEnemies(new Map(enemies.set(username, {cube: new Cube(cubeSize), readyStatus: false, isAdmin: isAdmin })));
-    };
-
-    type MatchStartData = {
-        state: string;
-        startTime: string;
-    }
-
-    const onMatchStart = ({state, startTime} : MatchStartData) => {
-        console.log(state, new Date(startTime));
-
-        for (const enemy of enemies.values()) {
-            enemy.cube.setState(state);
-        }
-
-        const updatedEnemies = new Map(enemies);
-        for (const enemy of updatedEnemies.values()) {
-            enemy.readyStatus = false;
-            enemy.time = undefined;
-        }
-
-        setReady(false);
-        setEnemies(updatedEnemies);
-        startSolve({state: state});
-    }
-
-    const onSolved = ({time} : {time : number}) => {
-        addTime(time);
-    }
-
-
-    interface IAnotherSolved {
-        "username": string;
-        "time": number;
-    }
-    const onSomebodySolved = (data: IAnotherSolved) => {
-        const updated = new Map(enemies);
-        const enemy = updated.get(data.username);
-        if (!enemy) return;
-        enemy.time = data.time;
-        setEnemies(updated);
-    }
+    useHotkeys("ctrl+1", solveTheCube, {enabled: isSolving});
 
     useEffect(() => {
         socket.connect();
@@ -369,15 +272,94 @@ export default function Lobby() {
             console.log("disconnection from socket...")
             socket.disconnect();
         };
-        // eslint-disable-next-line
-    }, [cube])
+    }, [cube, enemies, lobby_id])
 
-    const onReadyClick = () => {
-        socket.emit(
-            "lobby_ready_status",
-            {lobby_id: lobby_id, ready_status: !ready}
-        )
-        setReady(!ready);
+    // **************************************
+    // BEGIN SOCKET EVENT HANDLER DEFINITIONS
+    // **************************************
+    const onReadyChange = ({ready_status, username} : {ready_status: boolean, username: string}) => {
+        const updated = new Map(enemies);
+        console.log(enemies);
+        const enemy = updated.get(username);
+        if (!enemy) return;
+        enemy.readyStatus = ready_status;
+        console.log(enemies);
+        setEnemies(updated);
+    }
+
+    const onSomebodySolved = (data: {username: string, time: number}) => {
+        const updated = new Map(enemies);
+        const enemy = updated.get(data.username);
+        if (!enemy) return;
+        enemy.time = data.time;
+        setEnemies(updated);
+    }
+
+    const onSolved = ({time} : {time : number}) => {
+        addTime(time);
+    }
+
+    const onMove = ({username, move} : {username: string, move: string}) => {
+        const cube = enemies.get(username);
+        if (!cube) {
+            return;
+        }
+        cube.cube.makeMove(move);
+    }
+
+    const onCamera = (data: any) => {
+        const username = data.username;
+        const position = data.position;
+
+        const cube = enemies.get(username);
+        if (!cube) {
+            return;
+        }
+
+        cube.cube.updateCamera(position);
+    };
+
+    function resizeCanvases() {
+        cube.resizeCanvas();
+        for (const enemy of enemies.values()) {
+            enemy.cube.resizeCanvas();
+        }
+    }
+
+    const onConnection = ({username, points, isAdmin} : {username: string, points: number, isAdmin: boolean}) => {
+        console.log(username, "has joined the lobby");
+        setLobbyPoints(produce((draft) => {
+            if (draft.find((el) => el.username === username)) return;
+            draft.push({username: username, points: points})
+        }))
+        resizeCanvases();
+        setEnemies(new Map(enemies.set(username, {cube: new Cube(cubeSize), readyStatus: false, isAdmin: isAdmin })));
+    };
+
+    const onDisconnection = ({username} : {username: string}) => {
+        console.log(username, "has left the lobby");
+        console.log(enemies.delete(username));
+        resizeCanvases();
+        setEnemies(new Map(enemies));
+    };
+
+
+    const onMatchStart = ({state, startTime} : {state: string, startTime: string}) => {
+        console.log(state, new Date(startTime));
+
+        for (const enemy of enemies.values()) {
+            enemy.cube.setState(state);
+        }
+
+        const updatedEnemies = new Map(enemies);
+        for (const enemy of updatedEnemies.values()) {
+            enemy.readyStatus = false;
+            enemy.time = undefined;
+        }
+
+        setReady(false);
+        setEnemies(updatedEnemies);
+        startSolve({state: state});
     }
 
     const onRaceDone = (data: onRaceDoneData) => {
@@ -403,8 +385,6 @@ export default function Lobby() {
             setEnemies(updated);
         }
     }
-
-    const [isKicked, setIsKicked] = useState(false);
 
     const onKick = ({username} : {username: string}) => {
         if (username === userContext.username) {
@@ -445,10 +425,11 @@ export default function Lobby() {
         }
     })
 
-    const readyColor = ready ? "green" : "red";
-    const readyText = "YOU ARE " + (ready ? "  READY" : "UNREADY") + " (PRESS TO TOGGLE)";
+    // ***************************************
+    // END OF SOCKET EVENT HANDLER DEFINITIONS
+    // ***************************************
 
-    function allReady() : boolean {
+    function isEverybodyReady() : boolean {
         for (const enemy of enemies.values()) {
             if (!enemy.readyStatus) {
                 return false;
@@ -457,73 +438,73 @@ export default function Lobby() {
         return ready;
     }
 
-    function startLobby(force: boolean) : void {
+    const onReadyButtonClick = () => {
+        socket.emit(
+            "lobby_ready_status",
+            {lobby_id: lobby_id, ready_status: !ready}
+        )
+        setReady(!ready);
+    }
+
+    function onStartLobbyClick(force: boolean) : void {
         socket.emit(
             "lobby_start",
             { lobby_id: lobby_id, force: force }
         )
     }
 
-    if (!lobby_id) {
-        return null;
-    }
+    const raceEndCountdown = waitTime.isRunning && (
+        <div style={{ textAlign: "center", color: "red", fontSize: "40px", lineHeight: "40px" }}>
+            { waitTime.secondsLeft }
+        </div>
+    );
 
-    if (errorMSG) {
-        return <ErrorPage message={errorMSG} />
-    }
+    const beforeSolveButtons = !isSolving && (
+        <>
+            <Center>
+                <Button
+                    color={ready ? "green" : "red"}
+                    onClick={onReadyButtonClick}
+                >
+                    {"YOU ARE " + (ready ? "  READY" : "UNREADY") + " (PRESS TO TOGGLE)"}
+                </Button>
+            </Center>
+            <div>
+                { isAdmin &&
+                    <Center>
+                        <Button
+                            disabled={!isEverybodyReady()}
+                            onClick={() => onStartLobbyClick(false)}
+                        >
+                            Start lobby
+                        </Button>
+                        <Space w="md" />
+                        <Button
+                            onClick={() => onStartLobbyClick(true)}
+                        >
+                            Start lobby (force)
+                        </Button>
+                    </Center>
+                }
+            </div>
+        </>
+    );
 
     const bottomPanel = (
         <Overlay position="bottom">
             <Stack gap="xs">
-                {
-                    waitTime.isRunning &&
-                    <div style={{
-                        textAlign: "center",
-                        color: "red",
-                        fontSize: "40px",
-                        lineHeight: "40px"
-                    }}>
-                        { waitTime.secondsLeft }
-                    </div>
-                }
+                { raceEndCountdown }
                 <TimerDisplay time={timeString} />
-                {
-                    !isSolving ?
-                    <>
-                        <div>
-                            <Center>
-                                <Button color={readyColor} onClick={onReadyClick}>{readyText}</Button>
-                            </Center>
-                        </div>
-                        <div>
-                            {
-                                isAdmin ? <Center>
-                                <div style={{display: "flex"}}>
-                                    <Button disabled={!allReady()} onClick={() => startLobby(false)}>Start lobby</Button>
-                                    <Space w="md" />
-                                    <Button onClick={() => startLobby(true)}>Start lobby (force)</Button>
-                                </div>
-                            </Center> : ""
-                            }
-                        </div>
-                    </>
-                    : ""
-                }
+                { beforeSolveButtons }
             </Stack>
         </Overlay>
     );
 
-    const rightPanel = (
-        <>{
-            enemies.size
-                ?
-                    <div style={{position: "absolute", top: 0, right: 0, height: "100%",
-                    }}>
-                        <EnemyCubes enemies={enemies} />
-                    </div>
-                : null
-        }</>
-    );
+    const rightPanel = enemies.size ? (
+        <Overlay position="right">
+            <EnemyCubes enemies={enemies} />
+        </Overlay>
+    ) : null;
 
     const leftPanel = (
         <Overlay position="left">
@@ -544,8 +525,16 @@ export default function Lobby() {
         </Overlay>
     );
 
+    if (!lobby_id) {
+        return <ErrorPage message="Lobby id is not specified" />;
+    }
+
     if (isKicked) {
         return <ErrorPage message="You have been kicked from this lobby"></ErrorPage>
+    }
+
+    if (errorMSG) {
+        return <ErrorPage message={errorMSG} />
     }
 
     return (

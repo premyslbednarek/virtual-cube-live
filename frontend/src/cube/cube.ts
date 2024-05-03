@@ -37,27 +37,27 @@ function getDefaultCubeState(size: number) : string {
 export default class Cube {
     size: number
     speedMode: boolean = DEFAULT_SPEED_MODE;
-    solved: boolean
-    controls!: OrbitControls
+
     onCameraCallbacks: Array<(pos: THREE.Vector3) => void> = []
     onMoveCallbacks: Array<(move: string) => void> = []
+
     inspection: boolean = false
+
     scene: THREE.Scene
     camera: THREE.PerspectiveCamera
     renderer: THREE.WebGLRenderer
+    controls: OrbitControls
 
     cubies: Array<THREE.Group> = []
     boxes: Array<THREE.Mesh> = []
     arr!: nj.NdArray
-    group!: THREE.Group
-    tween!: TWEEN.Tween<THREE.Euler>
+
     mouseDownObject: any;
-    handler: any
-    defaultMake = true;
+
+    defaultPerformMove = true;
 
     constructor(n: number, state: string="") {
         this.size = n;
-        this.solved = true;
 
         // initialize three.js scene
         this.scene = new THREE.Scene();
@@ -68,6 +68,12 @@ export default class Cube {
             0.1,
             1000
         );
+
+        // init orbit controls - move around the cube
+        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.controls.enableZoom = false;
+        this.controls.enablePan = false; // disable right mouse button camera panning (side to side movement)
+        this.controls.addEventListener('change', () => this.onCameraChange());
 
         this.init_internal_state();
         this.draw(state);
@@ -134,15 +140,6 @@ export default class Cube {
         }
     }
 
-    init_camera_controls() {
-        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-        this.controls.enableZoom = false;
-        // disable right mouse button camera panning (side to side movement)
-        this.controls.enablePan = false;
-        this.controls.update();
-        this.controls.addEventListener('change', () => this.onCameraChange());
-    }
-
     onCameraChange() {
         this.render();
         for (const fun of this.onCameraCallbacks) {
@@ -170,22 +167,6 @@ export default class Cube {
 
     onMove(callback: (move: string) => void) {
         this.onMoveCallbacks.push(callback);
-    }
-
-    init_keyboard_controls() {
-        // We need to remove the event listener after page unload, for that
-        // we need to pass a named function into addEventListener.
-        this.handler = (event: any) => {
-            let move_str = keybinds.get(event.key);
-            if (move_str) {
-                this.makeKeyboardMove(move_str);
-            }
-        }
-        document.addEventListener("keydown", this.handler);
-    }
-
-    remove_keyboard_controls() {
-        document.removeEventListener("keydown", this.handler);
     }
 
     resizeCanvas() {
@@ -393,32 +374,29 @@ export default class Cube {
     }
 
     clearGroup() {
-        // remove all cubies from group that was used for rotating the cubies
-        // on screen and remove the group from the scene
-        for (var i = this.group.children.length - 1; i >= 0; --i) {
-            this.scene.attach(this.group.children[i]);
-        }
-        this.scene.remove(this.group);
     }
 
-    // cancel current move animation
     animationForceEnd() {
-        if (this.tween) {
-            this.tween.stop();
-            this.tween.end();
+        // cancel current move animation
+        // if previous move animation was still in progress, force it to end
+        // this would not work correctly without calling .stop() first
+        for (const tween of TWEEN.getAll()) {
+            if (tween.isPlaying()) {
+                tween.stop();
+                tween.end();
+            }
         }
     }
 
-    makeMove(move_string: string, send: boolean=true, make=this.defaultMake) {
+    makeMove(move_string: string, send: boolean=true, performMove=this.defaultPerformMove) {
         if (this.inspection && !["x", "x'", "y", "y'", "z", "z'"].includes(move_string)) {
             return;
         }
 
-        // if previous move animation was still in progress, force it to end
-        // this would not work correctly without calling .stop() first
-        if (this.tween && this.tween.isPlaying()) {
-            this.animationForceEnd();
-        }
+        const tweens = TWEEN.getAll()
+        console.log(tweens, "tweens")
+
+        this.animationForceEnd();
 
         if (send) {
             for (const fun of this.onMoveCallbacks) {
@@ -426,7 +404,7 @@ export default class Cube {
             }
         }
 
-        if (!make) {
+        if (!performMove) {
             return;
         }
 
@@ -441,8 +419,8 @@ export default class Cube {
         // the group has a pivot (the point around which we rotate)
         // at (0, 0, 0). Rotating individual cubies before adding them first
         // to a group with a pivot rotates them around their own axis.
-        this.group = new THREE.Group();
-        this.scene.add(this.group);
+        const tweenGroup = new THREE.Group();
+        this.scene.add(tweenGroup);
 
         // get layer indices of layers we rotate
         // for rotations, this is [0, ..., n-1]
@@ -457,19 +435,25 @@ export default class Cube {
             // get cubies objects that will be rotated
             const group_indices = layer.flatten().tolist() as Array<number>;
             for (const group_index of group_indices) {
-                this.group.attach(this.cubies[group_index]);
+                tweenGroup.attach(this.cubies[group_index]);
             }
         }
 
         // rotate layer on screen
-        this.tween = new TWEEN.Tween(this.group.rotation)
+        const tween = new TWEEN.Tween(tweenGroup.rotation)
                         .to({[move.axis]: -1 * direction * Math.PI / 2}, 200)
                         .easing(TWEEN.Easing.Quadratic.Out)
                         .onComplete(() => {
                             removeForRender(this);
                             this.clearGroup();
+                            // remove all cubies from group that was used for rotating the cubies
+                            // on screen and remove the group from the scene
+                            for (var i = tweenGroup.children.length - 1; i >= 0; --i) {
+                                this.scene.attach(tweenGroup.children[i]);
+                            }
+                            this.scene.remove(tweenGroup);
                         })
-                        .start();
+        tween.start();
 
         // add cube to render queue
         addForRender(this);

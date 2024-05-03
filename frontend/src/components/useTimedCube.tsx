@@ -4,6 +4,7 @@ import useStopwatch from "./useTimer";
 import useCountdown from "./useCountdown";
 import { print_time } from "../cube/timer";
 import { NumberInput, Switch } from "@mantine/core";
+import keybinds from "../cube/keybindings";
 
 export const INSPECTION_LENGTH = 3 // solve inspection length in seconds
 export const DEFAULT_CUBE_SIZE = 3
@@ -67,11 +68,15 @@ export default function useTimedCube() {
 
     const [times, setTimes] = useState<Array<number | null>>([])
 
+    const onKeyDown = (event: KeyboardEvent) => {
+        let move_str = keybinds.get(event.key);
+        if (move_str) {
+            cube.makeKeyboardMove(move_str);
+        }
+    }
+
     // init cube controls
     useEffect(() => {
-        cube.init_keyboard_controls();
-        cube.init_camera_controls();
-
         const onMouseDown = (event: MouseEvent) => {
             cube.mouseDown(event);
         }
@@ -85,12 +90,13 @@ export default function useTimedCube() {
         window.addEventListener("resize", onResize);
         document.addEventListener("mousedown", onMouseDown);
         document.addEventListener("mouseup", onMouseUp);
+        document.addEventListener("keydown", onKeyDown);
 
         return () => {
             window.removeEventListener("resize", onResize);
             document.removeEventListener("mousedown", onMouseDown);
             document.removeEventListener("mouseup", onMouseUp);
-            cube.remove_keyboard_controls();
+            document.removeEventListener("keydown", onKeyDown);
         }
     }, [cube])
 

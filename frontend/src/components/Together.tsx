@@ -31,7 +31,7 @@ function TogetherLobby({id} : {id: number}) {
     useEffect(() => {
         socket.connect();
 
-        cube.defaultMake = false;
+        cube.defaultPerformMove = false;
 
         cube.onMove((move_str: string) => socket.emit("together_move", { move: move_str }));
         cube.onCamera((new_position: THREE.Vector3) => socket.emit("together_camera", { position: new_position }));

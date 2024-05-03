@@ -2,7 +2,6 @@ import nj from '@d4c/numjs';
 import * as THREE from 'three';
 import * as TWEEN from '@tweenjs/tween.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import keybinds from './keybindings'
 import { addForRender, removeForRender, requestRenderIfNotRequested } from './render';
 import { getOrtogonalVectors, getScreenCoordinates } from './utils';
 import { parse_move, getFace, LayerMove } from './move';
@@ -54,15 +53,18 @@ export default class Cube {
     renderer: THREE.WebGLRenderer
     controls: OrbitControls
 
-    cubies: Array<THREE.Group> = []
     boxes: Array<THREE.Mesh> = []
-    arr!: nj.NdArray
+
+    // since numjs does not support ndarray for non numeric types
+    // create a flat array of THREE.Groups and ndarray of cubies indices
+    cubies: Array<THREE.Group> = []
+    cubieIndices!: nj.NdArray
 
     mouseDownInfo?: MouseDownInfo;
 
     defaultPerformMove = true;
 
-    constructor(n: number, state: string="") {
+    constructor(n: number, state?: string) {
         this.size = n;
 
         // initialize three.js scene
@@ -99,7 +101,7 @@ export default class Cube {
         // create NxNxN array - cube representation
         // elements of this array are indices to this.cubies array
         // numjs does not to have groups as array elements
-        this.arr = nj.arange(cubiesCount).reshape(n, n, n)
+        this.cubieIndices = nj.arange(cubiesCount).reshape(n, n, n)
 
         // position cubies in space
         // use offset, so the middle of the cube is at (0, 0, 0)
@@ -107,8 +109,8 @@ export default class Cube {
         for (let i = 0; i < n; ++i) {
             for (let j = 0; j < n; ++j) {
                 for (let k = 0; k < n; ++k) {
-                    const cubie_index = this.arr.get(i, j, k);
-                    const cubie = this.cubies[cubie_index];
+                    const cubieIndex = this.cubieIndices.get(i, j, k);
+                    const cubie = this.cubies[cubieIndex];
                     cubie.position.set(
                         offset + i,
                         offset + j,
@@ -286,11 +288,11 @@ export default class Cube {
         }
     }
 
-    draw(state: string = "") {
-        if (state === "") {
+    draw(state?: string) {
+        if (!state) {
             state = getDefaultCubeState(this.size);
         }
-        // clear scene
+        // clear the scene
         this.scene.remove.apply(this.scene, this.scene.children);
 
         this.camera.position.set(0, this.size + this.size / 2 - 1.2, this.size + this.size / 2 + 1)
@@ -364,7 +366,7 @@ export default class Cube {
         }
         // arr.pick type annotation seems wrong - it accepts null values
         // therefore "as any" usage
-        return this.arr.pick(x as any, y as any, z as any);
+        return this.cubieIndices.pick(x as any, y as any, z as any);
     }
 
     rotate_layer(axis: string, index: number, dir: number) {
@@ -570,11 +572,7 @@ export default class Cube {
         // get clicked sticker position along the rotations axis and round to nearest .5
         // HERE, TAKE THE PARENT POSITION, NOT THE STICKER - todo
 
-        const componentIndex = axis == "x" ? 0
-                            :  axis == "y" ? 1
-                            :  axis == "z" ? 2
-                            : -1
-
+        const componentIndex = axis === "x" ? 0 :  axis === "y" ? 1 :  2
         let coord = this.mouseDownInfo.sticker.parent?.position.getComponent(componentIndex);
         if (!coord) return;
         coord = Math.round(coord * 2) / 2;

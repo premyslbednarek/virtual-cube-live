@@ -2,7 +2,7 @@ import { Text, ActionIcon, Button, Modal, Paper, ScrollArea, Space, Table, Title
 import { print_time } from "../cube/timer";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { UserContext } from "../userContext";
-import { useDisclosure, useViewportSize } from "@mantine/hooks";
+import { useDisclosure } from "@mantine/hooks";
 import { Replay } from "./Replay";
 import { IconX } from "@tabler/icons-react";
 
@@ -133,17 +133,26 @@ export function TimeList({solves} : {solves: Array<Solve>}) {
     const [opened, { open, close }] = useDisclosure(false);
     const [modalSolveId, setModalSolveId] = useState<string | null>(null);
 
-    const { height: viewportHeight } = useViewportSize();
     const ref = useRef<HTMLDivElement | null>(null);
     const [height, setHeight] = useState(150);
 
+    const updateHeight = () => {
+        console.log("update", ref)
+        if (!ref.current) return;
+        setHeight(window.innerHeight - ref.current.offsetTop - 20)
+    }
+
     useEffect(() => {
-        if (!ref.current) {
-            return;
+        updateHeight();
+    })
+
+    useEffect(() => {
+        window.addEventListener("resize", updateHeight);
+        return () => {
+            window.removeEventListener("resize", updateHeight);
         }
-        console.log("set")
-        setHeight(viewportHeight - ref.current.offsetTop - 20)
-    }, [viewportHeight])
+    })
+
 
     const rows = solves.map((solve, idx) => (
         <Table.Tr key={solve.id}>

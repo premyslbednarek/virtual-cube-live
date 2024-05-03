@@ -23,7 +23,6 @@ import { useHotkeys } from "react-hotkeys-hook";
 import produce from "immer";
 import { print_time } from "../cube/timer";
 import NavigationPanel from "./NavigationPanel";
-import useCountdown from "./useCountdown";
 import { RenderedCube } from "./CubeCanvases";
 import Invitation from "./Invitation";
 import ErrorPage from "./ErrorPage";
@@ -33,6 +32,7 @@ import { IconCrown } from "@tabler/icons-react";
 import { Overlay } from "./Overlay";
 import useTimedCube, { useSpeedMode } from "./useTimedCube";
 import TimerDisplay from "./TimerDisplay";
+import { useCountdown } from "./TimerHooks";
 
 type LobbyPoints = Array<{
     username: string;
@@ -163,6 +163,19 @@ function Results({lastResult, lobbyPoints} : {lastResult: RaceResults, lobbyPoin
     );
 }
 
+interface LobbyConnectResponseSuccess {
+    status: 200;
+    userList: Array<[string, boolean, boolean, string]>;
+    isAdmin: boolean;
+    cubeSize: number;
+    points: LobbyPoints
+}
+
+interface LobbyConnectResponseError {
+    status: 400;
+    msg: string;
+}
+
 
 export default function Lobby() {
     const params = useParams();
@@ -213,20 +226,6 @@ export default function Lobby() {
 
     useEffect(() => {
         socket.connect();
-        console.log("connection to socket...")
-
-        interface LobbyConnectResponseSuccess {
-            status: 200;
-            userList: Array<[string, boolean, boolean, string]>; // username, ready, points
-            isAdmin: boolean;
-            cubeSize: number;
-            points: LobbyPoints
-        }
-
-        interface LobbyConnectResponseError {
-            status: 400;
-            msg: string;
-        }
 
         socket.emit("lobby_connect",
             { lobby_id: lobby_id },
@@ -269,7 +268,6 @@ export default function Lobby() {
         cube.onCamera(send_camera);
 
         return () => {
-            console.log("disconnection from socket...")
             socket.disconnect();
         };
     }, [cube, enemies, lobby_id])

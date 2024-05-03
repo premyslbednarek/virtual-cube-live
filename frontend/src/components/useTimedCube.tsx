@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import Cube, { DEFAULT_SPEED_MODE } from "../cube/cube";
-import useStopwatch from "./useTimer";
-import useCountdown from "./useCountdown";
 import { print_time } from "../cube/timer";
 import { NumberInput, Switch } from "@mantine/core";
 import keybinds from "../cube/keybindings";
+import { useCountdown, useStopwatch } from "./TimerHooks";
 
 export const INSPECTION_LENGTH = 3 // solve inspection length in seconds
 export const DEFAULT_CUBE_SIZE = 3

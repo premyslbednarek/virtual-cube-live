@@ -33,6 +33,12 @@ function getDefaultCubeState(size: number) : string {
     return state;
 }
 
+interface MouseDownInfo {
+    clientX: number;
+    clientY: number;
+    sticker: THREE.Object3D<THREE.Object3DEventMap>;
+    clickedPoint: THREE.Vector3
+}
 
 export default class Cube {
     size: number
@@ -52,7 +58,7 @@ export default class Cube {
     boxes: Array<THREE.Mesh> = []
     arr!: nj.NdArray
 
-    mouseDownObject: any;
+    mouseDownInfo?: MouseDownInfo;
 
     defaultPerformMove = true;
 
@@ -79,6 +85,41 @@ export default class Cube {
         this.draw(state);
     }
 
+    init_internal_state() {
+        const n = this.size;
+        const cubiesCount = n*n*n;
+
+        this.cubies = []
+        for (var i = 0; i < cubiesCount; ++i) {
+            this.cubies.push(new THREE.Group());
+        }
+
+        this.generateCubies()
+
+        // create NxNxN array - cube representation
+        // elements of this array are indices to this.cubies array
+        // numjs does not to have groups as array elements
+        this.arr = nj.arange(cubiesCount).reshape(n, n, n)
+
+        // position cubies in space
+        // use offset, so the middle of the cube is at (0, 0, 0)
+        const offset = -(this.size - 1) / 2;
+        for (let i = 0; i < n; ++i) {
+            for (let j = 0; j < n; ++j) {
+                for (let k = 0; k < n; ++k) {
+                    const cubie_index = this.arr.get(i, j, k);
+                    const cubie = this.cubies[cubie_index];
+                    cubie.position.set(
+                        offset + i,
+                        offset + j,
+                        offset + k
+                    );
+                    this.scene.add(cubie);
+                }
+            }
+        }
+    }
+
     startInspection() {
         this.inspection = true;
     }
@@ -103,41 +144,6 @@ export default class Cube {
 
     unmount(container: HTMLElement) {
         container.removeChild(this.renderer.domElement);
-    }
-
-    init_internal_state() {
-        const n = this.size;
-        const number_of_cubies = n*n*n;
-
-        this.cubies = []
-        for (var i = 0; i < number_of_cubies; ++i) {
-            this.cubies.push(new THREE.Group());
-        }
-
-        this.generateCubies()
-
-        // create NxNxN array - cube representation
-        // elements of this array are indices to this.cubies array
-        // numjs does not to have groups as array elements
-        this.arr = nj.arange(number_of_cubies).reshape(n, n, n)
-
-        // position cubies in space
-        // use offset, so the middle of the cube is at (0, 0, 0)
-        const offset = -(this.size - 1) / 2;
-        for (let i = 0; i < n; ++i) {
-            for (let j = 0; j < n; ++j) {
-                for (let k = 0; k < n; ++k) {
-                    const cubie_index = this.arr.get(i, j, k);
-                    const cubie = this.cubies[cubie_index];
-                    cubie.position.set(
-                        offset + i,
-                        offset + j,
-                        offset + k
-                    );
-                    this.scene.add(cubie);
-                }
-            }
-        }
     }
 
     onCameraChange() {
@@ -478,7 +484,7 @@ export default class Cube {
         const intersectedStickers = raycaster.intersectObjects(this.cubies);
 
         if (intersectedStickers.length === 0) {
-            this.mouseDownObject = undefined;
+            this.mouseDownInfo = undefined;
             return;
         }
 
@@ -491,7 +497,7 @@ export default class Cube {
         const clickedSticker = intersectedStickers[0].object;
         const clickedCoordinates = intersectedStickers[0].point;
 
-        this.mouseDownObject = {
+        this.mouseDownInfo = {
             clientX: event.clientX,
             clientY: event.clientY,
             sticker: clickedSticker,
@@ -501,7 +507,7 @@ export default class Cube {
 
     mouseUp(event: MouseEvent) {
         // check whether a sticker was clicked on mouseDown event handler
-        if (this.mouseDownObject === undefined) {
+        if (this.mouseDownInfo === undefined) {
             return;
         }
 
@@ -509,26 +515,26 @@ export default class Cube {
 
         // direction of the cursor movement
         const mouseMovementVector = new THREE.Vector2(
-            event.clientX - this.mouseDownObject.clientX,
-            event.clientY - this.mouseDownObject.clientY
+            event.clientX - this.mouseDownInfo.clientX,
+            event.clientY - this.mouseDownInfo.clientY
         )
 
         if (mouseMovementVector.length() <= 3) {
             // the mouse movement was very short - possibly just a click
             return;
         }
-        const clickedPosition = this.mouseDownObject.clickedPoint;
+        const clickedPosition = this.mouseDownInfo.clickedPoint;
 
         // calculate normal vector to the clicked sticker plane
         const stickerNormal = new THREE.Vector3();
-        this.mouseDownObject.sticker.getWorldDirection(stickerNormal);
+        this.mouseDownInfo.sticker.getWorldDirection(stickerNormal);
         stickerNormal.round();
         // visualize the normal
         // drawLine(this.mouseDownObject.clickedPoint, stickerNormal.clone().add(this.mouseDownObject.clickedPoint), this.scene);
 
         const orthogonalVectors = getOrtogonalVectors(stickerNormal);
         // visualize the orthogonal vectors
-        const startPoint = this.mouseDownObject.clickedPoint;
+        const startPoint = this.mouseDownInfo.clickedPoint;
         const endPoints = orthogonalVectors.map((vector) => vector.clone().add(startPoint));
         // endPoints.forEach((endPoint) => drawLine(startPoint, endPoint, this.scene));
 
@@ -563,7 +569,14 @@ export default class Cube {
 
         // get clicked sticker position along the rotations axis and round to nearest .5
         // HERE, TAKE THE PARENT POSITION, NOT THE STICKER - todo
-        let coord = this.mouseDownObject.sticker.parent.position[axis as any];
+
+        const componentIndex = axis == "x" ? 0
+                            :  axis == "y" ? 1
+                            :  axis == "z" ? 2
+                            : -1
+
+        let coord = this.mouseDownInfo.sticker.parent?.position.getComponent(componentIndex);
+        if (!coord) return;
         coord = Math.round(coord * 2) / 2;
 
         // exception fro middle layer

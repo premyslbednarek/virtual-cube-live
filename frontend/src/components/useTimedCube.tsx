@@ -68,12 +68,6 @@ export default function useTimedCube() {
 
     const [times, setTimes] = useState<Array<number | null>>([])
 
-    const onKeyDown = (event: KeyboardEvent) => {
-        let move_str = keybinds.get(event.key);
-        if (move_str) {
-            cube.makeKeyboardMove(move_str);
-        }
-    }
 
     // init cube controls
     useEffect(() => {
@@ -83,6 +77,14 @@ export default function useTimedCube() {
         const onMouseUp = (event: MouseEvent) => {
             cube.mouseUp(event);
         }
+
+        const onKeyDown = (event: KeyboardEvent) => {
+            let move_str = keybinds.get(event.key);
+            if (move_str) {
+                cube.makeKeyboardMove(move_str);
+            }
+        }
+
         const onResize = () => {
             cube.resizeCanvas();
         }

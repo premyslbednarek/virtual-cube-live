@@ -8,7 +8,7 @@ import { Text, Button, Center, Flex, Title } from "@mantine/core";
 import CopyButton from "../CopyButton";
 import useTimedCube, { CubeSizeController, DEFAULT_CUBE_SIZE, useSpeedMode } from "./useTimedCube";
 import { RenderedCube } from "./CubeCanvases";
-import { Panel } from "./Panels";
+import { Overlay } from "./Overlay";
 import TimerDisplay from "./TimerDisplay";
 import NavigationPanel from "./NavigationPanel";
 
@@ -41,7 +41,7 @@ function TogetherLobby({id} : {id: number}) {
             { "id": id },
             (response: TogetherJoinResponse) => {
                 setUsers(response.users);
-                cube.changeLayers(response.cube_size);
+                cube.setSize(response.cube_size);
                 cube.setState(response.cube_state);
                 setUuid(response.uuid)
             }
@@ -82,7 +82,7 @@ function TogetherLobby({id} : {id: number}) {
 
     const onLayersChange = ({newSize} : {newSize: number}) => {
         setCubeSize(newSize);
-        cube.changeLayers(newSize);
+        cube.setSize(newSize);
     }
 
     useEffect(() => {
@@ -113,12 +113,12 @@ function TogetherLobby({id} : {id: number}) {
     const inviteURL = window.location.host + "/together/" + uuid;
     return (
         <>
-            <Panel position="top">
+            <Overlay position="top">
                 <Center>
                     {inviteURL} <CopyButton value={inviteURL}></CopyButton>
                 </Center>
-            </Panel>
-            <Panel position="left">
+            </Overlay>
+            <Overlay position="left">
                 <NavigationPanel />
                 {speedModeController}
                 <CubeSizeController value={cubeSize} onChange={changeCubeSize} />
@@ -126,18 +126,18 @@ function TogetherLobby({id} : {id: number}) {
                 { users.map(user => (
                     <Text key={user}>{user} {userContext.username === user && " (you)"}</Text>
                 ))}
-            </Panel>
+            </Overlay>
 
             <RenderedCube cube={cube} fullscreen />
 
-            <Panel position="bottom">
+            <Overlay position="bottom">
                 <TimerDisplay time={timeString} />
                 <Flex justify="center" gap="md">
                     <Button onClick={() => socket.emit("together_reset")}>Reset cube</Button>
                     <Button onClick={() => socket.emit("together_solve_start")}>Solve start</Button>
                 </Flex>
 
-            </Panel>
+            </Overlay>
         </>
     );
 }

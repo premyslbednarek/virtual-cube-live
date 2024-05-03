@@ -23,7 +23,7 @@ const yAxis = new Axis("y", new THREE.Vector3(0, 1, 0));
 const zAxis = new Axis("z", new THREE.Vector3(0, 0, 1));
 
 export default class Cube {
-    n: number
+    size: number
     speedMode: boolean = DEFAULT_SPEED_MODE;
     solved: boolean
     controls!: OrbitControls
@@ -44,7 +44,7 @@ export default class Cube {
     defaultMake = true;
 
     constructor(n: number, state: string="") {
-        this.n = n;
+        this.size = n;
         this.solved = true;
 
         this.onCameraCallbacks = [];
@@ -74,7 +74,7 @@ export default class Cube {
         let state = "";
         const colors = "WGRBOY";
         for (const color of colors) {
-            for (let i = 0; i < this.n * this.n; ++i) {
+            for (let i = 0; i < this.size * this.size; ++i) {
                 state += color;
             }
         }
@@ -104,7 +104,7 @@ export default class Cube {
     }
 
     init_internal_state() {
-        const n = this.n;
+        const n = this.size;
         const number_of_cubies = n*n*n;
 
         this.cubies = []
@@ -121,7 +121,7 @@ export default class Cube {
 
         // position cubies in space
         // use offset, so the middle of the cube is at (0, 0, 0)
-        const offset = -(this.n - 1) / 2;
+        const offset = -(this.size - 1) / 2;
         for (let i = 0; i < n; ++i) {
             for (let j = 0; j < n; ++j) {
                 for (let k = 0; k < n; ++k) {
@@ -227,8 +227,8 @@ export default class Cube {
         this.render();
     }
 
-    changeLayers(newLayers: number) {
-        this.n = newLayers;
+    setSize(newSize: number) {
+        this.size = newSize;
         this.init_internal_state();
         this.draw();
     }
@@ -256,7 +256,7 @@ export default class Cube {
     }
 
     drawStickers(state: string = "") {
-        const n = this.n;
+        const n = this.size;
 
         let faceCenters = [
             new THREE.Vector3(0, 1, 0),
@@ -311,7 +311,7 @@ export default class Cube {
         // clear scene
         this.scene.remove.apply(this.scene, this.scene.children);
 
-        this.camera.position.set(0, this.n + this.n / 2 - 1.2, this.n + this.n / 2 + 1)
+        this.camera.position.set(0, this.size + this.size / 2 - 1.2, this.size + this.size / 2 + 1)
         this.camera.lookAt(0, 0, 0);
 
         // visualize the axes
@@ -390,8 +390,8 @@ export default class Cube {
         const layer = this.getLayer(axis, index);
         const rotated = nj.rot90(layer, -1 * dir).clone()
 
-        for (let i = 0; i < this.n; ++i) {
-            for (let j = 0; j < this.n; ++j) {
+        for (let i = 0; i < this.size; ++i) {
+            for (let j = 0; j < this.size; ++j) {
                 layer.set(i, j, rotated.get(i, j))
             }
         }
@@ -451,7 +451,7 @@ export default class Cube {
 
         // get layer indices of layers we rotate
         // for rotations, this is [0, ..., n-1]
-        const indices = move.get_indices(this.n);
+        const indices = move.get_indices(this.size);
 
         for (let index of indices) {
             // get all cubies from given layer
@@ -611,7 +611,7 @@ export default class Cube {
             rotationSign *= -1;
         }
 
-        const offset = -(this.n - 1) / 2;
+        const offset = -(this.size - 1) / 2;
         // TODO fix middle layers moves
         // TODO M on 4x4 does not work
         const moveObj = new LayerMove(face as any, axis as any, flipped, Math.abs(coord + offset) + 1, rotationSign, false, false);

@@ -30,7 +30,7 @@ import ErrorPage from "./ErrorPage";
 import TimeHistory from "./TimeHistory";
 import AdminPanelButton from "./LobbyAdminPanel";
 import { IconCrown } from "@tabler/icons-react";
-import { Panel } from "./Panels";
+import { Overlay } from "./Overlay";
 import useTimedCube, { useSpeedMode } from "./useTimedCube";
 import TimerDisplay from "./TimerDisplay";
 
@@ -473,7 +473,7 @@ export default function Lobby() {
     }
 
     const bottomPanel = (
-        <Panel position="bottom">
+        <Overlay position="bottom">
             <Stack gap="xs">
                 {
                     waitTime.isRunning &&
@@ -510,7 +510,7 @@ export default function Lobby() {
                     : ""
                 }
             </Stack>
-        </Panel>
+        </Overlay>
     );
 
     const rightPanel = (
@@ -526,7 +526,7 @@ export default function Lobby() {
     );
 
     const leftPanel = (
-        <Panel position="left">
+        <Overlay position="left">
             <Flex align="center">
                 <NavigationPanel />
                 { isAdmin && <AdminPanelButton enemies={enemies} /> }
@@ -541,7 +541,7 @@ export default function Lobby() {
                 <Space h="sm" />
                 <TimeHistory cubeSize={cubeSize} />
             </>}
-        </Panel>
+        </Overlay>
     );
 
     if (isKicked) {

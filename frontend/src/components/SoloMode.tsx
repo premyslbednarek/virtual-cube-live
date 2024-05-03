@@ -3,7 +3,7 @@ import { RenderedCube } from "./CubeCanvases";
 import NavigationPanel from "./NavigationPanel";
 import { socket } from "../socket";
 import * as THREE from 'three';
-import { Flex, ActionIcon, Button, Slider, Text, Modal, Space, Center } from "@mantine/core";
+import { Flex, ActionIcon, Button, Modal, Space, Center } from "@mantine/core";
 import { useHotkeys } from "react-hotkeys-hook";
 import { parse_move } from "../cube/move";
 import { IconDeviceFloppy } from "@tabler/icons-react";
@@ -12,7 +12,7 @@ import { useDisclosure } from "@mantine/hooks";
 import TimeHistory, { Solve } from "./TimeHistory";
 import useTimedCube, { CubeSizeController, DEFAULT_CUBE_SIZE, useSpeedMode } from "./useTimedCube";
 import TimerDisplay from "./TimerDisplay";
-import { Panel } from "./Panels";
+import { Overlay } from "./Overlay";
 
 export default function SoloMode() {
     const [cubeSize, setCubeSize] = useState(DEFAULT_CUBE_SIZE);
@@ -109,7 +109,7 @@ export default function SoloMode() {
     const continue_solve = async (solve_id: number) => {
         const response: {startTime: number, state: string, layers: number} = await socket.emitWithAck("continue_solve", {solve_id: solve_id});
         setIsSolving(true);
-        cube.changeLayers(response.layers)
+        cube.setSize(response.layers)
         cube.setState(response.state)
         setCubeSize(response.layers);
         stopwatch.startFromTime(response.startTime);
@@ -119,7 +119,7 @@ export default function SoloMode() {
     const onLayersChange = (newSize: number) => {
         setCubeSize(newSize);
         socket.emit("change_layers", {newSize: newSize});
-        cube.changeLayers(newSize);
+        cube.setSize(newSize);
         setTimes([]);
     }
 
@@ -129,7 +129,7 @@ export default function SoloMode() {
                 <ShowSolvesToContinue onContinue={continue_solve} />
             </Modal>
 
-            <Panel position="left">
+            <Overlay position="left">
                 <Flex align="center">
                     <NavigationPanel />
                     { !isSolving && <Button onClick={open} size="md" radius="md">Continue solve</Button>}
@@ -141,16 +141,16 @@ export default function SoloMode() {
                 { isSolving && <ActionIcon onClick={save}><IconDeviceFloppy></IconDeviceFloppy></ActionIcon>}
                 <Space h="sm"></Space>
                 { !isSolving && <TimeHistory cubeSize={cubeSize} /> }
-            </Panel>
+            </Overlay>
 
             <RenderedCube cube={cube} fullscreen />
 
-            <Panel position="bottom">
+            <Overlay position="bottom">
                 <TimerDisplay time={timeString} />
                 <Center>
                     { !isSolving && <Button onClick={startSolve}>Start solve [spacebar]</Button> }
                 </Center>
-            </Panel>
+            </Overlay>
         </>
     );
 }

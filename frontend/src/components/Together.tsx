@@ -4,7 +4,7 @@ import { useContext, useEffect, useState } from "react";
 import { socket } from "../socket";
 import { UserContext } from "../userContext";
 import * as THREE from 'three';
-import { Button, Center, Container, Flex } from "@mantine/core";
+import { Button, Center, Flex } from "@mantine/core";
 import CopyButton from "../CopyButton";
 import useTimedCube from "./useRoom";
 import { RenderedCube } from "./CubeCanvases";

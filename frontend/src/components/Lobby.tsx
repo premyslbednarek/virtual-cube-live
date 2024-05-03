@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom"
-import React, { useEffect, useState, useMemo } from "react"
+import React, { useEffect, useState } from "react"
 import Cube from "../cube/cube";
 import { parse_move } from "../cube/move";
 import {
@@ -23,7 +23,6 @@ import { useHotkeys } from "react-hotkeys-hook";
 import produce from "immer";
 import { print_time } from "../cube/timer";
 import NavigationPanel from "./NavigationPanel";
-import useStopwatch from "./useTimer";
 import useCountdown from "./useCountdown";
 import { RenderedCube } from "./CubeCanvases";
 import Invitation from "./Invitation";
@@ -31,6 +30,9 @@ import ErrorPage from "./ErrorPage";
 import TimeHistory from "./TimeHistory";
 import AdminPanelButton from "./LobbyAdminPanel";
 import { IconCrown } from "@tabler/icons-react";
+import { Panel } from "./Panels";
+import useTimedCube from "./useRoom";
+import TimerDisplay from "./TimerDisplay";
 
 type LobbyPoints = Array<{
     username: string;
@@ -170,39 +172,23 @@ export default function Lobby() {
     const [ready, setReady] = useState(false);
     const [enemies, setEnemies] = useState<Map<string, Enemy>>(new Map());
     const [isAdmin, setIsAdmin] = useState(false);
-    const [inSolve, setInSolve] = useState(false);
     const [cubeSize, setCubeSize] = useState(3);
     const [lastRaceResults, setLastRaceResults] = useState<RaceResults>([]);
     const [lobbyPoints, setLobbyPoints] = useState<LobbyPoints>([]);
 
-    const [beforeFirstSolve, setBeforeFirstSolve] = useState(true);
-    // server timer matters - upon solve end, adjust the on-screen timer
-    // to match server timers
-    const [solveTime, setSolveTime] = useState<number | null>(null);
-
     const [errorMSG, setErrorMSG] = useState<string | null>(null);
 
-    const { formattedTime, start, stop } = useStopwatch();
-    const {
-        secondsLeft: inspectionSecondsLeft,
-        start: startCountdown,
-        isRunning: inspectionRunning
-    } = useCountdown();
-    const {
-        secondsLeft: waitTimeLeft,
-        start: startWaitTime,
-        isRunning: waitTimeRunning,
-        stop: stopWaitTime
-    } = useCountdown();
+    const { cube, isSolving, setIsSolving, addTime, startSolve, stopwatch, timeString } = useTimedCube()
 
-    const cube = useMemo(() => new Cube(cubeSize), [cubeSize]);
+    const waitTime = useCountdown();
+
 
     interface requestSolution {
         moves_done: Array<string>
     }
 
     const solveTheCube = () => {
-        if (!inSolve) {
+        if (!isSolving) {
             return;
         }
         fetch("/api/request_solution", {
@@ -290,23 +276,13 @@ export default function Lobby() {
             enemy.time = undefined;
         }
 
-        setInSolve(true);
         setReady(false);
         setEnemies(updatedEnemies);
-        setBeforeFirstSolve(false);
-        setSolveTime(null);
-        cube.setState(state);
-        cube.startInspection();
-
-        startCountdown(3, () => {
-            start();
-            cube.startSolve();
-        })
+        startSolve({state: state});
     }
 
     const onSolved = ({time} : {time : number}) => {
-        setSolveTime(time);
-        // setInSolve(false);
+        addTime(time);
     }
 
 
@@ -325,10 +301,6 @@ export default function Lobby() {
     useEffect(() => {
         socket.connect();
         console.log("connection to socket...")
-
-        cube.init_keyboard_controls();
-        cube.init_camera_controls();
-        cube.init_mouse_moves();
 
         interface LobbyConnectResponseSuccess {
             status: 200;
@@ -384,7 +356,6 @@ export default function Lobby() {
         cube.onCamera(send_camera);
 
         return () => {
-            cube.remove_keyboard_controls();
             console.log("disconnection from socket...")
             socket.disconnect();
         };
@@ -400,15 +371,15 @@ export default function Lobby() {
     }
 
     const onRaceDone = (data: onRaceDoneData) => {
-        stop();
-        stopWaitTime();
+        waitTime.stop();
+        stopwatch.stop();
         setLastRaceResults(data.results);
         setLobbyPoints(data.lobbyPoints);
-        setInSolve(false);
+        setIsSolving(false);
     }
 
-    const onStartCountdown = ({waitTime} : {waitTime: number}) => {
-        startWaitTime(waitTime, () => {});
+    const onStartCountdown = ({time} : {time: number}) => {
+        waitTime.start(time, () => {});
     }
 
     const onNewAdmin = ({username} : {username: string}) => {
@@ -483,18 +454,6 @@ export default function Lobby() {
         )
     }
 
-    const displayTime = <div style={{
-        textAlign: "center",
-        fontSize: "40px",
-        lineHeight: "40px",
-        padding: 0,
-    }}>
-        { inspectionRunning && <div>{inspectionSecondsLeft}</div> }
-        { !inspectionRunning && inSolve && solveTime == null && formattedTime }
-        { !inspectionRunning && solveTime != null && print_time(solveTime)}
-        { !inspectionRunning && !inSolve && !beforeFirstSolve && solveTime == null && "DNF"}
-    </div>
-
     if (!lobby_id) {
         return null;
     }
@@ -504,22 +463,22 @@ export default function Lobby() {
     }
 
     const bottomPanel = (
-        <div style={{position: "absolute", bottom: 10, width: "100%"}}>
+        <Panel position="bottom">
             <Stack gap="xs">
                 {
-                    waitTimeRunning &&
+                    waitTime.isRunning &&
                     <div style={{
                         textAlign: "center",
                         color: "red",
                         fontSize: "40px",
                         lineHeight: "40px"
                     }}>
-                        { waitTimeLeft }
+                        { waitTime.secondsLeft }
                     </div>
                 }
-                {displayTime}
+                <TimerDisplay time={timeString} />
                 {
-                    !inSolve ?
+                    !isSolving ?
                     <>
                         <div>
                             <Center>
@@ -541,7 +500,7 @@ export default function Lobby() {
                     : ""
                 }
             </Stack>
-        </div>
+        </Panel>
     );
 
     const rightPanel = (
@@ -557,41 +516,34 @@ export default function Lobby() {
     );
 
     const leftPanel = (
-        <div style={{position: "absolute", top: 0, left: 0}}>
+        <Panel position="left">
             <Flex align="center">
                 <NavigationPanel />
                 { isAdmin && <AdminPanelButton enemies={enemies} /> }
             </Flex>
             {
                 // show solve button for app admins
-                ( userContext.isAdmin && inSolve) && <Button ml={10} onClick={solveTheCube}>Solve</Button>
+                ( userContext.isAdmin && isSolving) && <Button ml={10} onClick={solveTheCube}>Solve</Button>
             }
-            { !inSolve && <>
+            { !isSolving && <>
                 <Results lastResult={lastRaceResults} lobbyPoints={lobbyPoints} />
                 <Space h="sm" />
                 <TimeHistory cubeSize={cubeSize} />
             </>}
-        </div>
+        </Panel>
     );
 
     if (isKicked) {
         return <ErrorPage message="You have been kicked from this lobby"></ErrorPage>
     }
 
-
-    const cubeCanvas = (
-        <div style={{height: "100%"}}>
-        <RenderedCube cube={cube} />
-        </div>
-    );
-
     return (
-        <div style={{ backgroundColor: "black", height: "100vh"}}>
-          <Invitation show={!inSolve} lobbyId={lobby_id} />
-          { cubeCanvas }
+        <>
+          <Invitation show={!isSolving} lobbyId={lobby_id} />
           { rightPanel }
           { bottomPanel }
           { leftPanel }
-        </div>
+          <RenderedCube cube={cube} fullscreen />
+        </>
     );
 }

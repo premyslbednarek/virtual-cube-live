@@ -79,6 +79,9 @@ export default function useTimedCube() {
         }
 
         const onKeyDown = (event: KeyboardEvent) => {
+            if (event.ctrlKey || event.altKey || event.shiftKey || event.metaKey) {
+                return;
+            }
             let move_str = keybinds.get(event.key);
             if (move_str) {
                 cube.makeKeyboardMove(move_str);

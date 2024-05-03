@@ -130,7 +130,7 @@ export default function SoloMode() {
                 <ShowSolvesToContinue onContinue={continue_solve} />
             </Modal>
 
-            <Panel position="left">
+            <Panel position="top">
                 <Flex align="center">
                     <NavigationPanel />
                     { !isSolving && <Button onClick={open} size="md" radius="md">Continue solve</Button>}

@@ -1,6 +1,8 @@
 import React from "react";
 
-export function Panel({position, children} : {position: string, children: React.ReactNode}) {
+type Position = "top" | "bottom" | "left" | "right";
+
+export function Panel({position, children} : {position: Position, children: React.ReactNode}) {
     const extraStyle = position === "left" ? {left: 0, height: "100%"}
         : position === "right" ? {right: 0, height: "100%"}
         : position === "bottom" ? {bottom: 0, width: "100%"}

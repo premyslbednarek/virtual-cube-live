@@ -3,7 +3,7 @@ from uuid import uuid4, UUID
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import ForeignKey, select
+from sqlalchemy import ForeignKey, select, update
 from sqlalchemy.dialects.sqlite import DATETIME
 from enum import Enum
 from datetime import datetime, timedelta
@@ -505,3 +505,9 @@ def setup_admin():
         )
         db.session.add(user)
         db.session.commit()
+
+def tidy_db():
+    db.session.execute(
+        update(Lobby).where(Lobby.status != LobbyStatus.ENDED).values(status = LobbyStatus.ENDED)
+    )
+    db.session.commit()

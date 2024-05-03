@@ -53,7 +53,7 @@ export default function LobbyList() {
     })
 
     if (lobbies.length === 0) {
-      return <Text>There aren't any online lobbies right now</Text>
+      return <Text ta="center">There aren't any online lobbies right now...</Text>
     }
 
     return (

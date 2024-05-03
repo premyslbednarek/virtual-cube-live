@@ -1,6 +1,6 @@
 from app import app, socketio
 
-from model import db, setup_admin
+from model import db, setup_admin, tidy_db
 # db = SQLAlchemy()
 db.init_app(app)
 
@@ -9,6 +9,7 @@ with app.app_context():
 
 with app.app_context():
     setup_admin()
+    tidy_db()
 
 # import paths from views.py
 import api

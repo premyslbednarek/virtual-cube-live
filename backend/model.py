@@ -198,6 +198,8 @@ class Solve(db.Model):
 
     solving_sessions: Mapped[List["SolvingSession"]] = relationship()
 
+    manually_saved: Mapped[bool] = mapped_column(default=False)
+
     def is_ongoing(self) -> bool:
         return self.solving_sessions[-1].end is None
 

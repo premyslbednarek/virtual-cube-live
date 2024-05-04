@@ -87,6 +87,7 @@ def get_solves_to_continue():
         select(
             Solve.id,
             Solve.time,
+            Solve.manually_saved,
             Scramble.cube_size
         ).select_from(
             Solve
@@ -583,6 +584,7 @@ def save_solve():
 
     connection.cube.current_solve = None
     solve.end_current_session(datetime.now())
+    solve.manually_saved = True
     db.session.commit()
 
 

@@ -1,4 +1,4 @@
-import { ActionIcon } from "@mantine/core";
+import { ActionIcon, Table } from "@mantine/core";
 import { IconPlayerPlay } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { print_time } from "../cube/timer";
@@ -18,17 +18,28 @@ export default function ShowSolvesToContinue({onContinue} : {onContinue: (solve_
         }).catch(err => console.log(err));
     }, [])
 
+    const rows = solves.slice(0).reverse().map(solve => (
+        <Table.Tr key={solve.id}>
+            <Table.Td>{solve.id}</Table.Td>
+            <Table.Td>{solve.cube_size}x{solve.cube_size}</Table.Td>
+            <Table.Td>{print_time(solve.time)}</Table.Td>
+            <Table.Td><ActionIcon onClick={() => onContinue(solve.id)}><IconPlayerPlay></IconPlayerPlay></ActionIcon></Table.Td>
+        </Table.Tr>
+    ));
+
     return (
-        <div>
-         {
-            // map over reversed array - https://stackoverflow.com/a/68242111
-            solves.slice(0).reverse().map(solve => (
-                    <div key={solve.id}>
-                        {solve.cube_size}x{solve.cube_size} Time: {print_time(solve.time)} Id: {solve.id} <ActionIcon onClick={() => onContinue(solve.id)}><IconPlayerPlay></IconPlayerPlay></ActionIcon>
-                    </div>
-                )
-            )
-         }
-        </div>
+        <Table>
+            <Table.Thead>
+                <Table.Tr>
+                    <Table.Th>Solve ID</Table.Th>
+                    <Table.Th>Cube Size</Table.Th>
+                    <Table.Th>Time</Table.Th>
+                    <Table.Th>Continue</Table.Th>
+                </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+                {rows}
+            </Table.Tbody>
+        </Table>
     );
 }

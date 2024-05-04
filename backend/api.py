@@ -581,7 +581,9 @@ def save_solve():
     if not solve:
         return
 
+    connection.cube.current_solve = None
     solve.end_current_session(datetime.now())
+    db.session.commit()
 
 
 @socketio.on("solo_solve_start")

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { RenderedCube } from "./CubeCanvases";
 import NavigationPanel from "./NavigationPanel";
 import { socket } from "../socket";
-import { Flex, ActionIcon, Button, Modal, Space, Center } from "@mantine/core";
+import { Flex, ActionIcon, Button, Modal, Space, Center, Tooltip, Stack } from "@mantine/core";
 import { useHotkeys } from "react-hotkeys-hook";
 import { parse_move } from "../cube/move";
 import { IconDeviceFloppy } from "@tabler/icons-react";
@@ -105,6 +105,28 @@ export default function SoloMode() {
         setTimes([]);
     }
 
+    const saveButton = isSolving ? (
+        <Tooltip label="save current solve and continue later...">
+            <Button ml="xs" mt="xs" onClick={save} leftSection={<IconDeviceFloppy />}>Save solve</Button>
+        </Tooltip>
+    ) : null;
+
+    const panelContent = isSolving ? (
+        <>
+            {speedModeController}
+            {saveButton}
+        </>
+    ) : (
+        <>
+            {speedModeController}
+            <CubeSizeController value={cubeSize} onChange={onLayersChange} />
+            <Space h="sm" />
+            <Button onClick={open} size="md" radius="md">Continue solve</Button>
+            <Space h="sm" />
+            <TimeHistory cubeSize={cubeSize} />
+        </>
+    )
+
     return (
         <>
             <Modal opened={opened} onClose={close} title="Pick a solve to continue">
@@ -112,17 +134,10 @@ export default function SoloMode() {
             </Modal>
 
             <Overlay position="left">
-                <Flex align="center">
-                    <NavigationPanel />
-                    { !isSolving && <Button onClick={open} size="md" radius="md">Continue solve</Button>}
-                </Flex>
+                <NavigationPanel />
 
-                {speedModeController}
-                <CubeSizeController value={cubeSize} onChange={onLayersChange} />
+                {panelContent}
 
-                { isSolving && <ActionIcon onClick={save}><IconDeviceFloppy></IconDeviceFloppy></ActionIcon>}
-                <Space h="sm"></Space>
-                { !isSolving && <TimeHistory cubeSize={cubeSize} /> }
             </Overlay>
 
             <RenderedCube cube={cube} fullscreen />

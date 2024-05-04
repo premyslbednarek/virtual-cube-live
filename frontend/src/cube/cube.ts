@@ -61,6 +61,7 @@ export default class Cube {
     cubieIndices!: nj.NdArray
 
     mouseDownInfo?: MouseDownInfo;
+    tween?: TWEEN.Tween<THREE.Euler>
 
     defaultPerformMove = true;
 
@@ -381,18 +382,13 @@ export default class Cube {
         }
     }
 
-    clearGroup() {
-    }
-
     animationForceEnd() {
         // cancel current move animation
         // if previous move animation was still in progress, force it to end
         // this would not work correctly without calling .stop() first
-        for (const tween of TWEEN.getAll()) {
-            if (tween.isPlaying()) {
-                tween.stop();
-                tween.end();
-            }
+        if (this.tween && this.tween.isPlaying()) {
+            this.tween.stop();
+            this.tween.end();
         }
     }
 
@@ -448,20 +444,18 @@ export default class Cube {
         }
 
         // rotate layer on screen
-        const tween = new TWEEN.Tween(tweenGroup.rotation)
+        this.tween = new TWEEN.Tween(tweenGroup.rotation)
                         .to({[move.axis]: -1 * direction * Math.PI / 2}, 200)
                         .easing(TWEEN.Easing.Quadratic.Out)
                         .onComplete(() => {
                             removeForRender(this);
-                            this.clearGroup();
                             // remove all cubies from group that was used for rotating the cubies
                             // on screen and remove the group from the scene
                             for (var i = tweenGroup.children.length - 1; i >= 0; --i) {
                                 this.scene.attach(tweenGroup.children[i]);
                             }
                             this.scene.remove(tweenGroup);
-                        })
-        tween.start();
+                        }).start();
 
         // add cube to render queue
         addForRender(this);

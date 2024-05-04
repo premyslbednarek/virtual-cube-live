@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import Cube, { DEFAULT_SPEED_MODE } from "../cube/cube";
 import { print_time } from "../cube/timer";
-import { NumberInput, Switch } from "@mantine/core";
+import { ActionIcon, Flex, Switch, Text } from "@mantine/core";
 import keybinds from "../cube/keybindings";
 import { useCountdown, useStopwatch } from "./TimerHooks";
 import { socket } from "../socket";
 import * as THREE from "three"
+import { IconMinus, IconPlus } from "@tabler/icons-react";
 
 export const INSPECTION_LENGTH = 3 // solve inspection length in seconds
 export const DEFAULT_CUBE_SIZE = 3
@@ -14,20 +15,27 @@ export const MAX_CUBE_SIZE = 7
 
 
 export function CubeSizeController({value, onChange} : {value: number, onChange: (newSize: number)=>void}) {
+    const changeSize = (delta: number) => {
+        let newSize = value + delta;
+        if (newSize < MIN_CUBE_SIZE) {
+            newSize = MIN_CUBE_SIZE;
+        } else if (newSize > MAX_CUBE_SIZE) {
+            newSize = MAX_CUBE_SIZE;
+        }
+
+        if (newSize != value) {
+            onChange(newSize);
+        }
+    }
+
     return (
-        <NumberInput
-            m={10}
-            min={MIN_CUBE_SIZE}
-            max={MAX_CUBE_SIZE}
-            label="Cube size"
-            value={value}
-            onChange={(newValue) => {
-                const val = Number(newValue)
-                if (MIN_CUBE_SIZE <= val && val <= MAX_CUBE_SIZE) {
-                    onChange(Number(newValue));
-                }
-            }}
-        />
+        <Flex align="center" gap="xs">
+            <Text fw={700}>Cube size:</Text>
+            <ActionIcon onClick={() => changeSize(-1)}><IconMinus /></ActionIcon>
+            <Text fw={700}>{value}</Text>
+            <ActionIcon onClick={() => changeSize(+1)}><IconPlus /></ActionIcon>
+        </Flex>
+
     );
 }
 
@@ -42,18 +50,23 @@ function print_solve_time(time: number | null) {
 export function useSpeedMode(cube: Cube, onChange? : (newValue: boolean) => void) {
     const [speedMode, setSpeedMode] = useState(DEFAULT_SPEED_MODE);
 
-    const speedModeController = <Switch
-        m={10}
-        checked={speedMode}
-        onChange={(event) => {
-            const newValue = event.currentTarget.checked;
-            cube.setSpeedMode(newValue);
-            setSpeedMode(newValue)
-            if (onChange) {
-                onChange(newValue);
-            }
-        }}
-        label="Speed mode" />
+    const speedModeController = (
+        <Flex align="center">
+            <Switch
+                m={10}
+                checked={speedMode}
+                onChange={(event) => {
+                    const newValue = event.currentTarget.checked;
+                    cube.setSpeedMode(newValue);
+                    setSpeedMode(newValue)
+                    if (onChange) {
+                        onChange(newValue);
+                    }
+                }}
+            />
+            <Text fw={700}>Speed mode</Text>
+        </Flex>
+    );
 
     return speedModeController;
 }

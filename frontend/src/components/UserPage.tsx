@@ -6,6 +6,7 @@ import NavigationPanel from "./NavigationPanel";
 import { Statistics } from "./TimeHistory";
 import { UserContext } from "../userContext";
 import { IconTool } from "@tabler/icons-react";
+import { CubeSizeController } from "./useTimedCube";
 
 
 type Solve = {
@@ -96,10 +97,7 @@ export function User({username} : {username: string}) {
 
             <Container mt="xl">
                 <Title order={3}>{statsCubeSize}x{statsCubeSize} Statistics</Title>
-                <Flex align="center" gap="md">
-                    <Text>Set cube size: </Text>
-                    <Slider w="20vh" min={2} max={7} value={statsCubeSize} onChange={setStatsCubeSize}></Slider>
-                </Flex>
+                <CubeSizeController value={statsCubeSize} onChange={setStatsCubeSize} />
                 { user && user.solves && <Statistics solves={user.solves.filter(solve => solve.cube_size === statsCubeSize)} />}
             </Container>
 

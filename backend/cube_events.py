@@ -7,7 +7,7 @@ from datetime import datetime
 import time
 
 
-def handle_solve_completed(solve: Solve, lobby: Lobby):
+def handle_lobby_solve_completed(solve: Solve, lobby: Lobby):
     socketio.emit(
         "solve_completed",
         {
@@ -53,6 +53,23 @@ def handle_solve_completed(solve: Solve, lobby: Lobby):
     db.session.commit()
 
 
+def handle_completed_solve(connection: SocketConnection, solve: Solve):
+    socketio.emit( "your_solve_completed",
+        { "time": solve.time, "solve_id": solve.id },
+        to=request.sid
+    )
+
+    if connection.together_lobby:
+        socketio.emit(
+            "together_solve_end",
+            { "time": solve.time },
+            room=connection.together_lobby.get_room()
+        )
+
+    if connection.lobby:
+        handle_lobby_solve_completed(solve, connection.lobby)
+
+
 @socketio.on("move")
 @login_required
 def handle_move(data):
@@ -75,40 +92,23 @@ def handle_move(data):
 
     connection.cube.make_move(move_str, now)
 
-    if solve and solve.completed:
-        socketio.emit(
-            "your_solve_completed",
-            { "time": solve.time, "solve_id": solve.id },
-            to=request.sid
-        )
-
     if connection.together_lobby:
         socketio.emit(
             "together_move",
             { "move": move_str, "username": current_user.username},
             room=connection.together_lobby.get_room()
         )
-
-        if solve and solve.completed:
-            socketio.emit(
-                "together_solve_end",
-                { "time": solve.time },
-                room=connection.together_lobby.get_room()
-            )
-
     elif connection.lobby:
         socketio.emit(
             "lobby_move",
-            {
-                "username": current_user.username,
-                "move": move_str
-            },
+            { "username": current_user.username, "move": move_str },
             room=connection.lobby_id,
             skip_sid=request.sid
         )
 
-        if solve and solve.completed:
-            handle_solve_completed(solve, connection.lobby)
+    if solve and solve.completed:
+        handle_completed_solve(connection, solve)
+
 
 @socketio.on("camera")
 def handle_camera(data):
@@ -123,19 +123,17 @@ def handle_camera(data):
     if solve:
         solve.add_camera_change(position)
 
-    together_lobby = connection.together_lobby
-    if together_lobby:
+    if connection.together_lobby:
         socketio.emit(
             "together_camera",
             { "position": position, "username": current_user.username},
-            room=together_lobby.get_room()
+            room=connection.together_lobby.get_room()
         )
 
-    lobby = connection.lobby
-    if lobby:
+    if connection.lobby:
         socketio.emit(
             "lobby_camera",
             { "username": current_user.username, "position": position },
-            room=lobby.id,
+            room=connection.lobby.id,
             skip_sid=request.sid
         )

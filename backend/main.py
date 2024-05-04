@@ -11,8 +11,8 @@ with app.app_context():
     setup_admin()
     tidy_db()
 
-# import paths from views.py
 import api
+import cube_events
 
 if __name__ == '__main__':
     socketio.run(app, host="localhost", port=8080, debug=True)

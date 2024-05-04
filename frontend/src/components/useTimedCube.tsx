@@ -4,6 +4,8 @@ import { print_time } from "../cube/timer";
 import { NumberInput, Switch } from "@mantine/core";
 import keybinds from "../cube/keybindings";
 import { useCountdown, useStopwatch } from "./TimerHooks";
+import { socket } from "../socket";
+import * as THREE from "three"
 
 export const INSPECTION_LENGTH = 3 // solve inspection length in seconds
 export const DEFAULT_CUBE_SIZE = 3
@@ -90,6 +92,19 @@ export default function useTimedCube() {
         const onResize = () => {
             cube.resizeCanvas();
         }
+
+        function send_move(move_str: string) {
+            const data = {move: move_str}
+            socket.emit("move", data);
+        }
+
+        function send_camera(new_position: THREE.Vector3) {
+            const data = {position: new_position}
+            socket.emit("camera", data);
+        }
+
+        cube.onMove(send_move);
+        cube.onCamera(send_camera);
 
         window.addEventListener("resize", onResize);
         document.addEventListener("mousedown", onMouseDown);

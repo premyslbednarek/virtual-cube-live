@@ -14,7 +14,6 @@ import {
     Flex,
     Tooltip
 } from "@mantine/core"
-import * as THREE from 'three';
 import { socket } from "../socket";
 import './lobby.css'
 import { UserContext } from "../userContext";
@@ -236,7 +235,7 @@ export default function Lobby() {
                     return;
                 }
 
-                const m = new Map(enemies);
+                const m = new Map();
                 response.userList.forEach(([username, ready, isAdmin, state]) => {
                     m.set(username, {cube: new Cube(response.cubeSize, state), readyStatus: ready, isAdmin: isAdmin});
                 });
@@ -248,29 +247,10 @@ export default function Lobby() {
             }
         )
 
-        function send_move(move_str: string) {
-            const data = {
-                lobby_id: lobby_id,
-                move: move_str
-            }
-            socket.emit("lobby_move", data);
-        }
-
-        function send_camera(new_position: THREE.Vector3) {
-            const data = {
-                lobby_id: lobby_id,
-                position: new_position
-            }
-            socket.emit("lobby_camera", data);
-        }
-
-        cube.onMove(send_move);
-        cube.onCamera(send_camera);
-
         return () => {
             socket.disconnect();
         };
-    }, [cube, enemies, lobby_id])
+    }, [cube, lobby_id])
 
     // **************************************
     // BEGIN SOCKET EVENT HANDLER DEFINITIONS

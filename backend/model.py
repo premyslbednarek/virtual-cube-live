@@ -181,12 +181,12 @@ class Solve(db.Model):
         db.session.add(move)
         db.session.commit()
 
-    def add_camera_change(self, x, y, z, timestamp: datetime) -> None:
+    def add_camera_change(self, position) -> None:
         camera_change = CameraChange(
-            x=x,
-            y=y,
-            z=z,
-            timestamp=timestamp,
+            x=position["x"],
+            y=position["y"],
+            z=position["z"],
+            timestamp=datetime.now(),
             solving_session_id=self.solving_sessions[-1].id
         )
         db.session.add(camera_change)

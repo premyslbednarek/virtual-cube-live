@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { RenderedCube } from "./CubeCanvases";
 import NavigationPanel from "./NavigationPanel";
 import { socket } from "../socket";
-import * as THREE from 'three';
 import { Flex, ActionIcon, Button, Modal, Space, Center } from "@mantine/core";
 import { useHotkeys } from "react-hotkeys-hook";
 import { parse_move } from "../cube/move";
@@ -46,23 +45,6 @@ export default function SoloMode() {
         console.log("connection to socket...")
 
         socket.emit("solo_join")
-
-        function send_move(move_str: string) {
-            const data = {
-                move: move_str
-            }
-            socket.emit("lobby_move", data);
-        }
-
-        function send_camera(new_position: THREE.Vector3) {
-            const data = {
-                position: new_position
-            }
-            socket.emit("lobby_camera", data);
-        }
-
-        cube.onMove(send_move);
-        cube.onCamera(send_camera);
 
         return () => {
             console.log("disconnection from socket...")

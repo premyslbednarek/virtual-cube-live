@@ -13,6 +13,7 @@ with app.app_context():
 
 import api
 import cube_events
+import together_lobby
 
 if __name__ == '__main__':
     socketio.run(app, host="localhost", port=8080, debug=True)

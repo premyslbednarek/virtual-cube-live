@@ -11,6 +11,7 @@ from sqlalchemy import func
 from typing import Optional, List, TypedDict, Set
 from cube import Cube
 from werkzeug.security import generate_password_hash
+from pyTwistyScrambler import scrambler333, scrambler444, scrambler555, scrambler666, scrambler777, scrambler222
 
 from app import app, socketio
 
@@ -145,6 +146,34 @@ class Scramble(db.Model):
     cube_size: Mapped[int]
     scramble_string: Mapped[str]
     cube_state: Mapped[str]
+
+    @staticmethod
+    def new(size: int):
+        scrambler_dispatch = {
+            2: scrambler222,
+            3: scrambler333,
+            4: scrambler444,
+            5: scrambler555,
+            6: scrambler666,
+            7: scrambler777
+        }
+
+        scramble_string: str = scrambler_dispatch[size].get_WCA_scramble()
+
+        cube = Cube(size)
+        cube.move(scramble_string)
+
+        scramble = Scramble(
+            cube_size=size,
+            scramble_string=scramble_string,
+            cube_state=cube.serialize()
+        )
+
+        db.session.add(scramble)
+        db.session.commit()
+
+        return scramble
+
 
 class Solve(db.Model):
     __tablename__ = "solve"

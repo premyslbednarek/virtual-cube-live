@@ -11,9 +11,8 @@ from flask_login import LoginManager, login_user, logout_user, current_user, log
 from werkzeug.security import generate_password_hash, check_password_hash
 import json
 from sqlalchemy import select, func
-from model import db, User, Lobby, LobbyUser, Scramble, Solve, Race, SocketConnection, CubeEntity, SolveMove, TogetherLobby, TogetherUser
+from model import db, User, Lobby, LobbyUser, Scramble, Solve, Race, SocketConnection, CubeEntity, SolveMove, TogetherLobby, TogetherUser, DEFAULT_INSPECTION_TIME
 from model import LobbyUserStatus, UserRole, LobbyRole, LobbyStatus, Invitation, ANONYMOUS_PREFIX
-from pyTwistyScrambler import scrambler333, scrambler444, scrambler555, scrambler666, scrambler777, scrambler222
 from cube import Cube
 from typing import List
 from enum import Enum
@@ -26,168 +25,6 @@ from uuid import uuid4, UUID
 
 class RequestSolutionData(TypedDict):
     lobby_id: int
-
-
-INSPECTION_LENGTH_SECONDS = 3
-
-scrambler_dispatch = {
-    2: scrambler222,
-    3: scrambler333,
-    4: scrambler444,
-    5: scrambler555,
-    6: scrambler666,
-    7: scrambler777
-}
-
-@app.route("/together/new")
-@login_required
-def new_together_lobby():
-    cube = CubeEntity(size=3)
-    cube.set_default_state()
-
-    together_lobby = TogetherLobby(
-        cube=cube
-    )
-
-    db.session.add(cube)
-    db.session.add(together_lobby)
-    db.session.commit()
-
-    return { "id": together_lobby.id }, 200
-
-
-class TogetherJoinData(TypedDict):
-    id: int
-
-@socketio.on("together_join")
-@login_required
-def together_user_join(data: TogetherJoinData):
-    together_lobby = db.session.get(TogetherLobby, data["id"])
-
-    connection = SocketConnection()
-    connection.user = current_user
-    connection.socket_id = request.sid
-    connection.cube = together_lobby.cube
-    connection.together_lobby = together_lobby
-
-    together_user = TogetherUser()
-    together_user.user = current_user
-    together_lobby.users.append(together_user)
-
-    db.session.add(connection)
-    db.session.add(together_user)
-    db.session.commit()
-
-    socketio.emit(
-        "together_join",
-        { "username": current_user.username },
-        room=together_lobby.get_room()
-    )
-
-    join_room(together_lobby.get_room())
-
-    return {
-        "users": [together_user.user.username for together_user in together_lobby.users],
-        "cube_size": together_lobby.cube.size,
-        "cube_state": together_lobby.cube.state.decode("UTF-8"),
-        "uuid": str(together_lobby.uuid),
-    }
-
-
-def get_together_lobby() -> TogetherLobby | None:
-    connection = SocketConnection.get(request.sid)
-    if not connection:
-        return None
-
-    together_lobby = connection.together_lobby
-    if not together_lobby:
-        return None
-
-    return together_lobby
-
-
-@app.route("/api/get_together_id", methods=["POST"])
-@login_required
-def get_together_id():
-    data = json.loads(request.data)
-    together_lobby = db.session.scalar(
-        select(TogetherLobby).where(TogetherLobby.uuid == UUID(data["uuid"]))
-    )
-    if not together_lobby:
-        return abort(400)
-
-    return { "id": together_lobby.id }, 200
-
-@socketio.on("together_reset")
-@login_required
-def together_reset():
-    connection = SocketConnection.get(request.sid)
-    if not connection:
-        return abort(400)
-
-    together_lobby = connection.together_lobby
-    if not together_lobby:
-        return abort(400)
-
-    together_lobby.cube.set_default_state()
-    socketio.emit(
-        "together_set_state",
-        { "state": together_lobby.cube.state.decode("UTF-8")},
-        room=together_lobby.get_room()
-    )
-
-@socketio.on("together_solve_start")
-@login_required
-def together_lobby_start():
-    together_lobby = get_together_lobby()
-    if not together_lobby:
-        return
-
-    cube = together_lobby.cube
-
-    scramble = create_scramble(cube.size)
-
-    inspection_start = datetime.now()
-    solve_start = inspection_start + timedelta(seconds=INSPECTION_LENGTH_SECONDS)
-
-    solve = Solve()
-    solve.scramble = scramble
-    solve.inspection_startdate = inspection_start
-    solve.solve_startdate = solve_start
-    solve.state = scramble.cube_state
-
-    cube.current_solve = solve
-    cube.state = scramble.cube_state
-
-    db.session.add(solve)
-    db.session.commit() # obtain solve id for session start
-
-    solve.start_session(solve_start)
-
-    socketio.emit(
-        "together_solve_start",
-        {
-            "state": scramble.cube_state.decode("UTF-8"),
-        },
-        room=together_lobby.get_room()
-    )
-
-@socketio.on("together_layers_change")
-@login_required
-def together_layers_change(data):
-    new_size = data["newSize"]
-    together_lobby = get_together_lobby()
-    if not together_lobby:
-        return
-
-    together_lobby.cube.change_layers(new_size)
-
-    socketio.emit(
-        "together_layers_change",
-        data,
-        room=together_lobby.get_room()
-    )
-
 
 
 # https://flask.palletsprojects.com/en/2.3.x/patterns/viewdecorators/
@@ -702,24 +539,6 @@ def send_ready_status(data):
     print(lobby_id, ready_status)
 
 
-def create_scramble(size: int) -> Scramble:
-    scramble_string: str = scrambler_dispatch[size].get_WCA_scramble()
-
-    cube = Cube(size)
-    cube.move(scramble_string)
-
-    scramble = Scramble(
-        cube_size=size,
-        scramble_string=scramble_string,
-        cube_state=cube.serialize()
-    )
-
-    db.session.add(scramble)
-    db.session.commit()
-
-    return scramble
-
-
 @socketio.on("lobby_kick")
 @login_required
 def lobby_kick(data):
@@ -773,7 +592,7 @@ def solo_solve_start():
     if connection is None:
         return
 
-    scramble: Scramble = create_scramble(connection.cube.size)
+    scramble: Scramble = Scramble.new(connection.cube.size)
 
     now = datetime.now()
 
@@ -781,14 +600,14 @@ def solo_solve_start():
         scramble_id=scramble.id,
         user_id = current_user.id,
         inspection_startdate=now,
-        solve_startdate=now + timedelta(seconds=INSPECTION_LENGTH_SECONDS),
+        solve_startdate=now + timedelta(seconds=DEFAULT_INSPECTION_TIME),
         state=scramble.cube_state
     )
 
     db.session.add(solve)
     db.session.commit()
 
-    solve.start_session(now + timedelta(seconds=INSPECTION_LENGTH_SECONDS))
+    solve.start_session(now + timedelta(seconds=DEFAULT_INSPECTION_TIME))
 
     connection.cube.current_solve_id = solve.id
     connection.cube.state = scramble.cube_state
@@ -832,7 +651,7 @@ def lobby_start_request(data):
                 return
 
     # everybody is ready, start the race
-    scramble: Scramble = create_scramble(lobby.cube_size)
+    scramble: Scramble = Scramble.new(lobby.cube_size)
 
     race = Race(
         scramble_id=scramble.id,
@@ -845,7 +664,7 @@ def lobby_start_request(data):
     db.session.commit()
 
     now = datetime.now()
-    solve_startdate: datetime = now + timedelta(seconds=INSPECTION_LENGTH_SECONDS)
+    solve_startdate: datetime = now + timedelta(seconds=DEFAULT_INSPECTION_TIME)
 
     for user in users:
         if (user.current_connection is None):
@@ -863,7 +682,7 @@ def lobby_start_request(data):
         db.session.add(solve)
         db.session.commit()
 
-        solve.start_session(now + timedelta(seconds=INSPECTION_LENGTH_SECONDS))
+        solve.start_session(now + timedelta(seconds=DEFAULT_INSPECTION_TIME))
 
         user.current_connection.cube.current_solve_id = solve.id
         user.current_connection.cube.state = scramble.cube_state

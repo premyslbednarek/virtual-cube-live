@@ -21,6 +21,8 @@ def new_together_lobby():
         cube=cube
     )
 
+    together_lobby.creator = current_user
+
     db.session.add(cube)
     db.session.add(together_lobby)
     db.session.commit()
@@ -127,6 +129,7 @@ def together_lobby_start():
     solve.inspection_startdate = inspection_start
     solve.solve_startdate = solve_start
     solve.state = scramble.cube_state
+    solve.lobby_together=together_lobby
 
     cube.current_solve = solve
     cube.state = scramble.cube_state

@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey, select, update
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.dialects.sqlite import DATETIME
 from enum import Enum
 from datetime import datetime, timedelta
@@ -208,6 +209,9 @@ class Solve(db.Model):
     race_id: Mapped[Optional[int]] = mapped_column(ForeignKey("race.id"))
     race: Mapped[Optional["Race"]] = relationship(back_populates="solves")
 
+    lobby_together_id: Mapped[Optional[int]] = mapped_column(ForeignKey("together_lobby.id"))
+    lobby_together: Mapped[Optional["TogetherLobby"]] = relationship()
+
     solving_sessions: Mapped[List["SolvingSession"]] = relationship()
 
     manually_saved: Mapped[bool] = mapped_column(default=False)
@@ -386,6 +390,9 @@ class TogetherUser(db.Model):
 class TogetherLobby(db.Model):
     __tablename__ = "together_lobby"
     id: Mapped[int] = mapped_column(primary_key=True)
+
+    creator_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
+    creator: Mapped[User] = relationship()
 
     uuid: Mapped[UUID] = mapped_column(default=uuid4)
     cube_id: Mapped[int] = mapped_column(ForeignKey("cube.id"))

@@ -160,10 +160,10 @@ def get_solves(username: Optional[str] = None, cube_size: Optional[int] = None):
             Scramble.cube_size.label("cube_size"),
             User.username.label("username"),
             User.banned.label("banned"),
-            Solve.deleted.label("deleted")
+            Solve.deleted.label("deleted"),
         ).join(
             Scramble, Solve.scramble_id == Scramble.id,
-        ).join(
+        ).outerjoin(
             User, Solve.user_id == User.id
         ).where(
             # if username is specified, filter by it
@@ -174,7 +174,14 @@ def get_solves(username: Optional[str] = None, cube_size: Optional[int] = None):
         )
     )
 
-    return [row._asdict() for row in rows.all()]
+    rows = [row._asdict() for row in rows.all()]
+    for row in rows:
+        if not row["username"]:
+            solve = db.session.get(Solve, row["id"])
+            creator = solve.lobby_together.creator.username
+            row["username"] = f"{creator}' LobbyTogether"
+
+    return rows
 
 
 @app.route('/api/fetch_solves', methods=["GET", "POST"])

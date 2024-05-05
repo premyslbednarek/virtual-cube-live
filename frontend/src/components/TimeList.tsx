@@ -80,17 +80,19 @@ export default function TimeList({solves, setSolves, rowsPerPage=10, omitUsernam
     const pagesCount = Math.ceil(to_show.length / rowsPerPage);
 
     const onDeletion = (solve_id: number, newValue: boolean) => {
-        if (!setSolves) {
+        if (setSolves === undefined) {
             return;
         }
         setSolves(produce((draft) => {
             for (const solve of draft) {
+                console.log(solve.id, solve_id)
                 if (solve.id === solve_id) {
                     solve.deleted = newValue;
+                    console.log("setting")
                     break;
                 }
-                return draft;
             }
+            return draft;
         }))
     }
 

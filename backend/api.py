@@ -16,7 +16,7 @@ from model import LobbyUserStatus, UserRole, LobbyRole, LobbyStatus, Invitation,
 from cube import Cube
 from typing import List
 from enum import Enum
-from typing import TypedDict, Tuple, Optional
+from typing import TypedDict, Tuple, Optional, Dict
 from eventlet import sleep
 from dotenv import load_dotenv
 import os
@@ -35,6 +35,56 @@ def admin_required(fun):
             return abort(401) # unauthorized
         return fun(*args, **kwargs)
     return decorator
+
+@app.route('/api/update_banned_status', methods=["POST"])
+@admin_required
+def update_banned_status():
+    data: Dict = json.loads(request.data)
+
+    if not data:
+        return abort(400)
+
+    username: Optional[str] = data.get("username", None)
+    status: Optional[bool] = data.get("status", None)
+
+    if username is None or status is None:
+        return abort(400)
+
+    user = User.get(username)
+
+    if not user:
+        return abort(400)
+
+    user.banned = status
+    db.session.commit()
+
+    return "ok", 200
+
+
+@app.route('/api/update_solve_deleted_status', methods=["POST"])
+@admin_required
+def update_solve_deleted_status():
+    data: Dict = json.loads(request.data)
+
+    if not data:
+        return abort(400)
+
+    id: Optional[int] = data.get("id", None)
+    status: Optional[bool] = data.get("status", None)
+
+    if id is None or status is None:
+        return abort(400)
+
+    solve = db.session.get(Solve, id)
+
+    if not solve:
+        return abort(400)
+
+    solve.deleted = status
+    db.session.commit()
+
+    return "ok", 200
+
 
 @app.route('/api/<string:username>/make_admin')
 @admin_required
@@ -114,6 +164,8 @@ def get_solves(username: Optional[str] = None, cube_size: Optional[int] = None):
         ).join(
             User, Solve.user_id == User.id
         ).where(
+            User.banned == False,
+            Solve.deleted == False,
             # if username is specified, filter by it
             not username or User.username == username,
             not cube_size or Scramble.cube_size == cube_size
@@ -190,6 +242,7 @@ def get_user_info():
 
     return {
         "username": user.username,
+        "banned": user.banned,
         "role": "user" if user.role == UserRole.USER else "admin",
         "created_date": user.created_date,
         "solves": get_solves(user.username)
@@ -372,6 +425,9 @@ def login_post():
     if user is None or not check_password_hash(user.password_hash, password):
         flash("Wrong username or password!")
         return {"msg": "Wrong username or password"}, 400
+
+    if user.banned:
+        return {"msg", "Your account has been banned."}
 
     login_user(user, remember=True)
     print("Login succesfull")

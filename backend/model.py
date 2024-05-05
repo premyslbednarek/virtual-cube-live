@@ -53,6 +53,7 @@ class User(UserMixin, db.Model):
     password_hash: Mapped[str] = mapped_column(default="")
     role: Mapped[UserRole] = mapped_column(default=UserRole.USER)
     created_date: Mapped[datetime] = mapped_column(insert_default=func.now())
+    banned: Mapped[bool] = mapped_column(default=False)
 
     @staticmethod
     def create_anonymous():
@@ -66,6 +67,14 @@ class User(UserMixin, db.Model):
 
     def is_anonymous(self):
         return self.username.startswith(ANONYMOUS_PREFIX)
+
+    def get(handle: int | str) -> Optional["User"]:
+        if isinstance(handle, int):
+            return db.session.get(User, handle)
+        else:
+            return db.session.scalar(
+                select(User).where(User.username == handle)
+            )
 
 class LobbyPoints(TypedDict):
     username: str
@@ -202,6 +211,7 @@ class Solve(db.Model):
     solving_sessions: Mapped[List["SolvingSession"]] = relationship()
 
     manually_saved: Mapped[bool] = mapped_column(default=False)
+    deleted: Mapped[bool] = mapped_column(default=False)
 
     def is_ongoing(self) -> bool:
         return self.solving_sessions[-1].end is None

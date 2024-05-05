@@ -1,21 +1,12 @@
-import { Button, Center, Container, Pagination, Table, Text, Title, Tooltip } from "@mantine/core";
-import { Link, useParams } from "react-router-dom";
-import { print_time } from "../cube/timer";
+import { Button, Container, Text, Title, Tooltip } from "@mantine/core";
+import { useParams } from "react-router-dom";
 import { useCallback, useContext, useEffect, useState } from "react";
 import NavigationPanel from "./NavigationPanel";
 import { Statistics } from "./TimeHistory";
 import { UserContext } from "../userContext";
 import { IconTool } from "@tabler/icons-react";
 import { CubeSizeController } from "./useTimedCube";
-
-
-type Solve = {
-    id: number;
-    completed: boolean;
-    time: number,
-    race_id: number
-    cube_size: number
-}
+import TimeList, { Solve } from "./TimeList";
 
 type UserInfo = {
     username: string;
@@ -25,8 +16,6 @@ type UserInfo = {
 }
 
 export function User({username} : {username: string}) {
-    const rowsPerPage = 10;
-    const [page, setPage] = useState(1);
     const [statsCubeSize, setStatsCubeSize] = useState(3);
 
     const {userContext : me} = useContext(UserContext);
@@ -46,21 +35,6 @@ export function User({username} : {username: string}) {
     useEffect(() => {
         fetchData();
     }, [fetchData])
-
-
-    console.log(user);
-
-    const rows = user?.solves.slice((page - 1)* rowsPerPage, page * rowsPerPage).map((solve) => (
-        <Table.Tr key={solve.id}>
-            <Table.Th>{solve.id}</Table.Th>
-            <Table.Th>{solve.cube_size}x{solve.cube_size}x{solve.cube_size}</Table.Th>
-            <Table.Th>{solve.completed ? print_time(solve.time) : "DNF"}</Table.Th>
-            <Table.Th>{solve.race_id ? solve.race_id : "-"}</Table.Th>
-            <Table.Th><Link to={`/replay/${solve.id}`}>Watch replay</Link></Table.Th>
-        </Table.Tr>
-    ))
-
-    const maxPages = user?.solves ? Math.ceil(user.solves.length / rowsPerPage) : 0;
 
     const adminIcon = user?.role === "admin" ? (
         <Tooltip label="Administrator">
@@ -101,27 +75,7 @@ export function User({username} : {username: string}) {
                 { user && user.solves && <Statistics solves={user.solves.filter(solve => solve.cube_size === statsCubeSize)} />}
             </Container>
 
-
-            <Container mt="xl">
-                <Title order={3}>Solve history</Title>
-                <Table stickyHeader striped>
-                    <Table.Thead>
-                        <Table.Tr>
-                            <Table.Th>Solve id</Table.Th>
-                            <Table.Th>Cube size</Table.Th>
-                            <Table.Th>Solve time</Table.Th>
-                            <Table.Th>Race id</Table.Th>
-                            <Table.Th>Watch replay</Table.Th>
-                        </Table.Tr>
-                    </Table.Thead>
-                    <Table.Tbody>
-                        { rows }
-                    </Table.Tbody>
-                </Table>
-                <Center mt="sm">
-                    <Pagination value={page} onChange={setPage} total={maxPages}></Pagination>
-                </Center>
-            </Container>
+            <TimeList solves={user.solves} omitUsername />
         </>
     );
 }

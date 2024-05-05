@@ -100,6 +100,28 @@ def get_solves_to_continue():
     ).all()
     return {"solves": [solve._asdict() for solve in solves]}
 
+@app.route('/api/fetch_solves', methods=["GET", "POST"])
+def fetch_solves():
+    rows = db.session.execute(
+        select(
+            Solve.id.label("id"),
+            Solve.completed.label("completed"),
+            Solve.time.label("time"),
+            Solve.race_id.label("race_id"),
+            Scramble.cube_size.label("cube_size"),
+            User.username.label("username")
+        ).join(
+            Scramble, Solve.scramble_id == Scramble.id,
+        ).join(
+            User, Solve.user_id == User.id
+        ).order_by(
+            Solve.id.desc()
+        )
+    )
+
+    return [row._asdict() for row in rows.all()], 200
+
+
 @app.route('/api/get_solves/<string:username>/<int:cube_size>')
 def get_solves(username: str, cube_size: int):
     solves = db.session.execute(

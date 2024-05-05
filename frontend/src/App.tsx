@@ -28,6 +28,7 @@ import Profile from './components/Profile';
 import Invite from './components/Invite';
 import ErrorPage from './components/ErrorPage';
 import Together, { TogetherJoin } from './components/Together';
+import Leaderboard from './components/Leaderboard';
 
 function Page2() {
   return (
@@ -52,6 +53,7 @@ function App() {
               <Route path="/invite/:uuid" element={<Invite />} />
               <Route path="/together" element={<Together />} />
               <Route path="/together/:uuid" element={<TogetherJoin />} />
+              <Route path="/leaderboard" element={<Leaderboard />} />
               <Route path="*" element={<ErrorPage message="This page does not exist." />} />
             </Routes>
           </BrowserRouter>

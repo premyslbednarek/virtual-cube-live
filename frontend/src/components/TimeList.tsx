@@ -1,9 +1,10 @@
 import { ActionIcon, Anchor, Center, Checkbox, Container, Flex, NativeSelect, Pagination, Table, Text, Title, Tooltip } from "@mantine/core";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { print_time } from "../cube/timer";
 import { IconPlayerPlay, IconSortDescending } from "@tabler/icons-react";
 import { CubeSizeController } from "./useTimedCube";
+import { UserContext } from "../userContext";
 
 export interface Solve {
     id: number;
@@ -12,6 +13,7 @@ export interface Solve {
     race_id?: number;
     cube_size: number;
     username: string;
+    hidden: boolean;
 }
 
 function solveTimeCompare(a: Solve, b: Solve) {
@@ -32,6 +34,10 @@ export default function TimeList({solves, rowsPerPage=10, omitUsername=false} : 
     const [cubeSize, setCubeSize] = useState(3);
     const [limitToSize, setLimitToSize] = useState(false);
 
+    const [showHidden, setShowHidden] = useState(false);
+
+    const {userContext : me} = useContext(UserContext)
+
 
     if (sortBy === "time") {
         solves = solves.slice(0).sort(solveTimeCompare); // sort without mutating original array
@@ -39,6 +45,10 @@ export default function TimeList({solves, rowsPerPage=10, omitUsername=false} : 
 
     if (limitToSize) {
         solves = solves.filter(solve => solve.cube_size == cubeSize);
+    }
+
+    if (!showHidden) {
+        solves = solves.filter(solve => !solve.hidden)
     }
 
     const pagesCount = Math.ceil(solves.length / rowsPerPage);
@@ -65,12 +75,18 @@ export default function TimeList({solves, rowsPerPage=10, omitUsername=false} : 
                     </Tooltip>
                 </Link>
             </Table.Th>
+            { me.isAdmin && <Table.Td>{solve.hidden ? "Y" : "N"}</Table.Td>}
         </Table.Tr>
     ))
     return (
         <Container mt="xl">
             <Flex align="center" gap="sm" justify="flex-end">
                 { limitToSize && <CubeSizeController value={cubeSize} onChange={setCubeSize}/> }
+                { me.isAdmin && <Checkbox
+                    checked={showHidden}
+                    onChange={(event) => setShowHidden(event.currentTarget.checked)}
+                    label="Show hidden solves (solves from banned accounts or deleted solves)"/>
+                }
                 <Checkbox
                     checked={limitToSize}
                     onChange={(event) => setLimitToSize(event.currentTarget.checked)}
@@ -94,6 +110,7 @@ export default function TimeList({solves, rowsPerPage=10, omitUsername=false} : 
                         <Table.Th>Solve time</Table.Th>
                         <Table.Th>Race id</Table.Th>
                         <Table.Th></Table.Th>
+                        { me.isAdmin && <Table.Td>Hidden</Table.Td>}
                     </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>

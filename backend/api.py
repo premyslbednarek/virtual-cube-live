@@ -158,14 +158,17 @@ def get_solves(username: Optional[str] = None, cube_size: Optional[int] = None):
             Solve.time.label("time"),
             Solve.race_id.label("race_id"),
             Scramble.cube_size.label("cube_size"),
-            User.username.label("username")
+            User.username.label("username"),
+            (User.banned or Solve.deleted).label("hidden")
         ).join(
             Scramble, Solve.scramble_id == Scramble.id,
         ).join(
             User, Solve.user_id == User.id
         ).where(
-            User.banned == False,
-            Solve.deleted == False,
+            # admins should see all solves
+            # note: this does not work without the comparison against False
+            current_user.role == UserRole.ADMIN or User.banned == False,
+            current_user.role == UserRole.ADMIN or Solve.deleted == False,
             # if username is specified, filter by it
             not username or User.username == username,
             not cube_size or Scramble.cube_size == cube_size

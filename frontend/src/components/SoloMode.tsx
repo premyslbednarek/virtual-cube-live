@@ -24,7 +24,9 @@ export default function SoloMode() {
         setIsSolving,
         stop,
         startSolve: startSolve_,
+        startSolveFromTime,
         stopwatch,
+
     } = useTimedCube()
 
     const speedModeController = useSpeedMode(cube);
@@ -86,10 +88,10 @@ export default function SoloMode() {
     const continue_solve = async (solve_id: number) => {
         const response: {startTime: number, state: string, layers: number} = await socket.emitWithAck("continue_solve", {solve_id: solve_id});
         setIsSolving(true);
-        cube.setSize(response.layers)
-        cube.setState(response.state)
-        setCubeSize(response.layers);
-        stopwatch.startFromTime(response.startTime);
+
+        cube.setSize(response.layers);
+        startSolveFromTime(response.state, response.startTime);
+
         close();
     }
 

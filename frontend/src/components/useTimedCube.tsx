@@ -153,6 +153,15 @@ export default function useTimedCube() {
         })
     }
 
+    const startSolveFromTime = (state: string, time: number) => {
+        cube.setState(state);
+        setIsSolving(true);
+        setCurrentTime(null);
+
+        cube.startSolve();
+        stopwatch.startFromTime(time);
+    }
+
     let timeString = currentTime ? print_solve_time(currentTime)
                    : countdown.isRunning ? countdown.secondsLeft.toString()
                    : stopwatch.isRunning ? stopwatch.formattedTime
@@ -165,6 +174,7 @@ export default function useTimedCube() {
         isSolving,
         setIsSolving,
         startSolve,
+        startSolveFromTime,
         stopwatch,
         stop,
     }

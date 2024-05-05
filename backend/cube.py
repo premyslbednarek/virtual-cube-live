@@ -1,6 +1,7 @@
 import numpy as np
 from typing import List
-from enum import Enum
+from math import floor
+from random import choices
 
 colors = {
     b'W': u"\u001b[48;5;15m",
@@ -323,3 +324,20 @@ class Cube:
                     move.double
                 )
         return self
+
+
+def get_big_cube_scramble(size: str) -> str:
+    # generate moves that are possible on a size x size cube
+    # note that the list will not contain all the possible moves, but this is
+    # not necessary for this usage
+    possible_moves: List[str] = []
+
+    for face in "UFRBLD":
+        for layer_index in range(1, floor(size / 2) + 1):
+            for dir in ["", "'", "2"]:
+                index = layer_index if layer_index > 1 else ""
+                possible_moves.append(f"{index}{face}{dir}")
+
+    scramble_size = 120
+    scramble_moves = choices(possible_moves, k=scramble_size)
+    return ' '.join(scramble_moves)

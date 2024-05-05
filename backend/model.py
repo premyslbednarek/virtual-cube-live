@@ -9,7 +9,7 @@ from enum import Enum
 from datetime import datetime, timedelta
 from sqlalchemy import func
 from typing import Optional, List, TypedDict, Set
-from cube import Cube
+from cube import Cube, get_big_cube_scramble
 from werkzeug.security import generate_password_hash
 from pyTwistyScrambler import scrambler333, scrambler444, scrambler555, scrambler666, scrambler777, scrambler222
 
@@ -139,6 +139,15 @@ class LobbyUser(db.Model):
         )
         return lobby_user
 
+scrambler_dispatch = {
+    2: scrambler222,
+    3: scrambler333,
+    4: scrambler444,
+    5: scrambler555,
+    6: scrambler666,
+    7: scrambler777
+}
+
 class Scramble(db.Model):
     __tablename__ = "scramble"
 
@@ -149,16 +158,10 @@ class Scramble(db.Model):
 
     @staticmethod
     def new(size: int):
-        scrambler_dispatch = {
-            2: scrambler222,
-            3: scrambler333,
-            4: scrambler444,
-            5: scrambler555,
-            6: scrambler666,
-            7: scrambler777
-        }
-
-        scramble_string: str = scrambler_dispatch[size].get_WCA_scramble()
+        if (size <= 7):
+            scramble_string: str = scrambler_dispatch[size].get_WCA_scramble()
+        else:
+            scramble_string: str = get_big_cube_scramble(size)
 
         cube = Cube(size)
         cube.move(scramble_string)

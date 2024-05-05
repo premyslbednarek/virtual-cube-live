@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useContext } from "react";
 import { useParams } from "react-router-dom"
 import { RenderedCube } from "./CubeCanvases";
 import { Text, Space, Slider, ActionIcon, Center, Flex, Kbd, Container, Stack, Checkbox } from "@mantine/core";
@@ -10,6 +10,8 @@ import NavigationPanel from "./NavigationPanel";
 import { print_time } from "../cube/timer";
 import CopyButton from "../CopyButton";
 import { useSpeedMode } from "./useTimedCube";
+import { UserContext } from "../userContext";
+import { DeleteSolveButton } from "./TimeList";
 
 interface IMoveInfo {
     move: string;

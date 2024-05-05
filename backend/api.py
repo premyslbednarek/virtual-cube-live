@@ -159,7 +159,8 @@ def get_solves(username: Optional[str] = None, cube_size: Optional[int] = None):
             Solve.race_id.label("race_id"),
             Scramble.cube_size.label("cube_size"),
             User.username.label("username"),
-            (User.banned or Solve.deleted).label("hidden")
+            User.banned.label("banned"),
+            Solve.deleted.label("deleted")
         ).join(
             Scramble, Solve.scramble_id == Scramble.id,
         ).join(

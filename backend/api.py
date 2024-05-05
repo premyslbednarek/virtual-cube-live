@@ -170,7 +170,7 @@ def get_solves(username: Optional[str] = None, cube_size: Optional[int] = None):
             not username or User.username == username,
             not cube_size or Scramble.cube_size == cube_size
         ).order_by(
-            Solve.id.desc()
+            Solve.end_timestamp.desc()
         )
     )
 

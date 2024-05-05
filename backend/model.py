@@ -209,6 +209,8 @@ class Solve(db.Model):
     race_id: Mapped[Optional[int]] = mapped_column(ForeignKey("race.id"))
     race: Mapped[Optional["Race"]] = relationship(back_populates="solves")
 
+    end_timestamp: Mapped[Optional[datetime]]
+
     lobby_together_id: Mapped[Optional[int]] = mapped_column(ForeignKey("together_lobby.id"))
     lobby_together: Mapped[Optional["TogetherLobby"]] = relationship()
 
@@ -297,6 +299,7 @@ class Solve(db.Model):
     def end_current_session(self, timestamp: datetime):
         current_session = self.solving_sessions[-1]
         current_session.end = timestamp
+        self.end_timestamp = timestamp
         # convert time delta to ms
         # https://stackoverflow.com/a/74798645
         self.time += (current_session.end - current_session.start) / timedelta(milliseconds=1)

@@ -22,6 +22,7 @@ export function User({username} : {username: string}) {
     const {userContext : me} = useContext(UserContext);
 
     const [user, setUser] = useState<UserInfo | null>(null);
+    const [solves, setSolves] = useState<Solve[]>([]);
 
     const fetchData = useCallback(() => {
         fetch(
@@ -32,7 +33,10 @@ export function User({username} : {username: string}) {
         ).then(
             res => res.json()
         ).then(
-            data => setUser(data)
+            (data: UserInfo) => {
+                setUser(data);
+                setSolves(data.solves);
+            }
         ).catch(err => console.log(err));
     }, [username])
 
@@ -77,7 +81,7 @@ export function User({username} : {username: string}) {
                 { user && user.solves && <Statistics solves={user.solves.filter(solve => solve.cube_size === statsCubeSize)} />}
             </Container>
 
-            <TimeList solves={user.solves} omitUsername />
+            <TimeList solves={solves} setSolves={setSolves} />
         </>
     )
 

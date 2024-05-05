@@ -1,8 +1,8 @@
-import { ActionIcon, Anchor, Button, Center, Checkbox, Container, Flex, NativeSelect, Pagination, Table, Text, Title, Tooltip } from "@mantine/core";
+import { ActionIcon, Anchor, Button, Center, Checkbox, Container, Flex, NativeSelect, Pagination, Table, Text, Title, Tooltip, rgba } from "@mantine/core";
 import { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { print_time } from "../cube/timer";
-import { IconBan, IconPlayerPlay, IconSortDescending } from "@tabler/icons-react";
+import { IconBan, IconPlayerPlay, IconSortDescending, IconTrash, IconTrashOff } from "@tabler/icons-react";
 import { CubeSizeController } from "./useTimedCube";
 import { UserContext } from "../userContext";
 import produce from "immer";
@@ -46,24 +46,22 @@ export function DeleteSolveButton({deleted: deleted_, solve_id, onChange } : {so
     }
 
     if (deleted) {
-        return <Button color="green" onClick={onClick}>Undelete</Button>
+        return <Button color="green" onClick={onClick} leftSection={<IconTrashOff />}>Restore</Button>
     }
 
-    return <Button color="red" onClick={onClick}>Delete</Button>
+    return <Button color="red" onClick={onClick} leftSection={<IconTrash />}>Delete </Button>
 }
 
-export default function TimeList({solves: solves_, rowsPerPage=10, omitUsername=false} : {solves: Solve[], rowsPerPage?: number, omitUsername?: boolean}) {
-    const [solves, setSolves] = useState(solves_);
-
+export default function TimeList({solves: solves, setSolves, rowsPerPage=10, omitUsername=false} : {solves: Solve[], setSolves?: React.Dispatch<React.SetStateAction<Solve[]>>, rowsPerPage?: number, omitUsername?: boolean}) {
     const [page, setPage] = useState(1);
     const [sortBy, setSortBy] = useState("recent")
 
     const [cubeSize, setCubeSize] = useState(3);
     const [limitToSize, setLimitToSize] = useState(false);
 
+    const {userContext : me} = useContext(UserContext)
     const [showHidden, setShowHidden] = useState(false);
 
-    const {userContext : me} = useContext(UserContext)
 
     let to_show = solves;
 
@@ -82,7 +80,7 @@ export default function TimeList({solves: solves_, rowsPerPage=10, omitUsername=
     const pagesCount = Math.ceil(to_show.length / rowsPerPage);
 
     const onDeletion = (solve_id: number, newValue: boolean) => {
-        setSolves(produce(draft => {
+        setSolves && setSolves(produce((draft) => {
             for (const solve of draft) {
                 if (solve.id == solve_id) {
                     solve.deleted = newValue;
@@ -94,7 +92,7 @@ export default function TimeList({solves: solves_, rowsPerPage=10, omitUsername=
     }
 
     const rows = to_show.slice((page - 1)* rowsPerPage, page * rowsPerPage).map((solve) => (
-        <Table.Tr key={solve.id}>
+        <Table.Tr key={solve.id} style={{backgroundColor: (!solve.banned && !solve.deleted) ? "inherit" : rgba("#ff0000", 0.2)}}>
             <Table.Th>{solve.id}</Table.Th>
             { !omitUsername &&
                 <Table.Th>

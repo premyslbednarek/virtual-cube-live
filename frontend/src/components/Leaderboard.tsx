@@ -23,7 +23,7 @@ export default function Leaderboard() {
             <NavigationPanel />
             <Container>
                 <Title order={1}>Leaderboard</Title>
-                <TimeList solves={solves} />
+                <TimeList solves={solves} setSolves={setSolves} />
             </Container>
         </>
     );

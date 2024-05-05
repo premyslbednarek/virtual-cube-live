@@ -412,6 +412,7 @@ export default class Cube {
     }
 
     makeMove(move_string: string, send: boolean=true, performMove=this.defaultPerformMove) {
+        console.log("V MAKEMOVE JE MOVE", move_string)
         if (this.inspection && !["x", "x'", "y", "y'", "z", "z'"].includes(move_string)) {
             return;
         }
@@ -506,9 +507,7 @@ export default class Cube {
 
         // a sticker was clicked - the user wants to make a move
         // disable camera rotation, so the desired mouse movement does not move the camera
-        if (this.controls !== undefined) {
-            this.controls.enabled = false;
-        }
+        this.controls.enabled = false;
 
         const clickedSticker = intersectedStickers[0].object;
         const clickedCoordinates = intersectedStickers[0].point;
@@ -519,6 +518,7 @@ export default class Cube {
             sticker: clickedSticker,
             clickedPoint: clickedCoordinates
         }
+        console.log(this.mouseDownInfo)
     }
 
     mouseUp(event: MouseEvent) {
@@ -588,7 +588,9 @@ export default class Cube {
 
         const componentIndex = axis === "x" ? 0 :  axis === "y" ? 1 :  2
         let coord = this.mouseDownInfo.sticker.parent?.position.getComponent(componentIndex);
-        if (!coord) return;
+        if (coord === undefined) {
+            return
+        };
         coord = Math.round(coord * 2) / 2;
 
         // exception fro middle layer

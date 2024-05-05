@@ -101,7 +101,7 @@ export function User({username} : {username: string}) {
                     { me.isAdmin && user?.role !== "admin" && <Button onClick={makeAdmin}>Make admin</Button> }
                 </Flex>
                 <Text>Profile created on: {user?.created_date}</Text>
-                <Text>Total solves: {user?.solves.length}</Text>
+                { !user.banned && <Text>Total solves: {user?.solves.length}</Text> }
 
                 { user.banned &&
                     <Alert mt="md" color="red" icon={<IconBan />}>

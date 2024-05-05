@@ -19,6 +19,7 @@ interface TogetherJoinResponse {
     cube_size: number;
     cube_state: string;
     uuid: string;
+    solveTime: number | null;
 }
 
 function TogetherLobby({id} : {id: number}) {
@@ -27,7 +28,7 @@ function TogetherLobby({id} : {id: number}) {
     const { userContext } = useContext(UserContext)
 
     const [cubeSize, setCubeSize] = useState(DEFAULT_CUBE_SIZE);
-    const { cube, isSolving, setIsSolving, startSolve, stop, timeString } = useTimedCube()
+    const { cube, isSolving, setIsSolving, startSolve, startSolveFromTime, stop, timeString } = useTimedCube()
     const speedModeController = useSpeedMode(cube);
 
     const [solves, setSolves] = useState<SolveBasic[]>([]);
@@ -43,15 +44,17 @@ function TogetherLobby({id} : {id: number}) {
             (response: TogetherJoinResponse) => {
                 setUsers(response.users);
                 cube.setSize(response.cube_size);
-                cube.setState(response.cube_state);
                 setUuid(response.uuid)
+                if (response.solveTime) {
+                    startSolveFromTime(response.cube_state, response.solveTime)
+                }
             }
         )
 
         return () => {
             socket.disconnect();
         }
-    }, [cube, id])
+    }, [cube, id, startSolveFromTime])
 
     const onJoin = ({username: newUser} : {username: string}) => {
         setUsers([...users, newUser]);
@@ -144,10 +147,13 @@ function TogetherLobby({id} : {id: number}) {
 
             <Overlay position="bottom">
                 <TimerDisplay time={timeString} />
-                <Flex justify="center" gap="md">
-                    <Button onClick={() => socket.emit("together_reset")}>Reset cube</Button>
-                    <Button onClick={() => socket.emit("together_solve_start")}>Solve start</Button>
-                </Flex>
+                {
+                    !isSolving &&
+                        <Flex justify="center" gap="md">
+                            <Button onClick={() => socket.emit("together_reset")}>Reset cube</Button>
+                            <Button onClick={() => socket.emit("together_solve_start")}>Solve start</Button>
+                        </Flex>
+                }
 
             </Overlay>
         </>

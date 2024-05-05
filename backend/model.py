@@ -222,6 +222,13 @@ class Solve(db.Model):
     def is_ongoing(self) -> bool:
         return self.solving_sessions[-1].end is None
 
+    def get_ongoing_time(self) -> int:
+        # get time of an ongoing solve
+        # self.time updates only on session end
+        current_session = self.solving_sessions[-1]
+        session_time = (datetime.now() - current_session.start) / timedelta(milliseconds=1)
+        return self.time + session_time
+
     def add_move(self, move_str: str, timestamp: datetime) -> None:
         move = SolveMove(
             move=move_str,

@@ -806,7 +806,7 @@ def disconnect():
     if not connection:
         return
 
-    if connection.cube and connection.cube.current_solve:
+    if connection.cube and connection.cube.current_solve and not connection.together_lobby:
         connection.cube.current_solve.end_current_session(datetime.now())
 
     if connection.together_lobby:

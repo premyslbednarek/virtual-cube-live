@@ -189,6 +189,17 @@ def fetch_solves():
     return get_solves(), 200
 
 
+@app.route('/api/is_user', methods=["POST"])
+def is_user():
+    data = json.loads(request.data)
+    username = data["username"]
+
+    user = User.get(username)
+    if not user:
+        return abort(404)
+
+    return "", 200
+
 @app.route('/api/get_solves/<string:username>/<int:cube_size>')
 def get_solves_(username: str, cube_size: int):
     return get_solves(username, cube_size), 200

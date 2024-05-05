@@ -6,13 +6,16 @@ import {
   Divider,
   Button,
   Title,
-  Text
+  Text,
+  Flex,
+  Space,
 } from '@mantine/core';
 import CreateLobbyDiv from './CreateLobby';
 import LobbyList from './LobbyList';
 import Authentication from './Auth';
-import { IconUser } from '@tabler/icons-react';
+import { IconTrophy, IconUser } from '@tabler/icons-react';
 import TogetherCreate from './LobbyTogetherCreate';
+import { UserSearchField } from './UserPage';
 
 function DividerWithText({label} : {label: string}) {
   return <Divider my="md" size="sm" label={<Text>{label}</Text>}></Divider>
@@ -25,6 +28,11 @@ export default function Home() {
         <Title order={1}>Welcome to Rubik's cube racing!</Title>
 
         <Authentication />
+        <Space h="md" />
+        <Flex justify="center" gap="md">
+          <Link to="/leaderboard"><Button leftSection={<IconTrophy />}>Leaderboard</Button></Link>
+          <UserSearchField />
+        </Flex>
 
         <DividerWithText label="You can solve on your own" />
 

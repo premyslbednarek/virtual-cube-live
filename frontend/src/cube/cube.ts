@@ -5,6 +5,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { addForRender, removeForRender, requestRenderIfNotRequested } from './render';
 import { getOrtogonalVectors, getScreenCoordinates } from './utils';
 import { parse_move, getFace, LayerMove } from './move';
+import { roundedSquare } from './geometries';
 
 export const DEFAULT_SPEED_MODE=true;
 
@@ -53,7 +54,8 @@ export default class Cube {
     renderer: THREE.WebGLRenderer
     controls: OrbitControls
 
-    boxes: Array<THREE.Mesh> = []
+    speedModeMeshes: THREE.Mesh[] = []
+    normalModeMeshes: THREE.Mesh[] = []
 
     // since numjs does not support ndarray for non numeric types
     // create a flat array of THREE.Groups and ndarray of cubies indices
@@ -192,15 +194,12 @@ export default class Cube {
         this.renderer.render(this.scene, this.camera);
     }
 
-    toggleBoxes() {
-        if (this.speedMode) {
-            for (const box of this.boxes) {
-                box.visible = false;
-            }
-        } else {
-            for (const box of this.boxes) {
-                box.visible = true;
-            }
+    toggleMeshes() {
+        for (const mesh of this.speedModeMeshes) {
+            mesh.visible = this.speedMode;
+        }
+        for (const mesh of this.normalModeMeshes) {
+            mesh.visible = !this.speedMode;
         }
     }
 
@@ -208,7 +207,7 @@ export default class Cube {
         if (this.speedMode === speedMode) return; // no change
 
         this.speedMode = speedMode;
-        this.toggleBoxes();
+        this.toggleMeshes();
         this.render();
     }
 
@@ -218,14 +217,7 @@ export default class Cube {
         this.draw();
     }
 
-    getMesh(color: string) {
-        let stickerGeometry;
-        if (this.speedMode) {
-            stickerGeometry = new THREE.PlaneGeometry(0.85, 0.85);
-        } else {
-            stickerGeometry = new THREE.PlaneGeometry(0.93, 0.93);
-        }
-
+    getMesh(color: string, speedMode: boolean) {
         let colors = new Map([
             ["R", 0xff1100], // red
             ["O", 0xffa200], // orange
@@ -235,9 +227,18 @@ export default class Cube {
             ["B", 0x0800ff]  // blue
         ]);
 
-        const stickerMaterial = new THREE.MeshBasicMaterial( {color: colors.get(color), side: THREE.DoubleSide} );
-        const stickerMesh = new THREE.Mesh(stickerGeometry, stickerMaterial);
-        return stickerMesh;
+        if (speedMode) {
+            const stickerGeometry = new THREE.PlaneGeometry(0.85, 0.85);
+            const stickerMaterial = new THREE.MeshBasicMaterial( {color: colors.get(color), side: THREE.DoubleSide} );
+            const stickerMesh = new THREE.Mesh(stickerGeometry, stickerMaterial);
+            return stickerMesh;
+        } else {
+            // const stickerGeometry = new THREE.PlaneGeometry(0.9, 0.9)
+            const stickerGeometry = roundedSquare(0.9, 0.1, 3);
+            const stickerMaterial = new THREE.MeshBasicMaterial( {color: colors.get(color)} );
+            const stickerMesh = new THREE.Mesh(stickerGeometry, stickerMaterial);
+            return stickerMesh;
+        }
     }
 
     drawStickers(state: string = "") {
@@ -268,23 +269,30 @@ export default class Cube {
                 for (let j = 0; j < n; ++j) {
                     const group_index = face_group_indices.get(i, j);
                     const group = this.cubies[group_index];
-                    const mesh = this.getMesh(face_stickers[n * i + j]);
-                    mesh.lookAt(faceCenters[face_i]);
-                    group.add(mesh);
-                    mesh.translateZ(0.5)
+
+                    const normalMesh = this.getMesh(face_stickers[n * i + j], false);
+                    normalMesh.lookAt(faceCenters[face_i]);
+                    group.add(normalMesh);
+                    normalMesh.translateZ(0.5)
+                    this.normalModeMeshes.push(normalMesh)
+
+                    const speedMesh = this.getMesh(face_stickers[n * i + j], true);
+                    speedMesh.lookAt(faceCenters[face_i]);
+                    group.add(speedMesh);
+                    speedMesh.translateZ(0.5)
+                    this.speedModeMeshes.push(speedMesh)
                 }
             }
         }
     }
 
     generateCubies() {
-        this.boxes = []
         const boxGeometry = new THREE.BoxGeometry(0.98, 0.98, 0.98);
         const boxMaterial = new THREE.MeshBasicMaterial({color: 0x00000});
         const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
         for (const cubie of this.cubies) {
             const box = boxMesh.clone();
-            this.boxes.push(box);
+            this.normalModeMeshes.push(box);
             cubie.add(box);
         }
     }
@@ -308,9 +316,13 @@ export default class Cube {
             this.scene.add(group);
         }
 
-        this.toggleBoxes();
 
         this.drawStickers(state);
+        this.toggleMeshes();
+
+        // const light = new THREE.AmbientLight( 0xffffff, 0.5 );
+        // this.scene.add(light)
+
         this.render();
     }
 

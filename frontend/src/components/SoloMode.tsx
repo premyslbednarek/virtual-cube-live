@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { RenderedCube } from "./CubeCanvases";
 import NavigationPanel from "./NavigationPanel";
 import { socket } from "../socket";
-import { Flex, ActionIcon, Button, Modal, Space, Center, Tooltip, Stack } from "@mantine/core";
+import { Button, Modal, Space, Center, Tooltip } from "@mantine/core";
 import { useHotkeys } from "react-hotkeys-hook";
 import { parse_move } from "../cube/move";
 import { IconDeviceFloppy } from "@tabler/icons-react";

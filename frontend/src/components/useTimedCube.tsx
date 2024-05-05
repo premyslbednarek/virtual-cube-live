@@ -23,7 +23,7 @@ export function CubeSizeController({value, onChange} : {value: number, onChange:
             newSize = MAX_CUBE_SIZE;
         }
 
-        if (newSize != value) {
+        if (newSize !== value) {
             onChange(newSize);
         }
     }

@@ -137,7 +137,6 @@ export function TimeList({solves} : {solves: Array<Solve>}) {
     const [height, setHeight] = useState(150);
 
     const updateHeight = () => {
-        console.log("update", ref)
         if (!ref.current) return;
         setHeight(window.innerHeight - ref.current.offsetTop - 20)
     }

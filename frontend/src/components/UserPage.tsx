@@ -1,4 +1,4 @@
-import { Button, Center, Container, Flex, Pagination, Slider, Table, Text, Title, Tooltip } from "@mantine/core";
+import { Button, Center, Container, Pagination, Table, Text, Title, Tooltip } from "@mantine/core";
 import { Link, useParams } from "react-router-dom";
 import { print_time } from "../cube/timer";
 import { useCallback, useContext, useEffect, useState } from "react";

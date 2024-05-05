@@ -12,6 +12,7 @@ import { Overlay } from "./Overlay";
 import TimerDisplay from "./TimerDisplay";
 import NavigationPanel from "./NavigationPanel";
 import KeybindsButton from "./ShowKeybindigs";
+import TimeHistory, { SolveBasic } from "./TimeHistory";
 
 interface TogetherJoinResponse {
     users: string[];
@@ -26,8 +27,10 @@ function TogetherLobby({id} : {id: number}) {
     const { userContext } = useContext(UserContext)
 
     const [cubeSize, setCubeSize] = useState(DEFAULT_CUBE_SIZE);
-    const { cube, setIsSolving, addTime, startSolve, stopwatch, timeString } = useTimedCube()
+    const { cube, isSolving, setIsSolving, addTime, startSolve, stopwatch, timeString } = useTimedCube()
     const speedModeController = useSpeedMode(cube);
+
+    const [solves, setSolves] = useState<SolveBasic[]>([]);
 
     useEffect(() => {
         socket.connect();
@@ -72,8 +75,10 @@ function TogetherLobby({id} : {id: number}) {
         cube.setState(state);
     }
 
-    const onSolveEnd = ({time} : {time: number}) => {
+    const onSolveEnd = ({time, id} : {time: number, id: number}) => {
         stopwatch.stop()
+        console.log(solves)
+        setSolves([{id: id, time: time, completed: true}, ...solves])
         setIsSolving(false);
         addTime(time);
     }
@@ -122,11 +127,19 @@ function TogetherLobby({id} : {id: number}) {
                     <KeybindsButton />
                 </Flex>
                 {speedModeController}
-                <CubeSizeController value={cubeSize} onChange={changeCubeSize} />
+
                 <Title order={3}>Users in the lobby:</Title>
                 { users.map(user => (
                     <Text key={user}>{user} {userContext.username === user && " (you)"}</Text>
                 ))}
+
+                {
+                    !isSolving && <>
+                        <CubeSizeController value={cubeSize} onChange={changeCubeSize} />
+                        <TimeHistory cubeSize={cubeSize} fromList={solves} />
+                    </>
+                }
+
             </Overlay>
 
             <RenderedCube cube={cube} fullscreen />

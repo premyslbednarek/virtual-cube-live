@@ -361,7 +361,7 @@ def solve(solve_id: int):
         "camera_changes": solve.get_camera_changes(),
         "completed": solve.completed,
         "time": solve.time,
-        "banned": solve.user.banned,
+        "banned": solve.user.banned if solve.user else False,
         "deleted": solve.deleted
     }
 

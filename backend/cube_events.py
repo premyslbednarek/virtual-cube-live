@@ -62,7 +62,7 @@ def handle_completed_solve(connection: SocketConnection, solve: Solve):
     if connection.together_lobby:
         socketio.emit(
             "together_solve_end",
-            { "time": solve.time },
+            { "time": solve.time, "id": solve.id },
             room=connection.together_lobby.get_room()
         )
 

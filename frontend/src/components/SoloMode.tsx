@@ -8,7 +8,7 @@ import { parse_move } from "../cube/move";
 import { IconDeviceFloppy } from "@tabler/icons-react";
 import ShowSolvesToContinue from "./ShowSolvesToContinue";
 import { useDisclosure } from "@mantine/hooks";
-import TimeHistory, { Solve } from "./TimeHistory";
+import TimeHistory from "./TimeHistory";
 import useTimedCube, { CubeSizeController, DEFAULT_CUBE_SIZE, useSpeedMode } from "./useTimedCube";
 import TimerDisplay from "./TimerDisplay";
 import { Overlay } from "./Overlay";
@@ -29,14 +29,11 @@ export default function SoloMode() {
 
     const speedModeController = useSpeedMode(cube);
 
-    const [times, setTimes] = useState<Array<Solve>>([]);
-
     const [opened, { open, close }] = useDisclosure(false);
 
-    const onComplete = ({time, solve_id} : {time: number, solve_id: number}) => {
+    const onComplete = ({time} : {time: number, solve_id: number}) => {
         stopwatch.stop();
         addTime(time);
-        setTimes([{time: time, id: solve_id, completed: true}, ...times]);
         setIsSolving(false);
         console.log("finished");
     }
@@ -103,7 +100,6 @@ export default function SoloMode() {
         setCubeSize(newSize);
         socket.emit("change_layers", {newSize: newSize});
         cube.setSize(newSize);
-        setTimes([]);
     }
 
     const saveButton = isSolving ? (

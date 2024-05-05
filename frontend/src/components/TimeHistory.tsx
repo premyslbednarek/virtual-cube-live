@@ -6,13 +6,13 @@ import { useDisclosure } from "@mantine/hooks";
 import { Replay } from "./Replay";
 import { IconX } from "@tabler/icons-react";
 
-export type Solve = {
+export interface SolveBasic {
     id: number
     time: number,
     completed: boolean,
 }
 
-function getAverage(solves: Array<Solve>, allowDNF: boolean) : number {
+function getAverage(solves: Array<SolveBasic>, allowDNF: boolean) : number {
     if (solves.length === 0) {
         return Infinity;
     }
@@ -34,7 +34,7 @@ function getAverage(solves: Array<Solve>, allowDNF: boolean) : number {
 }
 
 
-function get_ao(solves: Array<Solve>, size: number, index = 0) {
+function get_ao(solves: Array<SolveBasic>, size: number, index = 0) {
     // ignore at 5% of slowest and fastest solves (always ignore at least one solve)
     const to_ignore = Math.max(1, Math.floor(size * 0.05))
 
@@ -68,7 +68,7 @@ interface AverageOf {
     last: string;
 }
 
-export function Statistics({solves, showCurrent = true} : {solves: Array<Solve>, showCurrent?: boolean}) {
+export function Statistics({solves, showCurrent = true} : {solves: Array<SolveBasic>, showCurrent?: boolean}) {
     const averages: AverageOf[] = useMemo(() => {
         let averageSizes = [5]; // always show average of 5
         // if there is enough solves, show bigger averages
@@ -129,7 +129,7 @@ export function Statistics({solves, showCurrent = true} : {solves: Array<Solve>,
     );
 }
 
-export function TimeList({solves} : {solves: Array<Solve>}) {
+export function TimeList({solves} : {solves: Array<SolveBasic>}) {
     const [opened, { open, close }] = useDisclosure(false);
     const [modalSolveId, setModalSolveId] = useState<string | null>(null);
 
@@ -169,10 +169,6 @@ export function TimeList({solves} : {solves: Array<Solve>}) {
         </Table.Tr>
     ))
 
-    if (solves.length === 0) {
-        return null;
-    }
-
     return (
         <>
             <Modal opened={opened} onClose={close} size="xl" withCloseButton={false} padding={0}>
@@ -203,15 +199,19 @@ export function TimeList({solves} : {solves: Array<Solve>}) {
     );
 }
 
-export default function TimeHistory({cubeSize} : {cubeSize: number}) {
-    const [solves, setSolves] = useState<Array<Solve>>([])
+export default function TimeHistory({cubeSize, fromList} : {cubeSize: number, fromList?: SolveBasic[]}) {
+    console.log("FROMLIST", fromList)
+    const [solves, setSolves] = useState<Array<SolveBasic>>(fromList !== undefined ? fromList.slice(0) : [])
+    console.log("SOLVES", solves)
     const username = useContext(UserContext).userContext.username
 
     useEffect(() => {
-        fetch(`/api/get_solves/${username}/${cubeSize}`)
-            .then(res => res.json()).then(data => {
-                setSolves(data)
-            }).catch(err => console.log(err));
+        if (username && !fromList) {
+            fetch(`/api/get_solves/${username}/${cubeSize}`)
+                .then(res => res.json()).then(data => {
+                    setSolves(data)
+                }).catch(err => console.log(err));
+        }
     }, [username, cubeSize])
 
     return (

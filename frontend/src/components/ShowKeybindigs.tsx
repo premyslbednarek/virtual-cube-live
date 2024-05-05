@@ -8,7 +8,7 @@ export default function KeybindsButton() {
 
 
     const rows = [...keybinds.entries()].map(([key, move]) => (
-            <Flex gap="md" mb="xs">
+            <Flex key={key} gap="md" mb="xs">
                 <Kbd>{key}</Kbd>
                 <Text>{move}</Text>
             </Flex>
@@ -21,7 +21,7 @@ export default function KeybindsButton() {
     for (let col = 0; col < columnsCount; ++col) {
         const column_rows = rows.slice(per_column * col, (col + 1) * per_column)
         columns.push(
-            <Stack>{column_rows}</Stack>
+            <Stack key={col}>{column_rows}</Stack>
         )
     }
 
@@ -31,8 +31,8 @@ export default function KeybindsButton() {
                 <Container>
                     <Grid>
                         {
-                            columns.map(column => (
-                                <Grid.Col span={12 / columnsCount}>{column}</Grid.Col>
+                            columns.map((column, i) => (
+                                <Grid.Col key={i} span={12 / columnsCount}>{column}</Grid.Col>
                             ))
                         }
                     </Grid>

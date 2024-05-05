@@ -11,6 +11,7 @@ import { RenderedCube } from "./CubeCanvases";
 import { Overlay } from "./Overlay";
 import TimerDisplay from "./TimerDisplay";
 import NavigationPanel from "./NavigationPanel";
+import KeybindsButton from "./ShowKeybindigs";
 
 interface TogetherJoinResponse {
     users: string[];
@@ -116,7 +117,10 @@ function TogetherLobby({id} : {id: number}) {
                 </Center>
             </Overlay>
             <Overlay position="left">
-                <NavigationPanel />
+                <Flex align="center">
+                    <NavigationPanel />
+                    <KeybindsButton />
+                </Flex>
                 {speedModeController}
                 <CubeSizeController value={cubeSize} onChange={changeCubeSize} />
                 <Title order={3}>Users in the lobby:</Title>

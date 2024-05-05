@@ -32,6 +32,7 @@ import { Overlay } from "./Overlay";
 import useTimedCube, { useSpeedMode } from "./useTimedCube";
 import TimerDisplay from "./TimerDisplay";
 import { useCountdown } from "./TimerHooks";
+import KeybindsButton from "./ShowKeybindigs";
 
 type LobbyPoints = Array<{
     username: string;
@@ -488,6 +489,8 @@ export default function Lobby() {
         <Overlay position="left">
             <Flex align="center">
                 <NavigationPanel />
+                <KeybindsButton />
+                <Space w="md" />
                 { isAdmin && <AdminPanelButton enemies={enemies} /> }
             </Flex>
             {

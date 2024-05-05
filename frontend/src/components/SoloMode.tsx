@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { RenderedCube } from "./CubeCanvases";
 import NavigationPanel from "./NavigationPanel";
 import { socket } from "../socket";
-import { Button, Modal, Space, Center, Tooltip } from "@mantine/core";
+import { Button, Modal, Space, Center, Tooltip, Flex } from "@mantine/core";
 import { useHotkeys } from "react-hotkeys-hook";
 import { parse_move } from "../cube/move";
 import { IconDeviceFloppy } from "@tabler/icons-react";
@@ -12,6 +12,7 @@ import TimeHistory, { Solve } from "./TimeHistory";
 import useTimedCube, { CubeSizeController, DEFAULT_CUBE_SIZE, useSpeedMode } from "./useTimedCube";
 import TimerDisplay from "./TimerDisplay";
 import { Overlay } from "./Overlay";
+import KeybindsButton from "./ShowKeybindigs";
 
 export default function SoloMode() {
     const [cubeSize, setCubeSize] = useState(DEFAULT_CUBE_SIZE);
@@ -134,7 +135,10 @@ export default function SoloMode() {
             </Modal>
 
             <Overlay position="left">
-                <NavigationPanel />
+                <Flex align="center">
+                    <NavigationPanel />
+                    <KeybindsButton />
+                </Flex>
 
                 {panelContent}
 

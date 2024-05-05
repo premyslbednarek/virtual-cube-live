@@ -82,12 +82,18 @@ export default class Cube {
 
         // init orbit controls - move around the cube
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-        this.controls.enableZoom = false;
+        this.setZoomMinDistance();
         this.controls.enablePan = false; // disable right mouse button camera panning (side to side movement)
         this.controls.addEventListener('change', () => this.onCameraChange());
 
         this.init_internal_state();
         this.draw(state);
+    }
+
+    setZoomMinDistance() {
+        // half of the cube diagonal length + some extra distance
+        const distance = (Math.sqrt(3) * this.size) / 2 + 0.5;
+        this.controls.minDistance = distance;
     }
 
     init_internal_state() {
@@ -213,6 +219,7 @@ export default class Cube {
 
     setSize(newSize: number) {
         this.size = newSize;
+        this.setZoomMinDistance();
         this.init_internal_state();
         this.draw();
     }
@@ -467,6 +474,7 @@ export default class Cube {
                                 this.scene.attach(tweenGroup.children[i]);
                             }
                             this.scene.remove(tweenGroup);
+                            this.render(); // without this, big cube slice moves are not animated until the very end of them
                         }).start();
 
         // add cube to render queue

@@ -11,7 +11,7 @@ import { IconMinus, IconPlus } from "@tabler/icons-react";
 export const INSPECTION_LENGTH = 3 // solve inspection length in seconds
 export const DEFAULT_CUBE_SIZE = 3
 export const MIN_CUBE_SIZE = 2
-export const MAX_CUBE_SIZE = 7
+export const MAX_CUBE_SIZE = 20
 
 
 export function CubeSizeController({value, onChange} : {value: number, onChange: (newSize: number)=>void}) {

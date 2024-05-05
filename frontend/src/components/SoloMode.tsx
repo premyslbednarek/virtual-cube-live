@@ -35,17 +35,14 @@ export default function SoloMode() {
         stopwatch.stop();
         stop(time);
         setIsSolving(false);
-        console.log("finished");
     }
 
     useEffect(() => {
         socket.connect();
-        console.log("connection to socket...")
 
         socket.emit("solo_join")
 
         return () => {
-            console.log("disconnection from socket...")
             socket.disconnect();
         };
     }, [cube])

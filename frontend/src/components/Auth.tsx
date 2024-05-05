@@ -44,7 +44,6 @@ export default function UserInfo() {
     const logout = () => {
         fetch("/logout").then(res => {
             if (res.status === 200) {
-                console.log("logout successfull");
                 updateUserContext();
             }
         });

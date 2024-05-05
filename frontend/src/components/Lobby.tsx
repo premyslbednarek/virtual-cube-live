@@ -230,7 +230,6 @@ export default function Lobby() {
         socket.emit("lobby_connect",
             { lobby_id: lobby_id },
             function(response: LobbyConnectResponseSuccess | LobbyConnectResponseError) {
-                console.log(response)
                 if (response.status === 400) {
                     setErrorMSG(response.msg)
                     return;
@@ -258,11 +257,9 @@ export default function Lobby() {
     // **************************************
     const onReadyChange = ({ready_status, username} : {ready_status: boolean, username: string}) => {
         const updated = new Map(enemies);
-        console.log(enemies);
         const enemy = updated.get(username);
         if (!enemy) return;
         enemy.readyStatus = ready_status;
-        console.log(enemies);
         setEnemies(updated);
     }
 
@@ -306,7 +303,6 @@ export default function Lobby() {
     }
 
     const onConnection = ({username, points, isAdmin} : {username: string, points: number, isAdmin: boolean}) => {
-        console.log(username, "has joined the lobby");
         setLobbyPoints(produce((draft) => {
             if (draft.find((el) => el.username === username)) return;
             draft.push({username: username, points: points})
@@ -316,16 +312,12 @@ export default function Lobby() {
     };
 
     const onDisconnection = ({username} : {username: string}) => {
-        console.log(username, "has left the lobby");
-        console.log(enemies.delete(username));
         resizeCanvases();
         setEnemies(new Map(enemies));
     };
 
 
     const onMatchStart = ({state, startTime} : {state: string, startTime: string}) => {
-        console.log(state, new Date(startTime));
-
         for (const enemy of enemies.values()) {
             enemy.cube.setState(state);
         }

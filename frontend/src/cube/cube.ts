@@ -196,7 +196,6 @@ export default class Cube {
     }
 
     render() {
-        console.log("render")
         this.renderer.render(this.scene, this.camera);
     }
 
@@ -412,13 +411,11 @@ export default class Cube {
     }
 
     makeMove(move_string: string, send: boolean=true, performMove=this.defaultPerformMove) {
-        console.log("V MAKEMOVE JE MOVE", move_string)
         if (this.inspection && !["x", "x'", "y", "y'", "z", "z'"].includes(move_string)) {
             return;
         }
 
         const tweens = TWEEN.getAll()
-        console.log(tweens, "tweens")
 
         this.animationForceEnd();
 
@@ -518,7 +515,6 @@ export default class Cube {
             sticker: clickedSticker,
             clickedPoint: clickedCoordinates
         }
-        console.log(this.mouseDownInfo)
     }
 
     mouseUp(event: MouseEvent) {

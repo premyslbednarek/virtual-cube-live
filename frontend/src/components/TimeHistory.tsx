@@ -200,9 +200,7 @@ export function TimeList({solves} : {solves: Array<SolveBasic>}) {
 }
 
 export default function TimeHistory({cubeSize, fromList} : {cubeSize: number, fromList?: SolveBasic[]}) {
-    console.log("FROMLIST", fromList)
     const [solves, setSolves] = useState<Array<SolveBasic>>(fromList !== undefined ? fromList.slice(0) : [])
-    console.log("SOLVES", solves)
     const username = useContext(UserContext).userContext.username
 
     useEffect(() => {

@@ -5,13 +5,11 @@ export function RenderedCube({cube, fullscreen} : {cube: Cube, fullscreen?:boole
     const containerRef = useRef(null);
 
     useEffect(() => {
-        console.log("Mounting")
         const container = containerRef.current;
         if (!container) return;
         cube.mount(container);
 
         return () => {
-            console.log("Unmounting")
             cube.unmount(container);
         }
     }, [cube])

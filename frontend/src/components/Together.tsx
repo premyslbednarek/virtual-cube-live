@@ -76,7 +76,6 @@ function TogetherLobby({id} : {id: number}) {
     }
 
     const onSolveEnd = ({time, id} : {time: number, id: number}) => {
-        console.log(solves)
         setSolves([{id: id, time: time, completed: true}, ...solves])
         setIsSolving(false);
         stop(time);

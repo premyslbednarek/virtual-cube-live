@@ -54,7 +54,7 @@ function TogetherLobby({id} : {id: number}) {
         return () => {
             socket.disconnect();
         }
-    }, [cube, id, startSolveFromTime])
+    }, [cube, id])
 
     const onJoin = ({username: newUser} : {username: string}) => {
         setUsers([...users, newUser]);

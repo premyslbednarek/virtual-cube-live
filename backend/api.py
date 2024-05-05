@@ -567,12 +567,18 @@ def handle_lobby_conection(data):
         ) for lobbyuser in users
     ]
 
+    raceTime = None
+    current_race = lobby.get_current_race()
+    if current_race:
+        raceTime = (datetime.now() - current_race.started_date) / timedelta(milliseconds=1)
+
     return {
         "status": 200,
         "userList": userlist,
         "isAdmin": is_creator,
         "cubeSize": lobby.cube_size,
-        "points": lobby.get_user_points()
+        "points": lobby.get_user_points(),
+        "raceTime": raceTime
     }
 
 @socketio.on("lobby_make_admin")
@@ -739,18 +745,19 @@ def lobby_start_request(data):
     # everybody is ready, start the race
     scramble: Scramble = Scramble.new(lobby.cube_size)
 
+    now = datetime.now()
+    solve_startdate: datetime = now + timedelta(seconds=DEFAULT_INSPECTION_TIME)
+
     race = Race(
         scramble_id=scramble.id,
         lobby_id=lobby_id,
         lobby_seq=lobby.races_finished,
-        racers_count=racers_count
+        racers_count=racers_count,
+        started_date=solve_startdate
     )
 
     db.session.add(race)
     db.session.commit()
-
-    now = datetime.now()
-    solve_startdate: datetime = now + timedelta(seconds=DEFAULT_INSPECTION_TIME)
 
     for user in users:
         if (user.current_connection is None):

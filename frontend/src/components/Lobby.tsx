@@ -12,7 +12,8 @@ import {
     Title,
     Paper,
     Flex,
-    Tooltip
+    Tooltip,
+    LoadingOverlay
 } from "@mantine/core"
 import { socket } from "../socket";
 import './lobby.css'
@@ -168,7 +169,8 @@ interface LobbyConnectResponseSuccess {
     userList: Array<[string, boolean, boolean, string]>;
     isAdmin: boolean;
     cubeSize: number;
-    points: LobbyPoints
+    points: LobbyPoints;
+    raceTime: number | null;
 }
 
 interface LobbyConnectResponseError {
@@ -191,6 +193,8 @@ export default function Lobby() {
     const [lobbyPoints, setLobbyPoints] = useState<LobbyPoints>([]);
 
     const [errorMSG, setErrorMSG] = useState<string | null>(null);
+
+    const [waitForEnd, setWaitForEnd] = useState(false);
 
     const { cube, isSolving, setIsSolving, startSolve, stopwatch, stop, timeString, currentTime } = useTimedCube()
     // countdown timer for waiting after the first finisher in the lobby finishes their solve
@@ -244,6 +248,11 @@ export default function Lobby() {
                 setEnemies(m);
                 setIsAdmin(response.isAdmin);
                 setCubeSize(response.cubeSize);
+
+                if (response.raceTime !== null) {
+                    setWaitForEnd(true);
+                    stopwatch.startFromTime(response.raceTime);
+                }
             }
         )
 
@@ -334,6 +343,7 @@ export default function Lobby() {
     }
 
     const onRaceDone = (data: onRaceDoneData) => {
+        setWaitForEnd(false);
         waitTime.stop();
         stopwatch.stop();
         setLastRaceResults(data.results);
@@ -517,7 +527,10 @@ export default function Lobby() {
           { rightPanel }
           { bottomPanel }
           { leftPanel }
-          <RenderedCube cube={cube} fullscreen />
+          <div>
+            <LoadingOverlay visible={waitForEnd} loaderProps={{ children: 'Race in progress, waiting until it finishes...' }} />
+            <RenderedCube cube={cube} fullscreen />
+          </div>
         </>
     );
 }

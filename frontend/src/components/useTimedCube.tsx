@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Cube, { DEFAULT_SPEED_MODE } from "../cube/cube";
 import { print_time } from "../cube/timer";
 import { ActionIcon, Flex, Switch, Text } from "@mantine/core";
@@ -153,14 +153,15 @@ export default function useTimedCube() {
         })
     }
 
-    const startSolveFromTime = (state: string, time: number) => {
+
+    const startSolveFromTime = useCallback((state: string, time: number) => {
         cube.setState(state);
         setIsSolving(true);
         setCurrentTime(null);
 
         cube.startSolve();
         stopwatch.startFromTime(time);
-    }
+    }, [cube, stopwatch]);
 
     let timeString = currentTime ? print_solve_time(currentTime)
                    : countdown.isRunning ? countdown.secondsLeft.toString()

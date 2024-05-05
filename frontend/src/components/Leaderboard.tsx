@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import TimeList, { Solve } from "./TimeList";
 import ErrorPage from "./ErrorPage";
 import { Container, Title } from "@mantine/core";
+import NavigationPanel from "./NavigationPanel";
 
 export default function Leaderboard() {
     const [solves, setSolves] = useState<Solve[]>([])
@@ -18,9 +19,12 @@ export default function Leaderboard() {
     }
 
     return (
-        <Container mt="xl">
-            <Title order={1}>Leaderboard</Title>
-            <TimeList solves={solves} />
-        </Container>
+        <>
+            <NavigationPanel />
+            <Container>
+                <Title order={1}>Leaderboard</Title>
+                <TimeList solves={solves} />
+            </Container>
+        </>
     );
 }

@@ -160,8 +160,27 @@ def change_layers(data):
     connection = SocketConnection.get(request.sid)
     connection.cube.change_layers(data["newSize"])
 
-@app.route('/api/user/<string:username>')
-def get_user(username: str):
+
+@app.route('/api/current_user_info')
+def get_current_user_info():
+    if not current_user.is_authenticated:
+        # create anonymous account for this user and log them
+        login_user(User.create_anonymous(), remember=True)
+
+    return {
+        "username": current_user.username,
+        "isLogged": not current_user.is_anonymous(),
+        "isAdmin": current_user.role == UserRole.ADMIN
+    }
+
+@app.route('/api/user_info', methods=["POST"])
+def get_user_info():
+    data = json.loads(request.data)
+    username = data["username"]
+
+    if not username:
+        return abort(400)
+
     user = db.session.scalars(
         select(User).where(User.username == username)
     ).one_or_none()
@@ -214,17 +233,6 @@ def handle_solution_request():
 
     return {"moves_done": allmoves}
 
-@app.route('/api/user_info')
-def get_user_info():
-    if not current_user.is_authenticated:
-        # create anonymous account for this user and log them
-        login_user(User.create_anonymous(), remember=True)
-
-    return {
-        "username": current_user.username,
-        "isLogged": not current_user.is_anonymous(),
-        "isAdmin": current_user.role == UserRole.ADMIN
-    }
 
 @app.route("/api/get_lobbies")
 def get_lobbies():

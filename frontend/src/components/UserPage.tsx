@@ -24,7 +24,10 @@ export function User({username} : {username: string}) {
 
     const fetchData = useCallback(() => {
         fetch(
-            `/api/user/${username}`
+            '/api/user_info', {
+                method: "POST",
+                body: JSON.stringify({username: username})
+            }
         ).then(
             res => res.json()
         ).then(

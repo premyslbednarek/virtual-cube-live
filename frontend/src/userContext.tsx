@@ -28,9 +28,9 @@ export function UserContextProvider({children} : {children: React.ReactNode}) {
     const [userContext, setUserContext] = useState<IUserInfo>(defaultUserInfo);
 
     const updateUserContext = () => {
-        fetch('/api/user_info').then(res => res.json()).then((data: IUserInfo) => {
+        fetch('/api/current_user_info').then(res => res.json()).then((data: IUserInfo) => {
             setUserContext(data);
-        })
+        }).catch(err => console.log(err));
     }
 
     useEffect(() => {

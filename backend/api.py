@@ -168,6 +168,8 @@ def get_user(username: str):
             Scramble, Solve.scramble_id == Scramble.id
         ).where(
             Solve.user_id == user.id
+        ).order_by(
+            Solve.id.desc()
         )
     ).all()
     print(solves, type(solves))

@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo, useContext } from "react";
 import { useParams } from "react-router-dom"
 import { RenderedCube } from "./CubeCanvases";
-import { Text, Space, Slider, ActionIcon, Center, Flex, Kbd, Container, Stack, Checkbox } from "@mantine/core";
+import { Text, Space, Slider, ActionIcon, Center, Flex, Kbd, Container, Stack, Checkbox, Alert } from "@mantine/core";
 import Cube from "../cube/cube";
 import useFetch from "@custom-react-hooks/use-fetch";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -12,6 +12,7 @@ import CopyButton from "../CopyButton";
 import { useSpeedMode } from "./useTimedCube";
 import { UserContext } from "../userContext";
 import { DeleteSolveButton } from "./TimeList";
+import produce from "immer";
 
 interface IMoveInfo {
     move: string;
@@ -26,6 +27,7 @@ interface ICameraInfo {
 }
 
 interface ISolveInfo {
+    id: number,
     cube_size: number;
     scramble: string;
     scramble_state: string;
@@ -33,9 +35,12 @@ interface ISolveInfo {
     camera_changes: Array<ICameraInfo>;
     completed: boolean;
     time: number;
+    banned: boolean;
+    deleted: boolean;
 }
 
 const defaultSolveInfo: ISolveInfo = {
+    id: 0,
     cube_size: 3,
     scramble: "",
     scramble_state: "",
@@ -43,6 +48,8 @@ const defaultSolveInfo: ISolveInfo = {
     camera_changes: [],
     completed: false,
     time: 0,
+    banned: false,
+    deleted: false,
 }
 
 
@@ -71,20 +78,24 @@ export function Replay({solveId} : {solveId : string}) {
     const [time, setTime] = useState(0); // current time in ms
     const [paused, setPaused] = useState(false);
     const [playbackSpeed, setPlaybackSpeed] = useState(1);
-    const { data, loading, error } = useFetch<ISolveInfo>(`/api/solve/${solveId}`);
-    const solve = data ? data : defaultSolveInfo;
+
+    const [solve, setSolve] = useState(defaultSolveInfo);
+    const {userContext: me} = useContext(UserContext);
+
+    useEffect(() => {
+        fetch(`/api/solve/${solveId}`).then(res => res.json()).then((solve: ISolveInfo) => {
+            for (const move of solve.moves) {
+                move.sinceStart = Math.floor(move.sinceStart);
+            }
+            setSolve(solve);
+        })
+    }, [])
 
     const [manualCamera, setManualCamera] = useState(true);
     const setFollowReplayCamera = (newVal: boolean) => {
         cube.controls.enabled = newVal;
         setManualCamera(newVal);
     }
-
-    useEffect(() => {
-        for (const move of solve.moves) {
-            move.sinceStart = Math.floor(move.sinceStart);
-        }
-    }, [solve])
 
     const cube = useMemo(() => {
         const cube = new Cube(solve.cube_size);
@@ -202,14 +213,11 @@ export function Replay({solveId} : {solveId : string}) {
         }
     }
 
-    // fetch loading
-    if (loading) {
-        return <div>Loading ...</div>;
-    }
-
-    // fetch error
-    if (error) {
-        return <div>Error ...</div>
+    const onDeletion = (id: number, newVal: boolean) => {
+        setSolve(produce(draft => {
+            draft.deleted = newVal;
+            return draft;
+        }))
     }
 
     return (
@@ -218,6 +226,11 @@ export function Replay({solveId} : {solveId : string}) {
                 <Container mt={10}>
                     <Center>
                         <Stack>
+                            { solve.banned && <Alert color="red" ta="center">This user has been banned.</Alert>}
+                            { solve.deleted && <Alert color="red" ta="center">This solve has been deleted.</Alert>}
+                            { me.isAdmin && <DeleteSolveButton deleted={solve.deleted} solve_id={solve.id} onChange={onDeletion} /> }
+
+
                             <Text ta="center">Use <Kbd>Space</Kbd>, <Kbd>LeftArrow</Kbd> and <Kbd>RightArrow</Kbd> to navigate the solve</Text>
                             <Flex align="bottom">
                                 <Text ta="center" size="xl">Scramble: {solve.scramble}</Text>

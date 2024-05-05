@@ -357,13 +357,16 @@ def solve(solve_id: int):
         abort(404)
 
     return {
+        "id": solve.id,
         "cube_size": solve.scramble.cube_size,
         "scramble": solve.scramble.scramble_string,
         "scramble_state": solve.scramble.cube_state.decode("UTF-8"),
         "moves": solve.get_moves(),
         "camera_changes": solve.get_camera_changes(),
         "completed": solve.completed,
-        "time": solve.time
+        "time": solve.time,
+        "banned": solve.user.banned,
+        "deleted": solve.deleted
     }
 
 @app.route('/register', methods=["POST"])

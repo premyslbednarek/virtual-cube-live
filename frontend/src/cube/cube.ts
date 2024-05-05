@@ -415,8 +415,6 @@ export default class Cube {
             return;
         }
 
-        const tweens = TWEEN.getAll()
-
         this.animationForceEnd();
 
         if (send) {

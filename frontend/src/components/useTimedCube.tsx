@@ -80,7 +80,6 @@ export default function useTimedCube() {
 
     const [isSolving, setIsSolving] = useState(false);
 
-    const [beforeFirstSolve, setBeforeFirstSolve] = useState(true);
     const [currentTime, setCurrentTime] = useState<null | number>(null);
 
 
@@ -144,7 +143,6 @@ export default function useTimedCube() {
     const startSolve = ({state} : {state: string}) => {
         cube.setState(state);
         setIsSolving(true);
-        setBeforeFirstSolve(false);
         setCurrentTime(null);
 
         cube.startInspection()

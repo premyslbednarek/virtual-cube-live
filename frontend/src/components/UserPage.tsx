@@ -139,7 +139,7 @@ export function User({username} : {username: string}) {
                 <Flex align="center" gap="xs">
                     <Title order={1} style={{textDecoration: "underline"}}>{user?.username} </Title>
                     { adminIcon }
-                    { me.isAdmin && user.role != "admin" &&
+                    { me.isAdmin && user.role !== "admin" &&
                         <Button
                             onClick={() => updateBannedStatus(!user.banned)}
                             color={user.banned ? "green" : "red"}

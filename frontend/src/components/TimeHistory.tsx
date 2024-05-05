@@ -210,7 +210,7 @@ export default function TimeHistory({cubeSize, fromList} : {cubeSize: number, fr
                     setSolves(data)
                 }).catch(err => console.log(err));
         }
-    }, [username, cubeSize])
+    }, [username, cubeSize, fromList])
 
     return (
         <>

@@ -1,8 +1,8 @@
-import { ActionIcon, Anchor, Button, Center, Checkbox, Container, Flex, NativeSelect, Pagination, Table, Text, Title, Tooltip, rgba } from "@mantine/core";
+import { Button, Center, Checkbox, Container, Flex, NativeSelect, Pagination, Table, Text, Tooltip, rgba } from "@mantine/core";
 import { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { print_time } from "../cube/timer";
-import { IconBan, IconPlayerPlay, IconSortDescending, IconTrash, IconTrashOff } from "@tabler/icons-react";
+import { IconPlayerPlay, IconSortDescending, IconTrash, IconTrashOff } from "@tabler/icons-react";
 import { CubeSizeController } from "./useTimedCube";
 import { UserContext } from "../userContext";
 import produce from "immer";
@@ -52,7 +52,7 @@ export function DeleteSolveButton({deleted: deleted_, solve_id, onChange } : {so
     return <Button color="red" onClick={onClick} leftSection={<IconTrash />}>Delete </Button>
 }
 
-export default function TimeList({solves: solves, setSolves, rowsPerPage=10, omitUsername=false, defaultSort="time"} : {solves: Solve[], setSolves?: React.Dispatch<React.SetStateAction<Solve[]>>, rowsPerPage?: number, omitUsername?: boolean, defaultSort?: string}) {
+export default function TimeList({solves, setSolves, rowsPerPage=10, omitUsername=false, defaultSort="time"} : {solves: Solve[], setSolves?: React.Dispatch<React.SetStateAction<Solve[]>>, rowsPerPage?: number, omitUsername?: boolean, defaultSort?: string}) {
     const [page, setPage] = useState(1);
     const [sortBy, setSortBy] = useState(defaultSort)
 
@@ -70,7 +70,7 @@ export default function TimeList({solves: solves, setSolves, rowsPerPage=10, omi
     }
 
     if (!showAllSizes) {
-        to_show = to_show.filter(solve => solve.cube_size == cubeSize);
+        to_show = to_show.filter(solve => solve.cube_size === cubeSize);
     }
 
     if (!showHidden) {
@@ -85,7 +85,7 @@ export default function TimeList({solves: solves, setSolves, rowsPerPage=10, omi
         }
         setSolves(produce((draft) => {
             for (const solve of draft) {
-                if (solve.id == solve_id) {
+                if (solve.id === solve_id) {
                     solve.deleted = newValue;
                     break;
                 }

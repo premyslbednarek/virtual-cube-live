@@ -3,7 +3,6 @@ import { useParams } from "react-router-dom"
 import { RenderedCube } from "./CubeCanvases";
 import { Text, Space, Slider, ActionIcon, Center, Flex, Kbd, Container, Stack, Checkbox, Alert } from "@mantine/core";
 import Cube from "../cube/cube";
-import useFetch from "@custom-react-hooks/use-fetch";
 import { useHotkeys } from "react-hotkeys-hook";
 import {IconPlayerPlay, IconPlayerPause, IconRewindBackward5, IconRewindForward5, IconPlus, IconMinus, IconReload} from "@tabler/icons-react"
 import NavigationPanel from "./NavigationPanel";
@@ -89,7 +88,7 @@ export function Replay({solveId} : {solveId : string}) {
             }
             setSolve(solve);
         })
-    }, [])
+    }, [solveId])
 
     const [manualCamera, setManualCamera] = useState(true);
     const setFollowReplayCamera = (newVal: boolean) => {
@@ -100,9 +99,9 @@ export function Replay({solveId} : {solveId : string}) {
     const cube = useMemo(() => {
         const cube = new Cube(solve.cube_size);
         cube.setState(solve.scramble_state);
-        cube.controls.enabled = manualCamera;
         return cube;
     }, [solve])
+    cube.controls.enabled = manualCamera;
 
     const speedModeController = useSpeedMode(cube);
 
@@ -143,7 +142,7 @@ export function Replay({solveId} : {solveId : string}) {
             }
         }
 
-    }, [time, playbackSpeed, cube, solve]);
+    }, [time, playbackSpeed, cube, solve, manualCamera]);
 
     const onPlayButtonClick = () => {
         if (time === solve.time) {

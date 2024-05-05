@@ -16,7 +16,7 @@ from model import LobbyUserStatus, UserRole, LobbyRole, LobbyStatus, Invitation,
 from cube import Cube
 from typing import List
 from enum import Enum
-from typing import TypedDict, Tuple
+from typing import TypedDict, Tuple, Optional
 from eventlet import sleep
 from dotenv import load_dotenv
 import os
@@ -100,10 +100,9 @@ def get_solves_to_continue():
     ).all()
     return {"solves": [solve._asdict() for solve in solves]}
 
-@app.route('/api/fetch_solves', methods=["GET", "POST"])
-def fetch_solves():
+def get_solves(username: Optional[str] = None, cube_size: Optional[int] = None):
     rows = db.session.execute(
-        select(
+            select(
             Solve.id.label("id"),
             Solve.completed.label("completed"),
             Solve.time.label("time"),
@@ -114,33 +113,26 @@ def fetch_solves():
             Scramble, Solve.scramble_id == Scramble.id,
         ).join(
             User, Solve.user_id == User.id
+        ).where(
+            # if username is specified, filter by it
+            not username or User.username == username,
+            not cube_size or Scramble.cube_size == cube_size
         ).order_by(
             Solve.id.desc()
         )
     )
 
-    return [row._asdict() for row in rows.all()], 200
+    return [row._asdict() for row in rows.all()]
+
+
+@app.route('/api/fetch_solves', methods=["GET", "POST"])
+def fetch_solves():
+    return get_solves(), 200
 
 
 @app.route('/api/get_solves/<string:username>/<int:cube_size>')
-def get_solves(username: str, cube_size: int):
-    solves = db.session.execute(
-        select(
-            Solve.id,
-            Solve.time,
-            Solve.completed
-        ).join(
-            Scramble, Solve.scramble_id == Scramble.id,
-        ).join(
-            User, Solve.user_id == User.id
-        ).where(
-            User.username == username,
-            Scramble.cube_size == cube_size
-        ).order_by(
-            Solve.id.desc()
-        )
-    ).all()
-    return [solve._asdict() for solve in solves]
+def get_solves_(username: str, cube_size: int):
+    return get_solves(username, cube_size), 200
 
 
 @socketio.on("continue_solve")
@@ -177,30 +169,11 @@ def get_user(username: str):
     if user is None:
         return abort(404)
 
-    solves = db.session.execute(
-        select(
-            Solve.id,
-            Solve.completed,
-            Solve.time,
-            Solve.race_id,
-            Scramble.cube_size
-        ).select_from(
-            Solve
-        ).join(
-            Scramble, Solve.scramble_id == Scramble.id
-        ).where(
-            Solve.user_id == user.id
-        ).order_by(
-            Solve.id.desc()
-        )
-    ).all()
-    print(solves, type(solves))
-
     return {
         "username": user.username,
         "role": "user" if user.role == UserRole.USER else "admin",
         "created_date": user.created_date,
-        "solves": [solve._asdict() for solve in solves]
+        "solves": get_solves(user.username)
     }
 
 @socketio.on("get_solution")

@@ -80,7 +80,8 @@ export default function useTimedCube() {
 
     const [isSolving, setIsSolving] = useState(false);
 
-    const [times, setTimes] = useState<Array<number | null>>([])
+    const [beforeFirstSolve, setBeforeFirstSolve] = useState(true);
+    const [currentTime, setCurrentTime] = useState<null | number>(null);
 
 
     // init cube controls
@@ -132,13 +133,19 @@ export default function useTimedCube() {
         }
     }, [cube])
 
-    const addTime = (time: number) => {
-        setTimes([...times, time]);
+    const stop = (time: number, continueTimer=false) => {
+        if (!continueTimer) {
+            stopwatch.stop();
+        }
+
+        setCurrentTime(time);
     }
 
     const startSolve = ({state} : {state: string}) => {
         cube.setState(state);
         setIsSolving(true);
+        setBeforeFirstSolve(false);
+        setCurrentTime(null);
 
         cube.startInspection()
 
@@ -148,18 +155,19 @@ export default function useTimedCube() {
         })
     }
 
-    let timeString = countdown.isRunning ? countdown.secondsLeft.toString()
+    let timeString = currentTime ? print_solve_time(currentTime)
+                   : countdown.isRunning ? countdown.secondsLeft.toString()
                    : stopwatch.isRunning ? stopwatch.formattedTime
-                   : times.length        ? print_solve_time(times[times.length - 1])
-                   : "";
+                   : ""
 
     return {
         timeString,
+        currentTime,
         cube,
         isSolving,
         setIsSolving,
-        addTime,
         startSolve,
         stopwatch,
+        stop,
     }
 }

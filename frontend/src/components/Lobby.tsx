@@ -192,7 +192,7 @@ export default function Lobby() {
 
     const [errorMSG, setErrorMSG] = useState<string | null>(null);
 
-    const { cube, isSolving, setIsSolving, addTime, startSolve, stopwatch, timeString } = useTimedCube()
+    const { cube, isSolving, setIsSolving, startSolve, stopwatch, stop, timeString, currentTime } = useTimedCube()
     // countdown timer for waiting after the first finisher in the lobby finishes their solve
     const waitTime = useCountdown();
 
@@ -275,7 +275,7 @@ export default function Lobby() {
     }
 
     const onSolved = ({time} : {time : number}) => {
-        addTime(time);
+        stop(time, true);
     }
 
     const onMove = ({username, move} : {username: string, move: string}) => {
@@ -473,6 +473,7 @@ export default function Lobby() {
         <Overlay position="bottom">
             <Stack gap="xs">
                 { raceEndCountdown }
+                { isSolving && currentTime && <TimerDisplay time={stopwatch.formattedTime} />}
                 <TimerDisplay time={timeString} />
                 { beforeSolveButtons }
             </Stack>

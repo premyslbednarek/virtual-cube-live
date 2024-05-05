@@ -22,7 +22,7 @@ export default function SoloMode() {
         cube,
         isSolving,
         setIsSolving,
-        addTime,
+        stop,
         startSolve: startSolve_,
         stopwatch,
     } = useTimedCube()
@@ -33,7 +33,7 @@ export default function SoloMode() {
 
     const onComplete = ({time} : {time: number, solve_id: number}) => {
         stopwatch.stop();
-        addTime(time);
+        stop(time);
         setIsSolving(false);
         console.log("finished");
     }

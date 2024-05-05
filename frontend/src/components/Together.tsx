@@ -27,7 +27,7 @@ function TogetherLobby({id} : {id: number}) {
     const { userContext } = useContext(UserContext)
 
     const [cubeSize, setCubeSize] = useState(DEFAULT_CUBE_SIZE);
-    const { cube, isSolving, setIsSolving, addTime, startSolve, stopwatch, timeString } = useTimedCube()
+    const { cube, isSolving, setIsSolving, startSolve, stop, timeString } = useTimedCube()
     const speedModeController = useSpeedMode(cube);
 
     const [solves, setSolves] = useState<SolveBasic[]>([]);
@@ -76,11 +76,10 @@ function TogetherLobby({id} : {id: number}) {
     }
 
     const onSolveEnd = ({time, id} : {time: number, id: number}) => {
-        stopwatch.stop()
         console.log(solves)
         setSolves([{id: id, time: time, completed: true}, ...solves])
         setIsSolving(false);
-        addTime(time);
+        stop(time);
     }
 
     const onLayersChange = ({newSize} : {newSize: number}) => {

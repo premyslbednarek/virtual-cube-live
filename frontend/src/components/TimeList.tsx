@@ -84,6 +84,7 @@ export default function TimeList({solves, rowsPerPage=10, omitUsername=false} : 
                     leftSection={<IconSortDescending />}
                 />
             </Flex>
+
             <Table stickyHeader striped>
                 <Table.Thead>
                     <Table.Tr>
@@ -99,6 +100,7 @@ export default function TimeList({solves, rowsPerPage=10, omitUsername=false} : 
                     { rows }
                 </Table.Tbody>
             </Table>
+            { rows.length === 0 && <Text ta="center" size="xl">No solves found</Text> }
             <Center mt="sm">
                 <Pagination value={page} onChange={setPage} total={pagesCount}></Pagination>
             </Center>

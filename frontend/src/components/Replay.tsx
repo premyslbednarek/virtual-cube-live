@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom"
 import { RenderedCube } from "./CubeCanvases";
-import { Text, Space, Slider, ActionIcon, Center, Flex, Kbd, Container, Stack } from "@mantine/core";
+import { Text, Space, Slider, ActionIcon, Center, Flex, Kbd, Container, Stack, Checkbox } from "@mantine/core";
 import Cube from "../cube/cube";
 import useFetch from "@custom-react-hooks/use-fetch";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -9,6 +9,7 @@ import {IconPlayerPlay, IconPlayerPause, IconRewindBackward5, IconRewindForward5
 import NavigationPanel from "./NavigationPanel";
 import { print_time } from "../cube/timer";
 import CopyButton from "../CopyButton";
+import { useSpeedMode } from "./useTimedCube";
 
 interface IMoveInfo {
     move: string;
@@ -71,6 +72,12 @@ export function Replay({solveId} : {solveId : string}) {
     const { data, loading, error } = useFetch<ISolveInfo>(`/api/solve/${solveId}`);
     const solve = data ? data : defaultSolveInfo;
 
+    const [manualCamera, setManualCamera] = useState(true);
+    const setFollowReplayCamera = (newVal: boolean) => {
+        cube.controls.enabled = newVal;
+        setManualCamera(newVal);
+    }
+
     useEffect(() => {
         for (const move of solve.moves) {
             move.sinceStart = Math.floor(move.sinceStart);
@@ -80,8 +87,11 @@ export function Replay({solveId} : {solveId : string}) {
     const cube = useMemo(() => {
         const cube = new Cube(solve.cube_size);
         cube.setState(solve.scramble_state);
+        cube.controls.enabled = manualCamera;
         return cube;
     }, [solve])
+
+    const speedModeController = useSpeedMode(cube);
 
     // advance in time when the replay is not paused
     useEffect(() => {
@@ -112,6 +122,7 @@ export function Replay({solveId} : {solveId : string}) {
                 setTimeout(() => {cube.makeMove(move.move)}, (move.sinceStart - time) / playbackSpeed);
             }
         }
+        if (manualCamera) return;
         for (const cameraChange of solve.camera_changes) {
             if (cameraChange.sinceStart > time + UPDATE_INTERVAL * playbackSpeed) break;
             if (time <= cameraChange.sinceStart && cameraChange.sinceStart < time + UPDATE_INTERVAL * playbackSpeed) {
@@ -157,19 +168,21 @@ export function Replay({solveId} : {solveId : string}) {
         cube.animationForceEnd();
 
         // redo the last camera change (if any)
-        let x = 0, y = 0, z = 0;
-        let cameraChanged = false;
-        for (const cameraChange of solve.camera_changes) {
-            if (cameraChange.sinceStart < newTime) {
-                cameraChanged = true;
-                x = cameraChange.x;
-                y = cameraChange.y;
-                z = cameraChange.z;
+        if (!manualCamera) {
+            let x = 0, y = 0, z = 0;
+            let cameraChanged = false;
+            for (const cameraChange of solve.camera_changes) {
+                if (cameraChange.sinceStart < newTime) {
+                    cameraChanged = true;
+                    x = cameraChange.x;
+                    y = cameraChange.y;
+                    z = cameraChange.z;
+                }
             }
-        }
-        if (cameraChanged) {
-            cube.cameraUpdate(x, y, z);
+            if (cameraChanged) {
+                cube.cameraUpdate(x, y, z);
 
+            }
         }
         setTime(newTime);
     }
@@ -236,7 +249,16 @@ export function Replay({solveId} : {solveId : string}) {
                                 </Text>
                                 <Space w="sm"></Space>
                                 <ActionIcon onClick={increasePlaybackSpeed}><IconPlus /></ActionIcon>
+                                <Space w="xs"></Space>
                                 <ActionIcon onClick={() => setPlaybackSpeed(1)}><IconReload /></ActionIcon>
+                                {speedModeController}
+                                <Space w="sm"></Space>
+                                <Checkbox
+                                    checked={manualCamera}
+                                    onChange={event => setFollowReplayCamera(event.currentTarget.checked)}
+                                />
+                                <Space w="sm"></Space>
+                                <Text fw={700}>Manual camera</Text>
                             </Flex>
                         </div>
 

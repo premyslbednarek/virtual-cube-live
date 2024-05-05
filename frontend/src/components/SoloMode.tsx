@@ -66,7 +66,7 @@ export default function SoloMode() {
         startSolve_(data);
     }
 
-    useHotkeys("space", startSolve, {enabled: !isSolving})
+    useHotkeys("space", startSolve, {enabled: !isSolving })
 
     const solveTheCube = async () => {
         const data : {moves_done: Array<string>} = await socket.emitWithAck("get_solution")

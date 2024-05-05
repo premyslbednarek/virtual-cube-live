@@ -80,7 +80,10 @@ export default function TimeList({solves: solves, setSolves, rowsPerPage=10, omi
     const pagesCount = Math.ceil(to_show.length / rowsPerPage);
 
     const onDeletion = (solve_id: number, newValue: boolean) => {
-        setSolves && setSolves(produce((draft) => {
+        if (!setSolves) {
+            return;
+        }
+        setSolves(produce((draft) => {
             for (const solve of draft) {
                 if (solve.id == solve_id) {
                     solve.deleted = newValue;
@@ -124,16 +127,16 @@ export default function TimeList({solves: solves, setSolves, rowsPerPage=10, omi
         <Container mt="xl">
             <Flex align="center" gap="sm" justify="flex-end">
                 { limitToSize && <CubeSizeController value={cubeSize} onChange={setCubeSize}/> }
-                { me.isAdmin && <Checkbox
-                    checked={showHidden}
-                    onChange={(event) => setShowHidden(event.currentTarget.checked)}
-                    label="Show hidden solves (solves from banned accounts or deleted solves)"/>
-                }
                 <Checkbox
                     checked={limitToSize}
                     onChange={(event) => setLimitToSize(event.currentTarget.checked)}
                     label="Limit cube size"
                 />
+                { me.isAdmin && <Checkbox
+                    checked={showHidden}
+                    onChange={(event) => setShowHidden(event.currentTarget.checked)}
+                    label="Show hidden solves"/>
+                }
                 <Text>Sort by: </Text>
                 <NativeSelect
                     value={sortBy}

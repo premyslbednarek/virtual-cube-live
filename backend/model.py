@@ -42,7 +42,7 @@ class LobbyStatus(Enum):
     ENDED = 2
 
 
-ANONYMOUS_PREFIX = "Anonymous#"
+ANONYMOUS_PREFIX = "Anonymous"
 
 class User(UserMixin, db.Model):
     __tablename__ = "user"

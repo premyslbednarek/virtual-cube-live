@@ -1,10 +1,10 @@
-import { Text, ActionIcon, Button, Modal, Paper, ScrollArea, Space, Table, Title } from "@mantine/core";
+import { Text, ActionIcon, Button, Modal, Paper, ScrollArea, Space, Table, Title, Menu } from "@mantine/core";
 import { print_time } from "../cube/timer";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { UserContext } from "../userContext";
 import { useDisclosure } from "@mantine/hooks";
 import { Replay } from "./Replay";
-import { IconX } from "@tabler/icons-react";
+import { IconDeviceTv, IconPlayerPlay, IconX } from "@tabler/icons-react";
 
 export interface SolveBasic {
     id: number
@@ -129,7 +129,7 @@ export function Statistics({solves, showCurrent = true} : {solves: Array<SolveBa
     );
 }
 
-export function TimeList({solves} : {solves: Array<SolveBasic>}) {
+export function TimeList({solves, continueFn} : {solves: Array<SolveBasic>, continueFn?: (solve_id: number) => void}) {
     const [opened, { open, close }] = useDisclosure(false);
     const [modalSolveId, setModalSolveId] = useState<string | null>(null);
 
@@ -157,15 +157,26 @@ export function TimeList({solves} : {solves: Array<SolveBasic>}) {
         <Table.Tr key={solve.id}>
             <Table.Th>{idx + 1}</Table.Th>
             <Table.Th><Text size="lg">{solve.completed ? print_time(solve.time) : "DNF"}</Text></Table.Th>
-            <Table.Th><Button size="xs" onClick={() => {
-                    setModalSolveId(String(solve.id));
-                    open();
-                }}
-                >
-                    Replay
-                </Button>
-            </Table.Th>
             <Table.Th>{idx + 5 <= solves.length  ? print_avg(get_ao(solves, 5, idx)) : "-" }</Table.Th>
+            <Table.Th>
+                <Menu trigger="hover" openDelay={100}>
+                    <Menu.Target>
+                        <Button size="xs">Actions</Button>
+                    </Menu.Target>
+                    <Menu.Dropdown>
+                            <Menu.Item leftSection={<IconDeviceTv />} onClick={() => {setModalSolveId(String(solve.id)); open()}}>
+                                Watch replay
+                            </Menu.Item>
+                            { continueFn && !solve.completed &&
+                                <Menu.Item onClick={() => continueFn(solve.id)} leftSection={<IconPlayerPlay />}>
+                                    Continue solve
+                                </Menu.Item>
+                            }
+                    </Menu.Dropdown>
+                </Menu>
+
+
+            </Table.Th>
         </Table.Tr>
     ))
 
@@ -186,8 +197,8 @@ export function TimeList({solves} : {solves: Array<SolveBasic>}) {
                         <Table.Tr>
                             <Table.Th>#</Table.Th>
                             <Table.Th>Time</Table.Th>
-                            <Table.Th>Replay</Table.Th>
                             <Table.Th>AO5</Table.Th>
+                            <Table.Th>Actions</Table.Th>
                         </Table.Tr>
                     </Table.Thead>
                     <Table.Tbody>
@@ -199,7 +210,7 @@ export function TimeList({solves} : {solves: Array<SolveBasic>}) {
     );
 }
 
-export default function TimeHistory({cubeSize, fromList} : {cubeSize: number, fromList?: SolveBasic[]}) {
+export default function TimeHistory({cubeSize, fromList, continueFn} : {cubeSize: number, fromList?: SolveBasic[], continueFn?: (solve_id: number) => void}) {
     const [solves, setSolves] = useState<Array<SolveBasic>>(fromList !== undefined ? fromList.slice(0) : [])
     const username = useContext(UserContext).userContext.username
 
@@ -221,7 +232,7 @@ export default function TimeHistory({cubeSize, fromList} : {cubeSize: number, fr
             <Space h="sm" />
             <Paper p={10} radius="md">
                 <Title order={3} ml={10}>Time list</Title>
-                <TimeList solves={solves} />
+                <TimeList solves={solves} continueFn={continueFn}/>
             </Paper>
         </>
     );

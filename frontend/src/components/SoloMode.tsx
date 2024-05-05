@@ -85,7 +85,7 @@ export default function SoloMode() {
         stopwatch.stop();
     }
 
-    const continue_solve = async (solve_id: number) => {
+    const continueSolve = async (solve_id: number) => {
         const response: {startTime: number, state: string, layers: number} = await socket.emitWithAck("continue_solve", {solve_id: solve_id});
         setIsSolving(true);
 
@@ -119,14 +119,14 @@ export default function SoloMode() {
             <Space h="sm" />
             <Button onClick={open} size="md" radius="md">Continue solve</Button>
             <Space h="sm" />
-            <TimeHistory cubeSize={cubeSize} />
+            <TimeHistory cubeSize={cubeSize} continueFn={continueSolve}/>
         </>
     )
 
     return (
         <>
             <Modal opened={opened} onClose={close} title="Pick a solve to continue">
-                <ShowSolvesToContinue onContinue={continue_solve} />
+                <ShowSolvesToContinue onContinue={continueSolve} />
             </Modal>
 
             <Overlay position="left">

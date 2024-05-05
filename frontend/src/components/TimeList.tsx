@@ -2,7 +2,7 @@ import { Button, Center, Checkbox, Container, Flex, NativeSelect, Pagination, Ta
 import { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { print_time } from "../cube/timer";
-import { IconPlayerPlay, IconSortDescending, IconTrash, IconTrashOff } from "@tabler/icons-react";
+import { IconDeviceTv, IconSortDescending, IconTrash, IconTrashOff } from "@tabler/icons-react";
 import { CubeSizeController } from "./useTimedCube";
 import { UserContext } from "../userContext";
 import produce from "immer";
@@ -111,7 +111,7 @@ export default function TimeList({solves, setSolves, rowsPerPage=10, omitUsernam
             <Table.Th>
                 <Link to={`/replay/${solve.id}`}>
                     <Tooltip label="Watch replay">
-                        <Button leftSection={<IconPlayerPlay />}>
+                        <Button leftSection={<IconDeviceTv />}>
                             Replay
                         </Button>
                     </Tooltip>

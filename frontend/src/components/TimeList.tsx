@@ -52,12 +52,12 @@ export function DeleteSolveButton({deleted: deleted_, solve_id, onChange } : {so
     return <Button color="red" onClick={onClick} leftSection={<IconTrash />}>Delete </Button>
 }
 
-export default function TimeList({solves: solves, setSolves, rowsPerPage=10, omitUsername=false} : {solves: Solve[], setSolves?: React.Dispatch<React.SetStateAction<Solve[]>>, rowsPerPage?: number, omitUsername?: boolean}) {
+export default function TimeList({solves: solves, setSolves, rowsPerPage=10, omitUsername=false, defaultSort="time"} : {solves: Solve[], setSolves?: React.Dispatch<React.SetStateAction<Solve[]>>, rowsPerPage?: number, omitUsername?: boolean, defaultSort?: string}) {
     const [page, setPage] = useState(1);
-    const [sortBy, setSortBy] = useState("recent")
+    const [sortBy, setSortBy] = useState(defaultSort)
 
     const [cubeSize, setCubeSize] = useState(3);
-    const [limitToSize, setLimitToSize] = useState(false);
+    const [showAllSizes, setShowAllSizes] = useState(false);
 
     const {userContext : me} = useContext(UserContext)
     const [showHidden, setShowHidden] = useState(false);
@@ -69,7 +69,7 @@ export default function TimeList({solves: solves, setSolves, rowsPerPage=10, omi
         to_show = to_show.slice(0).sort(solveTimeCompare); // sort without mutating original array
     }
 
-    if (limitToSize) {
+    if (!showAllSizes) {
         to_show = to_show.filter(solve => solve.cube_size == cubeSize);
     }
 
@@ -94,9 +94,9 @@ export default function TimeList({solves: solves, setSolves, rowsPerPage=10, omi
         }))
     }
 
-    const rows = to_show.slice((page - 1)* rowsPerPage, page * rowsPerPage).map((solve) => (
+    const rows = to_show.slice((page - 1)* rowsPerPage, page * rowsPerPage).map((solve, index) => (
         <Table.Tr key={solve.id} style={{backgroundColor: (!solve.banned && !solve.deleted) ? "inherit" : rgba("#ff0000", 0.2)}}>
-            <Table.Th>{solve.id}</Table.Th>
+            { sortBy === "time" && <Table.Th>{(page - 1) * rowsPerPage + index + 1}</Table.Th>}
             { !omitUsername &&
                 <Table.Th>
                     <Link to={`/user/${solve.username}`} style={{textDecoration: 'none', color: "white"}}>
@@ -126,11 +126,11 @@ export default function TimeList({solves: solves, setSolves, rowsPerPage=10, omi
     return (
         <Container mt="xl">
             <Flex align="center" gap="sm" justify="flex-end">
-                { limitToSize && <CubeSizeController value={cubeSize} onChange={setCubeSize}/> }
+                { !showAllSizes && <CubeSizeController value={cubeSize} onChange={setCubeSize}/> }
                 <Checkbox
-                    checked={limitToSize}
-                    onChange={(event) => setLimitToSize(event.currentTarget.checked)}
-                    label="Limit cube size"
+                    checked={showAllSizes}
+                    onChange={(event) => setShowAllSizes(event.currentTarget.checked)}
+                    label="Show all cube sizes"
                 />
                 { me.isAdmin && <Checkbox
                     checked={showHidden}
@@ -149,7 +149,7 @@ export default function TimeList({solves: solves, setSolves, rowsPerPage=10, omi
             <Table stickyHeader striped>
                 <Table.Thead>
                     <Table.Tr>
-                        <Table.Th>Solve id</Table.Th>
+                        { sortBy === "time" && <Table.Th>Rank</Table.Th> }
                         { !omitUsername && <Table.Th>Username</Table.Th>}
                         <Table.Th>Cube size</Table.Th>
                         <Table.Th>Solve time</Table.Th>

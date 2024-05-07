@@ -6,14 +6,14 @@ function getAxis(face: string) {
     if ("RLM".includes(face)) return "x";
     if ("UED".includes(face)) return "y";
     if ("FSB".includes(face)) return "z";
-    // throw new Error("Parameter is not a valid face!");
+    throw new Error("Parameter is not a valid face!");
 }
 
 function isFlipped(face: string) {
     // return whether rotations of given face are inverted
     if ("RUFSE".includes(face)) return false;
     if ("LDBM".includes(face)) return true;
-    // return new Error("Parameter is not a valid face!")
+    throw new Error("Parameter is not a valid face!")
 }
 
 class Move {
@@ -28,6 +28,9 @@ class Move {
     }
 
     reverse() {
+        if (this.dir === 2) {
+            return
+        }
         this.dir *= -1;
     }
 }
@@ -42,6 +45,7 @@ class LayerMove extends Move {
     constructor(face: string, axis: string, flipped: boolean, index: number, dir: number, wide: boolean, double: boolean) {
         super(axis, dir, double);
         this.face = face;
+        // distance from the outer layer
         this.index = index;
         this.wide = wide;
         this.flipped = flipped;
@@ -67,11 +71,9 @@ class LayerMove extends Move {
 
         if (negateAxis) {
             this.flipped = !this.flipped;
-            // this.dir = this.dir * -1;
         }
 
         this.face = getFace(this.axis, this.flipped, this.isMiddle);
-        // this.flipped = isFlipped(this.face);
     }
 
     get_indices(n: number) : Array<number> {

@@ -2,6 +2,7 @@ import numpy as np
 from typing import List
 from math import floor
 from random import choices
+from pyTwistyScrambler import scrambler333, scrambler444, scrambler555, scrambler666, scrambler777, scrambler222
 
 colors = {
     b'W': u"\u001b[48;5;15m",
@@ -325,8 +326,19 @@ class Cube:
                 )
         return self
 
+scrambler_dispatch = {
+    2: scrambler222,
+    3: scrambler333,
+    4: scrambler444,
+    5: scrambler555,
+    6: scrambler666,
+    7: scrambler777
+}
 
-def get_big_cube_scramble(size: str) -> str:
+def generate_scramble(size: str) -> str:
+    if (size <= 7):
+        return scrambler_dispatch[size].get_WCA_scramble()
+
     # generate moves that are possible on a size x size cube
     # note that the list will not contain all the possible moves, but this is
     # not necessary for this usage

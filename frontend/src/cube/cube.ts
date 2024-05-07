@@ -3,25 +3,12 @@ import * as THREE from 'three';
 import * as TWEEN from '@tweenjs/tween.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { addForRender, removeForRender, requestRenderIfNotRequested } from './render';
-import { drawLine, getOrtogonalVectors, getScreenCoordinates } from './utils';
+import { getAxisIndex, getClosestOrthogonalVector, getNormal, getRotationAxis, getTurnDirection } from './utils';
 import { parse_move, getFace, LayerMove } from './move';
 import { roundedSquare } from './geometries';
 import keybinds from './keybindings';
 
 export const DEFAULT_SPEED_MODE=true;
-
-class Axis {
-    axis: string
-    vector: THREE.Vector3
-    constructor(axis: string, vector: THREE.Vector3) {
-        this.axis = axis;
-        this.vector = vector;
-    }
-}
-
-const xAxis = new Axis("x", new THREE.Vector3(1, 0, 0));
-const yAxis = new Axis("y", new THREE.Vector3(0, 1, 0));
-const zAxis = new Axis("z", new THREE.Vector3(0, 0, 1));
 
 function getDefaultCubeState(size: number) : string {
     let state = "";
@@ -582,99 +569,24 @@ export default class Cube {
             return;
         }
 
-        // get clicked sticker normal vector
-        const stickerNormal = new THREE.Vector3();
-        this.mousedownInfo.clickedSticker.getWorldDirection(stickerNormal);
-        stickerNormal.round();
+        const stickerNormal = getNormal(this.mousedownInfo.clickedSticker);
+        const moveDirection = getClosestOrthogonalVector(stickerNormal, this.mousedownInfo.clickedCoordinates, mouseVector, this.camera);
 
-        // get four orthogonal vectors (perpendicular to the basis vectors) in the 3D space
-        // and get their 2D screen projections
-        // vector with the smallest angle to mouseVector will determine the direction of the move
-        const orthogonalVectors = getOrtogonalVectors(stickerNormal);
+        const [axis, axisVector] = getRotationAxis(moveDirection, stickerNormal);
 
-        const startPoint = this.mousedownInfo.clickedCoordinates;
-        const endPoints = orthogonalVectors.map((vector) => vector.clone().add(startPoint));
-
-        const startPointScreen = getScreenCoordinates(startPoint, this.camera);
-        const endPointsScreen = endPoints.map((point) => getScreenCoordinates(point, this.camera));
-        const screenDirs = endPointsScreen.map((end) => end.sub(startPointScreen));
-
-        console.log(screenDirs)
-
-        // change to true to visualize the vectors on the cube
-        if (true) {
-            // visualize the sticker normal
-            drawLine(this.mousedownInfo.clickedCoordinates, stickerNormal.clone().add(this.mousedownInfo.clickedCoordinates), this.scene);
-            // visualize the four vectors
-            endPoints.forEach((endPoint) => drawLine(startPoint, endPoint, this.scene, 0xff0000));
-        }
-
-        // calculate angle to mouseMovenmentVector
-        const angles = screenDirs.map((dir) => dir.angleTo(mouseVector)*180/Math.PI);
-
-        // choose the vector closest to mouseMovementVector
-        let lowest = 0;
-        for (let j = 1; j < 4; ++j) {
-            if (angles[j] < angles[lowest]) {
-                lowest = j;
-            }
-        }
-        const move_dir = orthogonalVectors[lowest];
-
-        // get rotation axis
-        let axisVector;
-        let axis;
-        for (let baseVec of [xAxis, yAxis, zAxis]) {
-            const baseLabel = baseVec.axis;
-            const baseVector = baseVec.vector;
-            if (baseVector.dot(move_dir) === 0 && baseVector.dot(stickerNormal) === 0) {
-                axisVector = baseVector;
-                axis = baseLabel;
-                break;
-            }
-        }
-
-        // get clicked sticker position along the rotations axis and round to nearest .5
-        // HERE, TAKE THE PARENT POSITION, NOT THE STICKER - todo
-
-        const componentIndex = axis === "x" ? 0 :  axis === "y" ? 1 :  2
-        let coord = this.mousedownInfo.clickedSticker.parent?.position.getComponent(componentIndex);
-        if (coord === undefined) {
-            return
-        };
-        coord = Math.round(coord * 2) / 2;
+        let coord = getAxisIndex(axis, this.mousedownInfo.clickedSticker);
 
         // exception fro middle layer
         const flipped = coord < 0 || (axis === "x" && coord === 0);
-        const face = getFace(axis as any, flipped, coord === 0);
+        const face = getFace(axis, flipped, coord === 0);
+
         coord = Math.abs(coord);
 
-        const clickedCoordinates = this.mousedownInfo.clickedCoordinates;
+        const outerLayerPosition = (this.size - 1) / 2;
+        const layerIndex = Math.abs(coord - outerLayerPosition) + 1;
+        const turnDirection = getTurnDirection(axisVector, this.mousedownInfo.clickedCoordinates, moveDirection, flipped);
 
-        // triple product calculation
-        // does the vector rotate around the axis in a clockwise or anticlockwise direction?
-        // positive determinant - anticlockwise
-        // negative determinant - clockwise
-        const matrix = new THREE.Matrix3();
-        matrix.set(
-            (axisVector as any).x,  (axisVector as any).y,  (axisVector as any).z,
-            clickedCoordinates.x, clickedCoordinates.y, clickedCoordinates.z,
-            move_dir.x,      move_dir.y,      move_dir.z
-        )
-        const determinant = matrix.determinant();
-
-        let rotationSign = 1;
-        if (determinant > 0) {
-            rotationSign *= -1;
-        }
-        if (flipped) {
-            rotationSign *= -1;
-        }
-
-        const offset = -(this.size - 1) / 2;
-        // TODO fix middle layers moves
-        // TODO M on 4x4 does not work
-        const moveObj = new LayerMove(face as any, axis as any, flipped, Math.abs(coord + offset) + 1, rotationSign, false, false);
+        const moveObj = new LayerMove(face, axis, flipped, layerIndex, turnDirection, false, false);
         this.makeMove(moveObj.toString());
     }
 }

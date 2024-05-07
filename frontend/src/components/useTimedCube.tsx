@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Cube, { DEFAULT_SPEED_MODE } from "../cube/cube";
 import { print_time } from "../cube/timer";
 import { ActionIcon, Flex, Switch, Text } from "@mantine/core";
-import keybinds from "../cube/keybindings";
 import { useCountdown, useStopwatch } from "./TimerHooks";
 import { socket } from "../socket";
 import * as THREE from "three"

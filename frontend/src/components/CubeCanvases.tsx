@@ -26,10 +26,10 @@ export function RenderedCube({cube, fullscreen} : {cube: Cube, fullscreen?:boole
 
 export function RotatingCube() {
     const c = useMemo(() => new Cube(5), [])
-    c.controls.enabled = false;
+    c.orbitCamera.enabled = false;
     c.setSpeedMode(false);
-    c.controls.autoRotate = true;
-    c.controls.autoRotateSpeed = 3
+    c.orbitCamera.autoRotate = true;
+    c.orbitCamera.autoRotateSpeed = 3
     c.renderer.setClearColor(0x000000, 0)
 
 
@@ -41,7 +41,7 @@ export function RotatingCube() {
         let render = true;
         function animate() {
             if (render) requestAnimationFrame( animate );
-            c.controls.update();
+            c.orbitCamera.update();
             c.render();
         }
         animate()

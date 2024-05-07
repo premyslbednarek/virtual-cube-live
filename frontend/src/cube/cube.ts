@@ -3,9 +3,10 @@ import * as THREE from 'three';
 import * as TWEEN from '@tweenjs/tween.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { addForRender, removeForRender, requestRenderIfNotRequested } from './render';
-import { getOrtogonalVectors, getScreenCoordinates } from './utils';
+import { drawLine, getOrtogonalVectors, getScreenCoordinates } from './utils';
 import { parse_move, getFace, LayerMove } from './move';
 import { roundedSquare } from './geometries';
+import keybinds from './keybindings';
 
 export const DEFAULT_SPEED_MODE=true;
 
@@ -33,39 +34,61 @@ function getDefaultCubeState(size: number) : string {
     return state;
 }
 
+// we need to keep the following information when a sticker is clicked in mousedown event
+// until the mouseup event is fired to decide what the move will be
 interface MouseDownInfo {
-    clientX: number;
-    clientY: number;
-    sticker: THREE.Object3D<THREE.Object3DEventMap>;
-    clickedPoint: THREE.Vector3
+    clickedScreenX: number;
+    clickedScreenY: number;
+    clickedSticker: THREE.Object3D<THREE.Object3DEventMap>;
+    clickedCoordinates: THREE.Vector3
 }
 
 export default class Cube {
-    size: number
-    speedMode: boolean = DEFAULT_SPEED_MODE;
+    private size: number
+    private speedMode: boolean = DEFAULT_SPEED_MODE;
 
-    onCameraCallbacks: Array<(pos: THREE.Vector3) => void> = []
-    onMoveCallbacks: Array<(move: string) => void> = []
+    // in inspection, we ignore moves that would turn the cube
+    private inspection: boolean = false
 
-    inspection: boolean = false
 
-    scene: THREE.Scene
-    camera: THREE.PerspectiveCamera
+    // three.js
+    private scene: THREE.Scene
+    private camera: THREE.PerspectiveCamera
     renderer: THREE.WebGLRenderer
-    controls: OrbitControls
+    orbitCamera: OrbitControls
 
-    speedModeMeshes: THREE.Mesh[] = []
-    normalModeMeshes: THREE.Mesh[] = []
+    // speed and normal modes have different meshes (3D objects with textures) to render
+    private speedModeMeshes: THREE.Mesh[] = []
+    private normalModeMeshes: THREE.Mesh[] = []
 
     // since numjs does not support ndarray for non numeric types
-    // create a flat array of THREE.Groups and ndarray of cubies indices
-    cubies: Array<THREE.Group> = []
-    cubieIndices!: nj.NdArray
+    // create a flat array of THREE.Groups, indices from this array are elements
+    // of the 3-dimensional cubieIndices array
+    private cubies: Array<THREE.Group> = []
+    private cubieIndices!: nj.NdArray
 
-    mouseDownInfo?: MouseDownInfo;
-    tween?: TWEEN.Tween<THREE.Euler>
+    // we have to remember state between mousedown and mouseup events are fired
+    private mousedownInfo?: MouseDownInfo;
+
+    // current animation - can be cancelled
+    private tween?: TWEEN.Tween<THREE.Euler>
 
     defaultPerformMove = true;
+
+    // functions that are called when camera position changes
+    private onCameraCallbacks: Array<(pos: THREE.Vector3) => void> = []
+
+    // functions that are called when a move is done
+    private onMoveCallbacks: Array<(move: string) => void> = []
+
+    // eventListeners - if we want to remove event listener, we need to pass
+    // both the event name and the function. Since foo.bind(bar) != foo.bind(bar)
+    // we have to store the references to the originaly added event listeners
+    // https://stackoverflow.com/a/9720991
+    private onKeydownHandler: (event: KeyboardEvent) => void;
+    private onMousedownHandler: (event: MouseEvent) => void;
+    private onMouseupHandler: (event: MouseEvent) => void;
+    private onResizeHandler: () => void;
 
     constructor(n: number, state?: string) {
         this.size = n;
@@ -81,22 +104,42 @@ export default class Cube {
         );
 
         // init orbit controls - move around the cube
-        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-        this.setZoomMinDistance();
-        this.controls.enablePan = false; // disable right mouse button camera panning (side to side movement)
-        this.controls.addEventListener('change', () => this.onCameraChange());
+        this.orbitCamera = new OrbitControls(this.camera, this.renderer.domElement);
+        this.orbitCamera.enablePan = false; // disable right mouse button camera panning (side to side movement)
+        this.orbitCamera.addEventListener('change', () => this.onCameraChange());
 
-        this.init_internal_state();
-        this.draw(state);
+        if (!state) {
+            state = getDefaultCubeState(this.size);
+        }
+        this.setState(state);
+
+        this.onKeydownHandler = this.onKeyDown.bind(this)
+        this.onMousedownHandler = this.onMousedown.bind(this);
+        this.onMouseupHandler = this.onMouseup.bind(this);
+        this.onResizeHandler = this.resizeCanvas.bind(this);
     }
 
-    setZoomMinDistance() {
+    initControls() {
+        document.addEventListener("keydown", this.onKeydownHandler);
+        document.addEventListener("mousedown", this.onMousedownHandler);
+        document.addEventListener("mouseup", this.onMouseupHandler);
+        window.addEventListener("resize", this.onResizeHandler);
+    }
+
+    destroyControls() {
+        document.removeEventListener("keydown", this.onKeydownHandler);
+        document.removeEventListener("mousedown", this.onMousedownHandler);
+        document.removeEventListener("mouseup", this.onMouseupHandler);
+        window.removeEventListener("resize", this.onResizeHandler);
+    }
+
+    private setZoomMinDistance() {
         // half of the cube diagonal length + some extra distance
         const distance = (Math.sqrt(3) * this.size) / 2 + 0.5;
-        this.controls.minDistance = distance;
+        this.orbitCamera.minDistance = distance;
     }
 
-    init_internal_state() {
+    private initInternalState() {
         const n = this.size;
         const cubiesCount = n*n*n;
 
@@ -144,7 +187,7 @@ export default class Cube {
     }
 
     setState(state: string) {
-        this.init_internal_state();
+        this.initInternalState();
         this.draw(state);
     }
 
@@ -164,9 +207,6 @@ export default class Cube {
         }
     }
 
-    onCamera(callback: (pos: THREE.Vector3) => void) {
-        this.onCameraCallbacks.push(callback);
-    }
 
     updateCamera(new_position: THREE.Vector3) {
         this.camera.position.copy(new_position);
@@ -182,8 +222,12 @@ export default class Cube {
         this.render();
     }
 
-    onMove(callback: (move: string) => void) {
+    addOnMoveEventListener(callback: (move: string) => void) {
         this.onMoveCallbacks.push(callback);
+    }
+
+    addOnCameraEventListener(callback: (pos: THREE.Vector3) => void) {
+        this.onCameraCallbacks.push(callback);
     }
 
     resizeCanvas() {
@@ -199,7 +243,7 @@ export default class Cube {
         this.renderer.render(this.scene, this.camera);
     }
 
-    toggleMeshes() {
+    private toggleMeshes() {
         for (const mesh of this.speedModeMeshes) {
             mesh.visible = this.speedMode;
         }
@@ -218,12 +262,11 @@ export default class Cube {
 
     setSize(newSize: number) {
         this.size = newSize;
-        this.setZoomMinDistance();
-        this.init_internal_state();
-        this.draw();
+        this.initInternalState();
+        this.draw(getDefaultCubeState(newSize));
     }
 
-    getMesh(color: string, speedMode: boolean) {
+    private getMesh(color: string, speedMode: boolean) {
         let colors = new Map([
             ["R", 0xff1100], // red
             ["O", 0xffa200], // orange
@@ -247,7 +290,7 @@ export default class Cube {
         }
     }
 
-    drawStickers(state: string = "") {
+    private drawStickers(state: string = "") {
         const n = this.size;
 
         let faceCenters = [
@@ -292,7 +335,7 @@ export default class Cube {
         }
     }
 
-    generateCubies() {
+    private generateCubies() {
         const boxGeometry = new THREE.BoxGeometry(0.98, 0.98, 0.98);
         const boxMaterial = new THREE.MeshBasicMaterial({color: 0x00000});
         const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
@@ -303,15 +346,13 @@ export default class Cube {
         }
     }
 
-    draw(state?: string) {
-        if (!state) {
-            state = getDefaultCubeState(this.size);
-        }
+    private draw(state: string) {
         // clear the scene
         this.scene.remove.apply(this.scene, this.scene.children);
 
         this.camera.position.set(0, this.size + this.size / 2 - 1.2, this.size + this.size / 2 + 1)
         this.camera.lookAt(0, 0, 0);
+        this.setZoomMinDistance();
 
         // visualize the axes
         // X is red, Y is green, Z is blue
@@ -332,11 +373,11 @@ export default class Cube {
         this.render();
     }
 
-    getAxisRemapping() {
+    private getAxisRemapping() {
         // camera position might have changed - when resizing the cube
-        this.controls.update();
+        this.orbitCamera.update();
 
-        const angle = this.controls.getAzimuthalAngle()*180/Math.PI;
+        const angle = this.orbitCamera.getAzimuthalAngle()*180/Math.PI;
         // oldAxis -> [newAxis, negateAxis]
         const remapping = new Map();
         if (-45 <= angle && angle <= 45) {
@@ -359,7 +400,7 @@ export default class Cube {
     }
 
     makeKeyboardMove(move_str: string) {
-        if (this.controls) {
+        if (this.orbitCamera) {
             const remapping = this.getAxisRemapping();
             const move = parse_move(move_str);
 
@@ -373,7 +414,7 @@ export default class Cube {
         this.makeMove(move_str);
     }
 
-    getLayer(axis: string, index: number) {
+    private getLayer(axis: string, index: number) {
         let x = null, y = null, z = null;
         if (axis === "x") {
             x = index;
@@ -388,7 +429,7 @@ export default class Cube {
         return this.cubieIndices.pick(x as any, y as any, z as any);
     }
 
-    rotate_layer(axis: string, index: number, dir: number) {
+    private rotate_layer(axis: string, index: number, dir: number) {
         if (axis === "y") { dir *= -1; }
         const layer = this.getLayer(axis, index);
         const rotated = nj.rot90(layer, -1 * dir).clone()
@@ -478,7 +519,17 @@ export default class Cube {
         requestRenderIfNotRequested();
     }
 
-    mouseDown(event: MouseEvent) {
+    private onKeyDown = (event: KeyboardEvent) => {
+        if (event.ctrlKey || event.altKey || event.shiftKey || event.metaKey) {
+            return;
+        }
+        let move_str = keybinds.get(event.key);
+        if (move_str) {
+            this.makeKeyboardMove(move_str);
+        }
+    }
+
+    private onMousedown(event: MouseEvent) {
         // calculate pointer position in NDC - normalized device coordinates
         // in NDC, canvas bottom left corner is [-1, -1], top right is [1, 1]
         // offsets are useful when the canvas is not full page
@@ -496,64 +547,70 @@ export default class Cube {
         const intersectedStickers = raycaster.intersectObjects(this.cubies);
 
         if (intersectedStickers.length === 0) {
-            this.mouseDownInfo = undefined;
+            this.mousedownInfo = undefined;
             return;
         }
 
         // a sticker was clicked - the user wants to make a move
         // disable camera rotation, so the desired mouse movement does not move the camera
-        this.controls.enabled = false;
+        this.orbitCamera.enabled = false;
 
-        const clickedSticker = intersectedStickers[0].object;
-        const clickedCoordinates = intersectedStickers[0].point;
-
-        this.mouseDownInfo = {
-            clientX: event.clientX,
-            clientY: event.clientY,
-            sticker: clickedSticker,
-            clickedPoint: clickedCoordinates
+        this.mousedownInfo = {
+            clickedScreenX: event.clientX,
+            clickedScreenY: event.clientY,
+            clickedSticker: intersectedStickers[0].object,
+            clickedCoordinates: intersectedStickers[0].point
         }
     }
 
-    mouseUp(event: MouseEvent) {
-        // check whether a sticker was clicked on mouseDown event handler
-        if (this.mouseDownInfo === undefined) {
+    private onMouseup(event: MouseEvent) {
+        if (this.mousedownInfo === undefined) {
+            // no sticker was clicked in mousedown event
             return;
         }
 
-        this.controls.enabled = true;
+        this.orbitCamera.enabled = true;
 
-        // direction of the cursor movement
-        const mouseMovementVector = new THREE.Vector2(
-            event.clientX - this.mouseDownInfo.clientX,
-            event.clientY - this.mouseDownInfo.clientY
+        // calculate cursor movement direction
+        const mouseVector = new THREE.Vector2(
+            event.clientX - this.mousedownInfo.clickedScreenX,
+            event.clientY - this.mousedownInfo.clickedScreenY
         )
 
-        if (mouseMovementVector.length() <= 3) {
+        if (mouseVector.length() <= 10) {
             // the mouse movement was very short - possibly just a click
             return;
         }
-        const clickedPosition = this.mouseDownInfo.clickedPoint;
 
-        // calculate normal vector to the clicked sticker plane
+        // get clicked sticker normal vector
         const stickerNormal = new THREE.Vector3();
-        this.mouseDownInfo.sticker.getWorldDirection(stickerNormal);
+        this.mousedownInfo.clickedSticker.getWorldDirection(stickerNormal);
         stickerNormal.round();
-        // visualize the normal
-        // drawLine(this.mouseDownObject.clickedPoint, stickerNormal.clone().add(this.mouseDownObject.clickedPoint), this.scene);
 
+        // get four orthogonal vectors (perpendicular to the basis vectors) in the 3D space
+        // and get their 2D screen projections
+        // vector with the smallest angle to mouseVector will determine the direction of the move
         const orthogonalVectors = getOrtogonalVectors(stickerNormal);
-        // visualize the orthogonal vectors
-        const startPoint = this.mouseDownInfo.clickedPoint;
+
+        const startPoint = this.mousedownInfo.clickedCoordinates;
         const endPoints = orthogonalVectors.map((vector) => vector.clone().add(startPoint));
-        // endPoints.forEach((endPoint) => drawLine(startPoint, endPoint, this.scene));
 
         const startPointScreen = getScreenCoordinates(startPoint, this.camera);
         const endPointsScreen = endPoints.map((point) => getScreenCoordinates(point, this.camera));
         const screenDirs = endPointsScreen.map((end) => end.sub(startPointScreen));
 
+        console.log(screenDirs)
+
+        // change to true to visualize the vectors on the cube
+        if (true) {
+            // visualize the sticker normal
+            drawLine(this.mousedownInfo.clickedCoordinates, stickerNormal.clone().add(this.mousedownInfo.clickedCoordinates), this.scene);
+            // visualize the four vectors
+            endPoints.forEach((endPoint) => drawLine(startPoint, endPoint, this.scene, 0xff0000));
+        }
+
         // calculate angle to mouseMovenmentVector
-        const angles = screenDirs.map((dir) => dir.angleTo(mouseMovementVector)*180/Math.PI);
+        const angles = screenDirs.map((dir) => dir.angleTo(mouseVector)*180/Math.PI);
 
         // choose the vector closest to mouseMovementVector
         let lowest = 0;
@@ -581,7 +638,7 @@ export default class Cube {
         // HERE, TAKE THE PARENT POSITION, NOT THE STICKER - todo
 
         const componentIndex = axis === "x" ? 0 :  axis === "y" ? 1 :  2
-        let coord = this.mouseDownInfo.sticker.parent?.position.getComponent(componentIndex);
+        let coord = this.mousedownInfo.clickedSticker.parent?.position.getComponent(componentIndex);
         if (coord === undefined) {
             return
         };
@@ -592,6 +649,8 @@ export default class Cube {
         const face = getFace(axis as any, flipped, coord === 0);
         coord = Math.abs(coord);
 
+        const clickedCoordinates = this.mousedownInfo.clickedCoordinates;
+
         // triple product calculation
         // does the vector rotate around the axis in a clockwise or anticlockwise direction?
         // positive determinant - anticlockwise
@@ -599,7 +658,7 @@ export default class Cube {
         const matrix = new THREE.Matrix3();
         matrix.set(
             (axisVector as any).x,  (axisVector as any).y,  (axisVector as any).z,
-            clickedPosition.x, clickedPosition.y, clickedPosition.z,
+            clickedCoordinates.x, clickedCoordinates.y, clickedCoordinates.z,
             move_dir.x,      move_dir.y,      move_dir.z
         )
         const determinant = matrix.determinant();

@@ -85,50 +85,20 @@ export default function useTimedCube() {
 
     // init cube controls
     useEffect(() => {
-        const onMouseDown = (event: MouseEvent) => {
-            cube.mouseDown(event);
-        }
-        const onMouseUp = (event: MouseEvent) => {
-            cube.mouseUp(event);
-        }
-
-        const onKeyDown = (event: KeyboardEvent) => {
-            if (event.ctrlKey || event.altKey || event.shiftKey || event.metaKey) {
-                return;
-            }
-            let move_str = keybinds.get(event.key);
-            if (move_str) {
-                cube.makeKeyboardMove(move_str);
-            }
-        }
-
-        const onResize = () => {
-            cube.resizeCanvas();
-        }
-
         function send_move(move_str: string) {
-            const data = {move: move_str}
-            socket.emit("move", data);
+            socket.emit("move", {move: move_str});
         }
+        cube.addOnMoveEventListener(send_move);
 
         function send_camera(new_position: THREE.Vector3) {
-            const data = {position: new_position}
-            socket.emit("camera", data);
+            socket.emit("camera", {position: new_position});
         }
+        cube.addOnCameraEventListener(send_camera);
 
-        cube.onMove(send_move);
-        cube.onCamera(send_camera);
-
-        window.addEventListener("resize", onResize);
-        document.addEventListener("mousedown", onMouseDown);
-        document.addEventListener("mouseup", onMouseUp);
-        document.addEventListener("keydown", onKeyDown);
+        cube.initControls();
 
         return () => {
-            window.removeEventListener("resize", onResize);
-            document.removeEventListener("mousedown", onMouseDown);
-            document.removeEventListener("mouseup", onMouseUp);
-            document.removeEventListener("keydown", onKeyDown);
+            cube.destroyControls();
         }
     }, [cube])
 

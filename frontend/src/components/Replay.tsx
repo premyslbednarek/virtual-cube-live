@@ -92,7 +92,7 @@ export function Replay({solveId} : {solveId : string}) {
 
     const [manualCamera, setManualCamera] = useState(true);
     const setFollowReplayCamera = (newVal: boolean) => {
-        cube.controls.enabled = newVal;
+        cube.orbitCamera.enabled = newVal;
         setManualCamera(newVal);
     }
 
@@ -101,7 +101,7 @@ export function Replay({solveId} : {solveId : string}) {
         cube.setState(solve.scramble_state);
         return cube;
     }, [solve])
-    cube.controls.enabled = manualCamera;
+    cube.orbitCamera.enabled = manualCamera;
 
     const speedModeController = useSpeedMode(cube);
 

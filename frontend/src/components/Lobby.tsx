@@ -1,7 +1,6 @@
 import { useParams } from "react-router-dom"
 import React, { useEffect, useState } from "react"
 import Cube from "../cube/cube";
-import { parse_move } from "../cube/move";
 import {
     Badge,
     Button,
@@ -19,7 +18,6 @@ import { socket } from "../socket";
 import './lobby.css'
 import { UserContext } from "../userContext";
 import { useContext } from "react";
-import { useHotkeys } from "react-hotkeys-hook";
 import produce from "immer";
 import { print_time } from "../cube/timer";
 import NavigationPanel from "./NavigationPanel";
@@ -208,25 +206,6 @@ export default function Lobby() {
     }
 
     const speedModeController = useSpeedMode(cube, toggleSpeedMode);
-
-    const solveTheCube = () => {
-        if (!isSolving) {
-            return;
-        }
-        fetch("/api/request_solution", {
-            method: "POST",
-            body: JSON.stringify({lobby_id: lobby_id})
-        }).then(res => res.json()).then(async function(data: {moves_done: string[]}) {
-            for (let i = data.moves_done.length - 1; i >= 0; --i) {
-                const moveObj = parse_move(data.moves_done[i]);
-                moveObj.reverse();
-                cube.makeMove(moveObj.toString());
-                await new Promise(r => setTimeout(r, 200));
-            }
-        }).catch(error => console.log(error))
-    }
-
-    useHotkeys("ctrl+1", solveTheCube, {enabled: isSolving});
 
     useEffect(() => {
         socket.connect();
@@ -496,10 +475,6 @@ export default function Lobby() {
                 <Space w="md" />
                 { isAdmin && <AdminPanelButton enemies={enemies} /> }
             </Flex>
-            {
-                // show solve button for app admins
-                ( userContext.isAdmin && isSolving) && <Button ml={10} onClick={solveTheCube}>Solve</Button>
-            }
             { speedModeController }
             { !isSolving && <>
                 <Results lastResult={lastRaceResults} lobbyPoints={lobbyPoints} />

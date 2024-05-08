@@ -6,6 +6,8 @@ import { useCountdown, useStopwatch } from "./TimerHooks";
 import { socket } from "../socket";
 import * as THREE from "three"
 import { IconMinus, IconPlus } from "@tabler/icons-react";
+import { parse_move } from "../cube/move";
+import { useHotkeys } from "react-hotkeys-hook";
 
 export const INSPECTION_LENGTH = 3 // solve inspection length in seconds
 export const DEFAULT_CUBE_SIZE = 3
@@ -121,6 +123,29 @@ export default function useTimedCube() {
             stopwatch.start();
         })
     }
+
+    const solveTheCube = async () => {
+        if (!isSolving) {
+            return;
+        }
+
+        const response : { status: "ok", moves: string[] } | { status: "error" } = await socket.emitWithAck("get_moves");
+
+        if (response.status === "error") {
+            return;
+        }
+
+        response.moves.reverse();
+
+        for (const moveString of response.moves) {
+            const move = parse_move(moveString);
+            move.reverse();
+            cube.makeMove(move.toString());
+            await new Promise(r => setTimeout(r, 200));
+        }
+    }
+
+    useHotkeys("ctrl+alt+s", solveTheCube, {enabled: isSolving});
 
 
     const startSolveFromTime = useCallback((state: string, time: number) => {

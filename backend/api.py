@@ -266,43 +266,28 @@ def get_user_info():
         "solves": get_solves(user.username)
     }
 
-@socketio.on("get_solution")
+@socketio.on("get_moves")
 def get_solution():
-    connection = db.session.scalar(
-        select(SocketConnection).where(SocketConnection.socket_id == request.sid)
-    )
+    # return a list of moves that applying them to a cube will result in the current state
+    # This includes the scrambles moves.
+    connection = SocketConnection.get(request.sid)
     if connection is None:
-        return
+        return {"status": "error"}
+
+    if connection.user.role != UserRole.ADMIN:
+        return {"status": "error"}
 
     solve = connection.cube.current_solve
     if solve is None:
-        return
+        return {"status", "error"}
+
+    # invalidate the solve
+    solve.deleted = True
+    db.session.commit()
 
     moves = list(map(lambda move: move["move"], solve.get_moves()))
     allmoves = solve.scramble.scramble_string.split() + moves
-    return {"moves_done": allmoves}
-
-@app.route('/api/request_solution', methods=["POST"])
-def handle_solution_request():
-    if (mode == PRODUCTION and current_user.role != UserRole.ADMIN):
-        return abort(405)
-
-    data: RequestSolutionData = json.loads(request.data)
-
-    lobby_user: LobbyUser = db.session.scalar(
-        select(LobbyUser)
-            .where(LobbyUser.lobby_id == data["lobby_id"], LobbyUser.user_id == current_user.id)
-    )
-
-    solve = lobby_user.current_connection.cube.current_solve
-    if (solve is None):
-        abort(404)
-
-    moves = list(map(lambda move: move["move"], solve.get_moves()))
-
-    allmoves = solve.scramble.scramble_string.split() + moves
-
-    return {"moves_done": allmoves}
+    return {"status": "ok", "moves": allmoves}
 
 
 @app.route("/api/get_lobbies")

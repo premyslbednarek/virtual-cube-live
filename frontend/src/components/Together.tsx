@@ -4,7 +4,7 @@ import { useContext, useEffect, useState } from "react";
 import { socket } from "../socket";
 import { UserContext } from "../userContext";
 import * as THREE from 'three';
-import { Text, Button, Center, Flex, Title } from "@mantine/core";
+import { Text, Button, Center, Flex, Title, Space } from "@mantine/core";
 import CopyButton from "../CopyButton";
 import useTimedCube, { CubeSizeController, DEFAULT_CUBE_SIZE, useSpeedMode } from "./useTimedCube";
 import { RenderedCube } from "./CubeCanvases";
@@ -137,6 +137,7 @@ function TogetherLobby({id} : {id: number}) {
                 {
                     !isSolving && <>
                         <CubeSizeController value={cubeSize} onChange={changeCubeSize} />
+                        <Space h="sm" />
                         <TimeHistory cubeSize={cubeSize} fromList={solves} />
                     </>
                 }

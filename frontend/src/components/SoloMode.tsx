@@ -4,7 +4,6 @@ import NavigationPanel from "./NavigationPanel";
 import { socket } from "../socket";
 import { Button, Modal, Space, Center, Tooltip, Flex } from "@mantine/core";
 import { useHotkeys } from "react-hotkeys-hook";
-import { parse_move } from "../cube/move";
 import { IconDeviceFloppy } from "@tabler/icons-react";
 import ShowSolvesToContinue from "./ShowSolvesToContinue";
 import { useDisclosure } from "@mantine/hooks";
@@ -63,18 +62,6 @@ export default function SoloMode() {
     }
 
     useHotkeys("space", startSolve, {enabled: !isSolving })
-
-    const solveTheCube = async () => {
-        const data : {moves_done: Array<string>} = await socket.emitWithAck("get_solution")
-        for (let i = data.moves_done.length - 1; i >= 0; --i) {
-            const moveObj = parse_move(data.moves_done[i]);
-            moveObj.reverse();
-            cube.makeMove(moveObj.toString());
-            await new Promise(r => setTimeout(r, 200));
-        }
-    }
-
-    useHotkeys("ctrl+1", solveTheCube, {enabled: isSolving});
 
     const save = () => {
         socket.emit(

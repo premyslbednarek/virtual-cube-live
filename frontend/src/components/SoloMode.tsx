@@ -8,7 +8,9 @@ import { IconDeviceFloppy } from "@tabler/icons-react";
 import ShowSolvesToContinue from "./ShowSolvesToContinue";
 import { useDisclosure } from "@mantine/hooks";
 import TimeHistory from "./TimeHistory";
-import useTimedCube, { CubeSizeController, DEFAULT_CUBE_SIZE, useSpeedMode } from "./useTimedCube";
+import useCube, { DEFAULT_CUBE_SIZE } from "../hooks/usCube";
+import { CubeSizeController } from "./CubeSizeController";
+import { useSpeedMode } from "../hooks/useSpeedMode";
 import TimerDisplay from "./TimerDisplay";
 import { Overlay } from "./Overlay";
 import KeybindsButton from "./ShowKeybindigs";
@@ -26,7 +28,7 @@ export default function SoloMode() {
         startSolveFromTime,
         stopwatch,
 
-    } = useTimedCube()
+    } = useCube()
 
     const speedModeController = useSpeedMode(cube);
 

@@ -6,7 +6,9 @@ import { AuthContext } from "../authContext";
 import * as THREE from 'three';
 import { Text, Button, Center, Flex, Title, Space } from "@mantine/core";
 import CopyButton from "./CopyButton";
-import useTimedCube, { CubeSizeController, DEFAULT_CUBE_SIZE, useSpeedMode } from "./useTimedCube";
+import useCube, { DEFAULT_CUBE_SIZE } from "../hooks/usCube";
+import { CubeSizeController } from "./CubeSizeController";
+import { useSpeedMode } from "../hooks/useSpeedMode";
 import { RenderedCube } from "./CubeCanvases";
 import { Overlay } from "./Overlay";
 import TimerDisplay from "./TimerDisplay";
@@ -28,7 +30,7 @@ function TogetherLobby({id} : {id: number}) {
     const { authInfo } = useContext(AuthContext)
 
     const [cubeSize, setCubeSize] = useState(DEFAULT_CUBE_SIZE);
-    const { cube, isSolving, setIsSolving, startSolve, startSolveFromTime, stop, timeString } = useTimedCube()
+    const { cube, isSolving, setIsSolving, startSolve, startSolveFromTime, stop, timeString } = useCube()
     const speedModeController = useSpeedMode(cube);
 
     const [solves, setSolves] = useState<SolveBasic[]>([]);

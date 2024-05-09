@@ -28,7 +28,8 @@ import TimeHistory from "./TimeHistory";
 import AdminPanelButton from "./LobbyAdminPanel";
 import { IconCrown } from "@tabler/icons-react";
 import { Overlay } from "./Overlay";
-import useTimedCube, { useSpeedMode } from "./useTimedCube";
+import useCube from "../hooks/usCube";
+import { useSpeedMode } from "../hooks/useSpeedMode";
 import TimerDisplay from "./TimerDisplay";
 import { useCountdown } from "./TimerHooks";
 import KeybindsButton from "./ShowKeybindigs";
@@ -194,7 +195,7 @@ export default function Lobby() {
 
     const [waitForEnd, setWaitForEnd] = useState(false);
 
-    const { cube, isSolving, setIsSolving, startSolve, stopwatch, stop, timeString, currentTime } = useTimedCube()
+    const { cube, isSolving, setIsSolving, startSolve, stopwatch, stop, timeString, currentTime } = useCube()
     // countdown timer for waiting after the first finisher in the lobby finishes their solve
     const waitTime = useCountdown();
 

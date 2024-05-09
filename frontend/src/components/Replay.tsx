@@ -8,7 +8,7 @@ import {IconPlayerPlay, IconPlayerPause, IconRewindBackward5, IconRewindForward5
 import NavigationPanel from "./NavigationPanel";
 import { print_time } from "../cube/timer";
 import CopyButton from "./CopyButton";
-import { useSpeedMode } from "./useTimedCube";
+import { useSpeedMode } from "../hooks/useSpeedMode";
 import { AuthContext } from "../authContext";
 import { DeleteSolveButton } from "./TimeList";
 import produce from "immer";

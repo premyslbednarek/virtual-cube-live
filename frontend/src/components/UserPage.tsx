@@ -5,7 +5,7 @@ import NavigationPanel from "./NavigationPanel";
 import { Statistics } from "./TimeHistory";
 import { AuthContext } from "../authContext";
 import { IconBan, IconSearch, IconTool } from "@tabler/icons-react";
-import { CubeSizeController } from "./useTimedCube";
+import { CubeSizeController } from "./CubeSizeController";
 import TimeList, { Solve } from "./TimeList";
 
 type UserInfo = {

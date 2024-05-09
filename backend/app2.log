@@ -2796,3 +2796,41 @@ otdgtLvs0ijriw84AABu: Received packet PONG data
 8aj6UOXxFz38Baw0AABs: Received packet PONG data 
 otdgtLvs0ijriw84AABu: Sending packet PING data None
 otdgtLvs0ijriw84AABu: Received packet PONG data 
+ * Debugger is active!
+ * Debugger PIN: 433-707-298
+VrAi1n_oqDnBC0JlAAAA: Sending packet OPEN data {'sid': 'VrAi1n_oqDnBC0JlAAAA', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+VrAi1n_oqDnBC0JlAAAA: Received packet MESSAGE data 0
+VrAi1n_oqDnBC0JlAAAA: Sending packet MESSAGE data 0{"sid":"gjHV42O_5skFRPlNAAAB"}
+VrAi1n_oqDnBC0JlAAAA: Received request to upgrade to websocket
+VrAi1n_oqDnBC0JlAAAA: Upgrade to websocket successful
+pWgHVOme6Q56WOOwAAAC: Sending packet OPEN data {'sid': 'pWgHVOme6Q56WOOwAAAC', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+pWgHVOme6Q56WOOwAAAC: Received packet MESSAGE data 0
+pWgHVOme6Q56WOOwAAAC: Sending packet MESSAGE data 0{"sid":"S5v2TIK7FOyncKlSAAAD"}
+pWgHVOme6Q56WOOwAAAC: Received request to upgrade to websocket
+pWgHVOme6Q56WOOwAAAC: Upgrade to websocket successful
+onxnazMXPkbpVwftAAAE: Sending packet OPEN data {'sid': 'onxnazMXPkbpVwftAAAE', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+onxnazMXPkbpVwftAAAE: Received packet MESSAGE data 0
+onxnazMXPkbpVwftAAAE: Sending packet MESSAGE data 0{"sid":"Zx--F0NDE_AeMHxQAAAF"}
+onxnazMXPkbpVwftAAAE: Received request to upgrade to websocket
+onxnazMXPkbpVwftAAAE: Upgrade to websocket successful
+ktyKLNWvqqSB7BvdAAAG: Sending packet OPEN data {'sid': 'ktyKLNWvqqSB7BvdAAAG', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+ktyKLNWvqqSB7BvdAAAG: Received packet MESSAGE data 0
+ktyKLNWvqqSB7BvdAAAG: Sending packet MESSAGE data 0{"sid":"hSPf0RWyS37dzvvhAAAH"}
+ktyKLNWvqqSB7BvdAAAG: Received request to upgrade to websocket
+ktyKLNWvqqSB7BvdAAAG: Upgrade to websocket successful
+VrAi1n_oqDnBC0JlAAAA: Sending packet PING data None
+VrAi1n_oqDnBC0JlAAAA: Received packet PONG data 
+pWgHVOme6Q56WOOwAAAC: Sending packet PING data None
+pWgHVOme6Q56WOOwAAAC: Received packet PONG data 
+onxnazMXPkbpVwftAAAE: Sending packet PING data None
+onxnazMXPkbpVwftAAAE: Received packet PONG data 
+ktyKLNWvqqSB7BvdAAAG: Sending packet PING data None
+ktyKLNWvqqSB7BvdAAAG: Received packet PONG data 
+VrAi1n_oqDnBC0JlAAAA: Sending packet PING data None
+VrAi1n_oqDnBC0JlAAAA: Received packet PONG data 
+pWgHVOme6Q56WOOwAAAC: Sending packet PING data None
+pWgHVOme6Q56WOOwAAAC: Received packet PONG data 
+onxnazMXPkbpVwftAAAE: Sending packet PING data None
+onxnazMXPkbpVwftAAAE: Received packet PONG data 
+ktyKLNWvqqSB7BvdAAAG: Sending packet PING data None
+ktyKLNWvqqSB7BvdAAAG: Received packet PONG data 

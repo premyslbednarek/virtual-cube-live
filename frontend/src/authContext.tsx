@@ -6,7 +6,7 @@ export interface AuthInfo {
     isLogged: boolean;
 }
 
-export interface AuthContext {
+export interface IAuthContext {
     authInfo: AuthInfo;
     updateUserContext: () => void;
 }
@@ -17,12 +17,12 @@ const defaultUserInfo: AuthInfo = {
     isAdmin: false,
 }
 
-const defaultContext: AuthContext = {
+const defaultContext: IAuthContext = {
     authInfo: defaultUserInfo,
     updateUserContext: () => {}
 }
 
-export const AuthContext = createContext<AuthContext>(defaultContext)
+export const AuthContext = createContext<IAuthContext>(defaultContext)
 
 export function AuthContextProvider({children} : {children: React.ReactNode}) {
     const [authInfo, setAuthContext] = useState<AuthInfo>(defaultUserInfo);

@@ -1,11 +1,11 @@
 import { useContext } from "react"
-import { UserContext } from "../userContext"
+import { AuthContext } from "../authContext"
 import { User } from "./UserPage";
 
 export default function Profile() {
-    const { userContext } = useContext(UserContext)
+    const { authInfo } = useContext(AuthContext)
 
     return (
-        <User username={userContext.username} />
+        <User username={authInfo.username} />
     );
 }

@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { print_time } from "../cube/timer";
 import { IconDeviceTv, IconSortDescending, IconTrash, IconTrashOff } from "@tabler/icons-react";
 import { CubeSizeController } from "./useTimedCube";
-import { UserContext } from "../userContext";
+import { AuthContext } from "../authContext";
 import produce from "immer";
 
 export interface Solve {
@@ -59,7 +59,7 @@ export default function TimeList({solves, setSolves, rowsPerPage=10, omitUsernam
     const [cubeSize, setCubeSize] = useState(3);
     const [showAllSizes, setShowAllSizes] = useState(false);
 
-    const {userContext : me} = useContext(UserContext)
+    const { authInfo } = useContext(AuthContext)
     const [showHidden, setShowHidden] = useState(false);
 
 
@@ -119,7 +119,7 @@ export default function TimeList({solves, setSolves, rowsPerPage=10, omitUsernam
                     </Tooltip>
                 </Link>
             </Table.Th>
-            { me.isAdmin &&
+            { authInfo.isAdmin &&
                 <Table.Td>
                     <DeleteSolveButton deleted={solve.deleted} solve_id={solve.id} onChange={onDeletion}/>
                 </Table.Td>}
@@ -134,7 +134,7 @@ export default function TimeList({solves, setSolves, rowsPerPage=10, omitUsernam
                     onChange={(event) => setShowAllSizes(event.currentTarget.checked)}
                     label="Show all cube sizes"
                 />
-                { me.isAdmin && <Checkbox
+                { authInfo.isAdmin && <Checkbox
                     checked={showHidden}
                     onChange={(event) => setShowHidden(event.currentTarget.checked)}
                     label="Show hidden solves"/>
@@ -157,7 +157,7 @@ export default function TimeList({solves, setSolves, rowsPerPage=10, omitUsernam
                         <Table.Th>Solve time</Table.Th>
                         <Table.Th>Race id</Table.Th>
                         <Table.Th>Watch replay</Table.Th>
-                        { me.isAdmin && <Table.Td>Delete solve</Table.Td>}
+                        { authInfo.isAdmin && <Table.Td>Delete solve</Table.Td>}
                     </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>

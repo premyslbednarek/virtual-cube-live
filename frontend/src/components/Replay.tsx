@@ -7,9 +7,9 @@ import { useHotkeys } from "react-hotkeys-hook";
 import {IconPlayerPlay, IconPlayerPause, IconRewindBackward5, IconRewindForward5, IconPlus, IconMinus, IconReload} from "@tabler/icons-react"
 import NavigationPanel from "./NavigationPanel";
 import { print_time } from "../cube/timer";
-import CopyButton from "../CopyButton";
+import CopyButton from "./CopyButton";
 import { useSpeedMode } from "./useTimedCube";
-import { UserContext } from "../userContext";
+import { AuthContext } from "../authContext";
 import { DeleteSolveButton } from "./TimeList";
 import produce from "immer";
 
@@ -79,7 +79,7 @@ export function Replay({solveId} : {solveId : string}) {
     const [playbackSpeed, setPlaybackSpeed] = useState(1);
 
     const [solve, setSolve] = useState(defaultSolveInfo);
-    const {userContext: me} = useContext(UserContext);
+    const { authInfo } = useContext(AuthContext);
 
     useEffect(() => {
         fetch(`/api/solve/${solveId}`).then(res => res.json()).then((solve: ISolveInfo) => {
@@ -227,7 +227,7 @@ export function Replay({solveId} : {solveId : string}) {
                         <Stack>
                             { solve.banned && <Alert color="red" ta="center">This user has been banned.</Alert>}
                             { solve.deleted && <Alert color="red" ta="center">This solve has been deleted.</Alert>}
-                            { me.isAdmin && <DeleteSolveButton deleted={solve.deleted} solve_id={solve.id} onChange={onDeletion} /> }
+                            { authInfo.isAdmin && <DeleteSolveButton deleted={solve.deleted} solve_id={solve.id} onChange={onDeletion} /> }
 
 
                             <Text ta="center">Use <Kbd>Space</Kbd>, <Kbd>LeftArrow</Kbd> and <Kbd>RightArrow</Kbd> to navigate the solve</Text>

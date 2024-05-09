@@ -2,10 +2,10 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import ErrorPage from "./ErrorPage";
 import { useContext, useEffect, useState } from "react";
 import { socket } from "../socket";
-import { UserContext } from "../userContext";
+import { AuthContext } from "../authContext";
 import * as THREE from 'three';
 import { Text, Button, Center, Flex, Title, Space } from "@mantine/core";
-import CopyButton from "../CopyButton";
+import CopyButton from "./CopyButton";
 import useTimedCube, { CubeSizeController, DEFAULT_CUBE_SIZE, useSpeedMode } from "./useTimedCube";
 import { RenderedCube } from "./CubeCanvases";
 import { Overlay } from "./Overlay";
@@ -25,7 +25,7 @@ interface TogetherJoinResponse {
 function TogetherLobby({id} : {id: number}) {
     const [users, setUsers] = useState<string[]>([]);
     const [uuid, setUuid] = useState<string | null>(null);
-    const { userContext } = useContext(UserContext)
+    const { authInfo } = useContext(AuthContext)
 
     const [cubeSize, setCubeSize] = useState(DEFAULT_CUBE_SIZE);
     const { cube, isSolving, setIsSolving, startSolve, startSolveFromTime, stop, timeString } = useTimedCube()
@@ -69,7 +69,7 @@ function TogetherLobby({id} : {id: number}) {
     }
 
     const onCamera = ({position, username} : {position: THREE.Vector3, username: string}) => {
-        if (username !== userContext.username) {
+        if (username !== authInfo.username) {
             cube.updateCamera(position);
         }
     }
@@ -131,7 +131,7 @@ function TogetherLobby({id} : {id: number}) {
 
                 <Title order={3}>Users in the lobby:</Title>
                 { users.map(user => (
-                    <Text key={user}>{user} {userContext.username === user && " (you)"}</Text>
+                    <Text key={user}>{user} {authInfo.username === user && " (you)"}</Text>
                 ))}
 
                 {

@@ -1,7 +1,7 @@
 import { Text, ActionIcon, Button, Modal, Paper, ScrollArea, Space, Table, Title, Menu } from "@mantine/core";
 import { print_time } from "../cube/timer";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
-import { UserContext } from "../userContext";
+import { AuthContext } from "../authContext";
 import { useDisclosure } from "@mantine/hooks";
 import { Replay } from "./Replay";
 import { IconDeviceTv, IconPlayerPlay, IconX } from "@tabler/icons-react";
@@ -212,7 +212,7 @@ export function TimeList({solves, continueFn} : {solves: Array<SolveBasic>, cont
 
 export default function TimeHistory({cubeSize, fromList, continueFn} : {cubeSize: number, fromList?: SolveBasic[], continueFn?: (solve_id: number) => void}) {
     const [solves, setSolves] = useState<Array<SolveBasic>>(fromList !== undefined ? fromList.slice(0) : [])
-    const username = useContext(UserContext).userContext.username
+    const username = useContext(AuthContext).authInfo.username
 
     useEffect(() => {
         if (username && !fromList) {

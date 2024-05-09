@@ -16,7 +16,7 @@ import {
 } from "@mantine/core"
 import { socket } from "../socket";
 import './lobby.css'
-import { UserContext } from "../userContext";
+import { AuthContext } from "../authContext";
 import { useContext } from "react";
 import produce from "immer";
 import { print_time } from "../cube/timer";
@@ -180,7 +180,7 @@ interface LobbyConnectResponseError {
 export default function Lobby() {
     const params = useParams();
     const lobby_id = params.lobby_id;
-    const { userContext } = useContext(UserContext);
+    const { authInfo } = useContext(AuthContext);
 
     const [ready, setReady] = useState(false);
     const [isKicked, setIsKicked] = useState(false);
@@ -335,7 +335,7 @@ export default function Lobby() {
     }
 
     const onNewAdmin = ({username} : {username: string}) => {
-        if (username === userContext.username) {
+        if (username === authInfo.username) {
             setIsAdmin(true);
         } else {
             const updated = new Map(enemies);
@@ -347,7 +347,7 @@ export default function Lobby() {
     }
 
     const onKick = ({username} : {username: string}) => {
-        if (username === userContext.username) {
+        if (username === authInfo.username) {
             setIsKicked(true);
         } else {
             const updated = new Map(enemies);

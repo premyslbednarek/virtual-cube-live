@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useCallback, useContext, useEffect, useState } from "react";
 import NavigationPanel from "./NavigationPanel";
 import { Statistics } from "./TimeHistory";
-import { UserContext } from "../userContext";
+import { AuthContext } from "../authContext";
 import { IconBan, IconSearch, IconTool } from "@tabler/icons-react";
 import { CubeSizeController } from "./useTimedCube";
 import TimeList, { Solve } from "./TimeList";
@@ -59,7 +59,7 @@ export function UserSearchField() {
 export function User({username} : {username: string}) {
     const [statsCubeSize, setStatsCubeSize] = useState(3);
 
-    const {userContext : me} = useContext(UserContext);
+    const { authInfo } = useContext(AuthContext);
 
     const [user, setUser] = useState<UserInfo | null>(null);
     const [solves, setSolves] = useState<Solve[]>([]);
@@ -139,13 +139,13 @@ export function User({username} : {username: string}) {
                 <Flex align="center" gap="xs">
                     <Title order={1} style={{textDecoration: "underline"}}>{user?.username} </Title>
                     { adminIcon }
-                    { me.isAdmin && user.role !== "admin" &&
+                    { authInfo.isAdmin && user.role !== "admin" &&
                         <Button
                             onClick={() => updateBannedStatus(!user.banned)}
                             color={user.banned ? "green" : "red"}
                         >{user.banned ? "Unban" : "ban"} account</Button>
                     }
-                    { me.isAdmin && user?.role !== "admin" && <Button onClick={makeAdmin}>Make admin</Button> }
+                    { authInfo.isAdmin && user?.role !== "admin" && <Button onClick={makeAdmin}>Make admin</Button> }
                 </Flex>
                 <Text>Profile created on: {user?.created_date}</Text>
                 { !user.banned && <Text>Total solves: {user?.solves.length}</Text> }
@@ -156,7 +156,7 @@ export function User({username} : {username: string}) {
                     </Alert>}
             </Container>
 
-            { (!user.banned || me.isAdmin) && stats }
+            { (!user.banned || authInfo.isAdmin) && stats }
         </>
     );
 }

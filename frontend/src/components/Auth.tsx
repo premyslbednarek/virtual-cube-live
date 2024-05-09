@@ -1,5 +1,5 @@
 import { FormEvent, useContext, useState } from "react";
-import { UserContext } from "../userContext";
+import { AuthContext } from "../authContext";
 import { Text, Anchor, Button, Flex, Modal, PasswordInput, Space, Stack, TextInput, Alert, Switch, } from "@mantine/core";
 import { useDisclosure, useToggle } from "@mantine/hooks";
 import { useForm } from "@mantine/form";
@@ -12,7 +12,7 @@ function capitalizeFirstLetter(string: string) {
 }
 
 export default function UserInfo() {
-    const { userContext, updateUserContext } = useContext(UserContext);
+    const { authInfo, updateUserContext } = useContext(AuthContext);
     const [type, toggle] = useToggle(["login", "register"])
     const [modalOpened, {open, close}] = useDisclosure(false)
     const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -117,7 +117,7 @@ export default function UserInfo() {
         </form>
     );
 
-    const buttons = userContext.isLogged ?
+    const buttons = authInfo.isLogged ?
         <>
             <Button leftSection={<IconLogout />} onClick={logout}>Logout</Button>
         </> :
@@ -138,7 +138,7 @@ export default function UserInfo() {
                 { formContent }
             </Modal>
 
-            <Text size="xl" ta="center">Welcome, {userContext.username }</Text>
+            <Text size="xl" ta="center">Welcome, {authInfo.username }</Text>
             <Flex mt="sm" justify="center">
                 <Link to="/profile">
                     <Button leftSection={<IconUserCircle />}>Profile</Button>

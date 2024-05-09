@@ -1,0 +1,441 @@
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 280-083-565
+INFO:app:D8VqvsuN4Vnzn17kAAAA: Sending packet OPEN data {'sid': 'D8VqvsuN4Vnzn17kAAAA', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+INFO:app:D8VqvsuN4Vnzn17kAAAA: Received packet MESSAGE data 0
+INFO:app:D8VqvsuN4Vnzn17kAAAA: Sending packet MESSAGE data 0{"sid":"SEgQtyOHcdemhZ5bAAAB"}
+INFO:app:D8VqvsuN4Vnzn17kAAAA: Received request to upgrade to websocket
+INFO:app:D8VqvsuN4Vnzn17kAAAA: Upgrade to websocket successful
+INFO:app:D8VqvsuN4Vnzn17kAAAA: Sending packet PING data None
+INFO:app:D8VqvsuN4Vnzn17kAAAA: Received packet PONG data 
+INFO:app:D8VqvsuN4Vnzn17kAAAA: Sending packet PING data None
+INFO:app:D8VqvsuN4Vnzn17kAAAA: Received packet PONG data 
+INFO:app:D8VqvsuN4Vnzn17kAAAA: Sending packet PING data None
+INFO:app:D8VqvsuN4Vnzn17kAAAA: Received packet PONG data 
+INFO:app:D8VqvsuN4Vnzn17kAAAA: Sending packet PING data None
+INFO:app:D8VqvsuN4Vnzn17kAAAA: Received packet PONG data 
+INFO:app:D8VqvsuN4Vnzn17kAAAA: Sending packet PING data None
+INFO:app:D8VqvsuN4Vnzn17kAAAA: Received packet PONG data 
+INFO:app:D8VqvsuN4Vnzn17kAAAA: Sending packet PING data None
+INFO:app:D8VqvsuN4Vnzn17kAAAA: Received packet PONG data 
+INFO:app:D8VqvsuN4Vnzn17kAAAA: Sending packet PING data None
+INFO:app:D8VqvsuN4Vnzn17kAAAA: Received packet PONG data 
+INFO:app:D8VqvsuN4Vnzn17kAAAA: Sending packet PING data None
+INFO:app:D8VqvsuN4Vnzn17kAAAA: Received packet PONG data 
+INFO:app:D8VqvsuN4Vnzn17kAAAA: Sending packet PING data None
+INFO:app:D8VqvsuN4Vnzn17kAAAA: Received packet PONG data 
+INFO:app:D8VqvsuN4Vnzn17kAAAA: Received packet MESSAGE data 1
+INFO:app:Cwu9j84IOk4f9bohAAAC: Sending packet OPEN data {'sid': 'Cwu9j84IOk4f9bohAAAC', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+INFO:app:Cwu9j84IOk4f9bohAAAC: Received packet MESSAGE data 0
+INFO:app:Cwu9j84IOk4f9bohAAAC: Sending packet MESSAGE data 0{"sid":"q4PG2GGOz-LW6O4PAAAD"}
+INFO:app:Cwu9j84IOk4f9bohAAAC: Received request to upgrade to websocket
+INFO:app:Cwu9j84IOk4f9bohAAAC: Upgrade to websocket successful
+INFO:app:Cwu9j84IOk4f9bohAAAC: Received packet MESSAGE data 2["solo_join"]
+INFO:app:received event "solo_join" from q4PG2GGOz-LW6O4PAAAD [/]
+INFO:app:Cwu9j84IOk4f9bohAAAC: Sending packet PING data None
+INFO:app:Cwu9j84IOk4f9bohAAAC: Received packet PONG data 
+INFO:werkzeug: * Detected change in '/home/premysl/coding/bp/backend/main.py', reloading
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 280-083-565
+INFO:app:qSw5cs3ifsgPFYQUAAAA: Sending packet OPEN data {'sid': 'qSw5cs3ifsgPFYQUAAAA', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+INFO:app:qSw5cs3ifsgPFYQUAAAA: Received packet MESSAGE data 0
+INFO:app:qSw5cs3ifsgPFYQUAAAA: Sending packet MESSAGE data 0{"sid":"Fj0Xh57jSOY51Rm1AAAB"}
+INFO:app:qSw5cs3ifsgPFYQUAAAA: Received request to upgrade to websocket
+INFO:app:qSw5cs3ifsgPFYQUAAAA: Upgrade to websocket successful
+INFO:app:dDIKi-06Un3xwLzzAAAC: Sending packet OPEN data {'sid': 'dDIKi-06Un3xwLzzAAAC', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+INFO:app:dDIKi-06Un3xwLzzAAAC: Received packet MESSAGE data 0
+INFO:app:dDIKi-06Un3xwLzzAAAC: Sending packet MESSAGE data 0{"sid":"46v_sBbG8VP3V9NVAAAD"}
+INFO:app:dDIKi-06Un3xwLzzAAAC: Received request to upgrade to websocket
+INFO:app:dDIKi-06Un3xwLzzAAAC: Received packet MESSAGE data 2["solo_join"]
+INFO:app:received event "solo_join" from 46v_sBbG8VP3V9NVAAAD [/]
+INFO:app:dDIKi-06Un3xwLzzAAAC: Upgrade to websocket successful
+INFO:app:dDIKi-06Un3xwLzzAAAC: Sending packet PING data None
+INFO:app:dDIKi-06Un3xwLzzAAAC: Received packet PONG data 
+INFO:app:dDIKi-06Un3xwLzzAAAC: Sending packet PING data None
+INFO:app:dDIKi-06Un3xwLzzAAAC: Received packet PONG data 
+INFO:app:dDIKi-06Un3xwLzzAAAC: Sending packet PING data None
+INFO:app:dDIKi-06Un3xwLzzAAAC: Received packet PONG data 
+INFO:app:dDIKi-06Un3xwLzzAAAC: Sending packet PING data None
+INFO:app:dDIKi-06Un3xwLzzAAAC: Received packet PONG data 
+INFO:app:dDIKi-06Un3xwLzzAAAC: Received packet MESSAGE data 1
+INFO:app:VaUCUI_7bEY2Bof7AAAE: Sending packet OPEN data {'sid': 'VaUCUI_7bEY2Bof7AAAE', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+INFO:app:VaUCUI_7bEY2Bof7AAAE: Received packet MESSAGE data 0
+INFO:app:VaUCUI_7bEY2Bof7AAAE: Sending packet MESSAGE data 0{"sid":"mrvAxyhlWvvl9xsgAAAF"}
+INFO:app:VaUCUI_7bEY2Bof7AAAE: Received request to upgrade to websocket
+INFO:app:VaUCUI_7bEY2Bof7AAAE: Upgrade to websocket successful
+INFO:app:VaUCUI_7bEY2Bof7AAAE: Received packet MESSAGE data 1
+INFO:app:N7WG3WTklXe_MjxuAAAG: Sending packet OPEN data {'sid': 'N7WG3WTklXe_MjxuAAAG', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+INFO:app:N7WG3WTklXe_MjxuAAAG: Received packet MESSAGE data 0
+INFO:app:N7WG3WTklXe_MjxuAAAG: Sending packet MESSAGE data 0{"sid":"yRelgkoDzb6jQISZAAAH"}
+INFO:app:N7WG3WTklXe_MjxuAAAG: Received request to upgrade to websocket
+INFO:app:N7WG3WTklXe_MjxuAAAG: Received packet MESSAGE data 20["together_join",{"id":14}]
+INFO:app:received event "together_join" from yRelgkoDzb6jQISZAAAH [/]
+INFO:app:emitting event "together_join" to together/14 [/]
+INFO:app:yRelgkoDzb6jQISZAAAH is entering room together/14 [/]
+INFO:app:N7WG3WTklXe_MjxuAAAG: Sending packet MESSAGE data 30[{"users":["admin_acc"],"cube_size":3,"cube_state":"WWWWWWWWWGGGGGGGGGRRRRRRRRRBBBBBBBBBOOOOOOOOOYYYYYYYYY","uuid":"511fd032-24ad-42a1-a420-21f763a725dd","solveTime":null}]
+INFO:app:N7WG3WTklXe_MjxuAAAG: Upgrade to websocket successful
+INFO:app:N7WG3WTklXe_MjxuAAAG: Sending packet PING data None
+INFO:app:N7WG3WTklXe_MjxuAAAG: Received packet PONG data 
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 280-083-565
+INFO:app:pi4RIDx4oKo62K7dAAAA: Sending packet OPEN data {'sid': 'pi4RIDx4oKo62K7dAAAA', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+INFO:app:pi4RIDx4oKo62K7dAAAA: Received packet MESSAGE data 0
+INFO:app:pi4RIDx4oKo62K7dAAAA: Sending packet MESSAGE data 0{"sid":"weVugLgim30HR90NAAAB"}
+INFO:app:pi4RIDx4oKo62K7dAAAA: Received request to upgrade to websocket
+INFO:app:pi4RIDx4oKo62K7dAAAA: Upgrade to websocket successful
+INFO:app:M0XOomeXNc7r4fT3AAAC: Sending packet OPEN data {'sid': 'M0XOomeXNc7r4fT3AAAC', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+INFO:app:M0XOomeXNc7r4fT3AAAC: Received packet MESSAGE data 0
+INFO:app:M0XOomeXNc7r4fT3AAAC: Sending packet MESSAGE data 0{"sid":"aVW7JwYqvCWwJLXdAAAD"}
+INFO:app:M0XOomeXNc7r4fT3AAAC: Received request to upgrade to websocket
+INFO:app:M0XOomeXNc7r4fT3AAAC: Received packet MESSAGE data 20["together_join",{"id":14}]
+INFO:app:received event "together_join" from aVW7JwYqvCWwJLXdAAAD [/]
+INFO:app:M0XOomeXNc7r4fT3AAAC: Upgrade to websocket successful
+INFO:app:M0XOomeXNc7r4fT3AAAC: Received packet MESSAGE data 2["together_solve_start"]
+INFO:app:received event "together_solve_start" from aVW7JwYqvCWwJLXdAAAD [/]
+INFO:app:M0XOomeXNc7r4fT3AAAC: Received packet MESSAGE data 2["camera",{"position":{"x":0.12990340492138822,"y":3.2999999999999994,"z":5.498465704666151}}]
+INFO:app:received event "camera" from aVW7JwYqvCWwJLXdAAAD [/]
+INFO:app:M0XOomeXNc7r4fT3AAAC: Received packet MESSAGE data 2["camera",{"position":{"x":0.2921722510315356,"y":3.2999999999999994,"z":5.492234096952457}}]
+INFO:app:received event "camera" from aVW7JwYqvCWwJLXdAAAD [/]
+INFO:app:M0XOomeXNc7r4fT3AAAC: Received packet MESSAGE data 2["camera",{"position":{"x":0.4541864000978278,"y":3.2999999999999994,"z":5.481214711536684}}]
+INFO:app:received event "camera" from aVW7JwYqvCWwJLXdAAAD [/]
+INFO:app:M0XOomeXNc7r4fT3AAAC: Received packet MESSAGE data 2["camera",{"position":{"x":0.8090255130358318,"y":3.2999999999999994,"z":5.440172581753001}}]
+INFO:app:received event "camera" from aVW7JwYqvCWwJLXdAAAD [/]
+INFO:app:M0XOomeXNc7r4fT3AAAC: Received packet MESSAGE data 2["camera",{"position":{"x":1.3233109909614145,"y":3.267463778764935,"z":5.3584072704171986}}]
+INFO:app:received event "camera" from aVW7JwYqvCWwJLXdAAAD [/]
+INFO:app:M0XOomeXNc7r4fT3AAAC: Received packet MESSAGE data 2["camera",{"position":{"x":1.7482401315036715,"y":3.1691760178783017,"z":5.295279011563513}}]
+INFO:app:received event "camera" from aVW7JwYqvCWwJLXdAAAD [/]
+INFO:app:M0XOomeXNc7r4fT3AAAC: Received packet MESSAGE data 2["camera",{"position":{"x":2.421213303872373,"y":3.0365838714015574,"z":5.10459445295073}}]
+INFO:app:received event "camera" from aVW7JwYqvCWwJLXdAAAD [/]
+INFO:app:M0XOomeXNc7r4fT3AAAC: Received packet MESSAGE data 2["camera",{"position":{"x":2.616845254254252,"y":2.969647816791412,"z":5.047109346894814}}]
+INFO:app:received event "camera" from aVW7JwYqvCWwJLXdAAAD [/]
+INFO:app:M0XOomeXNc7r4fT3AAAC: Received packet MESSAGE data 2["camera",{"position":{"x":2.789854091388478,"y":2.868469996426124,"z":5.012842908805948}}]
+INFO:app:received event "camera" from aVW7JwYqvCWwJLXdAAAD [/]
+INFO:app:M0XOomeXNc7r4fT3AAAC: Received packet MESSAGE data 2["camera",{"position":{"x":2.9244394997340164,"y":2.800516011431377,"z":4.974410887945621}}]
+INFO:app:received event "camera" from aVW7JwYqvCWwJLXdAAAD [/]
+INFO:app:M0XOomeXNc7r4fT3AAAC: Received packet MESSAGE data 2["camera",{"position":{"x":2.9829844476708898,"y":2.800516011431377,"z":4.939525671020455}}]
+INFO:app:received event "camera" from aVW7JwYqvCWwJLXdAAAD [/]
+INFO:app:M0XOomeXNc7r4fT3AAAC: Received packet MESSAGE data 2["camera",{"position":{"x":3.0700191734628466,"y":2.800516011431377,"z":4.8859075251468855}}]
+INFO:app:received event "camera" from aVW7JwYqvCWwJLXdAAAD [/]
+INFO:app:M0XOomeXNc7r4fT3AAAC: Received packet MESSAGE data 2["camera",{"position":{"x":3.1275087236668915,"y":2.8005160114313776,"z":4.849309152147752}}]
+INFO:app:received event "camera" from aVW7JwYqvCWwJLXdAAAD [/]
+INFO:app:M0XOomeXNc7r4fT3AAAC: Received packet MESSAGE data 2["camera",{"position":{"x":3.156090405909268,"y":2.8005160114313776,"z":4.830755988398082}}]
+INFO:app:received event "camera" from aVW7JwYqvCWwJLXdAAAD [/]
+INFO:app:M0XOomeXNc7r4fT3AAAC: Received packet MESSAGE data 1
+INFO:app:U8koZJIBdkbjipueAAAE: Sending packet OPEN data {'sid': 'U8koZJIBdkbjipueAAAE', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+INFO:app:U8koZJIBdkbjipueAAAE: Received packet MESSAGE data 0
+INFO:app:U8koZJIBdkbjipueAAAE: Sending packet MESSAGE data 0{"sid":"CMz4KeY-ndavc3zlAAAF"}
+INFO:app:U8koZJIBdkbjipueAAAE: Received request to upgrade to websocket
+INFO:app:U8koZJIBdkbjipueAAAE: Upgrade to websocket successful
+INFO:app:U8koZJIBdkbjipueAAAE: Received packet MESSAGE data 1
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet OPEN data {'sid': 'm3u3jrJte1cgdBrMAAAG', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 0
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 0{"sid":"IExkF-dLw84jfDxjAAAH"}
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received request to upgrade to websocket
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 21["together_join",{"id":15}]
+INFO:app:received event "together_join" from IExkF-dLw84jfDxjAAAH [/]
+INFO:app:emitting event "together_join" to together/15 [/]
+INFO:app:IExkF-dLw84jfDxjAAAH is entering room together/15 [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 31[{"users":["admin_acc"],"cube_size":3,"cube_state":"WWWWWWWWWGGGGGGGGGRRRRRRRRRBBBBBBBBBOOOOOOOOOYYYYYYYYY","uuid":"aef3aef3-9fee-40e0-937b-ba97533f271a","solveTime":null}]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Upgrade to websocket successful
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 2["together_solve_start"]
+INFO:app:received event "together_solve_start" from IExkF-dLw84jfDxjAAAH [/]
+INFO:app:emitting event "together_solve_start" to together/15 [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 2["together_solve_start",{"state":"WBWRWYBWWOOOGGRGBBGORYRBYRGBWBOBRYYGOGYBOORGRWYRWYWYGO"}]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 2["camera",{"position":{"x":0.22728735836847264,"y":3.2999999999999994,"z":5.495301671130155}}]
+INFO:app:received event "camera" from IExkF-dLw84jfDxjAAAH [/]
+INFO:app:emitting event "together_camera" to together/15 [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 2["together_camera",{"position":{"x":0.22728735836847264,"y":3.2999999999999994,"z":5.495301671130155},"username":"admin_acc"}]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 2["camera",{"position":{"x":0.38942034947258763,"y":3.2999999999999994,"z":5.486196477653407}}]
+INFO:app:received event "camera" from IExkF-dLw84jfDxjAAAH [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 2["camera",{"position":{"x":0.5835194179268189,"y":3.2999999999999994,"z":5.468958318446242}}]
+INFO:app:received event "camera" from IExkF-dLw84jfDxjAAAH [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 2["camera",{"position":{"x":1.0331494016269038,"y":3.2999999999999994,"z":5.402092401460565}}]
+INFO:app:received event "camera" from IExkF-dLw84jfDxjAAAH [/]
+INFO:app:emitting event "together_camera" to together/15 [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 2["together_camera",{"position":{"x":0.38942034947258763,"y":3.2999999999999994,"z":5.486196477653407},"username":"admin_acc"}]
+INFO:app:emitting event "together_camera" to together/15 [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 2["together_camera",{"position":{"x":0.5835194179268189,"y":3.2999999999999994,"z":5.468958318446242},"username":"admin_acc"}]
+INFO:app:emitting event "together_camera" to together/15 [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 2["together_camera",{"position":{"x":1.0331494016269038,"y":3.2999999999999994,"z":5.402092401460565},"username":"admin_acc"}]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 2["camera",{"position":{"x":1.287107424916293,"y":3.2999999999999994,"z":5.347275425553218}}]
+INFO:app:received event "camera" from IExkF-dLw84jfDxjAAAH [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 2["camera",{"position":{"x":1.4757219273141653,"y":3.2999999999999994,"z":5.298324715723279}}]
+INFO:app:received event "camera" from IExkF-dLw84jfDxjAAAH [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 2["camera",{"position":{"x":1.6314956206317441,"y":3.2999999999999994,"z":5.2524491468132695}}]
+INFO:app:received event "camera" from IExkF-dLw84jfDxjAAAH [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 2["camera",{"position":{"x":1.785847080625759,"y":3.2999999999999994,"z":5.201994829353491}}]
+INFO:app:received event "camera" from IExkF-dLw84jfDxjAAAH [/]
+INFO:app:emitting event "together_camera" to together/15 [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 2["together_camera",{"position":{"x":1.287107424916293,"y":3.2999999999999994,"z":5.347275425553218},"username":"admin_acc"}]
+INFO:app:emitting event "together_camera" to together/15 [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 2["together_camera",{"position":{"x":1.4757219273141653,"y":3.2999999999999994,"z":5.298324715723279},"username":"admin_acc"}]
+INFO:app:emitting event "together_camera" to together/15 [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 2["together_camera",{"position":{"x":1.6314956206317441,"y":3.2999999999999994,"z":5.2524491468132695},"username":"admin_acc"}]
+INFO:app:emitting event "together_camera" to together/15 [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 2["together_camera",{"position":{"x":1.785847080625759,"y":3.2999999999999994,"z":5.201994829353491},"username":"admin_acc"}]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 2["camera",{"position":{"x":1.999293838101064,"y":3.2999999999999994,"z":5.123750984282035}}]
+INFO:app:received event "camera" from IExkF-dLw84jfDxjAAAH [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 2["camera",{"position":{"x":2.119752963850293,"y":3.2999999999999994,"z":5.075100725330277}}]
+INFO:app:received event "camera" from IExkF-dLw84jfDxjAAAH [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 2["camera",{"position":{"x":2.179543202691143,"y":3.2999999999999994,"z":5.0497120143234735}}]
+INFO:app:received event "camera" from IExkF-dLw84jfDxjAAAH [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 2["camera",{"position":{"x":2.2686559356815157,"y":3.2999999999999994,"z":5.010309396184733}}]
+INFO:app:received event "camera" from IExkF-dLw84jfDxjAAAH [/]
+INFO:app:emitting event "together_camera" to together/15 [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 2["together_camera",{"position":{"x":1.999293838101064,"y":3.2999999999999994,"z":5.123750984282035},"username":"admin_acc"}]
+INFO:app:emitting event "together_camera" to together/15 [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 2["together_camera",{"position":{"x":2.119752963850293,"y":3.2999999999999994,"z":5.075100725330277},"username":"admin_acc"}]
+INFO:app:emitting event "together_camera" to together/15 [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 2["together_camera",{"position":{"x":2.179543202691143,"y":3.2999999999999994,"z":5.0497120143234735},"username":"admin_acc"}]
+INFO:app:emitting event "together_camera" to together/15 [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 2["together_camera",{"position":{"x":2.2686559356815157,"y":3.2999999999999994,"z":5.010309396184733},"username":"admin_acc"}]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 2["camera",{"position":{"x":2.327670589444337,"y":3.2999999999999994,"z":4.983166626457102}}]
+INFO:app:received event "camera" from IExkF-dLw84jfDxjAAAH [/]
+INFO:app:emitting event "together_camera" to together/15 [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 2["together_camera",{"position":{"x":2.327670589444337,"y":3.2999999999999994,"z":4.983166626457102},"username":"admin_acc"}]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 2["camera",{"position":{"x":2.357056674780699,"y":3.2999999999999994,"z":4.969334344947194}}]
+INFO:app:received event "camera" from IExkF-dLw84jfDxjAAAH [/]
+INFO:app:emitting event "together_camera" to together/15 [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 2["together_camera",{"position":{"x":2.357056674780699,"y":3.2999999999999994,"z":4.969334344947194},"username":"admin_acc"}]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 2["camera",{"position":{"x":2.461870772297143,"y":3.234813614962537,"z":4.961368075134324}}]
+INFO:app:received event "camera" from IExkF-dLw84jfDxjAAAH [/]
+INFO:app:emitting event "together_camera" to together/15 [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 2["together_camera",{"position":{"x":2.461870772297143,"y":3.234813614962537,"z":4.961368075134324},"username":"admin_acc"}]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 22["get_moves"]
+INFO:app:received event "get_moves" from IExkF-dLw84jfDxjAAAH [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 32[{"status":"ok","moves":["B'","R2","F2","L","D2","U2","B2","D2","L","B2","R'","U'","F'","R'","D'","L'","D2","R2","F2"]}]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 2["move",{"move":"F2'"}]
+INFO:app:received event "move" from IExkF-dLw84jfDxjAAAH [/]
+INFO:app:emitting event "together_move" to together/15 [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 2["together_move",{"move":"F2'","username":"admin_acc"}]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 2["move",{"move":"R2'"}]
+INFO:app:received event "move" from IExkF-dLw84jfDxjAAAH [/]
+INFO:app:emitting event "together_move" to together/15 [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 2["together_move",{"move":"R2'","username":"admin_acc"}]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 2["move",{"move":"D2'"}]
+INFO:app:received event "move" from IExkF-dLw84jfDxjAAAH [/]
+INFO:app:emitting event "together_move" to together/15 [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 2["together_move",{"move":"D2'","username":"admin_acc"}]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 2["move",{"move":"L"}]
+INFO:app:received event "move" from IExkF-dLw84jfDxjAAAH [/]
+INFO:app:emitting event "together_move" to together/15 [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 2["together_move",{"move":"L","username":"admin_acc"}]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 2["move",{"move":"D"}]
+INFO:app:received event "move" from IExkF-dLw84jfDxjAAAH [/]
+INFO:app:emitting event "together_move" to together/15 [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 2["together_move",{"move":"D","username":"admin_acc"}]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 2["move",{"move":"R"}]
+INFO:app:received event "move" from IExkF-dLw84jfDxjAAAH [/]
+INFO:app:emitting event "together_move" to together/15 [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 2["together_move",{"move":"R","username":"admin_acc"}]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 2["move",{"move":"F"}]
+INFO:app:received event "move" from IExkF-dLw84jfDxjAAAH [/]
+INFO:app:emitting event "together_move" to together/15 [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 2["together_move",{"move":"F","username":"admin_acc"}]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 2["move",{"move":"U"}]
+INFO:app:received event "move" from IExkF-dLw84jfDxjAAAH [/]
+INFO:app:emitting event "together_move" to together/15 [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 2["together_move",{"move":"U","username":"admin_acc"}]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 2["move",{"move":"R"}]
+INFO:app:received event "move" from IExkF-dLw84jfDxjAAAH [/]
+INFO:app:emitting event "together_move" to together/15 [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 2["together_move",{"move":"R","username":"admin_acc"}]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 2["move",{"move":"B2'"}]
+INFO:app:received event "move" from IExkF-dLw84jfDxjAAAH [/]
+INFO:app:emitting event "together_move" to together/15 [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 2["together_move",{"move":"B2'","username":"admin_acc"}]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 2["move",{"move":"L'"}]
+INFO:app:received event "move" from IExkF-dLw84jfDxjAAAH [/]
+INFO:app:emitting event "together_move" to together/15 [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 2["together_move",{"move":"L'","username":"admin_acc"}]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 2["move",{"move":"D2'"}]
+INFO:app:received event "move" from IExkF-dLw84jfDxjAAAH [/]
+INFO:app:emitting event "together_move" to together/15 [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 2["together_move",{"move":"D2'","username":"admin_acc"}]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 2["move",{"move":"B2'"}]
+INFO:app:received event "move" from IExkF-dLw84jfDxjAAAH [/]
+INFO:app:emitting event "together_move" to together/15 [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 2["together_move",{"move":"B2'","username":"admin_acc"}]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 2["move",{"move":"U2'"}]
+INFO:app:received event "move" from IExkF-dLw84jfDxjAAAH [/]
+INFO:app:emitting event "together_move" to together/15 [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 2["together_move",{"move":"U2'","username":"admin_acc"}]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 2["move",{"move":"D2'"}]
+INFO:app:received event "move" from IExkF-dLw84jfDxjAAAH [/]
+INFO:app:emitting event "together_move" to together/15 [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 2["together_move",{"move":"D2'","username":"admin_acc"}]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 2["move",{"move":"L'"}]
+INFO:app:received event "move" from IExkF-dLw84jfDxjAAAH [/]
+INFO:app:emitting event "together_move" to together/15 [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 2["together_move",{"move":"L'","username":"admin_acc"}]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 2["move",{"move":"F2'"}]
+INFO:app:received event "move" from IExkF-dLw84jfDxjAAAH [/]
+INFO:app:emitting event "together_move" to together/15 [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 2["together_move",{"move":"F2'","username":"admin_acc"}]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 2["move",{"move":"R2'"}]
+INFO:app:received event "move" from IExkF-dLw84jfDxjAAAH [/]
+INFO:app:emitting event "together_move" to together/15 [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 2["together_move",{"move":"R2'","username":"admin_acc"}]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet MESSAGE data 2["move",{"move":"B"}]
+INFO:app:received event "move" from IExkF-dLw84jfDxjAAAH [/]
+INFO:app:emitting event "together_move" to together/15 [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 2["together_move",{"move":"B","username":"admin_acc"}]
+INFO:app:emitting event "your_solve_completed" to IExkF-dLw84jfDxjAAAH [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 2["your_solve_completed",{"time":4196.922,"solve_id":44}]
+INFO:app:emitting event "together_solve_end" to together/15 [/]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet MESSAGE data 2["together_solve_end",{"time":4196.922,"id":44}]
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet PING data None
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet PONG data 
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet PING data None
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet PONG data 
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet PING data None
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet PONG data 
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet PING data None
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet PONG data 
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet PING data None
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet PONG data 
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet PING data None
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet PONG data 
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet PING data None
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet PONG data 
+INFO:app:m3u3jrJte1cgdBrMAAAG: Sending packet PING data None
+INFO:app:m3u3jrJte1cgdBrMAAAG: Received packet PONG data 
+INFO:app:IExkF-dLw84jfDxjAAAH is leaving room together/15 [/]
+INFO:app:emitting event "together_dc" to together/15 [/]
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 434-576-786
+WSEcdpCU4xeS28-aAAAA: Sending packet OPEN data {'sid': 'WSEcdpCU4xeS28-aAAAA', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+INFO:app:WSEcdpCU4xeS28-aAAAA: Sending packet OPEN data {'sid': 'WSEcdpCU4xeS28-aAAAA', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+WSEcdpCU4xeS28-aAAAA: Received packet MESSAGE data 0
+INFO:app:WSEcdpCU4xeS28-aAAAA: Received packet MESSAGE data 0
+WSEcdpCU4xeS28-aAAAA: Sending packet MESSAGE data 0{"sid":"mmH0xVQ7U-NiP8PZAAAB"}
+INFO:app:WSEcdpCU4xeS28-aAAAA: Sending packet MESSAGE data 0{"sid":"mmH0xVQ7U-NiP8PZAAAB"}
+WSEcdpCU4xeS28-aAAAA: Received request to upgrade to websocket
+INFO:app:WSEcdpCU4xeS28-aAAAA: Received request to upgrade to websocket
+WSEcdpCU4xeS28-aAAAA: Upgrade to websocket successful
+INFO:app:WSEcdpCU4xeS28-aAAAA: Upgrade to websocket successful
+WSEcdpCU4xeS28-aAAAA: Sending packet PING data None
+INFO:app:WSEcdpCU4xeS28-aAAAA: Sending packet PING data None
+WSEcdpCU4xeS28-aAAAA: Received packet PONG data 
+INFO:app:WSEcdpCU4xeS28-aAAAA: Received packet PONG data 
+WSEcdpCU4xeS28-aAAAA: Sending packet PING data None
+INFO:app:WSEcdpCU4xeS28-aAAAA: Sending packet PING data None
+WSEcdpCU4xeS28-aAAAA: Received packet PONG data 
+INFO:app:WSEcdpCU4xeS28-aAAAA: Received packet PONG data 
+INFO:werkzeug: * Detected change in '/home/premysl/coding/bp/backend/main.py', reloading
+INFO:werkzeug: * Restarting with stat
+WARNING:werkzeug: * Debugger is active!
+INFO:werkzeug: * Debugger PIN: 434-576-786
+ppqmBI6Faze3Rrr7AAAA: Sending packet OPEN data {'sid': 'ppqmBI6Faze3Rrr7AAAA', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+INFO:app:ppqmBI6Faze3Rrr7AAAA: Sending packet OPEN data {'sid': 'ppqmBI6Faze3Rrr7AAAA', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+ppqmBI6Faze3Rrr7AAAA: Received packet MESSAGE data 0
+INFO:app:ppqmBI6Faze3Rrr7AAAA: Received packet MESSAGE data 0
+ppqmBI6Faze3Rrr7AAAA: Sending packet MESSAGE data 0{"sid":"QwSJYwp0dsGxV2bXAAAB"}
+INFO:app:ppqmBI6Faze3Rrr7AAAA: Sending packet MESSAGE data 0{"sid":"QwSJYwp0dsGxV2bXAAAB"}
+ppqmBI6Faze3Rrr7AAAA: Received request to upgrade to websocket
+INFO:app:ppqmBI6Faze3Rrr7AAAA: Received request to upgrade to websocket
+ppqmBI6Faze3Rrr7AAAA: Upgrade to websocket successful
+INFO:app:ppqmBI6Faze3Rrr7AAAA: Upgrade to websocket successful
+INFO:werkzeug: * Detected change in '/home/premysl/coding/bp/backend/main.py', reloading
+INFO:werkzeug: * Restarting with stat
+ * Debugger is active!
+WARNING:werkzeug: * Debugger is active!
+ * Debugger PIN: 434-576-786
+INFO:werkzeug: * Debugger PIN: 434-576-786
+_KxRaqo1P11y6ZrGAAAA: Sending packet OPEN data {'sid': '_KxRaqo1P11y6ZrGAAAA', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+INFO:app:_KxRaqo1P11y6ZrGAAAA: Sending packet OPEN data {'sid': '_KxRaqo1P11y6ZrGAAAA', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+_KxRaqo1P11y6ZrGAAAA: Received packet MESSAGE data 0
+INFO:app:_KxRaqo1P11y6ZrGAAAA: Received packet MESSAGE data 0
+_KxRaqo1P11y6ZrGAAAA: Sending packet MESSAGE data 0{"sid":"fCpnFSeKxvTk9csbAAAB"}
+INFO:app:_KxRaqo1P11y6ZrGAAAA: Sending packet MESSAGE data 0{"sid":"fCpnFSeKxvTk9csbAAAB"}
+_KxRaqo1P11y6ZrGAAAA: Received request to upgrade to websocket
+INFO:app:_KxRaqo1P11y6ZrGAAAA: Received request to upgrade to websocket
+_KxRaqo1P11y6ZrGAAAA: Upgrade to websocket successful
+INFO:app:_KxRaqo1P11y6ZrGAAAA: Upgrade to websocket successful
+ * Restarting with stat
+INFO:werkzeug: * Restarting with stat
+ * Debugger is active!
+WARNING:werkzeug: * Debugger is active!
+ * Debugger PIN: 434-576-786
+INFO:werkzeug: * Debugger PIN: 434-576-786
+F87HW6upmvBfA-N9AAAA: Sending packet OPEN data {'sid': 'F87HW6upmvBfA-N9AAAA', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+INFO:app:F87HW6upmvBfA-N9AAAA: Sending packet OPEN data {'sid': 'F87HW6upmvBfA-N9AAAA', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+F87HW6upmvBfA-N9AAAA: Received packet MESSAGE data 0
+INFO:app:F87HW6upmvBfA-N9AAAA: Received packet MESSAGE data 0
+F87HW6upmvBfA-N9AAAA: Sending packet MESSAGE data 0{"sid":"sI6mcx_bjXtCToFtAAAB"}
+INFO:app:F87HW6upmvBfA-N9AAAA: Sending packet MESSAGE data 0{"sid":"sI6mcx_bjXtCToFtAAAB"}
+F87HW6upmvBfA-N9AAAA: Received request to upgrade to websocket
+INFO:app:F87HW6upmvBfA-N9AAAA: Received request to upgrade to websocket
+F87HW6upmvBfA-N9AAAA: Upgrade to websocket successful
+INFO:app:F87HW6upmvBfA-N9AAAA: Upgrade to websocket successful
+F87HW6upmvBfA-N9AAAA: Received packet MESSAGE data 1
+INFO:app:F87HW6upmvBfA-N9AAAA: Received packet MESSAGE data 1
+Iplw45MdyNgs7fiRAAAC: Sending packet OPEN data {'sid': 'Iplw45MdyNgs7fiRAAAC', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+INFO:app:Iplw45MdyNgs7fiRAAAC: Sending packet OPEN data {'sid': 'Iplw45MdyNgs7fiRAAAC', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+Iplw45MdyNgs7fiRAAAC: Received packet MESSAGE data 0
+INFO:app:Iplw45MdyNgs7fiRAAAC: Received packet MESSAGE data 0
+Iplw45MdyNgs7fiRAAAC: Sending packet MESSAGE data 0{"sid":"KSDQ-WcrCcvNC7FpAAAD"}
+INFO:app:Iplw45MdyNgs7fiRAAAC: Sending packet MESSAGE data 0{"sid":"KSDQ-WcrCcvNC7FpAAAD"}
+Iplw45MdyNgs7fiRAAAC: Received request to upgrade to websocket
+INFO:app:Iplw45MdyNgs7fiRAAAC: Received request to upgrade to websocket
+Iplw45MdyNgs7fiRAAAC: Received packet MESSAGE data 2["solo_join"]
+INFO:app:Iplw45MdyNgs7fiRAAAC: Received packet MESSAGE data 2["solo_join"]
+received event "solo_join" from KSDQ-WcrCcvNC7FpAAAD [/]
+INFO:app:received event "solo_join" from KSDQ-WcrCcvNC7FpAAAD [/]
+Iplw45MdyNgs7fiRAAAC: Upgrade to websocket successful
+INFO:app:Iplw45MdyNgs7fiRAAAC: Upgrade to websocket successful
+Iplw45MdyNgs7fiRAAAC: Sending packet PING data None
+INFO:app:Iplw45MdyNgs7fiRAAAC: Sending packet PING data None
+Iplw45MdyNgs7fiRAAAC: Received packet PONG data 
+INFO:app:Iplw45MdyNgs7fiRAAAC: Received packet PONG data 
+Iplw45MdyNgs7fiRAAAC: Sending packet PING data None
+INFO:app:Iplw45MdyNgs7fiRAAAC: Sending packet PING data None
+Iplw45MdyNgs7fiRAAAC: Received packet PONG data 
+INFO:app:Iplw45MdyNgs7fiRAAAC: Received packet PONG data 
+Iplw45MdyNgs7fiRAAAC: Sending packet PING data None
+INFO:app:Iplw45MdyNgs7fiRAAAC: Sending packet PING data None
+Iplw45MdyNgs7fiRAAAC: Received packet PONG data 
+INFO:app:Iplw45MdyNgs7fiRAAAC: Received packet PONG data 
+Iplw45MdyNgs7fiRAAAC: Sending packet PING data None
+INFO:app:Iplw45MdyNgs7fiRAAAC: Sending packet PING data None
+Iplw45MdyNgs7fiRAAAC: Received packet PONG data 
+INFO:app:Iplw45MdyNgs7fiRAAAC: Received packet PONG data 
+ * Detected change in '/home/premysl/coding/bp/backend/main.py', reloading
+INFO:werkzeug: * Detected change in '/home/premysl/coding/bp/backend/main.py', reloading
+ * Restarting with stat
+INFO:werkzeug: * Restarting with stat
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 434-576-786
+BlGf7ividdcr4v4FAAAA: Sending packet OPEN data {'sid': 'BlGf7ividdcr4v4FAAAA', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+BlGf7ividdcr4v4FAAAA: Received packet MESSAGE data 0
+BlGf7ividdcr4v4FAAAA: Sending packet MESSAGE data 0{"sid":"eL6InJeBTlvid4u4AAAB"}
+BlGf7ividdcr4v4FAAAA: Received request to upgrade to websocket
+BlGf7ividdcr4v4FAAAA: Upgrade to websocket successful
+6mb4q3QOTvICnfRRAAAC: Sending packet OPEN data {'sid': '6mb4q3QOTvICnfRRAAAC', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+6mb4q3QOTvICnfRRAAAC: Received packet MESSAGE data 0
+6mb4q3QOTvICnfRRAAAC: Sending packet MESSAGE data 0{"sid":"UgW1EaBhU1SBb6dhAAAD"}
+6mb4q3QOTvICnfRRAAAC: Received request to upgrade to websocket
+6mb4q3QOTvICnfRRAAAC: Received packet MESSAGE data 2["solo_join"]
+received event "solo_join" from UgW1EaBhU1SBb6dhAAAD [/]
+6mb4q3QOTvICnfRRAAAC: Upgrade to websocket successful
+6mb4q3QOTvICnfRRAAAC: Sending packet PING data None
+6mb4q3QOTvICnfRRAAAC: Received packet PONG data 
+6mb4q3QOTvICnfRRAAAC: Sending packet PING data None
+6mb4q3QOTvICnfRRAAAC: Received packet PONG data 
+6mb4q3QOTvICnfRRAAAC: Sending packet PING data None
+6mb4q3QOTvICnfRRAAAC: Received packet PONG data 
+ * Detected change in '/home/premysl/coding/bp/backend/main.py', reloading
+ * Restarting with stat
+ * Restarting with stat
+ * Restarting with stat
+ * Restarting with stat
+ * Restarting with stat
+ * Restarting with stat
+ * Restarting with stat
+ * Restarting with stat
+ * Restarting with stat
+ * Restarting with stat

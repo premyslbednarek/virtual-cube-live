@@ -1,6 +1,6 @@
 import { Button, Flex, Text } from "@mantine/core";
 import { useState } from "react";
-import CopyButton from "../CopyButton";
+import CopyButton from "./CopyButton";
 
 export default function Invitation({lobbyId, show} : {lobbyId : string, show: boolean}) {
     const [inviteURL, setInviteURL] = useState<string | null>(null);

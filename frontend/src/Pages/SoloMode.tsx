@@ -1,19 +1,19 @@
 import { useEffect, useState } from "react";
-import { RenderedCube } from "./CubeCanvases";
-import NavigationPanel from "./NavigationPanel";
+import CubeCanvas from "../components/CubeCanvas";
+import NavigationPanel from "../components/NavigationPanel";
 import { socket } from "../socket";
 import { Button, Modal, Space, Center, Tooltip, Flex } from "@mantine/core";
 import { useHotkeys } from "react-hotkeys-hook";
 import { IconDeviceFloppy } from "@tabler/icons-react";
-import ShowSolvesToContinue from "./ShowSolvesToContinue";
+import ShowSolvesToContinue from "../components/ShowSolvesToContinue";
 import { useDisclosure } from "@mantine/hooks";
-import TimeHistory from "./TimeHistory";
+import TimeHistory from "../components/TimeHistory";
 import useCube, { DEFAULT_CUBE_SIZE } from "../hooks/useCube";
-import { CubeSizeController } from "./CubeSizeController";
+import { CubeSizeController } from "../components/CubeSizeController";
 import { useSpeedMode } from "../hooks/useSpeedMode";
-import TimerDisplay from "./TimerDisplay";
-import { Overlay } from "./Overlay";
-import KeybindsButton from "./ShowKeybindigs";
+import TimerDisplay from "../components/TimerDisplay";
+import { Overlay } from "../components/Overlay";
+import KeybindsButton from "../components/ShowKeybindigs";
 
 export default function SoloMode() {
     const [cubeSize, setCubeSize] = useState(DEFAULT_CUBE_SIZE);
@@ -128,7 +128,7 @@ export default function SoloMode() {
 
             </Overlay>
 
-            <RenderedCube cube={cube} fullscreen />
+            <CubeCanvas cube={cube} fullscreen />
 
             <Overlay position="bottom">
                 <TimerDisplay time={timeString} />

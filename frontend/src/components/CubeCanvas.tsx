@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef } from "react";
 import Cube from "../cube/cube";
 
-export function RenderedCube({cube, fullscreen} : {cube: Cube, fullscreen?:boolean}) {
+export default function CubeCanvas({cube, fullscreen} : {cube: Cube, fullscreen?:boolean}) {
     const containerRef = useRef(null);
 
     useEffect(() => {
@@ -54,5 +54,5 @@ export function RotatingCube() {
         }
     }, [c])
 
-    return <RenderedCube cube={c} />
+    return <CubeCanvas cube={c} />
 }

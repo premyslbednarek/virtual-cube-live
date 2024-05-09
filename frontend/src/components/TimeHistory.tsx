@@ -3,7 +3,7 @@ import { print_time } from "../cube/timer";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { AuthContext } from "../authContext";
 import { useDisclosure } from "@mantine/hooks";
-import { Replay } from "./Replay";
+import { Replay } from "../Pages/Replay";
 import { IconDeviceTv, IconPlayerPlay, IconX } from "@tabler/icons-react";
 
 export interface SolveBasic {

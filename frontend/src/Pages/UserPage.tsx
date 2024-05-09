@@ -1,12 +1,12 @@
 import { ActionIcon, Alert, Button, Container, Flex, Text, TextInput, Title, Tooltip } from "@mantine/core";
 import { useNavigate, useParams } from "react-router-dom";
 import { useCallback, useContext, useEffect, useState } from "react";
-import NavigationPanel from "./NavigationPanel";
-import { Statistics } from "./TimeHistory";
+import NavigationPanel from "../components/NavigationPanel";
+import { Statistics } from "../components/TimeHistory";
 import { AuthContext } from "../authContext";
 import { IconBan, IconSearch, IconTool } from "@tabler/icons-react";
-import { CubeSizeController } from "./CubeSizeController";
-import TimeList, { Solve } from "./TimeList";
+import { CubeSizeController } from "../components/CubeSizeController";
+import TimeList, { Solve } from "../components/TimeList";
 
 type UserInfo = {
     username: string;

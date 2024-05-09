@@ -1,20 +1,20 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Home from './components/Homepage';
-import Lobby from './components/Lobby';
-import { ReplayPage } from './components/Replay';
-import UserPage from './components/UserPage';
-import SoloMode from './components/SoloMode';
-import Profile from './components/Profile';
-import Invite from './components/Invite';
-import ErrorPage from './components/ErrorPage';
-import Together, { TogetherJoin } from './components/Together';
-import Leaderboard from './components/Leaderboard';
+import HomePage from './Pages/Homepage';
+import Lobby from './Pages/Lobby';
+import { ReplayPage } from './Pages/Replay';
+import UserPage from './Pages/UserPage';
+import SoloMode from './Pages/SoloMode';
+import Profile from './Pages/Profile';
+import Invite from './Pages/Invite';
+import ErrorPage from './Pages/ErrorPage';
+import Together, { TogetherJoin } from './Pages/Together';
+import Leaderboard from './Pages/Leaderboard';
 
 export default function Router() {
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/" element={<Home />} />
+                <Route path="/" element={<HomePage />} />
                 <Route path="/lobby/:lobby_id" element={<Lobby />} />
                 <Route path="/replay/:solveId" element={<ReplayPage />} />
                 <Route path="/user/:username" element={<UserPage />} />

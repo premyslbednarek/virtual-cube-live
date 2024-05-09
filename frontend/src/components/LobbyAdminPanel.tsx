@@ -1,5 +1,5 @@
 import { useDisclosure } from "@mantine/hooks";
-import { Enemy } from "./Lobby";
+import { Enemy } from "../Pages/Lobby";
 import { Flex, Button, Text, Modal, Table, Tooltip } from "@mantine/core";
 import { IconCrown } from "@tabler/icons-react";
 import { socket } from "../socket";

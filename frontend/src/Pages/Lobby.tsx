@@ -20,19 +20,19 @@ import { AuthContext } from "../authContext";
 import { useContext } from "react";
 import produce from "immer";
 import { print_time } from "../cube/timer";
-import NavigationPanel from "./NavigationPanel";
-import { RenderedCube } from "./CubeCanvases";
-import Invitation from "./Invitation";
+import NavigationPanel from "../components/NavigationPanel";
+import CubeCanvas from "../components/CubeCanvas";
+import Invitation from "../components/Invitation";
 import ErrorPage from "./ErrorPage";
-import TimeHistory from "./TimeHistory";
-import AdminPanelButton from "./LobbyAdminPanel";
+import TimeHistory from "../components/TimeHistory";
+import AdminPanelButton from "../components/LobbyAdminPanel";
 import { IconCrown } from "@tabler/icons-react";
-import { Overlay } from "./Overlay";
+import { Overlay } from "../components/Overlay";
 import useCube from "../hooks/useCube";
 import { useSpeedMode } from "../hooks/useSpeedMode";
-import TimerDisplay from "./TimerDisplay";
+import TimerDisplay from "../components/TimerDisplay";
 import useCountdown from "../hooks/useCountdown";
-import KeybindsButton from "./ShowKeybindigs";
+import KeybindsButton from "../components/ShowKeybindigs";
 
 type LobbyPoints = Array<{
     username: string;
@@ -87,7 +87,7 @@ function DisplayEnemy({username, enemy} : {username: string, enemy: Enemy}) {
                 </Badge>
                 <Badge color={readyColor}>{readyText}</Badge>
             </div>
-            <RenderedCube cube={enemy.cube} />
+            <CubeCanvas cube={enemy.cube} />
             <div style={{position: "absolute", bottom: 0, textAlign: "center", width: "100%", fontSize: "25px"}}>
                 { enemy.time ? print_time(enemy.time) : "" }
             </div>
@@ -505,7 +505,7 @@ export default function Lobby() {
           { leftPanel }
           <div>
             <LoadingOverlay visible={waitForEnd} loaderProps={{ children: 'Race in progress, waiting until it finishes...' }} />
-            <RenderedCube cube={cube} fullscreen />
+            <CubeCanvas cube={cube} fullscreen />
           </div>
         </>
     );

@@ -5,16 +5,16 @@ import { socket } from "../socket";
 import { AuthContext } from "../authContext";
 import * as THREE from 'three';
 import { Text, Button, Center, Flex, Title, Space } from "@mantine/core";
-import CopyButton from "./CopyButton";
+import CopyButton from "../components/CopyButton";
 import useCube, { DEFAULT_CUBE_SIZE } from "../hooks/useCube";
-import { CubeSizeController } from "./CubeSizeController";
+import { CubeSizeController } from "../components/CubeSizeController";
 import { useSpeedMode } from "../hooks/useSpeedMode";
-import { RenderedCube } from "./CubeCanvases";
-import { Overlay } from "./Overlay";
-import TimerDisplay from "./TimerDisplay";
-import NavigationPanel from "./NavigationPanel";
-import KeybindsButton from "./ShowKeybindigs";
-import TimeHistory, { SolveBasic } from "./TimeHistory";
+import CubeCanvas from "../components/CubeCanvas";
+import { Overlay } from "../components/Overlay";
+import TimerDisplay from "../components/TimerDisplay";
+import NavigationPanel from "../components/NavigationPanel";
+import KeybindsButton from "../components/ShowKeybindigs";
+import TimeHistory, { SolveBasic } from "../components/TimeHistory";
 
 interface TogetherJoinResponse {
     users: string[];
@@ -146,7 +146,7 @@ function TogetherLobby({id} : {id: number}) {
 
             </Overlay>
 
-            <RenderedCube cube={cube} fullscreen />
+            <CubeCanvas cube={cube} fullscreen />
 
             <Overlay position="bottom">
                 <TimerDisplay time={timeString} />

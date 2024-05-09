@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
-import TimeList, { Solve } from "./TimeList";
+import TimeList, { Solve } from "../components/TimeList";
 import ErrorPage from "./ErrorPage";
 import { Container, Title } from "@mantine/core";
-import NavigationPanel from "./NavigationPanel";
+import NavigationPanel from "../components/NavigationPanel";
 
 export default function Leaderboard() {
     const [solves, setSolves] = useState<Solve[]>([])

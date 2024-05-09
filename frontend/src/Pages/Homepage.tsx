@@ -10,18 +10,18 @@ import {
   Flex,
   Space,
 } from '@mantine/core';
-import CreateLobbyDiv from './CreateLobby';
-import LobbyList from './LobbyList';
-import Authentication from './Auth';
+import CreateLobbyDiv from '../components/CreateLobby';
+import LobbyList from '../components/LobbyList';
+import Authentication from '../components/Auth';
 import { IconTrophy, IconUser } from '@tabler/icons-react';
-import TogetherCreate from './LobbyTogetherCreate';
+import TogetherCreate from '../components/LobbyTogetherCreate';
 import { UserSearchField } from './UserPage';
 
 function DividerWithText({label} : {label: string}) {
   return <Divider my="md" size="sm" label={<Text>{label}</Text>}></Divider>
 }
 
-export default function Home() {
+export default function HomePage() {
   return (
       <Center style={{height: "100vh"}}>
         <Container>

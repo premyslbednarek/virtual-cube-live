@@ -1,16 +1,16 @@
 import { useEffect, useState, useMemo, useContext } from "react";
 import { useParams } from "react-router-dom"
-import { RenderedCube } from "./CubeCanvases";
+import CubeCanvas from "../components/CubeCanvas";
 import { Text, Space, Slider, ActionIcon, Center, Flex, Kbd, Container, Stack, Checkbox, Alert } from "@mantine/core";
 import Cube from "../cube/cube";
 import { useHotkeys } from "react-hotkeys-hook";
 import {IconPlayerPlay, IconPlayerPause, IconRewindBackward5, IconRewindForward5, IconPlus, IconMinus, IconReload} from "@tabler/icons-react"
-import NavigationPanel from "./NavigationPanel";
+import NavigationPanel from "../components/NavigationPanel";
 import { print_time } from "../cube/timer";
-import CopyButton from "./CopyButton";
+import CopyButton from "../components/CopyButton";
 import { useSpeedMode } from "../hooks/useSpeedMode";
 import { AuthContext } from "../authContext";
-import { DeleteSolveButton } from "./TimeList";
+import { DeleteSolveButton } from "../components/TimeList";
 import produce from "immer";
 
 interface IMoveInfo {
@@ -241,7 +241,7 @@ export function Replay({solveId} : {solveId : string}) {
                 </Container>
             </div>
             <div style={{width: "100%", height: "100%", zIndex: -1}}>
-                <RenderedCube cube={cube} />
+                <CubeCanvas cube={cube} />
             </div>
             <div style={{position: "absolute", width: "100%", bottom: "2vh", textAlign: "center"}}>
                 <div style={{ width: "80%", margin: "0 auto"}}>

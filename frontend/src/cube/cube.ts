@@ -489,7 +489,7 @@ export default class Cube {
         // rotate layer on screen
         this.tween = new TWEEN.Tween(tweenGroup.rotation)
                         .to({[move.axis]: -1 * direction * Math.PI / 2}, 200)
-                        .easing(TWEEN.Easing.Quadratic.Out)
+                        .easing(this.speedMode ? TWEEN.Easing.Cubic.Out : TWEEN.Easing.Quadratic.Out)
                         .onComplete(() => {
                             removeForRender(this);
                             // remove all cubies from group that was used for rotating the cubies

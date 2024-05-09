@@ -9,6 +9,10 @@ from dotenv import load_dotenv
 import os
 load_dotenv()
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.db' # Using SQLite as the database
 app.config['SECRET_KEY'] = "secret"
@@ -21,4 +25,4 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 # https://github.com/miguelgrinberg/Flask-SocketIO/issues/1356#issuecomment-681830773
-socketio = SocketIO(app, cors_allowed_origins="*", engineio_logger=True)
+socketio = SocketIO(app, cors_allowed_origins="*", engineio_logger=logger, logger=logger)

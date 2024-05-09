@@ -3,8 +3,9 @@ from typing import List
 from math import floor
 from random import choices
 from pyTwistyScrambler import scrambler333, scrambler444, scrambler555, scrambler666, scrambler777, scrambler222
+from enum import Enum
 
-colors = {
+terminal_colors = {
     b'W': u"\u001b[48;5;15m",
     b'G': u"\u001b[48;5;2m",
     b'R': u"\u001b[48;5;196m",
@@ -12,7 +13,17 @@ colors = {
     b'O': u"\u001b[48;5;166m",
     b'Y': u"\u001b[48;5;220m"
 }
-BG_RESET = u"\u001b[0m"
+
+TERMINA_BG_RESET = u"\u001b[0m"
+
+class Face(Enum):
+    U = 0
+    F = 1
+    R = 2
+    B = 3
+    L = 4
+    D = 5
+
 CW = 1
 CCW = -1
 U = 0
@@ -141,7 +152,7 @@ class Cube:
         # self.faces[i] is nxn array
         self.faces = self.flat.reshape(6, n, n)
         if bytes is None:
-            for i, color in enumerate(colors.keys()):
+            for i, color in enumerate(terminal_colors.keys()):
                 self.faces[i] = color
 
     def serialize(self) -> bytes:
@@ -165,22 +176,21 @@ class Cube:
         n = self.n
         print_table: np.chararray = np.chararray((3*self.n, 4*self.n))
         print_table[:] = ''
-        np.set_printoptions(linewidth=200)
 
         def fill(x, y, face):
             print_table[x:x+n, y:y+n] = self.faces[face]
 
         # fill the print_table with corresponding stickers
-        fill(0, n, 0)
-        fill(n, n, 1)
-        fill(n, 2*n, 2)
-        fill(n, 0, 4)
-        fill(n, 3*n, 3)
-        fill(2*n, n, 5)
+        fill(0,   n,   Face.U)
+        fill(n,   n,   Face.F)
+        fill(n,   2*n, Face.R)
+        fill(n,   0,   Face.B)
+        fill(n,   3*n, Face.L)
+        fill(2*n, n,   Face.D)
 
         for line in print_table:
             for elem in line:
-                print(f"{colors[elem]}{elem.decode('UTF-8')}{BG_RESET}" if elem != ''
+                print(f"{terminal_colors[elem]}{elem.decode('UTF-8')}{TERMINA_BG_RESET}" if elem != ''
                       else " ", end='')
             print()
 

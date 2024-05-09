@@ -1,6 +1,6 @@
 import { ActionIcon, Flex, Text } from "@mantine/core";
 import { IconMinus, IconPlus } from "@tabler/icons-react";
-import { MIN_CUBE_SIZE, MAX_CUBE_SIZE } from "../hooks/usCube";
+import { MIN_CUBE_SIZE, MAX_CUBE_SIZE } from "../hooks/useCube";
 
 
 

@@ -8,7 +8,7 @@ import { IconDeviceFloppy } from "@tabler/icons-react";
 import ShowSolvesToContinue from "./ShowSolvesToContinue";
 import { useDisclosure } from "@mantine/hooks";
 import TimeHistory from "./TimeHistory";
-import useCube, { DEFAULT_CUBE_SIZE } from "../hooks/usCube";
+import useCube, { DEFAULT_CUBE_SIZE } from "../hooks/useCube";
 import { CubeSizeController } from "./CubeSizeController";
 import { useSpeedMode } from "../hooks/useSpeedMode";
 import TimerDisplay from "./TimerDisplay";

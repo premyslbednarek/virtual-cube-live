@@ -6,7 +6,7 @@ import { AuthContext } from "../authContext";
 import * as THREE from 'three';
 import { Text, Button, Center, Flex, Title, Space } from "@mantine/core";
 import CopyButton from "./CopyButton";
-import useCube, { DEFAULT_CUBE_SIZE } from "../hooks/usCube";
+import useCube, { DEFAULT_CUBE_SIZE } from "../hooks/useCube";
 import { CubeSizeController } from "./CubeSizeController";
 import { useSpeedMode } from "../hooks/useSpeedMode";
 import { RenderedCube } from "./CubeCanvases";

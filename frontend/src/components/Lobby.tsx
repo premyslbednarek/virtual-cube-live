@@ -28,7 +28,7 @@ import TimeHistory from "./TimeHistory";
 import AdminPanelButton from "./LobbyAdminPanel";
 import { IconCrown } from "@tabler/icons-react";
 import { Overlay } from "./Overlay";
-import useCube from "../hooks/usCube";
+import useCube from "../hooks/useCube";
 import { useSpeedMode } from "../hooks/useSpeedMode";
 import TimerDisplay from "./TimerDisplay";
 import useCountdown from "../hooks/useCountdown";

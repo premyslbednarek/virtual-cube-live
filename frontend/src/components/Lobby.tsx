@@ -31,7 +31,7 @@ import { Overlay } from "./Overlay";
 import useCube from "../hooks/usCube";
 import { useSpeedMode } from "../hooks/useSpeedMode";
 import TimerDisplay from "./TimerDisplay";
-import { useCountdown } from "./TimerHooks";
+import useCountdown from "../hooks/useCountdown";
 import KeybindsButton from "./ShowKeybindigs";
 
 type LobbyPoints = Array<{

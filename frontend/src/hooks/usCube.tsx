@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Cube from "../cube/cube";
 import { print_time } from "../cube/timer";
-import { useCountdown, useStopwatch } from "../components/TimerHooks";
+import useStopwatch from "./useStopwatch";
+import useCountdown from "./useCountdown";
 import { socket } from "../socket";
 import * as THREE from "three"
 import { parse_move } from "../cube/move";

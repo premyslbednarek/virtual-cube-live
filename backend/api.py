@@ -248,7 +248,7 @@ def get_current_user_info():
 def get_user_info():
     data = json.loads(request.data)
     username = data["username"]
-
+    print(username)
     if not username:
         return abort(400)
 

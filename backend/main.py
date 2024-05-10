@@ -17,7 +17,7 @@ import cube_events
 import together_lobby
 
 if __name__ == '__main__':
-    handler = logging.FileHandler("app2.log")
+    handler = logging.FileHandler("app.log")
     app.logger.addHandler(handler)
     app.logger.setLevel(logging.DEBUG)
 
@@ -31,4 +31,4 @@ if __name__ == '__main__':
     logger.addHandler(handler)
     logger.setLevel(logging.DEBUG)
 
-    socketio.run(app, host="localhost", port=8080, debug=True)
+    socketio.run(app, host="0.0.0.0", port=8080, debug=True)

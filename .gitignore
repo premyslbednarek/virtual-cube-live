@@ -1,4 +1,5 @@
 instance/site.db
+backend/app.log
 instance/
 env/
 __pycache__/

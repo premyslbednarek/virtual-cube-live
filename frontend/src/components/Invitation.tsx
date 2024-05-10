@@ -3,6 +3,7 @@ import { useState } from "react";
 import CopyButton from "./CopyButton";
 
 export default function Invitation({type, id, show} : {type: "together" | "lobby", id: number, show: boolean}) {
+    // component used in lobby and lobby together to generate and display the generated invitation
     const [inviteURL, setInviteURL] = useState<string | null>(null);
 
     const getInviteURL = () => {

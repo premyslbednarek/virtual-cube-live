@@ -4,8 +4,8 @@ import { IconKeyboard } from "@tabler/icons-react";
 import keybinds from "../cube/keybindings";
 
 export default function KeybindsButton() {
-    const [opened, { open, close }] = useDisclosure(false);
-
+    // button, clicking it will open a modal in which the keybindings are shown
+    const [opened, { open: openModal, close: closeModal }] = useDisclosure(false);
 
     const rows = [...keybinds.entries()].map(([key, move]) => (
             <Flex key={key} gap="md" mb="xs">
@@ -14,7 +14,7 @@ export default function KeybindsButton() {
             </Flex>
         ))
 
-    const columnsCount = 4; // has to divide the number 12 (mantine Grid columns count)
+    const columnsCount = 4;
     const per_column = Math.ceil(rows.length / columnsCount);
 
     let columns: JSX.Element[] = []
@@ -27,7 +27,7 @@ export default function KeybindsButton() {
 
     return (
         <>
-            <Modal opened={opened} onClose={close} title="Cube keybinds">
+            <Modal opened={opened} onClose={closeModal} title="Cube keybinds">
                 <Container>
                     <Grid>
                         {
@@ -42,9 +42,8 @@ export default function KeybindsButton() {
 
 
             <Tooltip label="Show keybindings" color="blue">
-                <ActionIcon size="xl" radius="xl" onClick={open}><IconKeyboard /></ActionIcon>
+                <ActionIcon size="xl" radius="xl" onClick={openModal}><IconKeyboard /></ActionIcon>
             </Tooltip>
-
         </>
     );
 }

@@ -2,8 +2,6 @@ import { ActionIcon, Flex, Text } from "@mantine/core";
 import { IconMinus, IconPlus } from "@tabler/icons-react";
 import { MIN_CUBE_SIZE, MAX_CUBE_SIZE } from "../hooks/useCube";
 
-
-
 export function CubeSizeController({ value, onChange }: { value: number; onChange: (newSize: number) => void; }) {
     const changeSize = (delta: number) => {
         let newSize = value + delta;

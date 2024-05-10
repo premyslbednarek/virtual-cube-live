@@ -12,6 +12,7 @@ function getOverlayStyle(position: Position) : React.CSSProperties {
 }
 
 export function Overlay({position, children, style} : {position: Position, children: React.ReactNode, style?: React.CSSProperties}) {
+    // div with absolute position located along page side
     return (
         <div style={{position: "absolute", padding: 10, ...getOverlayStyle(position), ...style}}>
             {children}

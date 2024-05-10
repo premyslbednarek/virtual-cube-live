@@ -10,11 +10,11 @@ import {
   Flex,
   Space,
 } from '@mantine/core';
-import CreateLobbyDiv from '../components/CreateLobby';
+import CreateLobbyPanel from '../components/CreateLobbyPanel';
 import LobbyList from '../components/LobbyList';
-import Authentication from '../components/Auth';
+import AuthPanel from '../components/AuthPanel';
 import { IconTrophy, IconUser } from '@tabler/icons-react';
-import TogetherCreate from '../components/LobbyTogetherCreate';
+import TogetherCreate from '../components/TogetherCreate';
 import { UserSearchField } from './UserPage';
 
 function DividerWithText({label} : {label: string}) {
@@ -27,7 +27,7 @@ export default function HomePage() {
         <Container>
           <Title order={1}>Welcome to Rubik's Cube Racing!</Title>
 
-          <Authentication />
+          <AuthPanel />
           <Space h="md" />
           <Flex justify="center" gap="md">
             <Link to="/leaderboard"><Button leftSection={<IconTrophy />}>Leaderboard</Button></Link>
@@ -46,7 +46,7 @@ export default function HomePage() {
 
           <DividerWithText label="challenge your friends to a battle" />
 
-          <CreateLobbyDiv />
+          <CreateLobbyPanel />
 
           <DividerWithText label="or join an existing battle" />
 

@@ -2,7 +2,8 @@ import { ActionIcon, Space, Tooltip } from "@mantine/core";
 import { IconArrowLeft, IconHome } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 
-export default function NavigationPanel() {
+export default function NavigationButtons() {
+    // go back and homepage buttons
     const navigate = useNavigate();
     return (
         <div style={{display: "flex", margin: 10}}>

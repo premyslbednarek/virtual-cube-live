@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import CubeCanvas from "../components/CubeCanvas";
-import NavigationPanel from "../components/NavigationPanel";
+import NavigationButtons from "../components/NavigationButtons";
 import { socket } from "../socket";
 import { Button, Modal, Space, Center, Tooltip, Flex } from "@mantine/core";
 import { useHotkeys } from "react-hotkeys-hook";
 import { IconDeviceFloppy } from "@tabler/icons-react";
-import ShowSolvesToContinue from "../components/ShowSolvesToContinue";
+import ContinuableSolvesButton from "../components/ContinuableSolvesButton";
 import { useDisclosure } from "@mantine/hooks";
 import TimeHistory from "../components/TimeHistory";
 import useCube, { DEFAULT_CUBE_SIZE } from "../hooks/useCube";
@@ -13,7 +13,7 @@ import { CubeSizeController } from "../components/CubeSizeController";
 import { useSpeedMode } from "../hooks/useSpeedMode";
 import TimerDisplay from "../components/TimerDisplay";
 import { Overlay } from "../components/Overlay";
-import KeybindsButton from "../components/ShowKeybindigs";
+import KeybindsButton from "../components/KeybindsButton";
 
 export default function SoloMode() {
     const [cubeSize, setCubeSize] = useState(DEFAULT_CUBE_SIZE);
@@ -115,12 +115,12 @@ export default function SoloMode() {
     return (
         <>
             <Modal opened={opened} onClose={close} title="Pick a solve to continue">
-                <ShowSolvesToContinue onContinue={continueSolve} />
+                <ContinuableSolvesButton onContinue={continueSolve} />
             </Modal>
 
             <Overlay position="left">
                 <Flex align="center">
-                    <NavigationPanel />
+                    <NavigationButtons />
                     <KeybindsButton />
                 </Flex>
 

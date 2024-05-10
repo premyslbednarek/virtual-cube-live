@@ -10,6 +10,9 @@ type LobbyInfo = {
 }
 
 export default function LobbyList() {
+    // displays a list of currently ongoing lobbies
+    // for each lobby, the lobby id, the lobby creator, the lobby cube size
+    // and a join button are shown
     const [lobbies, setLobbies] = useState<LobbyInfo[]>([]);
 
     // fetch lobby data

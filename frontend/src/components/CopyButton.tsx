@@ -3,6 +3,7 @@ import { CopyButton as CopyButtonMantine, Button, Tooltip, rem } from '@mantine/
 import { IconCopy, IconCheck } from '@tabler/icons-react';
 
 export default function CopyButton({value} : {value: string}) {
+  // clickable button, upon click, the content of value prop is copied to users clipboard
   return (
     <CopyButtonMantine value={value} timeout={2000}>
       {({ copied, copy }) => (

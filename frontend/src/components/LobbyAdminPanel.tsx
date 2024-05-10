@@ -5,7 +5,10 @@ import { IconCrown } from "@tabler/icons-react";
 import { socket } from "../socket";
 
 export default function AdminPanelButton({enemies} : {enemies: Map<string, Enemy>}) {
-    const [opened, {open, close}] = useDisclosure(false);
+    // renders a button, which enables the user admin to open the admin panel
+    // in which he can give admin privileges to other users or kick other users
+    // from the lobby
+    const [opened, {open: openPanel, close: closePanel}] = useDisclosure(false);
 
     function make_admin(username: string) {
         socket.emit(
@@ -26,7 +29,9 @@ export default function AdminPanelButton({enemies} : {enemies: Map<string, Enemy
             <Table.Td>
                 <Flex align="center">
                     <Text>{username}</Text>
-                    {enemy.isAdmin && <Tooltip label="lobby admin"><IconCrown /></Tooltip>}
+                    { enemy.isAdmin &&
+                        <Tooltip label="lobby admin"><IconCrown /></Tooltip>
+                    }
                 </Flex>
             </Table.Td>
             <Table.Td>
@@ -34,14 +39,18 @@ export default function AdminPanelButton({enemies} : {enemies: Map<string, Enemy
                     Make admin
                 </Button>
             </Table.Td>
-            <Table.Td><Button onClick={() => kick(username)} disabled={enemy.isAdmin} color="red">Kick out of lobby</Button></Table.Td>
+            <Table.Td>
+                <Button onClick={() => kick(username)} disabled={enemy.isAdmin} color="red">
+                    Kick out of lobby
+                </Button>
+            </Table.Td>
         </Table.Tr>
     ))
 
 
     return (
         <>
-            <Modal opened={opened} onClose={close} title="admin panel" size="auto">
+            <Modal opened={opened} onClose={closePanel} title="admin panel" size="auto">
                 { enemies.size === 0 && "There are no other users in this lobby"}
                 <Table>
                     <Table.Tbody>
@@ -50,7 +59,7 @@ export default function AdminPanelButton({enemies} : {enemies: Map<string, Enemy
                 </Table>
             </Modal>
 
-            <Button onClick={open}>admin panel</Button>
+            <Button onClick={openPanel}>admin panel</Button>
         </>
     );
 }

@@ -10,9 +10,14 @@ interface SolveInfo {
     cube_size: number
 }
 
-export default function ShowSolvesToContinue({onContinue} : {onContinue: (solve_id: number) => void}) {
+export default function ContinuableSolvesButton({onContinue} : {onContinue: (solve_id: number) => void}) {
+    // a button, clicking it will open a modal with a list of solves, that were unfinished in the past
+    // for each solves, its shows its id, cube size, whether it is manually saved or not, current time
+    // and a button to continue the solve
+    // there is a switch for filtering whether to only show manually solved solves
+
     const [solves, setSolves] = useState<Array<SolveInfo>>([]);
-    const [checked, setChecked] = useState(false);
+    const [showOnlySaved, setShowOnlySaved] = useState(false);
 
     useEffect(() => {
         fetch("/api/solves_to_continue").then(res => res.json()).then((data: {solves: Array<SolveInfo>}) => {
@@ -20,7 +25,8 @@ export default function ShowSolvesToContinue({onContinue} : {onContinue: (solve_
         }).catch(err => console.log(err));
     }, [])
 
-    const filteredSolves = checked ? solves.filter((solve) => solve.manually_saved) : solves;
+    // if the switch is checked, show only solves which were manually solved
+    const filteredSolves = showOnlySaved ? solves.filter((solve) => solve.manually_saved) : solves;
 
     const rows = filteredSolves.slice(0).reverse().map(solve => (
         <Table.Tr key={solve.id}>
@@ -34,8 +40,14 @@ export default function ShowSolvesToContinue({onContinue} : {onContinue: (solve_
 
     return (
         <>
-            <Switch checked={checked} onChange={(event) => setChecked(event.currentTarget.checked)} label="Show only manually saved solves" />
+            <Switch
+                checked={showOnlySaved}
+                onChange={(event) => setShowOnlySaved(event.currentTarget.checked)}
+                label="Show only manually saved solves"
+            />
+
             <Space h="md" />
+
             <Table>
                 <Table.Thead>
                     <Table.Tr>

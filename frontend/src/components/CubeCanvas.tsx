@@ -2,14 +2,18 @@ import React, { useEffect, useMemo, useRef } from "react";
 import Cube from "../cube/cube";
 
 export default function CubeCanvas({cube, fullscreen} : {cube: Cube, fullscreen?:boolean}) {
+    // component, which shows render of the passed cube
     const containerRef = useRef(null);
 
     useEffect(() => {
         const container = containerRef.current;
         if (!container) return;
+
+        // add cube canvas to the div
         cube.mount(container);
 
         return () => {
+            // remove cube canvas from div
             cube.unmount(container);
         }
     }, [cube])
@@ -25,6 +29,7 @@ export default function CubeCanvas({cube, fullscreen} : {cube: Cube, fullscreen?
 
 
 export function RotatingCube() {
+    // show rotating cube, can be used as a background
     const c = useMemo(() => new Cube(5), [])
     c.orbitCamera.enabled = false;
     c.setSpeedMode(false);

@@ -7,7 +7,9 @@ interface LobbyCreateResponse {
   lobby_id: number;
 }
 
-export default function CreateLobbyDiv() {
+export default function CreateLobbyPanel() {
+  // a div, that is located on the homepage and allows users to create a lobby
+
   const form = useForm({
     initialValues: {
       layers: 3,

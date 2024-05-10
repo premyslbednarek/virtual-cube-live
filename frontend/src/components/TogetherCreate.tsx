@@ -3,6 +3,7 @@ import { IconUsers } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 
 export default function TogetherCreate() {
+    // button, clicking it will create new togerther lobby and redirect the user to it
     const navigate = useNavigate()
     const createLobby = () => {
         fetch("/api/together/new").then(res => res.json()).then((data: {id: number}) => {

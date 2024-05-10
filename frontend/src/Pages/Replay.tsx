@@ -5,7 +5,7 @@ import { Text, Space, Slider, ActionIcon, Center, Flex, Kbd, Container, Stack, C
 import Cube from "../cube/cube";
 import { useHotkeys } from "react-hotkeys-hook";
 import {IconPlayerPlay, IconPlayerPause, IconRewindBackward5, IconRewindForward5, IconPlus, IconMinus, IconReload} from "@tabler/icons-react"
-import NavigationPanel from "../components/NavigationPanel";
+import NavigationButtons from "../components/NavigationButtons";
 import { print_time } from "../cube/timer";
 import CopyButton from "../components/CopyButton";
 import { useSpeedMode } from "../hooks/useSpeedMode";
@@ -63,7 +63,7 @@ export function ReplayPage() {
     return (
         <>
             <div style={{position: "absolute", fontSize: "30px", margin: 10, zIndex: 5}}>
-                <NavigationPanel />
+                <NavigationButtons />
             </div>
             <div style={{height: "100vh", width: "100vw"}}>
                 <Replay solveId={solveId} />

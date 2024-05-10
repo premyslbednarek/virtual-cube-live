@@ -20,7 +20,7 @@ import { AuthContext } from "../authContext";
 import { useContext } from "react";
 import { produce } from "immer";
 import { print_time } from "../cube/timer";
-import NavigationPanel from "../components/NavigationPanel";
+import NavigationButtons from "../components/NavigationButtons";
 import CubeCanvas from "../components/CubeCanvas";
 import Invitation from "../components/Invitation";
 import ErrorPage from "./ErrorPage";
@@ -32,7 +32,7 @@ import useCube from "../hooks/useCube";
 import { useSpeedMode } from "../hooks/useSpeedMode";
 import TimerDisplay from "../components/TimerDisplay";
 import useCountdown from "../hooks/useCountdown";
-import KeybindsButton from "../components/ShowKeybindigs";
+import KeybindsButton from "../components/KeybindsButton";
 
 type LobbyPoints = Array<{
     username: string;
@@ -472,7 +472,7 @@ export default function Lobby() {
     const leftPanel = (
         <Overlay position="left">
             <Flex align="center">
-                <NavigationPanel />
+                <NavigationButtons />
                 <KeybindsButton />
                 <Space w="md" />
                 { isAdmin && <AdminPanelButton enemies={enemies} /> }

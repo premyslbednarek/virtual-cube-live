@@ -11,10 +11,19 @@ function capitalizeFirstLetter(string: string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-export default function UserInfo() {
+export default function AuthPanel() {
+    // component, which welcomes the user, displays his username
+    // shows login/register/logout buttons
+
     const { authInfo, updateUserContext } = useContext(AuthContext);
+
+    // authentication modal
+    const [modalOpened, { open: openAuthModal, close: closeAuthModal }] = useDisclosure(false)
+
+    // modal type - we can toggle between login and register
     const [type, toggle] = useToggle(["login", "register"])
-    const [modalOpened, {open, close}] = useDisclosure(false)
+
+    // error login/registration
     const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
     const form = useForm({
@@ -33,7 +42,7 @@ export default function UserInfo() {
             body: JSON.stringify(form.values)
         }).then(data=>data.json()).then(data => {
             if (data.msg === "ok") {
-                close();
+                closeAuthModal();
                 updateUserContext();
             } else {
                 setErrorMessage(data.msg)
@@ -50,18 +59,19 @@ export default function UserInfo() {
     }
 
 
-    const openModal = (type: string) => {
+    const openModal = (type: "register" | "login") => {
+        // reset error message and previously entered data
         setErrorMessage(null);
         form.reset()
         toggle(type);
-        open();
+        openAuthModal();
     }
 
-    const errorMessageDiv = (
+    const errorMessageAlert = errorMessage ? (
         <Alert variant="light" color="red" radius="lg" mb={15} icon={<IconExclamationCircle />}>
             {errorMessage}
         </Alert>
-    );
+    ) : null;
 
     const formContent = (
         <form onSubmit={onSubmit}>
@@ -117,6 +127,7 @@ export default function UserInfo() {
         </form>
     );
 
+    // login, register, logout buttons
     const buttons = authInfo.isLogged ?
         <>
             <Button leftSection={<IconLogout />} onClick={logout}>Logout</Button>
@@ -133,8 +144,8 @@ export default function UserInfo() {
 
     return (
         <>
-            <Modal opened={modalOpened} onClose={close} title={capitalizeFirstLetter(type)} centered>
-                { errorMessage && errorMessageDiv}
+            <Modal opened={modalOpened} onClose={closeAuthModal} title={capitalizeFirstLetter(type)} centered>
+                { errorMessageAlert }
                 { formContent }
             </Modal>
 

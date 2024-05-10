@@ -2,10 +2,11 @@ import { Button, Center, Checkbox, Container, Flex, NativeSelect, Pagination, Ta
 import { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { print_time } from "../cube/timer";
-import { IconDeviceTv, IconSortDescending, IconTrash, IconTrashOff } from "@tabler/icons-react";
+import { IconDeviceTv, IconSortDescending } from "@tabler/icons-react";
 import { CubeSizeController } from "./CubeSizeController";
 import { AuthContext } from "../authContext";
 import { produce } from "immer";
+import { DeleteSolveButton } from "./DeleteSolveButton";
 
 export interface Solve {
     id: number;
@@ -18,6 +19,7 @@ export interface Solve {
     deleted: boolean;
 }
 
+// function to sort solves by time, dnfs come last
 function solveTimeCompare(a: Solve, b: Solve) {
     if (!a.completed) {
         return 1; // a should come after b
@@ -29,40 +31,28 @@ function solveTimeCompare(a: Solve, b: Solve) {
     return a.time - b.time;
 }
 
-export function DeleteSolveButton({deleted: deleted_, solve_id, onChange } : {solve_id: number, deleted: boolean, onChange?: (id: number, newVal: boolean) => void}) {
-    const [deleted, setDeleted] = useState(deleted_);
-
-    const onClick = () => {
-        const newStatus = !deleted;
-        fetch('/api/update_solve_deleted_status', {
-            method: "POST",
-            body: JSON.stringify({id: solve_id, status: newStatus})
-        }).then(res => {
-            if (res.status === 200) {
-                setDeleted(newStatus);
-                onChange && onChange(solve_id, newStatus)
-            }
-        }).catch(err => console.log(err))
-    }
-
-    if (deleted) {
-        return <Button color="green" onClick={onClick} leftSection={<IconTrashOff />}>Restore</Button>
-    }
-
-    return <Button color="red" onClick={onClick} leftSection={<IconTrash />}>Delete </Button>
-}
-
 export default function TimeList({solves, setSolves, rowsPerPage=10, omitUsername=false, defaultSort="time"} : {solves: Solve[], setSolves?: React.Dispatch<React.SetStateAction<Solve[]>>, rowsPerPage?: number, omitUsername?: boolean, defaultSort?: string}) {
+    // time list used in leaderboard and on user page
+    // prop omitUsername controls whether a column with the username is shown - used on userpages
+    // by default sorted by time, can be also sorted by date of completion
+    // setSolves is used for updating solves when a solve is deleted/the deletion is reverted
+
+    // pagination page number
     const [page, setPage] = useState(1);
     const [sortBy, setSortBy] = useState(defaultSort)
 
+    // currently shown cube size - can be changed
     const [cubeSize, setCubeSize] = useState(3);
+    // show all cube size
     const [showAllSizes, setShowAllSizes] = useState(false);
 
     const { authInfo } = useContext(AuthContext)
+    // show solves, that are deleted or their author is button
+    // only available to admins
     const [showHidden, setShowHidden] = useState(authInfo.isAdmin);
 
-
+    // solves are passed as a prop - we dont want to change it, or we would
+    // trigger a rerender, ending in a loop
     let to_show = solves;
 
     if (sortBy === "time") {
@@ -96,7 +86,9 @@ export default function TimeList({solves, setSolves, rowsPerPage=10, omitUsernam
 
     const rows = to_show.slice((page - 1)* rowsPerPage, page * rowsPerPage).map((solve, index) => (
         <Table.Tr key={solve.id} style={{backgroundColor: (!solve.banned && !solve.deleted) ? "inherit" : rgba("#ff0000", 0.2)}}>
+            { /* if the list is sorted time, display a column with rank */ }
             { sortBy === "time" && <Table.Th>{(page - 1) * rowsPerPage + index + 1}</Table.Th>}
+
             { !omitUsername &&
                 <Table.Th>
                     <Link to={`/user/${solve.username}`} style={{textDecoration: 'none', color: "white"}}>
@@ -123,6 +115,7 @@ export default function TimeList({solves, setSolves, rowsPerPage=10, omitUsernam
                 </Table.Td>}
         </Table.Tr>
     ))
+
     return (
         <Container mt="xl">
             <Flex align="center" gap="sm" justify="flex-end">

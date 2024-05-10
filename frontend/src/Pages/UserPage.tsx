@@ -121,7 +121,7 @@ export function User({username} : {username: string}) {
                 { user && user.solves && <Statistics solves={user.solves.filter(solve => solve.cube_size === statsCubeSize)} />}
             </Container>
 
-            <TimeList solves={solves} setSolves={setSolves} defaultSort="recent"/>
+            <TimeList solves={solves} setSolves={setSolves} defaultSort="recent" omitUsername/>
         </>
     )
 

@@ -10,7 +10,7 @@ import { print_time } from "../cube/timer";
 import CopyButton from "../components/CopyButton";
 import { useSpeedMode } from "../hooks/useSpeedMode";
 import { AuthContext } from "../authContext";
-import { DeleteSolveButton } from "../components/TimeList";
+import { DeleteSolveButton } from "../components/DeleteSolveButton";
 import { produce } from "immer";
 
 interface IMoveInfo {

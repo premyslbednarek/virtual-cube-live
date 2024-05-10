@@ -1,29 +1,13 @@
-# virtual Rubik's cube
+# virtual Rubik's cube racing
 
+Before deploying the app, change DB_PASSWORD, ADMIN_PASSWORD and APP_SECRET to new secret values.
+
+DB_PASSWORD is the password for postgres database
+ADMIN_PASSWORD is the password for default admin web app account
+APP_SECRET is a secret for Flask
+
+Use the following command to build and deploy with docker (tested with Docker version 26.1.2)
 ## Setup
 ```Shell
-# install python3 virtualenv package
-pip install virtualenv
-
-# create python virtual environment
-python3 -m venv env
-
-# activate the virtual environment
-source env/bin/activate
-
-# install dependencies
-pip install -r requirements.txt
-
-# run the server
-python3 main.py
-
-# tailwind css
-npm install -D tailwindcss
+docker compose up
 ```
-
-Create .env file in backend/ folder with the following contents:
-
-ADMIN_USERNAME=admin_username
-ADMIN_PASSWORD=admin_password
-
-Make sure to change the values

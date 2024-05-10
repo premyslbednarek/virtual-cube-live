@@ -130,11 +130,16 @@ class TestClass(unittest.TestCase):
             self.assertEqual(move.get_indices(11), [8])
 
     def test_middle(self):
-        for layer in "MSE":
+        for layer in "mse":
             move = parse_move(layer)
             self.assertEqual(move.get_indices(3), [1])
             self.assertEqual(move.get_indices(5), [1, 2, 3])
             self.assertEqual(move.get_indices(7), [1, 2, 3, 4, 5])
+        for layer in "MSE":
+            move = parse_move(layer)
+            self.assertEqual(move.get_indices(3), [1])
+            self.assertEqual(move.get_indices(5), [2])
+            self.assertEqual(move.get_indices(7), [3])
 
     def test_move_basic(self):
         c = Cube(3)

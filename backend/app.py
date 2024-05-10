@@ -13,8 +13,10 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+conn_url = 'postgresql://postgres:postgres@db:5433/DB'
+
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.db' # Using SQLite as the database
+app.config['SQLALCHEMY_DATABASE_URI'] = conn_url
 app.config['SECRET_KEY'] = "secret"
 
 PRODUCTION = "prod"

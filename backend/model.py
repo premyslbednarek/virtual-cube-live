@@ -15,8 +15,11 @@ from werkzeug.security import generate_password_hash
 
 from app import app, socketio
 
+from sqlalchemy import create_engine
+from sqlalchemy.orm import scoped_session, sessionmaker
 
 db = SQLAlchemy()
+
 
 
 DEFAULT_INSPECTION_TIME=3
@@ -405,7 +408,7 @@ class TogetherLobby(db.Model):
 class SocketConnection(db.Model):
     __tablename__ = "socket_connection"
     id: Mapped[int] = mapped_column(primary_key=True)
-    socket_id: Mapped[int]
+    socket_id: Mapped[str]
     user_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
     user: Mapped[User] = relationship()
 

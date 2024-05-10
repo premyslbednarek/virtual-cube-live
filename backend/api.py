@@ -473,73 +473,40 @@ def create_connection(size, cube_id=None, lobby_id=None):
 def handle_solo_join():
     create_connection(3)
 
-@socketio.on("lobby_connect")
-def handle_lobby_conection(data):
-    # this is handled through a socket message instead to synchronize
-    # with other events in this lobby. Otherwise, all socket messages between
-    # the request and socket connection would be lost
-    lobby_id: int = int(data["lobby_id"])
-
-    print("new connection to lobby:", lobby_id, "user_id", current_user.username)
-
-    lobby: Lobby = db.session.get(Lobby, lobby_id)
-    is_creator: bool = lobby.creator_id == current_user.id
-
-    # check whether the user has already joined the lobby before
-    lobbyuser = LobbyUser.get(current_user.id, lobby_id)
-    if lobbyuser and lobbyuser.current_connection_id:
-        return {"status": 400, "msg": "You have already joined this lobby"}
-
-    if lobbyuser and lobbyuser.status == LobbyUserStatus.KICKED:
-        return {"status": 400, "msg": "You have been kicked from this lobby"}
-
-    # lobby creator can always join
-    # otherwise, if the lobby is private, other users can only join
-    # if the their LobbyUser object is already present (it is create through
-    # /api/invite/<invitation_uuid>
-    if not is_creator and not lobbyuser and lobby.private:
-        return {"status": 400, "msg": "This lobby is private. You can join only via an invitation"}
-
+def join_lobby(lobby: Lobby, lobby_user: Optional[LobbyUser], is_creator: bool):
     # add user to the lobby room
-    join_room(lobby_id)
+    join_room(lobby.id)
 
     # add connection to the database
-    if not lobbyuser:
-        lobbyuser = LobbyUser(
-            lobby_id=lobby_id,
+    if not lobby_user:
+        lobby_user = LobbyUser(
+            lobby_id=lobby.id,
             user_id=current_user.id,
             role=LobbyRole.ADMIN if is_creator else LobbyRole.USER
         )
-        db.session.add(lobbyuser)
+        db.session.add(lobby_user)
         db.session.commit()
 
-    lobbyuser.current_connection_id=create_connection(lobby.cube_size, None, lobby_id)
+    lobby_user.current_connection_id=create_connection(lobby.cube_size, None, lobby.id)
     db.session.commit()
-
-    # fetch info about other users in the lobby of users in the room
-    users = db.session.execute(
-        select(
-            LobbyUser
-        ).where(
-            LobbyUser.lobby_id == lobby_id, User.username != current_user.username
-        )
-    ).all()
 
     # inform other users in the lobby about this the connection
     socketio.emit(
         "lobby_connection",
         {
             "username": current_user.username,
-            "points": lobbyuser.points,
-            "isAdmin": lobbyuser.role == LobbyRole.ADMIN
+            "points": lobby_user.points,
+            "isAdmin": lobby_user.role == LobbyRole.ADMIN
         },
-        room=lobby_id,
+        room=lobby.id,
         skip_sid=request.sid
     )
 
+def get_lobby_data(lobby: Lobby, is_creator: bool):
     # fetch info about other users in the lobby of users in the room
     users = db.session.scalars(
-        select(LobbyUser).where(LobbyUser.lobby_id == lobby_id, LobbyUser.user_id != current_user.id)
+        select(LobbyUser).where(LobbyUser.lobby_id == lobby.id,
+                                LobbyUser.user_id != current_user.id)
     ).all()
 
     userlist = [(
@@ -563,6 +530,38 @@ def handle_lobby_conection(data):
         "points": lobby.get_user_points(),
         "raceTime": raceTime
     }
+
+
+@socketio.on("lobby_connect")
+def handle_lobby_conection(data):
+    # this is handled through a socket message instead to synchronize
+    # with other events in this lobby. Otherwise, all socket messages between
+    # the request and socket connection would be lost
+    lobby_id: int = int(data["lobby_id"])
+
+    print("new connection to lobby:", lobby_id, "user_id", current_user.username)
+
+    lobby: Lobby = db.session.get(Lobby, lobby_id)
+    is_creator: bool = lobby.creator_id == current_user.id
+
+    # check whether the user has already joined the lobby before
+    lobby_user = LobbyUser.get(current_user.id, lobby_id)
+    if lobby_user and lobby_user.current_connection_id:
+        return {"status": 400, "msg": "You have already joined this lobby"}
+
+    if lobby_user and lobby_user.status == LobbyUserStatus.KICKED:
+        return {"status": 400, "msg": "You have been kicked from this lobby"}
+
+    # lobby creator can always join
+    # otherwise, if the lobby is private, other users can only join
+    # if the their LobbyUser object is already present (it is create through
+    # /api/invite/<invitation_uuid>
+    if not is_creator and not lobby_user and lobby.private:
+        return {"status": 400, "msg": "This lobby is private. You can join only via an invitation"}
+
+    join_lobby(lobby, lobby_user, is_creator)
+    return get_lobby_data(lobby, is_creator)
+
 
 @socketio.on("lobby_make_admin")
 @login_required

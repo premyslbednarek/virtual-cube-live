@@ -12,6 +12,7 @@ with app.app_context():
     setup_admin()
     tidy_db()
 
+# although unused, those imports are needed to register routes and socket events
 import api
 import cube_events
 import together_lobby

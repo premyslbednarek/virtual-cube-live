@@ -364,7 +364,7 @@ def solve(solve_id: int):
         "deleted": solve.deleted
     }
 
-@app.route('/register', methods=["POST"])
+@app.route('/api/register', methods=["POST"])
 def register_post():
     data = json.loads(request.data)
     print(data)
@@ -409,7 +409,7 @@ def register_post():
 
     return {"msg": "ok"}, 200
 
-@app.route('/login', methods=["POST"])
+@app.route('/api/login', methods=["POST"])
 def login_post():
     data = json.loads(request.data)
     print(data)
@@ -435,7 +435,7 @@ def login_post():
     print("Login succesfull")
     return {"msg": "ok" }
 
-@app.route("/logout")
+@app.route("/api/logout")
 @login_required
 def logout():
     print(current_user.username, "logged out")

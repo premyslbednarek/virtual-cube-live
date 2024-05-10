@@ -11,7 +11,7 @@ from sqlalchemy import select
 from datetime import timedelta
 
 
-@app.route("/together/new")
+@app.route("/api/together/new")
 @login_required
 def new_together_lobby():
     cube = CubeEntity(size=3)

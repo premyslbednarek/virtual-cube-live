@@ -28,7 +28,7 @@ export default function UserInfo() {
 
     const onSubmit = (e: FormEvent) => {
         e.preventDefault();
-        fetch(`/${type}`, {
+        fetch(`/api/${type}`, {
             method: "POST",
             body: JSON.stringify(form.values)
         }).then(data=>data.json()).then(data => {
@@ -42,7 +42,7 @@ export default function UserInfo() {
     }
 
     const logout = () => {
-        fetch("/logout").then(res => {
+        fetch("/api/logout").then(res => {
             if (res.status === 200) {
                 updateUserContext();
             }

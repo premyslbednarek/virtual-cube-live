@@ -60,7 +60,7 @@ export default function TimeList({solves, setSolves, rowsPerPage=10, omitUsernam
     const [showAllSizes, setShowAllSizes] = useState(false);
 
     const { authInfo } = useContext(AuthContext)
-    const [showHidden, setShowHidden] = useState(false);
+    const [showHidden, setShowHidden] = useState(authInfo.isAdmin);
 
 
     let to_show = solves;

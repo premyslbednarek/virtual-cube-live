@@ -7,6 +7,7 @@ import { CubeSizeController } from "./CubeSizeController";
 import { AuthContext } from "../authContext";
 import { produce } from "immer";
 import { DeleteSolveButton } from "./DeleteSolveButton";
+import { solveComp } from "./SidePanelTimeList";
 
 export interface Solve {
     id: number;
@@ -19,21 +20,9 @@ export interface Solve {
     deleted: boolean;
 }
 
-// function to sort solves by time, dnfs come last
-function solveTimeCompare(a: Solve, b: Solve) {
-    if (!a.completed) {
-        return 1; // a should come after b
-    }
-    if (!b.completed) {
-        return -1; // a should come before b
-    }
-    // if both solves are completed, sort them by time
-    return a.time - b.time;
-}
-
 export default function TimeList({solves, setSolves, rowsPerPage=10, omitUsername=false, defaultSort="time"} : {solves: Solve[], setSolves?: React.Dispatch<React.SetStateAction<Solve[]>>, rowsPerPage?: number, omitUsername?: boolean, defaultSort?: string}) {
     // time list used in leaderboard and on user page
-    // prop omitUsername controls whether a column with the username is shown - used on userpages
+    // prop omitUsername controls whether a column with the username is shown - used on userpages, where we know the username
     // by default sorted by time, can be also sorted by date of completion
     // setSolves is used for updating solves when a solve is deleted/the deletion is reverted
 
@@ -56,7 +45,7 @@ export default function TimeList({solves, setSolves, rowsPerPage=10, omitUsernam
     let to_show = solves;
 
     if (sortBy === "time") {
-        to_show = to_show.slice(0).sort(solveTimeCompare); // sort without mutating original array
+        to_show = to_show.slice(0).sort(solveComp); // sort without mutating original array
     }
 
     if (!showAllSizes) {

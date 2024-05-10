@@ -2,7 +2,7 @@ import { ActionIcon, Alert, Button, Container, Flex, Text, TextInput, Title, Too
 import { useNavigate, useParams } from "react-router-dom";
 import { useCallback, useContext, useEffect, useState } from "react";
 import NavigationButtons from "../components/NavigationButtons";
-import { Statistics } from "../components/TimeHistory";
+import { Statistics } from "../components/Statistics";
 import { AuthContext } from "../authContext";
 import { IconBan, IconSearch, IconTool } from "@tabler/icons-react";
 import { CubeSizeController } from "../components/CubeSizeController";

@@ -2,7 +2,7 @@ import { Button, Center } from "@mantine/core";
 import { IconUsers } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 
-export default function TogetherCreate() {
+export default function TogetherCreateButton() {
     // button, clicking it will create new togerther lobby and redirect the user to it
     const navigate = useNavigate()
     const createLobby = () => {

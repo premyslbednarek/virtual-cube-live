@@ -7,7 +7,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { IconDeviceFloppy } from "@tabler/icons-react";
 import ContinuableSolvesButton from "../components/ContinuableSolvesButton";
 import { useDisclosure } from "@mantine/hooks";
-import TimeHistory from "../components/TimeHistory";
+import SidePanelTimeList from "../components/SidePanelTimeList";
 import useCube, { DEFAULT_CUBE_SIZE } from "../hooks/useCube";
 import { CubeSizeController } from "../components/CubeSizeController";
 import { useSpeedMode } from "../hooks/useSpeedMode";
@@ -108,7 +108,7 @@ export default function SoloMode() {
             <Space h="sm" />
             <Button onClick={open} size="md" radius="md">Continue solve</Button>
             <Space h="sm" />
-            <TimeHistory cubeSize={cubeSize} continueFn={continueSolve}/>
+            <SidePanelTimeList cubeSize={cubeSize} continueFn={continueSolve}/>
         </>
     )
 

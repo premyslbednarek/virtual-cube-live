@@ -24,7 +24,7 @@ import NavigationButtons from "../components/NavigationButtons";
 import CubeCanvas from "../components/CubeCanvas";
 import Invitation from "../components/Invitation";
 import ErrorPage from "./ErrorPage";
-import TimeHistory from "../components/TimeHistory";
+import SidePanelTimeList from "../components/SidePanelTimeList";
 import AdminPanelButton from "../components/LobbyAdminPanel";
 import { IconCrown } from "@tabler/icons-react";
 import { Overlay } from "../components/Overlay";
@@ -481,7 +481,7 @@ export default function Lobby() {
             { !isSolving && <>
                 <Results lastResult={lastRaceResults} lobbyPoints={lobbyPoints} />
                 <Space h="sm" />
-                <TimeHistory cubeSize={cubeSize} />
+                <SidePanelTimeList cubeSize={cubeSize} />
             </>}
         </Overlay>
     );

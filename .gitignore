@@ -12,6 +12,8 @@ static/dist
 /.pnp
 .pnp.js
 
+db/
+
 # testing
 /coverage
 

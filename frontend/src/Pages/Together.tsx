@@ -13,7 +13,7 @@ import { Overlay } from "../components/Overlay";
 import TimerDisplay from "../components/TimerDisplay";
 import NavigationButtons from "../components/NavigationButtons";
 import KeybindsButton from "../components/KeybindsButton";
-import TimeHistory, { SolveBasic } from "../components/TimeHistory";
+import SidePanelTimeList, { SolveBasic } from "../components/SidePanelTimeList";
 import Invitation from "../components/Invitation";
 
 interface TogetherJoinResponse {
@@ -134,7 +134,7 @@ function TogetherLobby({id} : {id: number}) {
                     !isSolving && <>
                         <CubeSizeController value={cubeSize} onChange={changeCubeSize} />
                         <Space h="sm" />
-                        <TimeHistory cubeSize={cubeSize} fromList={solves} />
+                        <SidePanelTimeList cubeSize={cubeSize} fromList={solves} />
                     </>
                 }
 

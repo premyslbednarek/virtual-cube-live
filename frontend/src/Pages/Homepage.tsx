@@ -14,7 +14,7 @@ import CreateLobbyPanel from '../components/CreateLobbyPanel';
 import LobbyList from '../components/LobbyList';
 import AuthPanel from '../components/AuthPanel';
 import { IconTrophy, IconUser } from '@tabler/icons-react';
-import TogetherCreate from '../components/TogetherCreate';
+import TogetherCreateButton from '../components/TogetherCreateButton';
 import { UserSearchField } from './UserPage';
 
 function DividerWithText({label} : {label: string}) {
@@ -42,7 +42,7 @@ export default function HomePage() {
 
           <DividerWithText label="share a cube with your friends" />
 
-          <TogetherCreate />
+          <TogetherCreateButton />
 
           <DividerWithText label="challenge your friends to a battle" />
 

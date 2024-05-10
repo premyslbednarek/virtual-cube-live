@@ -1,11 +1,12 @@
-import { Button, Table, Text } from "@mantine/core";
+import { Button, Container, Table, Text } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { socket } from "../socket";
 
 type LobbyInfo = {
   creator: string
-  lobby_id: number
+  id: number
+  cubeSize: number;
 }
 
 export default function LobbyList() {
@@ -13,15 +14,21 @@ export default function LobbyList() {
 
     // fetch lobby data
     useEffect(() => {
-        fetch('/api/get_lobbies').then(res => res.json()).then(data => {
-            setLobbies(data.data)
-        });
+        fetch('/api/get_lobbies')
+            .then(res => res.json())
+            .then((data: LobbyInfo[]) => {
+                console.log(data)
+                setLobbies(data)
+            })
+            .catch(err => console.log(err));
     }, [])
 
     const rows = lobbies.map((lobby: LobbyInfo) => (
-        <Table.Tr key={lobby.lobby_id}>
+        <Table.Tr key={lobby.id}>
+        <Table.Td>{lobby.id}</Table.Td>
         <Table.Td>{lobby.creator}</Table.Td>
-        <Table.Td><Link to={"/lobby/" + lobby.lobby_id}><Button size="compact-sm">Join</Button></Link></Table.Td>
+        <Table.Td>{lobby.cubeSize}x{lobby.cubeSize}</Table.Td>
+        <Table.Td><Link to={"/lobby/" + lobby.id}><Button size="compact-sm">Join</Button></Link></Table.Td>
         </Table.Tr>
     ))
 
@@ -38,7 +45,7 @@ export default function LobbyList() {
           setLobbies([lobby, ...lobbies]);
         }
         const onLobbyDelete = ({lobby_id} : {lobby_id: number}) => {
-          setLobbies(lobbies.filter((lobby) => lobby.lobby_id !== lobby_id))
+          setLobbies(lobbies.filter((lobby) => lobby.id !== lobby_id))
         }
 
         socket.on("lobby_add", onLobbyAdd);
@@ -55,14 +62,18 @@ export default function LobbyList() {
     }
 
     return (
-        <Table>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>Lobby creator</Table.Th>
-              <Table.Th>Lobby join link</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>{rows}</Table.Tbody>
-        </Table>
+        <Container ta="center">
+            <Table>
+                <Table.Thead>
+                    <Table.Tr>
+                        <Table.Th ta="center">Lobby id</Table.Th>
+                        <Table.Th ta="center">Lobby creator</Table.Th>
+                        <Table.Th ta="center">Cube size</Table.Th>
+                        <Table.Th ta="center">Lobby join link</Table.Th>
+                    </Table.Tr>
+                </Table.Thead>
+            <Table.Tbody>{rows}</Table.Tbody>
+            </Table>
+        </Container>
     );
 }

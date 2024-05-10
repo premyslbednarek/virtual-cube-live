@@ -295,9 +295,10 @@ def get_solution():
 def get_lobbies():
     res = db.session.execute(
         select(
-            User.username,
-            Lobby.id)
-        .select_from(
+            User.username.label("creator"),
+            Lobby.id.label("id"),
+            Lobby.cube_size.label("cubeSize")
+        ).select_from(
             Lobby
         ).where(
             Lobby.private == False,
@@ -306,15 +307,9 @@ def get_lobbies():
             User, Lobby.creator_id == User.id
         ).order_by(Lobby.id.desc()).limit(20)
 
-    ).all();
-    print()
-    print("RESULT")
-    print(res)
-    print()
-    data = []
-    for creator, lobby_id in res:
-        data.append({"creator": creator, "lobby_id": lobby_id})
-    return {"data": data}
+    ).all()
+
+    return [lobby._asdict() for lobby in res]
 
 class LobbyCreateData(TypedDict):
     layers: int
@@ -341,7 +336,7 @@ def api_lobby_create() -> LobbyCreateResponse:
     if not data["private"]:
         socketio.emit(
             "lobby_add",
-            {"creator": current_user.username, "lobby_id": lobby.id }
+            {"creator": current_user.username, "id": lobby.id, "cubeSize": data["layers"] }
         )
 
     return { "lobby_id": lobby.id }

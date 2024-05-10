@@ -228,6 +228,7 @@ export default function Lobby() {
                 setEnemies(m);
                 setIsAdmin(response.isAdmin);
                 setCubeSize(response.cubeSize);
+                cube.setSize(response.cubeSize);
 
                 if (response.raceTime !== null) {
                     setWaitForEnd(true);

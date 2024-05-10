@@ -15,6 +15,7 @@ import TimerDisplay from "../components/TimerDisplay";
 import NavigationPanel from "../components/NavigationPanel";
 import KeybindsButton from "../components/ShowKeybindigs";
 import TimeHistory, { SolveBasic } from "../components/TimeHistory";
+import Invitation from "../components/Invitation";
 
 interface TogetherJoinResponse {
     users: string[];
@@ -120,9 +121,7 @@ function TogetherLobby({id} : {id: number}) {
     return (
         <>
             <Overlay position="top">
-                <Center>
-                    {inviteURL} <CopyButton value={inviteURL}></CopyButton>
-                </Center>
+                <Invitation id={id} type="together" show={!isSolving} />
             </Overlay>
             <Overlay position="left">
                 <Flex align="center">
@@ -161,22 +160,6 @@ function TogetherLobby({id} : {id: number}) {
             </Overlay>
         </>
     );
-}
-
-export function TogetherJoin() {
-    const params = useParams();
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        fetch("/api/get_together_id", {
-            method: "POST",
-            body: JSON.stringify({uuid: params.uuid})
-        }).then(res => res.json()).then((data : {id: number}) => {
-            navigate("/together", {state: {id: data.id}})
-        }).catch(err => console.log(err));
-    })
-
-    return null;
 }
 
 export default function Together() {

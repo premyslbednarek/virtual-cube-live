@@ -501,35 +501,59 @@ class CameraChange(db.Model):
     y: Mapped[float]
     z: Mapped[float]
 
+class InvitationRet(TypedDict):
+    type: str
+    id: int
+
 class Invitation(db.Model):
     __tablename__ = "invitation"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     url: Mapped[UUID] = mapped_column(default=uuid4)
-    lobby_id: Mapped[int] = mapped_column(ForeignKey("lobby.id"))
-    lobby: Mapped[Lobby] = relationship()
+
+    lobby_id: Mapped[Optional[int]] = mapped_column(ForeignKey("lobby.id"))
+    lobby: Mapped[Optional[Lobby]] = relationship()
+
+    together_lobby_id: Mapped[Optional[int]] = mapped_column(ForeignKey("together_lobby.id"))
+    together_lobby: Mapped[Optional[TogetherLobby]] = relationship()
+
     created_by_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
     created_by: Mapped[User] = relationship()
     active: Mapped[bool] = mapped_column(default=True)
 
     @staticmethod
-    def create(created_by_id: int, lobby_id: int) -> "Invitation":
-        invitation = Invitation(
-            created_by_id=created_by_id,
-            lobby_id=lobby_id
-        )
+    def create(created_by_id: int, id: int, type: str) -> "Invitation":
+        assert type in ["together", "lobby"]
+
+        invitation = Invitation()
+        invitation.created_by_id = created_by_id
+        if type == "together":
+            invitation.together_lobby_id = id
+        else:
+            invitation.lobby_id = id
+
         db.session.add(invitation)
         db.session.commit()
         return invitation
 
     @staticmethod
-    def get_lobby(uuid_str: str) -> Optional[int]:
+    def get_lobby(uuid_str: str) -> InvitationRet:
         invitation = db.session.scalars(
             select(Invitation).where(Invitation.url == UUID(uuid_str))
         ).one_or_none()
         if not invitation:
             return None
-        return invitation.lobby_id
+
+        if invitation.lobby_id:
+            type = "lobby"
+            id = invitation.lobby_id
+        elif invitation.together_lobby_id:
+            type = "together"
+            id = invitation.together_lobby_id
+        else:
+            assert False
+
+        return { "type": type, "id": id }
 
 
 def setup_admin():

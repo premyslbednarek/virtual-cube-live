@@ -104,31 +104,32 @@ def make_admin(username: str):
 @login_required
 def generate_invitation():
     data = json.loads(request.data)
-    lobby_id: int = data["lobbyId"]
 
     # check whether the user is in the given lobby
-    lobbyuser = LobbyUser.get(current_user.id, lobby_id)
-    if not lobbyuser:
-        return abort(401) # unauthorized
+    if data["type"] == "lobby":
+        if not LobbyUser.get(current_user.id, data["id"]):
+            return abort(401) # unauthorized
 
-    invitation = Invitation.create(current_user.username, lobby_id)
+    invitation = Invitation.create(current_user.username, data["id"], data["type"])
 
     return {"url": invitation.url}, 200
 
-@app.route('/api/invite/<string:uuid_str>')
+@app.route('/api/parse_invite/<string:uuid_str>')
 @login_required
-def handle_invite(uuid_str: str):
-    lobby_id = Invitation.get_lobby(uuid_str)
-    if not lobby_id:
+def handle_invite(uuid_str):
+    invitation = Invitation.get_lobby(uuid_str)
+    if invitation is None:
         return abort(404)
 
-    lobbyuser = LobbyUser(
-        lobby_id=lobby_id,
-        user_id=current_user.id,
-    )
-    db.session.add(lobbyuser)
-    db.session.commit()
-    return {"lobby_id": lobby_id}, 200
+    if invitation["type"] == "lobby":
+        lobbyuser = LobbyUser(
+            lobby_id=invitation["id"],
+            user_id=current_user.id,
+        )
+        db.session.add(lobbyuser)
+        db.session.commit()
+
+    return invitation
 
 
 @app.route('/api/solves_to_continue')

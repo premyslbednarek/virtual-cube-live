@@ -499,7 +499,9 @@ export default function Lobby() {
 
     return (
         <>
-          <Invitation show={!isSolving} lobbyId={lobby_id} />
+          <Overlay position="top">
+            <Invitation show={!isSolving} id={Number(lobby_id)} type="lobby" />
+          </Overlay>
           { rightPanel }
           { bottomPanel }
           { leftPanel }

@@ -1,14 +1,14 @@
-import { Button, Flex, Text } from "@mantine/core";
+import { Button, Container, Flex, Text } from "@mantine/core";
 import { useState } from "react";
 import CopyButton from "./CopyButton";
 
-export default function Invitation({lobbyId, show} : {lobbyId : string, show: boolean}) {
+export default function Invitation({type, id, show} : {type: "together" | "lobby", id: number, show: boolean}) {
     const [inviteURL, setInviteURL] = useState<string | null>(null);
 
     const getInviteURL = () => {
         fetch("/api/generate_invitation", {
             method: "POST",
-            body: JSON.stringify({lobbyId: lobbyId})
+            body: JSON.stringify({type: type, id: id})
         }).then(res => res.json()).then((data: {url: string}) => {
             setInviteURL(window.location.host + "/invite/" + data.url);
         }).catch(err => console.log(err))
@@ -19,15 +19,15 @@ export default function Invitation({lobbyId, show} : {lobbyId : string, show: bo
     }
 
     return (
-        <div style={{position: "absolute", width: "100%", textAlign: "center", marginTop: 10 }}>
-            <Text>Invite your friends!</Text>
-            { !inviteURL &&
-                <Button onClick={getInviteURL}>Generate</Button>}
+        <Container ta="center">
+            <Text size="xl">Invite your friends!</Text>
+            { !inviteURL && <Button onClick={getInviteURL}>Generate invite link</Button>}
             { inviteURL &&
-                <Flex align="center" justify="center">
-                    <Text size="xl">{inviteURL}</Text>
+                <>
+                    <Text>{inviteURL}</Text>
                     <CopyButton value={inviteURL} />
-                </Flex>}
-        </div>
+                </>
+            }
+        </Container>
     );
 }

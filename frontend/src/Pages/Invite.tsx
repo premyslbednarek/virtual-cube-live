@@ -6,9 +6,16 @@ export default function Invite() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        fetch(`/api/invite/${uuid}`).then(res => res.json()).then((data : {lobby_id: number}) => {
-            navigate(`/lobby/${data.lobby_id}`);
-        }).catch(err=>console.log(err));
+        fetch(`/api/parse_invite/${uuid}`)
+            .then(res => res.json())
+            .then(({type, id} : {type: "together" | "lobby", id: number}) => {
+                    if (type == "together") {
+                        navigate("/together", {state: {id: id}})
+                    } else {
+                        navigate(`/lobby/${id}`);
+                    }
+                })
+            .catch(err=>console.log(err));
 
     }, [uuid, navigate]);
 

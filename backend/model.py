@@ -158,7 +158,7 @@ class Scramble(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     cube_size: Mapped[int]
     scramble_string: Mapped[str]
-    cube_state: Mapped[str]
+    cube_state: Mapped[bytes]
 
     @staticmethod
     def new(size: int):
@@ -189,7 +189,7 @@ class Solve(db.Model):
     user_id: Mapped[Optional[int]] = mapped_column(ForeignKey("user.id"))
     user: Mapped[Optional[User]] = relationship()
 
-    state: Mapped[str] = mapped_column(default="")
+    state: Mapped[bytes] = mapped_column(default=bytes())
 
     time: Mapped[Optional[int]] = mapped_column(default=0)
     completed: Mapped[bool] = mapped_column(default=False)
@@ -437,7 +437,7 @@ class CubeEntity(db.Model):
     __tablename__ = "cube"
     id: Mapped[int] = mapped_column(primary_key=True)
     size: Mapped[int]
-    state: Mapped[str]
+    state: Mapped[bytes]
     current_solve_id: Mapped[Optional[int]] = mapped_column(ForeignKey("solve.id"))
     current_solve: Mapped[Optional[Solve]] = relationship()
 

@@ -94,6 +94,7 @@ export default class Cube {
         this.orbitCamera = new OrbitControls(this.camera, this.renderer.domElement);
         this.orbitCamera.enablePan = false; // disable right mouse button camera panning (side to side movement)
         this.orbitCamera.addEventListener('change', () => this.onCameraChange());
+        this.orbitCamera.enabled = false; // enabled in initControls
 
         if (!state) {
             state = getDefaultCubeState(this.size);
@@ -107,6 +108,7 @@ export default class Cube {
     }
 
     initControls() {
+        this.orbitCamera.enabled = true;
         document.addEventListener("keydown", this.onKeydownHandler);
         document.addEventListener("mousedown", this.onMousedownHandler);
         document.addEventListener("mouseup", this.onMouseupHandler);
@@ -114,6 +116,7 @@ export default class Cube {
     }
 
     destroyControls() {
+        this.orbitCamera.enabled = false; // enabled in initControls
         document.removeEventListener("keydown", this.onKeydownHandler);
         document.removeEventListener("mousedown", this.onMousedownHandler);
         document.removeEventListener("mouseup", this.onMouseupHandler);

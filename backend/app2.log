@@ -8544,3 +8544,1127 @@ _PqUjF0PRNfi2otpAAAW: Sending packet PING data None
 W5J1uHHUXtW27Ay_AAAX: Sending packet PING data None
 _PqUjF0PRNfi2otpAAAW: Received packet PONG data 
 W5J1uHHUXtW27Ay_AAAX: Received packet PONG data 
+ * Debugger is active!
+ * Debugger PIN: 133-583-391
+x_MUKJu56LeCem0FAAAA: Sending packet OPEN data {'sid': 'x_MUKJu56LeCem0FAAAA', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+x_MUKJu56LeCem0FAAAA: Received packet MESSAGE data 0
+x_MUKJu56LeCem0FAAAA: Sending packet MESSAGE data 0{"sid":"yxunE5rXO5Tm4CDIAAAB"}
+x_MUKJu56LeCem0FAAAA: Received request to upgrade to websocket
+x_MUKJu56LeCem0FAAAA: Upgrade to websocket successful
+d5_6DS1KQi8a8B-DAAAC: Sending packet OPEN data {'sid': 'd5_6DS1KQi8a8B-DAAAC', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+d5_6DS1KQi8a8B-DAAAC: Received packet MESSAGE data 0
+d5_6DS1KQi8a8B-DAAAC: Sending packet MESSAGE data 0{"sid":"5bDwmGb-wnuDVLgKAAAD"}
+d5_6DS1KQi8a8B-DAAAC: Received request to upgrade to websocket
+d5_6DS1KQi8a8B-DAAAC: Upgrade to websocket successful
+x_MUKJu56LeCem0FAAAA: Sending packet PING data None
+x_MUKJu56LeCem0FAAAA: Received packet PONG data 
+d5_6DS1KQi8a8B-DAAAC: Sending packet PING data None
+d5_6DS1KQi8a8B-DAAAC: Received packet PONG data 
+x_MUKJu56LeCem0FAAAA: Sending packet PING data None
+x_MUKJu56LeCem0FAAAA: Received packet PONG data 
+d5_6DS1KQi8a8B-DAAAC: Sending packet PING data None
+d5_6DS1KQi8a8B-DAAAC: Received packet PONG data 
+x_MUKJu56LeCem0FAAAA: Sending packet PING data None
+x_MUKJu56LeCem0FAAAA: Received packet PONG data 
+d5_6DS1KQi8a8B-DAAAC: Sending packet PING data None
+d5_6DS1KQi8a8B-DAAAC: Received packet PONG data 
+x_MUKJu56LeCem0FAAAA: Sending packet PING data None
+x_MUKJu56LeCem0FAAAA: Received packet PONG data 
+d5_6DS1KQi8a8B-DAAAC: Sending packet PING data None
+d5_6DS1KQi8a8B-DAAAC: Received packet PONG data 
+x_MUKJu56LeCem0FAAAA: Sending packet PING data None
+x_MUKJu56LeCem0FAAAA: Received packet PONG data 
+d5_6DS1KQi8a8B-DAAAC: Sending packet PING data None
+d5_6DS1KQi8a8B-DAAAC: Received packet PONG data 
+ * Detected change in '/home/premysl/coding/bp/backend/together_lobby.py', reloading
+ * Debugger is active!
+ * Debugger PIN: 133-583-391
+dsb1WABXbAm0A-trAAAA: Sending packet OPEN data {'sid': 'dsb1WABXbAm0A-trAAAA', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+dsb1WABXbAm0A-trAAAA: Received packet MESSAGE data 0
+dsb1WABXbAm0A-trAAAA: Sending packet MESSAGE data 0{"sid":"euJlbAXXu_ivddSoAAAB"}
+dsb1WABXbAm0A-trAAAA: Received request to upgrade to websocket
+dsb1WABXbAm0A-trAAAA: Upgrade to websocket successful
+Pd_rUV3ELbqNpkzlAAAC: Sending packet OPEN data {'sid': 'Pd_rUV3ELbqNpkzlAAAC', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+Pd_rUV3ELbqNpkzlAAAC: Received packet MESSAGE data 0
+Pd_rUV3ELbqNpkzlAAAC: Sending packet MESSAGE data 0{"sid":"9Qfyud1JQTAhkpqRAAAD"}
+Pd_rUV3ELbqNpkzlAAAC: Received request to upgrade to websocket
+Pd_rUV3ELbqNpkzlAAAC: Upgrade to websocket successful
+ * Detected change in '/home/premysl/coding/bp/backend/model.py', reloading
+ * Debugger is active!
+ * Debugger PIN: 133-583-391
+cnuKTbQPnXQG4vZ_AAAA: Sending packet OPEN data {'sid': 'cnuKTbQPnXQG4vZ_AAAA', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+cnuKTbQPnXQG4vZ_AAAA: Received packet MESSAGE data 0
+cnuKTbQPnXQG4vZ_AAAA: Sending packet MESSAGE data 0{"sid":"FZusfuMOg_jCG1cdAAAB"}
+cnuKTbQPnXQG4vZ_AAAA: Received request to upgrade to websocket
+cnuKTbQPnXQG4vZ_AAAA: Upgrade to websocket successful
+xpI_YdUCNhrlf-CSAAAC: Sending packet OPEN data {'sid': 'xpI_YdUCNhrlf-CSAAAC', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+xpI_YdUCNhrlf-CSAAAC: Received packet MESSAGE data 0
+xpI_YdUCNhrlf-CSAAAC: Sending packet MESSAGE data 0{"sid":"8l6tahXNwDHpvBzRAAAD"}
+xpI_YdUCNhrlf-CSAAAC: Received request to upgrade to websocket
+xpI_YdUCNhrlf-CSAAAC: Upgrade to websocket successful
+ * Detected change in '/home/premysl/coding/bp/backend/model.py', reloading
+ * Debugger is active!
+ * Debugger PIN: 133-583-391
+BYpr3RuVWpDI43bjAAAA: Sending packet OPEN data {'sid': 'BYpr3RuVWpDI43bjAAAA', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+BYpr3RuVWpDI43bjAAAA: Received packet MESSAGE data 0
+BYpr3RuVWpDI43bjAAAA: Sending packet MESSAGE data 0{"sid":"kl9w4jGKG3nMF1d1AAAB"}
+BYpr3RuVWpDI43bjAAAA: Received request to upgrade to websocket
+BYpr3RuVWpDI43bjAAAA: Upgrade to websocket successful
+MmzeikH57Dw2D647AAAC: Sending packet OPEN data {'sid': 'MmzeikH57Dw2D647AAAC', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+MmzeikH57Dw2D647AAAC: Received packet MESSAGE data 0
+MmzeikH57Dw2D647AAAC: Sending packet MESSAGE data 0{"sid":"0qjVtT5dWJtNeN9LAAAD"}
+MmzeikH57Dw2D647AAAC: Received request to upgrade to websocket
+MmzeikH57Dw2D647AAAC: Upgrade to websocket successful
+ * Detected change in '/home/premysl/coding/bp/backend/model.py', reloading
+ * Debugger is active!
+ * Debugger PIN: 133-583-391
+AjrQ2dX7Fq9Op-9kAAAA: Sending packet OPEN data {'sid': 'AjrQ2dX7Fq9Op-9kAAAA', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+AjrQ2dX7Fq9Op-9kAAAA: Received packet MESSAGE data 0
+AjrQ2dX7Fq9Op-9kAAAA: Sending packet MESSAGE data 0{"sid":"I-_il_zPa278J0LnAAAB"}
+AjrQ2dX7Fq9Op-9kAAAA: Received request to upgrade to websocket
+AjrQ2dX7Fq9Op-9kAAAA: Upgrade to websocket successful
+Z818nYgdTdUkqCNhAAAC: Sending packet OPEN data {'sid': 'Z818nYgdTdUkqCNhAAAC', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+Z818nYgdTdUkqCNhAAAC: Received packet MESSAGE data 0
+Z818nYgdTdUkqCNhAAAC: Sending packet MESSAGE data 0{"sid":"smJq5frV0raePTrSAAAD"}
+Z818nYgdTdUkqCNhAAAC: Received request to upgrade to websocket
+Z818nYgdTdUkqCNhAAAC: Upgrade to websocket successful
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 133-583-391
+6PdO83jJudXmME1KAAAA: Sending packet OPEN data {'sid': '6PdO83jJudXmME1KAAAA', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+6PdO83jJudXmME1KAAAA: Received packet MESSAGE data 0
+6PdO83jJudXmME1KAAAA: Sending packet MESSAGE data 0{"sid":"9yXmvu4ib00nBhyWAAAB"}
+6PdO83jJudXmME1KAAAA: Received request to upgrade to websocket
+6PdO83jJudXmME1KAAAA: Upgrade to websocket successful
+duSKIQ47svx188VWAAAC: Sending packet OPEN data {'sid': 'duSKIQ47svx188VWAAAC', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+duSKIQ47svx188VWAAAC: Received packet MESSAGE data 0
+duSKIQ47svx188VWAAAC: Sending packet MESSAGE data 0{"sid":"SrfE-N46TF8FofQ4AAAD"}
+duSKIQ47svx188VWAAAC: Received request to upgrade to websocket
+duSKIQ47svx188VWAAAC: Upgrade to websocket successful
+6PdO83jJudXmME1KAAAA: Received packet MESSAGE data 1
+BPI4ZkSELNpmcu3XAAAE: Sending packet OPEN data {'sid': 'BPI4ZkSELNpmcu3XAAAE', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+BPI4ZkSELNpmcu3XAAAE: Received packet MESSAGE data 0
+BPI4ZkSELNpmcu3XAAAE: Sending packet MESSAGE data 0{"sid":"h_E1TpaskoDuc4N7AAAF"}
+BPI4ZkSELNpmcu3XAAAE: Received request to upgrade to websocket
+BPI4ZkSELNpmcu3XAAAE: Received packet MESSAGE data 2["solo_join"]
+received event "solo_join" from h_E1TpaskoDuc4N7AAAF [/]
+BPI4ZkSELNpmcu3XAAAE: Upgrade to websocket successful
+BPI4ZkSELNpmcu3XAAAE: Received packet MESSAGE data 1
+zsBfiLATwEZ9DBg9AAAG: Sending packet OPEN data {'sid': 'zsBfiLATwEZ9DBg9AAAG', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+zsBfiLATwEZ9DBg9AAAG: Received packet MESSAGE data 0
+zsBfiLATwEZ9DBg9AAAG: Sending packet MESSAGE data 0{"sid":"kmuHkzEENYtt39OHAAAH"}
+zsBfiLATwEZ9DBg9AAAG: Received request to upgrade to websocket
+zsBfiLATwEZ9DBg9AAAG: Upgrade to websocket successful
+zsBfiLATwEZ9DBg9AAAG: Received packet MESSAGE data 1
+sdnktUltKgD1xBFAAAAI: Sending packet OPEN data {'sid': 'sdnktUltKgD1xBFAAAAI', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+sdnktUltKgD1xBFAAAAI: Received packet MESSAGE data 0
+sdnktUltKgD1xBFAAAAI: Sending packet MESSAGE data 0{"sid":"H8xPvGW3oV4ZavwJAAAJ"}
+sdnktUltKgD1xBFAAAAI: Received request to upgrade to websocket
+sdnktUltKgD1xBFAAAAI: Received packet MESSAGE data 20["together_join",{"id":1}]
+received event "together_join" from H8xPvGW3oV4ZavwJAAAJ [/]
+emitting event "together_join" to together/1 [/]
+H8xPvGW3oV4ZavwJAAAJ is entering room together/1 [/]
+sdnktUltKgD1xBFAAAAI: Sending packet MESSAGE data 30[{"users":["admin_acc"],"cube_size":3,"cube_state":"WWWWWWWWWGGGGGGGGGRRRRRRRRRBBBBBBBBBOOOOOOOOOYYYYYYYYY","solveTime":null}]
+sdnktUltKgD1xBFAAAAI: Upgrade to websocket successful
+ZyIibMcKW0ghTyVqAAAK: Sending packet OPEN data {'sid': 'ZyIibMcKW0ghTyVqAAAK', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+ZyIibMcKW0ghTyVqAAAK: Received packet MESSAGE data 0
+ZyIibMcKW0ghTyVqAAAK: Sending packet MESSAGE data 0{"sid":"oenYfZZl-NHlaovjAAAL"}
+ZyIibMcKW0ghTyVqAAAK: Received request to upgrade to websocket
+ZyIibMcKW0ghTyVqAAAK: Received packet MESSAGE data 20["together_join",{"id":1}]
+received event "together_join" from oenYfZZl-NHlaovjAAAL [/]
+emitting event "together_join" to together/1 [/]
+sdnktUltKgD1xBFAAAAI: Sending packet MESSAGE data 2["together_join",{"username":"Anonymous0002"}]
+oenYfZZl-NHlaovjAAAL is entering room together/1 [/]
+ZyIibMcKW0ghTyVqAAAK: Sending packet MESSAGE data 30[{"users":["admin_acc","Anonymous0002"],"cube_size":3,"cube_state":"WWWWWWWWWGGGGGGGGGRRRRRRRRRBBBBBBBBBOOOOOOOOOYYYYYYYYY","solveTime":null}]
+ZyIibMcKW0ghTyVqAAAK: Upgrade to websocket successful
+ZyIibMcKW0ghTyVqAAAK: Received packet MESSAGE data 2["camera",{"position":{"x":0,"y":3.2999999999999994,"z":5.5}}]
+received event "camera" from oenYfZZl-NHlaovjAAAL [/]
+ZyIibMcKW0ghTyVqAAAK: Received packet MESSAGE data 2["camera",{"position":{"x":-0.032478682651983004,"y":3.2999999999999994,"z":5.499904102361531}}]
+received event "camera" from oenYfZZl-NHlaovjAAAL [/]
+ZyIibMcKW0ghTyVqAAAK: Received packet MESSAGE data 2["camera",{"position":{"x":-0.0649562327116144,"y":3.2999999999999994,"z":5.499616412790251}}]
+received event "camera" from oenYfZZl-NHlaovjAAAL [/]
+ZyIibMcKW0ghTyVqAAAK: Received packet MESSAGE data 2["camera",{"position":{"x":-0.16179263059719745,"y":3.3324211440689004,"z":5.478028154659937}}]
+received event "camera" from oenYfZZl-NHlaovjAAAL [/]
+emitting event "together_camera" to together/1 [/]
+sdnktUltKgD1xBFAAAAI: Sending packet MESSAGE data 2["together_camera",{"position":{"x":0,"y":3.2999999999999994,"z":5.5},"username":"Anonymous0002"}]
+ZyIibMcKW0ghTyVqAAAK: Sending packet MESSAGE data 2["together_camera",{"position":{"x":0,"y":3.2999999999999994,"z":5.5},"username":"Anonymous0002"}]
+emitting event "together_camera" to together/1 [/]
+sdnktUltKgD1xBFAAAAI: Sending packet MESSAGE data 2["together_camera",{"position":{"x":-0.032478682651983004,"y":3.2999999999999994,"z":5.499904102361531},"username":"Anonymous0002"}]
+ZyIibMcKW0ghTyVqAAAK: Sending packet MESSAGE data 2["together_camera",{"position":{"x":-0.032478682651983004,"y":3.2999999999999994,"z":5.499904102361531},"username":"Anonymous0002"}]
+emitting event "together_camera" to together/1 [/]
+sdnktUltKgD1xBFAAAAI: Sending packet MESSAGE data 2["together_camera",{"position":{"x":-0.0649562327116144,"y":3.2999999999999994,"z":5.499616412790251},"username":"Anonymous0002"}]
+ZyIibMcKW0ghTyVqAAAK: Sending packet MESSAGE data 2["together_camera",{"position":{"x":-0.0649562327116144,"y":3.2999999999999994,"z":5.499616412790251},"username":"Anonymous0002"}]
+emitting event "together_camera" to together/1 [/]
+sdnktUltKgD1xBFAAAAI: Sending packet MESSAGE data 2["together_camera",{"position":{"x":-0.16179263059719745,"y":3.3324211440689004,"z":5.478028154659937},"username":"Anonymous0002"}]
+ZyIibMcKW0ghTyVqAAAK: Sending packet MESSAGE data 2["together_camera",{"position":{"x":-0.16179263059719745,"y":3.3324211440689004,"z":5.478028154659937},"username":"Anonymous0002"}]
+ZyIibMcKW0ghTyVqAAAK: Received packet MESSAGE data 2["camera",{"position":{"x":-0.22647808696649524,"y":3.3324211440689004,"z":5.475735292605599}}]
+received event "camera" from oenYfZZl-NHlaovjAAAL [/]
+emitting event "together_camera" to together/1 [/]
+sdnktUltKgD1xBFAAAAI: Sending packet MESSAGE data 2["together_camera",{"position":{"x":-0.22647808696649524,"y":3.3324211440689004,"z":5.475735292605599},"username":"Anonymous0002"}]
+ZyIibMcKW0ghTyVqAAAK: Sending packet MESSAGE data 2["together_camera",{"position":{"x":-0.22647808696649524,"y":3.3324211440689004,"z":5.475735292605599},"username":"Anonymous0002"}]
+ZyIibMcKW0ghTyVqAAAK: Received packet MESSAGE data 2["camera",{"position":{"x":-0.3222771823315369,"y":3.3647260803857635,"z":5.451124271351764}}]
+received event "camera" from oenYfZZl-NHlaovjAAAL [/]
+emitting event "together_camera" to together/1 [/]
+sdnktUltKgD1xBFAAAAI: Sending packet MESSAGE data 2["together_camera",{"position":{"x":-0.3222771823315369,"y":3.3647260803857635,"z":5.451124271351764},"username":"Anonymous0002"}]
+ZyIibMcKW0ghTyVqAAAK: Sending packet MESSAGE data 2["together_camera",{"position":{"x":-0.3222771823315369,"y":3.3647260803857635,"z":5.451124271351764},"username":"Anonymous0002"}]
+ZyIibMcKW0ghTyVqAAAK: Received packet MESSAGE data 2["camera",{"position":{"x":-0.4830645671286903,"y":3.364726080385763,"z":5.439234047911215}}]
+received event "camera" from oenYfZZl-NHlaovjAAAL [/]
+emitting event "together_camera" to together/1 [/]
+sdnktUltKgD1xBFAAAAI: Sending packet MESSAGE data 2["together_camera",{"position":{"x":-0.4830645671286903,"y":3.364726080385763,"z":5.439234047911215},"username":"Anonymous0002"}]
+ZyIibMcKW0ghTyVqAAAK: Sending packet MESSAGE data 2["together_camera",{"position":{"x":-0.4830645671286903,"y":3.364726080385763,"z":5.439234047911215},"username":"Anonymous0002"}]
+ZyIibMcKW0ghTyVqAAAK: Received packet MESSAGE data 2["camera",{"position":{"x":-0.6113979960880939,"y":3.364726080385763,"z":5.426307298186431}}]
+received event "camera" from oenYfZZl-NHlaovjAAAL [/]
+emitting event "together_camera" to together/1 [/]
+sdnktUltKgD1xBFAAAAI: Sending packet MESSAGE data 2["together_camera",{"position":{"x":-0.6113979960880939,"y":3.364726080385763,"z":5.426307298186431},"username":"Anonymous0002"}]
+ZyIibMcKW0ghTyVqAAAK: Sending packet MESSAGE data 2["together_camera",{"position":{"x":-0.6113979960880939,"y":3.364726080385763,"z":5.426307298186431},"username":"Anonymous0002"}]
+ZyIibMcKW0ghTyVqAAAK: Received packet MESSAGE data 2["camera",{"position":{"x":-0.7713267167780662,"y":3.364726080385763,"z":5.405892479503845}}]
+received event "camera" from oenYfZZl-NHlaovjAAAL [/]
+emitting event "together_camera" to together/1 [/]
+sdnktUltKgD1xBFAAAAI: Sending packet MESSAGE data 2["together_camera",{"position":{"x":-0.7713267167780662,"y":3.364726080385763,"z":5.405892479503845},"username":"Anonymous0002"}]
+ZyIibMcKW0ghTyVqAAAK: Sending packet MESSAGE data 2["together_camera",{"position":{"x":-0.7713267167780662,"y":3.364726080385763,"z":5.405892479503845},"username":"Anonymous0002"}]
+ZyIibMcKW0ghTyVqAAAK: Received packet MESSAGE data 2["camera",{"position":{"x":-0.8987922434588026,"y":3.364726080385763,"z":5.3861666245178625}}]
+received event "camera" from oenYfZZl-NHlaovjAAAL [/]
+emitting event "together_camera" to together/1 [/]
+sdnktUltKgD1xBFAAAAI: Sending packet MESSAGE data 2["together_camera",{"position":{"x":-0.8987922434588026,"y":3.364726080385763,"z":5.3861666245178625},"username":"Anonymous0002"}]
+ZyIibMcKW0ghTyVqAAAK: Sending packet MESSAGE data 2["together_camera",{"position":{"x":-0.8987922434588026,"y":3.364726080385763,"z":5.3861666245178625},"username":"Anonymous0002"}]
+ZyIibMcKW0ghTyVqAAAK: Received packet MESSAGE data 2["camera",{"position":{"x":-1.0574106669727226,"y":3.364726080385763,"z":5.3572848613214665}}]
+received event "camera" from oenYfZZl-NHlaovjAAAL [/]
+emitting event "together_camera" to together/1 [/]
+sdnktUltKgD1xBFAAAAI: Sending packet MESSAGE data 2["together_camera",{"position":{"x":-1.0574106669727226,"y":3.364726080385763,"z":5.3572848613214665},"username":"Anonymous0002"}]
+ZyIibMcKW0ghTyVqAAAK: Sending packet MESSAGE data 2["together_camera",{"position":{"x":-1.0574106669727226,"y":3.364726080385763,"z":5.3572848613214665},"username":"Anonymous0002"}]
+ZyIibMcKW0ghTyVqAAAK: Received packet MESSAGE data 2["camera",{"position":{"x":-1.3717446956176913,"y":3.364726080385763,"z":5.285540170504485}}]
+received event "camera" from oenYfZZl-NHlaovjAAAL [/]
+emitting event "together_camera" to together/1 [/]
+sdnktUltKgD1xBFAAAAI: Sending packet MESSAGE data 2["together_camera",{"position":{"x":-1.3717446956176913,"y":3.364726080385763,"z":5.285540170504485},"username":"Anonymous0002"}]
+ZyIibMcKW0ghTyVqAAAK: Sending packet MESSAGE data 2["together_camera",{"position":{"x":-1.3717446956176913,"y":3.364726080385763,"z":5.285540170504485},"username":"Anonymous0002"}]
+ZyIibMcKW0ghTyVqAAAK: Received packet MESSAGE data 2["camera",{"position":{"x":-1.5581191623339528,"y":3.364726080385763,"z":5.233630009843989}}]
+received event "camera" from oenYfZZl-NHlaovjAAAL [/]
+emitting event "together_camera" to together/1 [/]
+sdnktUltKgD1xBFAAAAI: Sending packet MESSAGE data 2["together_camera",{"position":{"x":-1.5581191623339528,"y":3.364726080385763,"z":5.233630009843989},"username":"Anonymous0002"}]
+ZyIibMcKW0ghTyVqAAAK: Sending packet MESSAGE data 2["together_camera",{"position":{"x":-1.5581191623339528,"y":3.364726080385763,"z":5.233630009843989},"username":"Anonymous0002"}]
+ZyIibMcKW0ghTyVqAAAK: Received packet MESSAGE data 2["camera",{"position":{"x":-1.7488479076508818,"y":3.3324211440688996,"z":5.193890672171262}}]
+received event "camera" from oenYfZZl-NHlaovjAAAL [/]
+emitting event "together_camera" to together/1 [/]
+sdnktUltKgD1xBFAAAAI: Sending packet MESSAGE data 2["together_camera",{"position":{"x":-1.7488479076508818,"y":3.3324211440688996,"z":5.193890672171262},"username":"Anonymous0002"}]
+ZyIibMcKW0ghTyVqAAAK: Sending packet MESSAGE data 2["together_camera",{"position":{"x":-1.7488479076508818,"y":3.3324211440688996,"z":5.193890672171262},"username":"Anonymous0002"}]
+ZyIibMcKW0ghTyVqAAAK: Received packet MESSAGE data 2["camera",{"position":{"x":-1.8710335138181846,"y":3.332421144068899,"z":5.151136079422839}}]
+received event "camera" from oenYfZZl-NHlaovjAAAL [/]
+emitting event "together_camera" to together/1 [/]
+sdnktUltKgD1xBFAAAAI: Sending packet MESSAGE data 2["together_camera",{"position":{"x":-1.8710335138181846,"y":3.332421144068899,"z":5.151136079422839},"username":"Anonymous0002"}]
+ZyIibMcKW0ghTyVqAAAK: Sending packet MESSAGE data 2["together_camera",{"position":{"x":-1.8710335138181846,"y":3.332421144068899,"z":5.151136079422839},"username":"Anonymous0002"}]
+ZyIibMcKW0ghTyVqAAAK: Received packet MESSAGE data 2["camera",{"position":{"x":-1.9992938381010643,"y":3.2999999999999976,"z":5.123750984282035}}]
+received event "camera" from oenYfZZl-NHlaovjAAAL [/]
+emitting event "together_camera" to together/1 [/]
+sdnktUltKgD1xBFAAAAI: Sending packet MESSAGE data 2["together_camera",{"position":{"x":-1.9992938381010643,"y":3.2999999999999976,"z":5.123750984282035},"username":"Anonymous0002"}]
+ZyIibMcKW0ghTyVqAAAK: Sending packet MESSAGE data 2["together_camera",{"position":{"x":-1.9992938381010643,"y":3.2999999999999976,"z":5.123750984282035},"username":"Anonymous0002"}]
+ZyIibMcKW0ghTyVqAAAK: Received packet MESSAGE data 2["camera",{"position":{"x":-2.0669288024655583,"y":3.2674637787649328,"z":5.117761793987435}}]
+received event "camera" from oenYfZZl-NHlaovjAAAL [/]
+emitting event "together_camera" to together/1 [/]
+sdnktUltKgD1xBFAAAAI: Sending packet MESSAGE data 2["together_camera",{"position":{"x":-2.0669288024655583,"y":3.2674637787649328,"z":5.117761793987435},"username":"Anonymous0002"}]
+ZyIibMcKW0ghTyVqAAAK: Sending packet MESSAGE data 2["together_camera",{"position":{"x":-2.0669288024655583,"y":3.2674637787649328,"z":5.117761793987435},"username":"Anonymous0002"}]
+ZyIibMcKW0ghTyVqAAAK: Received packet MESSAGE data 2["camera",{"position":{"x":-2.097114247484526,"y":3.2674637787649337,"z":5.105466902003832}}]
+received event "camera" from oenYfZZl-NHlaovjAAAL [/]
+emitting event "together_camera" to together/1 [/]
+sdnktUltKgD1xBFAAAAI: Sending packet MESSAGE data 2["together_camera",{"position":{"x":-2.097114247484526,"y":3.2674637787649337,"z":5.105466902003832},"username":"Anonymous0002"}]
+ZyIibMcKW0ghTyVqAAAK: Sending packet MESSAGE data 2["together_camera",{"position":{"x":-2.097114247484526,"y":3.2674637787649337,"z":5.105466902003832},"username":"Anonymous0002"}]
+ZyIibMcKW0ghTyVqAAAK: Received packet MESSAGE data 2["camera",{"position":{"x":-2.104408921769731,"y":3.234813614962535,"z":5.12322593357242}}]
+received event "camera" from oenYfZZl-NHlaovjAAAL [/]
+emitting event "together_camera" to together/1 [/]
+sdnktUltKgD1xBFAAAAI: Sending packet MESSAGE data 2["together_camera",{"position":{"x":-2.104408921769731,"y":3.234813614962535,"z":5.12322593357242},"username":"Anonymous0002"}]
+ZyIibMcKW0ghTyVqAAAK: Sending packet MESSAGE data 2["together_camera",{"position":{"x":-2.104408921769731,"y":3.234813614962535,"z":5.12322593357242},"username":"Anonymous0002"}]
+ZyIibMcKW0ghTyVqAAAK: Received packet MESSAGE data 1
+oenYfZZl-NHlaovjAAAL is leaving room together/1 [/]
+emitting event "together_dc" to together/1 [/]
+sdnktUltKgD1xBFAAAAI: Sending packet MESSAGE data 2["together_dc",{"username":"Anonymous0002"}]
+lxBHr6AvmfXy501jAAAM: Sending packet OPEN data {'sid': 'lxBHr6AvmfXy501jAAAM', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+lxBHr6AvmfXy501jAAAM: Received packet MESSAGE data 0
+lxBHr6AvmfXy501jAAAM: Sending packet MESSAGE data 0{"sid":"5TEhrdNsQ9zveZ0wAAAN"}
+lxBHr6AvmfXy501jAAAM: Received request to upgrade to websocket
+lxBHr6AvmfXy501jAAAM: Upgrade to websocket successful
+sdnktUltKgD1xBFAAAAI: Received packet MESSAGE data 1
+H8xPvGW3oV4ZavwJAAAJ is leaving room together/1 [/]
+emitting event "together_dc" to together/1 [/]
+hZBA5LlXyOyeSlpgAAAO: Sending packet OPEN data {'sid': 'hZBA5LlXyOyeSlpgAAAO', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+hZBA5LlXyOyeSlpgAAAO: Received packet MESSAGE data 0
+hZBA5LlXyOyeSlpgAAAO: Sending packet MESSAGE data 0{"sid":"ATdpahbIhbzzRyWgAAAP"}
+hZBA5LlXyOyeSlpgAAAO: Received request to upgrade to websocket
+hZBA5LlXyOyeSlpgAAAO: Upgrade to websocket successful
+emitting event "lobby_add" to all [/]
+lxBHr6AvmfXy501jAAAM: Sending packet MESSAGE data 2["lobby_add",{"creator":"Anonymous0002","lobby_id":1}]
+hZBA5LlXyOyeSlpgAAAO: Sending packet MESSAGE data 2["lobby_add",{"creator":"Anonymous0002","lobby_id":1}]
+lxBHr6AvmfXy501jAAAM: Received packet MESSAGE data 1
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet OPEN data {'sid': 'PJDtFfJ0IP0E8rsLAAAQ', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+PJDtFfJ0IP0E8rsLAAAQ: Received packet MESSAGE data 0
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 0{"sid":"2PPYBeEx7ZAComM8AAAR"}
+PJDtFfJ0IP0E8rsLAAAQ: Received request to upgrade to websocket
+PJDtFfJ0IP0E8rsLAAAQ: Received packet MESSAGE data 21["lobby_connect",{"lobby_id":"1"}]
+received event "lobby_connect" from 2PPYBeEx7ZAComM8AAAR [/]
+2PPYBeEx7ZAComM8AAAR is entering room 1 [/]
+emitting event "lobby_connection" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 31[{"status":200,"userList":[],"isAdmin":true,"cubeSize":3,"points":[{"username":"Anonymous0002","points":0}],"raceTime":null}]
+PJDtFfJ0IP0E8rsLAAAQ: Upgrade to websocket successful
+yovzu219Erb30osXAAAS: Sending packet OPEN data {'sid': 'yovzu219Erb30osXAAAS', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 0
+yovzu219Erb30osXAAAS: Sending packet MESSAGE data 0{"sid":"lxCU6IyLKS67SqasAAAT"}
+yovzu219Erb30osXAAAS: Received request to upgrade to websocket
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 20["lobby_connect",{"lobby_id":"1"}]
+received event "lobby_connect" from lxCU6IyLKS67SqasAAAT [/]
+lxCU6IyLKS67SqasAAAT is entering room 1 [/]
+emitting event "lobby_connection" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_connection",{"username":"admin_acc","points":0,"isAdmin":false}]
+yovzu219Erb30osXAAAS: Sending packet MESSAGE data 30[{"status":200,"userList":[["Anonymous0002",false,true,"WWWWWWWWWGGGGGGGGGRRRRRRRRRBBBBBBBBBOOOOOOOOOYYYYYYYYY"]],"isAdmin":false,"cubeSize":3,"points":[{"username":"admin_acc","points":0},{"username":"Anonymous0002","points":0}],"raceTime":null}]
+yovzu219Erb30osXAAAS: Upgrade to websocket successful
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":0.09673430961087358,"y":3.3647260803857644,"z":5.459785790424013}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":0.09673430961087358,"y":3.3647260803857644,"z":5.459785790424013}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":0.22483587951653053,"y":3.396913682417099,"z":5.436030377167656}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":0.22483587951653053,"y":3.396913682417099,"z":5.436030377167656}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":0.2879502909113604,"y":3.4289828277210774,"z":5.412869977854449}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":0.2879502909113604,"y":3.4289828277210774,"z":5.412869977854449}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":0.47589958898686113,"y":3.492761279072696,"z":5.35855747646814}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":0.47589958898686113,"y":3.492761279072696,"z":5.35855747646814}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":0.6942511123761811,"y":3.5244683610465644,"z":5.313768734612579}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":0.6942511123761811,"y":3.5244683610465644,"z":5.313768734612579}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":1.3794216953832437,"y":3.68113823606463,"z":5.068176898381606}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":1.3794216953832437,"y":3.68113823606463,"z":5.068176898381606}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":1.5810872179809892,"y":3.7120914553248414,"z":4.9860345201814855}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":1.5810872179809892,"y":3.7120914553248414,"z":4.9860345201814855}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":1.9055806532807813,"y":3.804170132735676,"z":4.799692904243332}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":1.9055806532807813,"y":3.804170132735676,"z":4.799692904243332}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":2.1019857793551564,"y":3.8950549112158908,"z":4.642219622336026}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.1019857793551564,"y":3.8950549112158908,"z":4.642219622336026}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":2.2606354715293304,"y":3.9847172675301814,"z":4.4890484028032205}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.2606354715293304,"y":3.9847172675301814,"z":4.4890484028032205}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":2.3954261044581475,"y":4.043799136164745,"z":4.364587302876837}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.3954261044581475,"y":4.043799136164745,"z":4.364587302876837}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":2.4858202000476655,"y":4.073129062087629,"z":4.286060846116409}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.4858202000476655,"y":4.073129062087629,"z":4.286060846116409}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":2.561356928078612,"y":4.073129062087629,"z":4.241352417632944}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.561356928078612,"y":4.073129062087629,"z":4.241352417632944}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":2.5863583664616736,"y":4.073129062087629,"z":4.226153102268164}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.5863583664616736,"y":4.073129062087629,"z":4.226153102268164}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":2.611269613695798,"y":4.073129062087629,"z":4.210806413047995}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.611269613695798,"y":4.073129062087629,"z":4.210806413047995}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":2.623900404498222,"y":4.043799136164745,"z":4.231174212157579}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.623900404498222,"y":4.043799136164745,"z":4.231174212157579}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":2.6364396949906923,"y":4.014328195410006,"z":4.251394462316289}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.6364396949906923,"y":4.014328195410006,"z":4.251394462316289}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":2.598255329998586,"y":3.9847172675301827,"z":4.302452502698977}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.598255329998586,"y":3.9847172675301827,"z":4.302452502698977}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":2.610374154004441,"y":3.954967385113659,"z":4.322520070374779}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.610374154004441,"y":3.954967385113659,"z":4.322520070374779}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":2.5967132016976886,"y":3.925079585594424,"z":4.3578470366545465}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.5967132016976886,"y":3.925079585594424,"z":4.3578470366545465}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":2.5566492822368474,"y":3.895054911215892,"z":4.408184624791791}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.5566492822368474,"y":3.895054911215892,"z":4.408184624791791}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":2.564440914775977,"y":3.804170132735677,"z":4.482402524966354}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.564440914775977,"y":3.804170132735677,"z":4.482402524966354}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":2.5437017255076952,"y":3.7120914553248427,"z":4.570553419330468}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.5437017255076952,"y":3.7120914553248427,"z":4.570553419330468}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":2.4929054200218514,"y":3.618847776911362,"z":4.672190421458584}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.4929054200218514,"y":3.618847776911362,"z":4.672190421458584}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":2.4856651066834106,"y":3.4609323979866806,"z":4.794102201036466}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.4856651066834106,"y":3.4609323979866806,"z":4.794102201036466}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":2.4183494096452005,"y":3.3969136824170993,"z":4.873660181739818}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.4183494096452005,"y":3.3969136824170993,"z":4.873660181739818}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":2.4069804047662373,"y":3.3324211440689013,"z":4.923557113473334}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.4069804047662373,"y":3.3324211440689013,"z":4.923557113473334}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":2.4031042047704685,"y":3.2348136149625364,"z":4.990097299398829}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.4031042047704685,"y":3.2348136149625364,"z":4.990097299398829}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":2.3898016550589314,"y":3.1691760178783026,"z":5.038369916667752}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.3898016550589314,"y":3.1691760178783026,"z":5.038369916667752}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":2.397780264461377,"y":3.1361908735021236,"z":5.05519105557065}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.397780264461377,"y":3.1361908735021236,"z":5.05519105557065}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":2.3898016550589314,"y":3.1691760178783026,"z":5.038369916667752}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.3898016550589314,"y":3.1691760178783026,"z":5.038369916667752}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":2.440877140344165,"y":3.2020506471650236,"z":4.992893994341892}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.440877140344165,"y":3.2020506471650236,"z":4.992893994341892}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":2.4911257925950854,"y":3.2348136149625364,"z":4.94674369276603}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.4911257925950854,"y":3.2348136149625364,"z":4.94674369276603}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":2.719496933586737,"y":3.4289828277210783,"z":4.6889671778981645}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.719496933586737,"y":3.4289828277210783,"z":4.6889671778981645}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":2.8468525913375977,"y":3.681138236064631,"z":4.414142228131913}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":2.900190841053195,"y":3.742915227019838,"z":4.326601286092144}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.8468525913375977,"y":3.681138236064631,"z":4.414142228131913}}]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.900190841053195,"y":3.742915227019838,"z":4.326601286092144}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":2.938512545276169,"y":3.7736084762671003,"z":4.273759830535598}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.938512545276169,"y":3.7736084762671003,"z":4.273759830535598}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":2.985568507259894,"y":3.8950549112158934,"z":4.129761243349412}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.985568507259894,"y":3.8950549112158934,"z":4.129761243349412}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":3.0065326745326773,"y":3.95496738511366,"z":4.056968604716409}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":3.0065326745326773,"y":3.95496738511366,"z":4.056968604716409}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":3.0400572146319558,"y":3.984717267530184,"z":4.002509266648982}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":3.0400572146319558,"y":3.984717267530184,"z":4.002509266648982}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":2.9925746600102685,"y":3.984717267530184,"z":4.03813387619965}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.9925746600102685,"y":3.984717267530184,"z":4.03813387619965}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":2.862348560714367,"y":3.8950549112158934,"z":4.216101037165659}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.862348560714367,"y":3.8950549112158934,"z":4.216101037165659}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":2.586572762154575,"y":3.7429152270198385,"z":4.5210869212417375}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.586572762154575,"y":3.7429152270198385,"z":4.5210869212417375}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":2.2786012918167597,"y":3.5875127092030095,"z":4.803928466811082}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.2786012918167597,"y":3.5875127092030095,"z":4.803928466811082}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":2.0145972501065574,"y":3.4927612790726976,"z":4.98818770369295}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.0145972501065574,"y":3.4927612790726976,"z":4.98818770369295}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":1.7119470270268002,"y":3.3647260803857657,"z":5.185350111672879}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":1.7119470270268002,"y":3.3647260803857657,"z":5.185350111672879}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":1.5637614634941022,"y":3.3324211440689018,"z":5.2525821653595575}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":1.5637614634941022,"y":3.3324211440689018,"z":5.2525821653595575}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":1.4757219273141646,"y":3.300000000000001,"z":5.298324715723278}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":1.4757219273141646,"y":3.300000000000001,"z":5.298324715723278}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":1.4278419684827313,"y":3.202050647165024,"z":5.371046356719462}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":1.4278419684827313,"y":3.202050647165024,"z":5.371046356719462}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":1.4008255449475369,"y":3.169176017878303,"z":5.397593089547179}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":1.4008255449475369,"y":3.169176017878303,"z":5.397593089547179}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":1.336981062844017,"y":3.169176017878303,"z":5.413760708167799}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":1.336981062844017,"y":3.169176017878303,"z":5.413760708167799}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 2["camera",{"position":{"x":1.3414447176650426,"y":3.136190873502124,"z":5.43183512953132}}]
+received event "camera" from lxCU6IyLKS67SqasAAAT [/]
+emitting event "lobby_camera" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":1.3414447176650426,"y":3.136190873502124,"z":5.43183512953132}}]
+yovzu219Erb30osXAAAS: Received packet MESSAGE data 1
+lxCU6IyLKS67SqasAAAT is leaving room 1 [/]
+emitting event "lobby_disconnection" to 1 [/]
+PJDtFfJ0IP0E8rsLAAAQ: Sending packet MESSAGE data 2["lobby_disconnection",{"username":"admin_acc"}]
+hU2gNoAOnEjPcemGAAAU: Sending packet OPEN data {'sid': 'hU2gNoAOnEjPcemGAAAU', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+hU2gNoAOnEjPcemGAAAU: Received packet MESSAGE data 0
+hU2gNoAOnEjPcemGAAAU: Sending packet MESSAGE data 0{"sid":"ybOAZGpS74wVcIUyAAAV"}
+hU2gNoAOnEjPcemGAAAU: Received request to upgrade to websocket
+hU2gNoAOnEjPcemGAAAU: Upgrade to websocket successful
+PJDtFfJ0IP0E8rsLAAAQ: Received packet MESSAGE data 1
+2PPYBeEx7ZAComM8AAAR is leaving room 1 [/]
+emitting event "lobby_disconnection" to 1 [/]
+pFrN0pmYQ7xjCGU6AAAW: Sending packet OPEN data {'sid': 'pFrN0pmYQ7xjCGU6AAAW', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+pFrN0pmYQ7xjCGU6AAAW: Received packet MESSAGE data 0
+pFrN0pmYQ7xjCGU6AAAW: Sending packet MESSAGE data 0{"sid":"9DbfF3WEr1wC7rTNAAAX"}
+pFrN0pmYQ7xjCGU6AAAW: Received request to upgrade to websocket
+pFrN0pmYQ7xjCGU6AAAW: Upgrade to websocket successful
+emitting event "lobby_delete" to all [/]
+hU2gNoAOnEjPcemGAAAU: Sending packet MESSAGE data 2["lobby_delete",{"lobby_id":1}]
+pFrN0pmYQ7xjCGU6AAAW: Sending packet MESSAGE data 2["lobby_delete",{"lobby_id":1}]
+emitting event "lobby_add" to all [/]
+hU2gNoAOnEjPcemGAAAU: Sending packet MESSAGE data 2["lobby_add",{"creator":"Anonymous0002","lobby_id":2}]
+pFrN0pmYQ7xjCGU6AAAW: Sending packet MESSAGE data 2["lobby_add",{"creator":"Anonymous0002","lobby_id":2}]
+pFrN0pmYQ7xjCGU6AAAW: Received packet MESSAGE data 1
+8fjhG77uPE8QbHZ3AAAY: Sending packet OPEN data {'sid': '8fjhG77uPE8QbHZ3AAAY', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 0
+8fjhG77uPE8QbHZ3AAAY: Sending packet MESSAGE data 0{"sid":"2R89nSyP3wRs-P82AAAZ"}
+8fjhG77uPE8QbHZ3AAAY: Received request to upgrade to websocket
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 22["lobby_connect",{"lobby_id":"2"}]
+received event "lobby_connect" from 2R89nSyP3wRs-P82AAAZ [/]
+2R89nSyP3wRs-P82AAAZ is entering room 2 [/]
+emitting event "lobby_connection" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Sending packet MESSAGE data 32[{"status":200,"userList":[],"isAdmin":true,"cubeSize":3,"points":[{"username":"Anonymous0002","points":0}],"raceTime":null}]
+8fjhG77uPE8QbHZ3AAAY: Upgrade to websocket successful
+emitting event "lobby_delete" to all [/]
+hU2gNoAOnEjPcemGAAAU: Sending packet MESSAGE data 2["lobby_delete",{"lobby_id":1}]
+8fjhG77uPE8QbHZ3AAAY: Sending packet MESSAGE data 2["lobby_delete",{"lobby_id":1}]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":0.032478682651983004,"y":3.2999999999999994,"z":5.499904102361531}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":0.0649562327116144,"y":3.2999999999999994,"z":5.499616412790251}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":0.09743151762603817,"y":3.2999999999999994,"z":5.4991369413184366}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":0.2272873583684726,"y":3.2999999999999994,"z":5.495301671130155}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":0.38803379302510893,"y":3.3324211440689004,"z":5.466662518761614}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":0.6136120062267496,"y":3.3324211440689004,"z":5.445957181651074}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":0.8351177238416159,"y":3.3647260803857644,"z":5.396405914244911}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":0.994066184906957,"y":3.3647260803857644,"z":5.3693994844858}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":1.1479357169711661,"y":3.396913682417099,"z":5.318197159179922}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":1.2685084094410302,"y":3.4289828277210774,"z":5.270005994528977}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":1.4128017891823812,"y":3.492761279072696,"z":5.190819757214994}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":1.4987399376431623,"y":3.5244683610465644,"z":5.145085166573543}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":1.6135232793771292,"y":3.556052538223093,"z":5.088323198491342}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":1.778529902215399,"y":3.6188477769113616,"z":4.988062966169269}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":1.8881622739051431,"y":3.6500566486357924,"z":4.9246248272483655}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":2.0243811417789024,"y":3.681138236064629,"z":4.846762040764218}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":2.1011541916264513,"y":3.7120914553248414,"z":4.7901490676507015}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":2.1575803846606374,"y":3.7120914553248414,"z":4.764999885732627}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":2.213705624880439,"y":3.712091455324841,"z":4.739186051810691}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":2.2416529395465794,"y":3.712091455324841,"z":4.726031011951411}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":2.269522083586112,"y":3.712091455324841,"z":4.712711166559993}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":2.29731208514991,"y":3.712091455324841,"z":4.699226980124334}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":2.380197558095981,"y":3.712091455324841,"z":4.657793105295492}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":2.527170154526177,"y":3.681138236064629,"z":4.604631613609835}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":2.656848860346534,"y":3.6188477769113607,"z":4.580949126635114}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":2.82877770566007,"y":3.587512709203007,"z":4.501973928541506}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+emitting event "lobby_camera" to 2 [/]
+emitting event "lobby_camera" to 2 [/]
+emitting event "lobby_camera" to 2 [/]
+emitting event "lobby_camera" to 2 [/]
+emitting event "lobby_camera" to 2 [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":2.983836461765668,"y":3.524468361046563,"z":4.451386608846673}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":3.151788880693508,"y":3.4927612790726945,"z":4.359684105408007}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":3.2786034618997393,"y":3.428982827721076,"z":4.316576896895617}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":3.4172670950759367,"y":3.396913682417098,"z":4.233587489956804}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":3.4422077562979863,"y":3.396913682417098,"z":4.213333976400336}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":3.4797506893511856,"y":3.3647260803857635,"z":4.208319562952864}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":3.4923516519901088,"y":3.3324211440688996,"z":4.223558837923826}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":3.5048308298013477,"y":3.2999999999999985,"z":4.238650829506245}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":3.5041547898770373,"y":3.234813614962536,"z":4.289158435524945}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":3.5257828820995885,"y":3.1030963642901033,"z":4.368025643494213}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":3.5446473765712994,"y":2.9696478167914115,"z":4.444847221220566}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":3.5503420370031273,"y":2.868469996426123,"z":4.506323479277934}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":3.591279417090946,"y":2.732171392937471,"z":4.558283846799475}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":3.583869711547109,"y":2.6634456740795054,"z":4.604555899528466}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":3.5386906012102184,"y":2.628942895690692,"z":4.659005052594803}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":3.511116474183102,"y":2.628942895690692,"z":4.679820547405366}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":3.5017384462465406,"y":2.6634456740795054,"z":4.667320965533229}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":3.49223830614724,"y":2.697855573140924,"z":4.654658625457974}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":3.4646906556461317,"y":2.697855573140924,"z":4.675199885261681}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":3.455144634794491,"y":2.7321713929374716,"z":4.662318632640305}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":3.4454781265933776,"y":2.7663919368123904,"z":4.649274796256506}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":3.40825458031159,"y":2.800516011431375,"z":4.656276493669761}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+emitting event "lobby_camera" to 2 [/]
+emitting event "lobby_camera" to 2 [/]
+emitting event "lobby_camera" to 2 [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":3.3884813588784803,"y":2.8684699964261213,"z":4.629262787975659}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":3.3307872784734482,"y":2.9696478167914098,"z":4.607282056677826}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":3.3100071330091145,"y":3.0365838714015547,"z":4.578538104173942}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Received packet MESSAGE data 2["camera",{"position":{"x":3.272435243362384,"y":3.0698936443096168,"z":4.583330731097984}}]
+received event "camera" from 2R89nSyP3wRs-P82AAAZ [/]
+emitting event "lobby_camera" to 2 [/]
+hU2gNoAOnEjPcemGAAAU: Sending packet PING data None
+hU2gNoAOnEjPcemGAAAU: Received packet PONG data 
+8fjhG77uPE8QbHZ3AAAY: Sending packet PING data None
+8fjhG77uPE8QbHZ3AAAY: Received packet PONG data 
+hU2gNoAOnEjPcemGAAAU: Sending packet PING data None
+hU2gNoAOnEjPcemGAAAU: Received packet PONG data 
+8fjhG77uPE8QbHZ3AAAY: Sending packet PING data None
+8fjhG77uPE8QbHZ3AAAY: Received packet PONG data 
+hU2gNoAOnEjPcemGAAAU: Sending packet PING data None
+hU2gNoAOnEjPcemGAAAU: Received packet PONG data 
+hU2gNoAOnEjPcemGAAAU: Received packet MESSAGE data 1
+e8cOGIeJ08QLZeRHAAAa: Sending packet OPEN data {'sid': 'e8cOGIeJ08QLZeRHAAAa', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+e8cOGIeJ08QLZeRHAAAa: Received packet MESSAGE data 0
+e8cOGIeJ08QLZeRHAAAa: Sending packet MESSAGE data 0{"sid":"FtfpiC3wxCGAwnD8AAAb"}
+e8cOGIeJ08QLZeRHAAAa: Received request to upgrade to websocket
+e8cOGIeJ08QLZeRHAAAa: Upgrade to websocket successful
+8fjhG77uPE8QbHZ3AAAY: Sending packet PING data None
+8fjhG77uPE8QbHZ3AAAY: Received packet PONG data 
+ULjig554o7Uvcgz7AAAc: Sending packet OPEN data {'sid': 'ULjig554o7Uvcgz7AAAc', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+ULjig554o7Uvcgz7AAAc: Received packet MESSAGE data 0
+ULjig554o7Uvcgz7AAAc: Sending packet MESSAGE data 0{"sid":"SzwEJwvfN2lNhZeSAAAd"}
+ULjig554o7Uvcgz7AAAc: Received request to upgrade to websocket
+ULjig554o7Uvcgz7AAAc: Received packet MESSAGE data 20["lobby_connect",{"lobby_id":"2"}]
+received event "lobby_connect" from SzwEJwvfN2lNhZeSAAAd [/]
+SzwEJwvfN2lNhZeSAAAd is entering room 2 [/]
+emitting event "lobby_connection" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Sending packet MESSAGE data 2["lobby_connection",{"username":"Anonymous0003","points":0,"isAdmin":false}]
+ULjig554o7Uvcgz7AAAc: Sending packet MESSAGE data 30[{"status":200,"userList":[["Anonymous0002",false,true,"WWWWWWWWWGGGGGGGGGRRRRRRRRRBBBBBBBBBOOOOOOOOOYYYYYYYYY"]],"isAdmin":false,"cubeSize":3,"points":[{"username":"Anonymous0002","points":0},{"username":"Anonymous0003","points":0}],"raceTime":null}]
+ULjig554o7Uvcgz7AAAc: Upgrade to websocket successful
+ULjig554o7Uvcgz7AAAc: Received packet MESSAGE data 1
+SzwEJwvfN2lNhZeSAAAd is leaving room 2 [/]
+emitting event "lobby_disconnection" to 2 [/]
+8fjhG77uPE8QbHZ3AAAY: Sending packet MESSAGE data 2["lobby_disconnection",{"username":"Anonymous0003"}]
+8axtvDl8UjPenToFAAAe: Sending packet OPEN data {'sid': '8axtvDl8UjPenToFAAAe', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+8axtvDl8UjPenToFAAAe: Received packet MESSAGE data 0
+8axtvDl8UjPenToFAAAe: Sending packet MESSAGE data 0{"sid":"UtjoB4KHBb-W-GtuAAAf"}
+8axtvDl8UjPenToFAAAe: Received request to upgrade to websocket
+8axtvDl8UjPenToFAAAe: Upgrade to websocket successful
+emitting event "lobby_add" to all [/]
+8fjhG77uPE8QbHZ3AAAY: Sending packet MESSAGE data 2["lobby_add",{"creator":"Anonymous0003","lobby_id":3}]
+e8cOGIeJ08QLZeRHAAAa: Sending packet MESSAGE data 2["lobby_add",{"creator":"Anonymous0003","lobby_id":3}]
+8axtvDl8UjPenToFAAAe: Sending packet MESSAGE data 2["lobby_add",{"creator":"Anonymous0003","lobby_id":3}]
+8axtvDl8UjPenToFAAAe: Received packet MESSAGE data 1
+7g3i2M1PpTjG0E1fAAAg: Sending packet OPEN data {'sid': '7g3i2M1PpTjG0E1fAAAg', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+7g3i2M1PpTjG0E1fAAAg: Received packet MESSAGE data 0
+7g3i2M1PpTjG0E1fAAAg: Sending packet MESSAGE data 0{"sid":"8ZjUQackfB5NPnkAAAAh"}
+7g3i2M1PpTjG0E1fAAAg: Received request to upgrade to websocket
+7g3i2M1PpTjG0E1fAAAg: Received packet MESSAGE data 21["lobby_connect",{"lobby_id":"3"}]
+received event "lobby_connect" from 8ZjUQackfB5NPnkAAAAh [/]
+8ZjUQackfB5NPnkAAAAh is entering room 3 [/]
+emitting event "lobby_connection" to 3 [/]
+7g3i2M1PpTjG0E1fAAAg: Sending packet MESSAGE data 31[{"status":200,"userList":[],"isAdmin":true,"cubeSize":3,"points":[{"username":"Anonymous0003","points":0}],"raceTime":null}]
+7g3i2M1PpTjG0E1fAAAg: Upgrade to websocket successful
+e8cOGIeJ08QLZeRHAAAa: Sending packet PING data None
+e8cOGIeJ08QLZeRHAAAa: Received packet PONG data 
+8fjhG77uPE8QbHZ3AAAY: Sending packet PING data None
+8fjhG77uPE8QbHZ3AAAY: Received packet PONG data 
+7g3i2M1PpTjG0E1fAAAg: Sending packet PING data None
+7g3i2M1PpTjG0E1fAAAg: Received packet PONG data 
+e8cOGIeJ08QLZeRHAAAa: Sending packet PING data None
+e8cOGIeJ08QLZeRHAAAa: Received packet PONG data 
+e8cOGIeJ08QLZeRHAAAa: Received packet MESSAGE data 1
+p41M4k79437ehZKbAAAi: Sending packet OPEN data {'sid': 'p41M4k79437ehZKbAAAi', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+p41M4k79437ehZKbAAAi: Received packet MESSAGE data 0
+p41M4k79437ehZKbAAAi: Sending packet MESSAGE data 0{"sid":"xTMELWgAN2ws2Zv4AAAj"}
+p41M4k79437ehZKbAAAi: Received request to upgrade to websocket
+p41M4k79437ehZKbAAAi: Upgrade to websocket successful
+8fjhG77uPE8QbHZ3AAAY: Sending packet PING data None
+8fjhG77uPE8QbHZ3AAAY: Received packet PONG data 
+7g3i2M1PpTjG0E1fAAAg: Sending packet PING data None
+7g3i2M1PpTjG0E1fAAAg: Received packet PONG data 
+p41M4k79437ehZKbAAAi: Sending packet PING data None
+p41M4k79437ehZKbAAAi: Received packet PONG data 
+8fjhG77uPE8QbHZ3AAAY: Sending packet PING data None
+8fjhG77uPE8QbHZ3AAAY: Received packet PONG data 
+7g3i2M1PpTjG0E1fAAAg: Sending packet PING data None
+7g3i2M1PpTjG0E1fAAAg: Received packet PONG data 
+p41M4k79437ehZKbAAAi: Received packet MESSAGE data 1
+U_mk4QNPpdBnwaQXAAAk: Sending packet OPEN data {'sid': 'U_mk4QNPpdBnwaQXAAAk', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+U_mk4QNPpdBnwaQXAAAk: Received packet MESSAGE data 0
+U_mk4QNPpdBnwaQXAAAk: Sending packet MESSAGE data 0{"sid":"OizlYdVsJgaDy1j6AAAl"}
+U_mk4QNPpdBnwaQXAAAk: Received request to upgrade to websocket
+U_mk4QNPpdBnwaQXAAAk: Upgrade to websocket successful
+8fjhG77uPE8QbHZ3AAAY: Sending packet PING data None
+8fjhG77uPE8QbHZ3AAAY: Received packet PONG data 
+7g3i2M1PpTjG0E1fAAAg: Sending packet PING data None
+7g3i2M1PpTjG0E1fAAAg: Received packet PONG data 
+U_mk4QNPpdBnwaQXAAAk: Sending packet PING data None
+U_mk4QNPpdBnwaQXAAAk: Received packet PONG data 
+8fjhG77uPE8QbHZ3AAAY: Sending packet PING data None
+8fjhG77uPE8QbHZ3AAAY: Received packet PONG data 
+7g3i2M1PpTjG0E1fAAAg: Sending packet PING data None
+7g3i2M1PpTjG0E1fAAAg: Received packet PONG data 
+U_mk4QNPpdBnwaQXAAAk: Sending packet PING data None
+U_mk4QNPpdBnwaQXAAAk: Received packet PONG data 
+8fjhG77uPE8QbHZ3AAAY: Sending packet PING data None
+8fjhG77uPE8QbHZ3AAAY: Received packet PONG data 
+7g3i2M1PpTjG0E1fAAAg: Sending packet PING data None
+7g3i2M1PpTjG0E1fAAAg: Received packet PONG data 
+U_mk4QNPpdBnwaQXAAAk: Sending packet PING data None
+U_mk4QNPpdBnwaQXAAAk: Received packet PONG data 
+8fjhG77uPE8QbHZ3AAAY: Sending packet PING data None
+8fjhG77uPE8QbHZ3AAAY: Received packet PONG data 
+7g3i2M1PpTjG0E1fAAAg: Sending packet PING data None
+7g3i2M1PpTjG0E1fAAAg: Received packet PONG data 
+U_mk4QNPpdBnwaQXAAAk: Sending packet PING data None
+U_mk4QNPpdBnwaQXAAAk: Received packet PONG data 
+8fjhG77uPE8QbHZ3AAAY: Sending packet PING data None
+8fjhG77uPE8QbHZ3AAAY: Received packet PONG data 
+7g3i2M1PpTjG0E1fAAAg: Sending packet PING data None
+7g3i2M1PpTjG0E1fAAAg: Received packet PONG data 
+U_mk4QNPpdBnwaQXAAAk: Sending packet PING data None
+U_mk4QNPpdBnwaQXAAAk: Received packet PONG data 
+8fjhG77uPE8QbHZ3AAAY: Sending packet PING data None
+8fjhG77uPE8QbHZ3AAAY: Received packet PONG data 
+7g3i2M1PpTjG0E1fAAAg: Sending packet PING data None
+7g3i2M1PpTjG0E1fAAAg: Received packet PONG data 
+U_mk4QNPpdBnwaQXAAAk: Sending packet PING data None
+U_mk4QNPpdBnwaQXAAAk: Received packet PONG data 
+8fjhG77uPE8QbHZ3AAAY: Sending packet PING data None
+8fjhG77uPE8QbHZ3AAAY: Received packet PONG data 
+7g3i2M1PpTjG0E1fAAAg: Sending packet PING data None
+7g3i2M1PpTjG0E1fAAAg: Received packet PONG data 
+8ZjUQackfB5NPnkAAAAh is leaving room 3 [/]
+emitting event "lobby_disconnection" to 3 [/]
+2R89nSyP3wRs-P82AAAZ is leaving room 2 [/]
+emitting event "lobby_disconnection" to 2 [/]
+emitting event "lobby_delete" to all [/]
+emitting event "lobby_delete" to all [/]
+dqAizkPML04eE48bAAAm: Sending packet OPEN data {'sid': 'dqAizkPML04eE48bAAAm', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+GvFCXMZGYbX411esAAAn: Sending packet OPEN data {'sid': 'GvFCXMZGYbX411esAAAn', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+P0zhEHJtlHkNP7AwAAAo: Sending packet OPEN data {'sid': 'P0zhEHJtlHkNP7AwAAAo', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+dqAizkPML04eE48bAAAm: Received packet MESSAGE data 0
+dqAizkPML04eE48bAAAm: Sending packet MESSAGE data 0{"sid":"mK_UPETcYDOTiFKaAAAp"}
+dqAizkPML04eE48bAAAm: Received request to upgrade to websocket
+P0zhEHJtlHkNP7AwAAAo: Received packet MESSAGE data 0
+P0zhEHJtlHkNP7AwAAAo: Sending packet MESSAGE data 0{"sid":"yAjuG34nXKZPMjbMAAAq"}
+GvFCXMZGYbX411esAAAn: Received packet MESSAGE data 0
+GvFCXMZGYbX411esAAAn: Sending packet MESSAGE data 0{"sid":"40OlBJuI057r6epKAAAr"}
+P0zhEHJtlHkNP7AwAAAo: Received request to upgrade to websocket
+GvFCXMZGYbX411esAAAn: Received request to upgrade to websocket
+dqAizkPML04eE48bAAAm: Upgrade to websocket successful
+P0zhEHJtlHkNP7AwAAAo: Upgrade to websocket successful
+GvFCXMZGYbX411esAAAn: Upgrade to websocket successful
+dqAizkPML04eE48bAAAm: Sending packet PING data None
+GvFCXMZGYbX411esAAAn: Sending packet PING data None
+P0zhEHJtlHkNP7AwAAAo: Sending packet PING data None
+GvFCXMZGYbX411esAAAn: Received packet PONG data 
+dqAizkPML04eE48bAAAm: Received packet PONG data 
+P0zhEHJtlHkNP7AwAAAo: Received packet PONG data 
+GvFCXMZGYbX411esAAAn: Sending packet PING data None
+dqAizkPML04eE48bAAAm: Sending packet PING data None
+P0zhEHJtlHkNP7AwAAAo: Sending packet PING data None
+GvFCXMZGYbX411esAAAn: Received packet PONG data 
+P0zhEHJtlHkNP7AwAAAo: Received packet PONG data 
+dqAizkPML04eE48bAAAm: Received packet PONG data 
+GvFCXMZGYbX411esAAAn: Sending packet PING data None
+P0zhEHJtlHkNP7AwAAAo: Sending packet PING data None
+dqAizkPML04eE48bAAAm: Sending packet PING data None
+GvFCXMZGYbX411esAAAn: Received packet PONG data 
+dqAizkPML04eE48bAAAm: Received packet PONG data 
+P0zhEHJtlHkNP7AwAAAo: Received packet PONG data 
+GvFCXMZGYbX411esAAAn: Sending packet PING data None
+dqAizkPML04eE48bAAAm: Sending packet PING data None
+P0zhEHJtlHkNP7AwAAAo: Sending packet PING data None
+GvFCXMZGYbX411esAAAn: Received packet PONG data 
+P0zhEHJtlHkNP7AwAAAo: Received packet PONG data 
+dqAizkPML04eE48bAAAm: Received packet PONG data 
+dfNwKtLD6SN3Y-LvAAAs: Sending packet OPEN data {'sid': 'dfNwKtLD6SN3Y-LvAAAs', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+dfNwKtLD6SN3Y-LvAAAs: Received packet MESSAGE data 0
+dfNwKtLD6SN3Y-LvAAAs: Sending packet MESSAGE data 0{"sid":"jj-kuhZE7O3oBJqHAAAt"}
+dfNwKtLD6SN3Y-LvAAAs: Received request to upgrade to websocket
+dfNwKtLD6SN3Y-LvAAAs: Upgrade to websocket successful
+VWh84--O2uAZ5KmGAAAu: Sending packet OPEN data {'sid': 'VWh84--O2uAZ5KmGAAAu', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+VWh84--O2uAZ5KmGAAAu: Received request to upgrade to websocket
+VWh84--O2uAZ5KmGAAAu: Received packet MESSAGE data 0
+VWh84--O2uAZ5KmGAAAu: Sending packet MESSAGE data 0{"sid":"EQ54PNAW9qbJnmg2AAAv"}
+jkBI3VFje4h0Ii-nAAAw: Sending packet OPEN data {'sid': 'jkBI3VFje4h0Ii-nAAAw', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+A0k4Mjn8hujsMHYRAAAx: Sending packet OPEN data {'sid': 'A0k4Mjn8hujsMHYRAAAx', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+jkBI3VFje4h0Ii-nAAAw: Received packet MESSAGE data 0
+jkBI3VFje4h0Ii-nAAAw: Sending packet MESSAGE data 0{"sid":"ob0qI6Vs7yn6_Q_8AAAy"}
+jkBI3VFje4h0Ii-nAAAw: Received request to upgrade to websocket
+VWh84--O2uAZ5KmGAAAu: Upgrade to websocket successful
+A0k4Mjn8hujsMHYRAAAx: Received packet MESSAGE data 0
+A0k4Mjn8hujsMHYRAAAx: Sending packet MESSAGE data 0{"sid":"0vGFam9nYZYEgnRPAAAz"}
+A0k4Mjn8hujsMHYRAAAx: Received request to upgrade to websocket
+jkBI3VFje4h0Ii-nAAAw: Received packet MESSAGE data 20["lobby_connect",{"lobby_id":"3"}]
+received event "lobby_connect" from ob0qI6Vs7yn6_Q_8AAAy [/]
+ob0qI6Vs7yn6_Q_8AAAy is entering room 3 [/]
+emitting event "lobby_connection" to 3 [/]
+jkBI3VFje4h0Ii-nAAAw: Sending packet MESSAGE data 30[{"status":200,"userList":[],"isAdmin":true,"cubeSize":3,"points":[{"username":"Anonymous0003","points":0}],"raceTime":null}]
+jkBI3VFje4h0Ii-nAAAw: Upgrade to websocket successful
+A0k4Mjn8hujsMHYRAAAx: Received packet MESSAGE data 20["lobby_connect",{"lobby_id":"2"}]
+received event "lobby_connect" from 0vGFam9nYZYEgnRPAAAz [/]
+0vGFam9nYZYEgnRPAAAz is entering room 2 [/]
+emitting event "lobby_connection" to 2 [/]
+A0k4Mjn8hujsMHYRAAAx: Upgrade to websocket successful
+DRouoqmKEw1bqbxkAAA0: Sending packet OPEN data {'sid': 'DRouoqmKEw1bqbxkAAA0', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+DRouoqmKEw1bqbxkAAA0: Received packet MESSAGE data 0
+DRouoqmKEw1bqbxkAAA0: Sending packet MESSAGE data 0{"sid":"vaeLI1LdRjHx2AX3AAA1"}
+DRouoqmKEw1bqbxkAAA0: Received request to upgrade to websocket
+DRouoqmKEw1bqbxkAAA0: Upgrade to websocket successful
+0vGFam9nYZYEgnRPAAAz is leaving room 2 [/]
+emitting event "lobby_disconnection" to 2 [/]
+ob0qI6Vs7yn6_Q_8AAAy is leaving room 3 [/]
+emitting event "lobby_disconnection" to 3 [/]
+emitting event "lobby_delete" to all [/]
+VWh84--O2uAZ5KmGAAAu: Sending packet MESSAGE data 2["lobby_delete",{"lobby_id":2}]
+DRouoqmKEw1bqbxkAAA0: Sending packet MESSAGE data 2["lobby_delete",{"lobby_id":2}]
+emitting event "lobby_delete" to all [/]
+VWh84--O2uAZ5KmGAAAu: Sending packet MESSAGE data 2["lobby_delete",{"lobby_id":3}]
+DRouoqmKEw1bqbxkAAA0: Sending packet MESSAGE data 2["lobby_delete",{"lobby_id":3}]
+VWh84--O2uAZ5KmGAAAu: Sending packet PING data None
+VWh84--O2uAZ5KmGAAAu: Received packet PONG data 
+DRouoqmKEw1bqbxkAAA0: Sending packet PING data None
+DRouoqmKEw1bqbxkAAA0: Received packet PONG data 
+VWh84--O2uAZ5KmGAAAu: Sending packet PING data None
+VWh84--O2uAZ5KmGAAAu: Received packet PONG data 
+DRouoqmKEw1bqbxkAAA0: Sending packet PING data None
+DRouoqmKEw1bqbxkAAA0: Received packet PONG data 
+VWh84--O2uAZ5KmGAAAu: Sending packet PING data None
+VWh84--O2uAZ5KmGAAAu: Received packet PONG data 
+DRouoqmKEw1bqbxkAAA0: Sending packet PING data None
+DRouoqmKEw1bqbxkAAA0: Received packet PONG data 
+DRouoqmKEw1bqbxkAAA0: Received packet MESSAGE data 1
+ioFtgT5TlJcfEK8zAAA2: Sending packet OPEN data {'sid': 'ioFtgT5TlJcfEK8zAAA2', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+ioFtgT5TlJcfEK8zAAA2: Received packet MESSAGE data 0
+ioFtgT5TlJcfEK8zAAA2: Sending packet MESSAGE data 0{"sid":"mCb7jK9Nhzwwsua6AAA3"}
+ioFtgT5TlJcfEK8zAAA2: Received request to upgrade to websocket
+ioFtgT5TlJcfEK8zAAA2: Upgrade to websocket successful
+VWh84--O2uAZ5KmGAAAu: Received packet MESSAGE data 1
+yDXieobQXHFHkGK0AAA4: Sending packet OPEN data {'sid': 'yDXieobQXHFHkGK0AAA4', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+yDXieobQXHFHkGK0AAA4: Received packet MESSAGE data 0
+yDXieobQXHFHkGK0AAA4: Sending packet MESSAGE data 0{"sid":"NPpiRbCJ1BUugZrsAAA5"}
+yDXieobQXHFHkGK0AAA4: Received request to upgrade to websocket
+yDXieobQXHFHkGK0AAA4: Upgrade to websocket successful
+ioFtgT5TlJcfEK8zAAA2: Received packet MESSAGE data 1
+09Y_l8DQY5q7psftAAA6: Sending packet OPEN data {'sid': '09Y_l8DQY5q7psftAAA6', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+09Y_l8DQY5q7psftAAA6: Received packet MESSAGE data 0
+09Y_l8DQY5q7psftAAA6: Sending packet MESSAGE data 0{"sid":"maM8Sw8diyVASCCqAAA7"}
+09Y_l8DQY5q7psftAAA6: Received request to upgrade to websocket
+09Y_l8DQY5q7psftAAA6: Upgrade to websocket successful
+yDXieobQXHFHkGK0AAA4: Received packet MESSAGE data 1
+4xxPhXu1ELBlb5W0AAA8: Sending packet OPEN data {'sid': '4xxPhXu1ELBlb5W0AAA8', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+4xxPhXu1ELBlb5W0AAA8: Received packet MESSAGE data 0
+4xxPhXu1ELBlb5W0AAA8: Sending packet MESSAGE data 0{"sid":"lHKWoheoI9Z2eCDmAAA9"}
+4xxPhXu1ELBlb5W0AAA8: Received request to upgrade to websocket
+4xxPhXu1ELBlb5W0AAA8: Upgrade to websocket successful
+09Y_l8DQY5q7psftAAA6: Sending packet PING data None
+09Y_l8DQY5q7psftAAA6: Received packet PONG data 
+4xxPhXu1ELBlb5W0AAA8: Sending packet PING data None
+4xxPhXu1ELBlb5W0AAA8: Received packet PONG data 
+09Y_l8DQY5q7psftAAA6: Sending packet PING data None
+09Y_l8DQY5q7psftAAA6: Received packet PONG data 
+4xxPhXu1ELBlb5W0AAA8: Sending packet PING data None
+4xxPhXu1ELBlb5W0AAA8: Received packet PONG data 
+09Y_l8DQY5q7psftAAA6: Sending packet PING data None
+09Y_l8DQY5q7psftAAA6: Received packet PONG data 
+4xxPhXu1ELBlb5W0AAA8: Sending packet PING data None
+4xxPhXu1ELBlb5W0AAA8: Received packet PONG data 
+emitting event "lobby_add" to all [/]
+09Y_l8DQY5q7psftAAA6: Sending packet MESSAGE data 2["lobby_add",{"creator":"Anonymous0002","lobby_id":4}]
+4xxPhXu1ELBlb5W0AAA8: Sending packet MESSAGE data 2["lobby_add",{"creator":"Anonymous0002","lobby_id":4}]
+09Y_l8DQY5q7psftAAA6: Received packet MESSAGE data 1
+9SK6eaxghNc5uD0AAAA-: Sending packet OPEN data {'sid': '9SK6eaxghNc5uD0AAAA-', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+9SK6eaxghNc5uD0AAAA-: Received packet MESSAGE data 0
+9SK6eaxghNc5uD0AAAA-: Sending packet MESSAGE data 0{"sid":"b48oKFdkGoWNfj1XAAA_"}
+9SK6eaxghNc5uD0AAAA-: Received request to upgrade to websocket
+9SK6eaxghNc5uD0AAAA-: Received packet MESSAGE data 20["lobby_connect",{"lobby_id":"4"}]
+received event "lobby_connect" from b48oKFdkGoWNfj1XAAA_ [/]
+b48oKFdkGoWNfj1XAAA_ is entering room 4 [/]
+emitting event "lobby_connection" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Sending packet MESSAGE data 30[{"status":200,"userList":[],"isAdmin":true,"cubeSize":3,"points":[{"username":"Anonymous0002","points":0}],"raceTime":null}]
+9SK6eaxghNc5uD0AAAA-: Upgrade to websocket successful
+9SK6eaxghNc5uD0AAAA-: Received packet MESSAGE data 2["camera",{"position":{"x":0.1289738320550803,"y":3.3647260803857644,"z":5.4591193570590555}}]
+received event "camera" from b48oKFdkGoWNfj1XAAA_ [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Received packet MESSAGE data 2["camera",{"position":{"x":0.25787570631062945,"y":3.3647260803857644,"z":5.454550258643387}}]
+received event "camera" from b48oKFdkGoWNfj1XAAA_ [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Received packet MESSAGE data 2["camera",{"position":{"x":0.35446162409245285,"y":3.3647260803857644,"z":5.449126109847119}}]
+received event "camera" from b48oKFdkGoWNfj1XAAA_ [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Received packet MESSAGE data 2["camera",{"position":{"x":0.7074281202370274,"y":3.3647260803857644,"z":5.414624997049173}}]
+received event "camera" from b48oKFdkGoWNfj1XAAA_ [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Received packet MESSAGE data 2["camera",{"position":{"x":1.223865136759729,"y":3.2999999999999994,"z":5.36210351700003}}]
+received event "camera" from b48oKFdkGoWNfj1XAAA_ [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Received packet MESSAGE data 2["camera",{"position":{"x":1.668345424008296,"y":3.267463778764935,"z":5.261207466033795}}]
+received event "camera" from b48oKFdkGoWNfj1XAAA_ [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Received packet MESSAGE data 2["camera",{"position":{"x":2.0741184786612057,"y":3.234813614962537,"z":5.135563592530923}}]
+received event "camera" from b48oKFdkGoWNfj1XAAA_ [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Received packet MESSAGE data 2["camera",{"position":{"x":2.419512644381045,"y":3.169176017878303,"z":5.0241697753345544}}]
+received event "camera" from b48oKFdkGoWNfj1XAAA_ [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Received packet MESSAGE data 2["camera",{"position":{"x":2.654076729990994,"y":3.169176017878303,"z":4.904304240055396}}]
+received event "camera" from b48oKFdkGoWNfj1XAAA_ [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Received packet MESSAGE data 2["camera",{"position":{"x":2.7118125586488633,"y":3.169176017878303,"z":4.872616957494127}}]
+received event "camera" from b48oKFdkGoWNfj1XAAA_ [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Received packet MESSAGE data 2["camera",{"position":{"x":2.769170126720284,"y":3.169176017878303,"z":4.840250011826351}}]
+received event "camera" from b48oKFdkGoWNfj1XAAA_ [/]
+9SK6eaxghNc5uD0AAAA-: Received packet MESSAGE data 2["camera",{"position":{"x":2.7977045607593185,"y":3.169176017878303,"z":4.823813072498926}}]
+received event "camera" from b48oKFdkGoWNfj1XAAA_ [/]
+9SK6eaxghNc5uD0AAAA-: Received packet MESSAGE data 2["camera",{"position":{"x":2.8544797536335746,"y":3.169176017878303,"z":4.790435126770952}}]
+received event "camera" from b48oKFdkGoWNfj1XAAA_ [/]
+emitting event "lobby_camera" to 4 [/]
+emitting event "lobby_camera" to 4 [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Received packet MESSAGE data 2["camera",{"position":{"x":2.9018662018526196,"y":3.1030963642901055,"z":4.805201920884801}}]
+received event "camera" from b48oKFdkGoWNfj1XAAA_ [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Received packet MESSAGE data 2["camera",{"position":{"x":2.9112884122774636,"y":3.069893644309622,"z":4.820804164573203}}]
+received event "camera" from b48oKFdkGoWNfj1XAAA_ [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Received packet MESSAGE data 2["camera",{"position":{"x":2.88276976604616,"y":3.0698936443096216,"z":4.83791189343063}}]
+received event "camera" from b48oKFdkGoWNfj1XAAA_ [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Received packet MESSAGE data 2["camera",{"position":{"x":2.8055682099424084,"y":3.036583871401559,"z":4.9038704521331375}}]
+received event "camera" from b48oKFdkGoWNfj1XAAA_ [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Received packet MESSAGE data 2["camera",{"position":{"x":2.7939920654400447,"y":2.9696478167914138,"z":4.951242286788646}}]
+received event "camera" from b48oKFdkGoWNfj1XAAA_ [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Received packet MESSAGE data 2["camera",{"position":{"x":2.773184966862518,"y":2.9360238692746274,"z":4.9828916282232525}}]
+received event "camera" from b48oKFdkGoWNfj1XAAA_ [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Received packet MESSAGE data 2["camera",{"position":{"x":2.7437115672676735,"y":2.9360238692746274,"z":4.999181000393085}}]
+received event "camera" from b48oKFdkGoWNfj1XAAA_ [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Received packet MESSAGE data 2["camera",{"position":{"x":2.7520055336212637,"y":2.902297537119458,"z":5.014293025836071}}]
+received event "camera" from b48oKFdkGoWNfj1XAAA_ [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Received packet MESSAGE data 2["camera",{"position":{"x":2.7223470713045526,"y":2.902297537119458,"z":5.030456781385746}}]
+received event "camera" from b48oKFdkGoWNfj1XAAA_ [/]
+emitting event "lobby_camera" to 4 [/]
+4xxPhXu1ELBlb5W0AAA8: Sending packet PING data None
+4xxPhXu1ELBlb5W0AAA8: Received packet PONG data 
+4xxPhXu1ELBlb5W0AAA8: Received packet MESSAGE data 1
+dlfI5dTUJ-0lfXcxAABA: Sending packet OPEN data {'sid': 'dlfI5dTUJ-0lfXcxAABA', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+dlfI5dTUJ-0lfXcxAABA: Received packet MESSAGE data 0
+dlfI5dTUJ-0lfXcxAABA: Sending packet MESSAGE data 0{"sid":"8NyWChJ5JmgPQgFBAABB"}
+dlfI5dTUJ-0lfXcxAABA: Received request to upgrade to websocket
+dlfI5dTUJ-0lfXcxAABA: Received packet MESSAGE data 20["lobby_connect",{"lobby_id":"4"}]
+received event "lobby_connect" from 8NyWChJ5JmgPQgFBAABB [/]
+8NyWChJ5JmgPQgFBAABB is entering room 4 [/]
+emitting event "lobby_connection" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Sending packet MESSAGE data 2["lobby_connection",{"username":"admin_acc","points":0,"isAdmin":false}]
+dlfI5dTUJ-0lfXcxAABA: Sending packet MESSAGE data 30[{"status":200,"userList":[["Anonymous0002",false,true,"WWWWWWWWWGGGGGGGGGRRRRRRRRRBBBBBBBBBOOOOOOOOOYYYYYYYYY"]],"isAdmin":false,"cubeSize":3,"points":[{"username":"admin_acc","points":0},{"username":"Anonymous0002","points":0}],"raceTime":null}]
+dlfI5dTUJ-0lfXcxAABA: Upgrade to websocket successful
+dlfI5dTUJ-0lfXcxAABA: Received packet MESSAGE data 2["camera",{"position":{"x":0.032478682651983004,"y":3.2999999999999994,"z":5.499904102361531}}]
+received event "camera" from 8NyWChJ5JmgPQgFBAABB [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":0.032478682651983004,"y":3.2999999999999994,"z":5.499904102361531}}]
+dlfI5dTUJ-0lfXcxAABA: Received packet MESSAGE data 2["camera",{"position":{"x":0.0649562327116144,"y":3.2999999999999994,"z":5.499616412790251}}]
+received event "camera" from 8NyWChJ5JmgPQgFBAABB [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":0.0649562327116144,"y":3.2999999999999994,"z":5.499616412790251}}]
+dlfI5dTUJ-0lfXcxAABA: Received packet MESSAGE data 2["camera",{"position":{"x":0.16237076224227964,"y":3.2999999999999994,"z":5.497602726240671}}]
+received event "camera" from 8NyWChJ5JmgPQgFBAABB [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":0.16237076224227964,"y":3.2999999999999994,"z":5.497602726240671}}]
+dlfI5dTUJ-0lfXcxAABA: Received packet MESSAGE data 2["camera",{"position":{"x":0.19483245739129634,"y":3.299999999999999,"z":5.496548036135667}}]
+received event "camera" from 8NyWChJ5JmgPQgFBAABB [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":0.19483245739129634,"y":3.299999999999999,"z":5.496548036135667}}]
+dlfI5dTUJ-0lfXcxAABA: Received packet MESSAGE data 2["camera",{"position":{"x":0.45418640009782774,"y":3.2999999999999985,"z":5.4812147115366825}}]
+received event "camera" from 8NyWChJ5JmgPQgFBAABB [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":0.45418640009782774,"y":3.2999999999999985,"z":5.4812147115366825}}]
+dlfI5dTUJ-0lfXcxAABA: Received packet MESSAGE data 2["camera",{"position":{"x":0.6480683449518657,"y":3.2999999999999985,"z":5.46168540107093}}]
+received event "camera" from 8NyWChJ5JmgPQgFBAABB [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":0.6480683449518657,"y":3.2999999999999985,"z":5.46168540107093}}]
+dlfI5dTUJ-0lfXcxAABA: Received packet MESSAGE data 2["camera",{"position":{"x":0.9052702465440363,"y":3.2999999999999985,"z":5.424987168714971}}]
+received event "camera" from 8NyWChJ5JmgPQgFBAABB [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":0.9052702465440363,"y":3.2999999999999985,"z":5.424987168714971}}]
+dlfI5dTUJ-0lfXcxAABA: Received packet MESSAGE data 2["camera",{"position":{"x":1.1286843820759882,"y":3.299999999999998,"z":5.382942649300447}}]
+received event "camera" from 8NyWChJ5JmgPQgFBAABB [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":1.1286843820759882,"y":3.299999999999998,"z":5.382942649300447}}]
+dlfI5dTUJ-0lfXcxAABA: Received packet MESSAGE data 2["camera",{"position":{"x":1.350170179274395,"y":3.299999999999998,"z":5.331701462666315}}]
+received event "camera" from 8NyWChJ5JmgPQgFBAABB [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":1.350170179274395,"y":3.299999999999998,"z":5.331701462666315}}]
+dlfI5dTUJ-0lfXcxAABA: Received packet MESSAGE data 2["camera",{"position":{"x":1.475721927314165,"y":3.299999999999998,"z":5.298324715723276}}]
+received event "camera" from 8NyWChJ5JmgPQgFBAABB [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":1.475721927314165,"y":3.299999999999998,"z":5.298324715723276}}]
+dlfI5dTUJ-0lfXcxAABA: Received packet MESSAGE data 2["camera",{"position":{"x":1.6004503323477035,"y":3.299999999999998,"z":5.261991897911673}}]
+received event "camera" from 8NyWChJ5JmgPQgFBAABB [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":1.6004503323477035,"y":3.299999999999998,"z":5.261991897911673}}]
+dlfI5dTUJ-0lfXcxAABA: Received packet MESSAGE data 2["camera",{"position":{"x":1.7242858052077952,"y":3.2999999999999976,"z":5.2227232802398085}}]
+received event "camera" from 8NyWChJ5JmgPQgFBAABB [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":1.7242858052077952,"y":3.2999999999999976,"z":5.2227232802398085}}]
+dlfI5dTUJ-0lfXcxAABA: Received packet MESSAGE data 2["camera",{"position":{"x":1.8471592549169222,"y":3.2999999999999985,"z":5.180540771673813}}]
+received event "camera" from 8NyWChJ5JmgPQgFBAABB [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":1.8471592549169222,"y":3.2999999999999985,"z":5.180540771673813}}]
+dlfI5dTUJ-0lfXcxAABA: Received packet MESSAGE data 2["camera",{"position":{"x":2.0295158298553537,"y":3.2999999999999985,"z":5.111855386879258}}]
+received event "camera" from 8NyWChJ5JmgPQgFBAABB [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.0295158298553537,"y":3.2999999999999985,"z":5.111855386879258}}]
+dlfI5dTUJ-0lfXcxAABA: Received packet MESSAGE data 2["camera",{"position":{"x":2.089746442906978,"y":3.2999999999999985,"z":5.087529833264625}}]
+received event "camera" from 8NyWChJ5JmgPQgFBAABB [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.089746442906978,"y":3.2999999999999985,"z":5.087529833264625}}]
+dlfI5dTUJ-0lfXcxAABA: Received packet MESSAGE data 2["camera",{"position":{"x":2.2982033338851866,"y":3.2999999999999985,"z":4.996825135635523}}]
+received event "camera" from 8NyWChJ5JmgPQgFBAABB [/]
+dlfI5dTUJ-0lfXcxAABA: Received packet MESSAGE data 2["camera",{"position":{"x":2.4155812386605344,"y":3.299999999999998,"z":4.941150400405879}}]
+received event "camera" from 8NyWChJ5JmgPQgFBAABB [/]
+dlfI5dTUJ-0lfXcxAABA: Received packet MESSAGE data 2["camera",{"position":{"x":2.560400792724294,"y":3.2999999999999976,"z":4.867684026374015}}]
+received event "camera" from 8NyWChJ5JmgPQgFBAABB [/]
+dlfI5dTUJ-0lfXcxAABA: Received packet MESSAGE data 2["camera",{"position":{"x":2.6177106617039017,"y":3.2999999999999976,"z":4.837105631635684}}]
+received event "camera" from 8NyWChJ5JmgPQgFBAABB [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.2982033338851866,"y":3.2999999999999985,"z":4.996825135635523}}]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.4155812386605344,"y":3.299999999999998,"z":4.941150400405879}}]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.560400792724294,"y":3.2999999999999976,"z":4.867684026374015}}]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.6177106617039017,"y":3.2999999999999976,"z":4.837105631635684}}]
+dlfI5dTUJ-0lfXcxAABA: Received packet MESSAGE data 2["camera",{"position":{"x":2.674655396018545,"y":3.2999999999999976,"z":4.805852527132809}}]
+received event "camera" from 8NyWChJ5JmgPQgFBAABB [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.674655396018545,"y":3.2999999999999976,"z":4.805852527132809}}]
+dlfI5dTUJ-0lfXcxAABA: Received packet MESSAGE data 2["camera",{"position":{"x":2.7312270526603166,"y":3.2999999999999976,"z":4.773929072243991}}]
+received event "camera" from 8NyWChJ5JmgPQgFBAABB [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.7312270526603166,"y":3.2999999999999976,"z":4.773929072243991}}]
+dlfI5dTUJ-0lfXcxAABA: Received packet MESSAGE data 2["camera",{"position":{"x":2.7874177406605174,"y":3.2999999999999976,"z":4.741339719852497}}]
+received event "camera" from 8NyWChJ5JmgPQgFBAABB [/]
+emitting event "lobby_camera" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Sending packet MESSAGE data 2["lobby_camera",{"username":"admin_acc","position":{"x":2.7874177406605174,"y":3.2999999999999976,"z":4.741339719852497}}]
+dlfI5dTUJ-0lfXcxAABA: Received packet MESSAGE data 1
+8NyWChJ5JmgPQgFBAABB is leaving room 4 [/]
+emitting event "lobby_disconnection" to 4 [/]
+9SK6eaxghNc5uD0AAAA-: Sending packet MESSAGE data 2["lobby_disconnection",{"username":"admin_acc"}]
+RizJMrDQ8OhQFAy3AABC: Sending packet OPEN data {'sid': 'RizJMrDQ8OhQFAy3AABC', 'upgrades': ['websocket'], 'pingTimeout': 20000, 'pingInterval': 25000}
+RizJMrDQ8OhQFAy3AABC: Received packet MESSAGE data 0
+RizJMrDQ8OhQFAy3AABC: Sending packet MESSAGE data 0{"sid":"19D9gq1qWmkik3U-AABD"}
+RizJMrDQ8OhQFAy3AABC: Received request to upgrade to websocket
+RizJMrDQ8OhQFAy3AABC: Upgrade to websocket successful
+9SK6eaxghNc5uD0AAAA-: Sending packet PING data None
+9SK6eaxghNc5uD0AAAA-: Received packet PONG data 

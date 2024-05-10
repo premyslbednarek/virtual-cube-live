@@ -9,7 +9,7 @@ export default function Invite() {
         fetch(`/api/parse_invite/${uuid}`)
             .then(res => res.json())
             .then(({type, id} : {type: "together" | "lobby", id: number}) => {
-                    if (type == "together") {
+                    if (type === "together") {
                         navigate("/together", {state: {id: id}})
                     } else {
                         navigate(`/lobby/${id}`);

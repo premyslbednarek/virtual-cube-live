@@ -18,7 +18,7 @@ import { socket } from "../socket";
 import './lobby.css'
 import { AuthContext } from "../authContext";
 import { useContext } from "react";
-import produce from "immer";
+import { produce } from "immer";
 import { print_time } from "../cube/timer";
 import NavigationPanel from "../components/NavigationPanel";
 import CubeCanvas from "../components/CubeCanvas";

@@ -1,11 +1,10 @@
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import ErrorPage from "./ErrorPage";
 import { useContext, useEffect, useState } from "react";
 import { socket } from "../socket";
 import { AuthContext } from "../authContext";
 import * as THREE from 'three';
-import { Text, Button, Center, Flex, Title, Space } from "@mantine/core";
-import CopyButton from "../components/CopyButton";
+import { Text, Button, Flex, Title, Space } from "@mantine/core";
 import useCube, { DEFAULT_CUBE_SIZE } from "../hooks/useCube";
 import { CubeSizeController } from "../components/CubeSizeController";
 import { useSpeedMode } from "../hooks/useSpeedMode";
@@ -21,13 +20,11 @@ interface TogetherJoinResponse {
     users: string[];
     cube_size: number;
     cube_state: string;
-    uuid: string;
     solveTime: number | null;
 }
 
 function TogetherLobby({id} : {id: number}) {
     const [users, setUsers] = useState<string[]>([]);
-    const [uuid, setUuid] = useState<string | null>(null);
     const { authInfo } = useContext(AuthContext)
 
     const [cubeSize, setCubeSize] = useState(DEFAULT_CUBE_SIZE);
@@ -47,7 +44,6 @@ function TogetherLobby({id} : {id: number}) {
             (response: TogetherJoinResponse) => {
                 setUsers(response.users);
                 cube.setSize(response.cube_size);
-                setUuid(response.uuid)
                 if (response.solveTime) {
                     startSolveFromTime(response.cube_state, response.solveTime)
                 }
@@ -117,7 +113,6 @@ function TogetherLobby({id} : {id: number}) {
         socket.emit("together_layers_change", {newSize: newSize})
     }
 
-    const inviteURL = window.location.host + "/together/" + uuid;
     return (
         <>
             <Overlay position="top">

@@ -1,4 +1,4 @@
-import { Button, Container, Flex, Text } from "@mantine/core";
+import { Button, Container, Text } from "@mantine/core";
 import { useState } from "react";
 import CopyButton from "./CopyButton";
 

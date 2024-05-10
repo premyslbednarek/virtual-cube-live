@@ -64,7 +64,6 @@ def together_user_join(data: TogetherJoinData):
         "users": [together_user.user.username for together_user in together_lobby.users],
         "cube_size": together_lobby.cube.size,
         "cube_state": together_lobby.cube.state.decode("UTF-8"),
-        "uuid": str(together_lobby.uuid),
         "solveTime": together_lobby.cube.current_solve.get_ongoing_time() if together_lobby.cube.current_solve else None
     }
 

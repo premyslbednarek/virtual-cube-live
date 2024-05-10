@@ -11,7 +11,7 @@ import CopyButton from "../components/CopyButton";
 import { useSpeedMode } from "../hooks/useSpeedMode";
 import { AuthContext } from "../authContext";
 import { DeleteSolveButton } from "../components/TimeList";
-import produce from "immer";
+import { produce } from "immer";
 
 interface IMoveInfo {
     move: string;

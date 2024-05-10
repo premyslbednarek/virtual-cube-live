@@ -5,7 +5,7 @@ import { print_time } from "../cube/timer";
 import { IconDeviceTv, IconSortDescending, IconTrash, IconTrashOff } from "@tabler/icons-react";
 import { CubeSizeController } from "./CubeSizeController";
 import { AuthContext } from "../authContext";
-import produce from "immer";
+import { produce } from "immer";
 
 export interface Solve {
     id: number;

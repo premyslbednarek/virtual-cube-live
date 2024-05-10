@@ -13,11 +13,17 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-conn_url = 'postgresql://postgres:postgres@db:5433/DB'
+conn_url = f"postgresql://" \
+           f"{os.environ.get('DB_USERNAME')}" \
+           f":{os.environ.get('DB_PASSWORD')}" \
+           f"@db:{os.environ.get('DB_PORT')}" \
+           f"/{os.environ.get('DB_NAME')}"
+
+print(conn_url)
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = conn_url
-app.config['SECRET_KEY'] = "secret"
+app.config['SECRET_KEY'] = os.environ.get("APP_SECRET")
 
 PRODUCTION = "prod"
 mode = os.environ.get("MODE", PRODUCTION)

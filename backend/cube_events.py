@@ -83,11 +83,9 @@ def handle_move(data):
     solve = connection.cube.current_solve
 
     if solve and solve.completed:
-        print("Move in a done solve, ignoring")
         return
 
     if solve and now <= solve.solve_startdate and move_str not in ["x", "x'", "y", "y'", "z", "z'"]:
-        print("move during inspection, ignoring")
         return
 
     connection.cube.make_move(move_str, now)

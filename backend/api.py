@@ -369,7 +369,6 @@ def solve(solve_id: int):
 @app.route('/api/register', methods=["POST"])
 def register_post():
     data = json.loads(request.data)
-    print(data)
     username: str = data['username']
     password: str = data['password']
     confirmPassword: str = data['confirmPassword']
@@ -414,7 +413,6 @@ def register_post():
 @app.route('/api/login', methods=["POST"])
 def login_post():
     data = json.loads(request.data)
-    print(data)
     username: str = data['username']
     password: str = data['password']
 
@@ -434,13 +432,13 @@ def login_post():
         return {"msg", "Your account has been banned."}
 
     login_user(user, remember=True)
-    print("Login succesfull")
+    logger.info(user.username, "logged in")
     return {"msg": "ok" }
 
 @app.route("/api/logout")
 @login_required
 def logout():
-    print(current_user.username, "logged out")
+    logger.info(current_user.username, "logged out")
     logout_user()
     return "ok", 200
 
@@ -539,7 +537,7 @@ def handle_lobby_conection(data):
     # the request and socket connection would be lost
     lobby_id: int = int(data["lobby_id"])
 
-    print("new connection to lobby:", lobby_id, "user_id", current_user.username)
+    logger.info("new connection to lobby:", lobby_id, "user_id", current_user.username)
 
     lobby: Lobby = db.session.get(Lobby, lobby_id)
     is_creator: bool = lobby.creator_id == current_user.id
@@ -607,7 +605,7 @@ def send_ready_status(data):
         skip_sid=request.sid
     )
 
-    print(lobby_id, ready_status)
+    logger.info(current_user.username, "changed their lobby status to", ready_status)
 
 
 @socketio.on("lobby_kick")
@@ -688,7 +686,6 @@ def solo_solve_start():
 
     db.session.commit()
 
-    print("returning state", scramble.cube_state)
     return {
         "state": scramble.cube_state.decode("UTF-8")
     }

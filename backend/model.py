@@ -256,11 +256,8 @@ class Solve(db.Model):
                 })
             if session.end:
                 c = ((session.end - session.start) / timedelta(milliseconds=1))
-                print(c, type(c))
                 total_time += c
 
-        for line in moves:
-            print(line)
         return moves
 
     class CameraChangeType(TypedDict):
@@ -348,7 +345,6 @@ class Race(db.Model):
         points = 10
         results = []
         for solve in solves_sorted:
-            print(id, solve.user.username, solve.time, points)
             if not solve.completed:
                 results.append({"username": solve.user.username, "time": None, "pointsDelta": 0})
             else:
@@ -370,7 +366,6 @@ class Race(db.Model):
         still_solving = len(list(filter(lambda solve: solve.is_ongoing(), self.solves)))
 
         if (still_solving == 0):
-            print(f"race in lobby {self.lobby_id} over")
             self.end()
 
 
@@ -447,8 +442,6 @@ class CubeEntity(db.Model):
         cube.move(move_str)
         new_state = cube.serialize()
         is_solved = cube.is_solved()
-
-        cube.pprint()
 
         self.state = new_state
 

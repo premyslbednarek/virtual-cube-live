@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 conn_url = f"postgresql://" \
            f"{os.environ.get('DB_USERNAME')}" \
            f":{os.environ.get('DB_PASSWORD')}" \
-           f"@db:{os.environ.get('DB_PORT')}" \
+           f"@{os.environ.get('SOURCE', 'db')}:{os.environ.get('DB_PORT')}" \
            f"/{os.environ.get('DB_NAME')}"
 
 app = Flask(__name__)

@@ -22,6 +22,9 @@ from dotenv import load_dotenv
 import os
 from functools import wraps
 from uuid import uuid4, UUID
+import logging
+
+logger = logging.getLogger(__name__)
 
 class RequestSolutionData(TypedDict):
     lobby_id: int
@@ -707,7 +710,7 @@ def lobby_start_race(lobby: Lobby, users: List[LobbyUser], racers_count: int):
     )
 
     db.session.add(race)
-    db.session.commit()
+    db.session.flush()
 
     for lobby_user in users:
         if (lobby_user.current_connection is None):
@@ -755,7 +758,7 @@ def lobby_start_request(data):
     lobby_user = LobbyUser.get(current_user.id, lobby_id)
 
     if (lobby_user.role != LobbyRole.ADMIN and lobby.creator_id != current_user.id):
-        print("Somebody else than the room admin and creator tried to start the match")
+        logger.info("Somebody else than the room admin and creator tried to start the match")
         return
 
     # check whether all connected users are ready
@@ -768,7 +771,7 @@ def lobby_start_request(data):
         if lobby_user.current_connection is not None:
             racers_count += 1
             if not force and lobby_user.status != LobbyUserStatus.READY:
-                print(lobby_user.user_id, "is not ready")
+                logger.info(lobby_user.user_id, "is not ready")
                 return
 
     # everybody is ready, start the race
@@ -792,7 +795,6 @@ def together_lobby_dc(connection: SocketConnection):
     users = connection.together_lobby.users
     for together_user in users:
         if together_user.user == current_user:
-            print("delete this user", together_user)
             users.remove(together_user)
             db.session.delete(together_user)
             db.session.commit()
@@ -814,6 +816,7 @@ def lobby_dc(connection: SocketConnection):
 
     # run a function after 5 seconds - if the lobby is still empty after that
     # time, delete the lobby
+    # this function is defined here, because we copy the current request context
     @copy_current_request_context
     def lobby_cleanup(lobby_id):
         sleep(5)
@@ -829,7 +832,7 @@ def lobby_dc(connection: SocketConnection):
         )
 
         if user_count == 0:
-            print("deleting")
+            logger.info("deleting lobby", lobby_id)
             lobby = db.session.get(Lobby, lobby_id)
             lobby.status = LobbyStatus.ENDED
             db.session.commit()
@@ -851,6 +854,12 @@ def disconnect():
     connection.disconnection_date = now
     db.session.commit()
 
+    socketio.emit(
+        "lobby_disconnection",
+        { "username": current_user.username },
+        room=connection.lobby_id
+    )
+
     # end current solve if the user is not in together lobby
     if connection.cube and connection.cube.current_solve and not connection.together_lobby:
         connection.cube.current_solve.end_current_session(now)
@@ -858,5 +867,5 @@ def disconnect():
     if connection.together_lobby:
         together_lobby_dc(connection)
 
-    if connection.lobby_id is not None:
+    if connection.lobby:
         lobby_dc(connection)

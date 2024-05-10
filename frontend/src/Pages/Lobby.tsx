@@ -303,7 +303,9 @@ export default function Lobby() {
 
     const onDisconnection = ({username} : {username: string}) => {
         resizeCanvases();
-        setEnemies(new Map(enemies));
+        const updated = new Map(enemies);
+        updated.delete(username);
+        setEnemies(updated);
     };
 
 

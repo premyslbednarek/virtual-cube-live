@@ -692,37 +692,7 @@ def solo_solve_start():
     }
 
 
-@socketio.on("lobby_start")
-def lobby_start_request(data):
-    lobby_id = int(data["lobby_id"])
-    force = bool(data["force"])
-
-    print(current_user.username, "wants to start lobby with id:", lobby_id)
-
-    lobby: Lobby = db.session.get(Lobby, lobby_id)
-
-    # check whether the user is the lobby creator or admin of the lobby
-    q = select(LobbyUser).where(LobbyUser.lobby_id == lobby_id, LobbyUser.user_id == current_user.id)
-    user: LobbyUser = db.session.scalars(q).one()
-
-    if (user.role != LobbyRole.ADMIN and lobby.creator_id != current_user.id):
-        print("Somebody else than the room admin and creator tried to start the match")
-        return
-
-    # check whether all connected users are ready
-    q = select(LobbyUser).where(LobbyUser.lobby_id == lobby_id)
-    users: List[LobbyUser] = db.session.scalars(q).all()
-
-    racers_count = 0
-
-    for user in users:
-        if user.current_connection is not None:
-            racers_count += 1
-            if not force and user.status != LobbyUserStatus.READY:
-                print(user.user_id, "is not ready")
-                return
-
-    # everybody is ready, start the race
+def lobby_start_race(lobby: Lobby, users: List[LobbyUser], racers_count: int):
     scramble: Scramble = Scramble.new(lobby.cube_size)
 
     now = datetime.now()
@@ -730,7 +700,7 @@ def lobby_start_request(data):
 
     race = Race(
         scramble_id=scramble.id,
-        lobby_id=lobby_id,
+        lobby_id=lobby.id,
         lobby_seq=lobby.races_finished,
         racers_count=racers_count,
         started_date=solve_startdate
@@ -739,14 +709,14 @@ def lobby_start_request(data):
     db.session.add(race)
     db.session.commit()
 
-    for user in users:
-        if (user.current_connection is None):
+    for lobby_user in users:
+        if (lobby_user.current_connection is None):
             continue
 
 
         solve = Solve(
             scramble_id=scramble.id,
-            user_id = user.user_id,
+            user_id = lobby_user.user_id,
             race_id=race.id,
             inspection_startdate=now,
             solve_startdate=solve_startdate
@@ -757,10 +727,10 @@ def lobby_start_request(data):
 
         solve.start_session(now + timedelta(seconds=DEFAULT_INSPECTION_TIME))
 
-        user.current_connection.cube.current_solve_id = solve.id
-        user.current_connection.cube.state = scramble.cube_state
+        lobby_user.current_connection.cube.current_solve_id = solve.id
+        lobby_user.current_connection.cube.state = scramble.cube_state
 
-        user.status = LobbyUserStatus.SOLVING
+        lobby_user.status = LobbyUserStatus.SOLVING
 
     db.session.commit()
 
@@ -770,92 +740,123 @@ def lobby_start_request(data):
             "state": scramble.cube_state.decode("UTF-8"),
             "startTime": solve_startdate.isoformat()
         },
-        room=lobby_id
+        room=lobby.id
     )
 
-    print("starting the match...")
+
+@socketio.on("lobby_start")
+def lobby_start_request(data):
+    lobby_id = int(data["lobby_id"])
+    force = bool(data["force"])
+
+    lobby: Lobby = db.session.get(Lobby, lobby_id)
+
+    # check whether the user is the lobby creator or admin of the lobby
+    lobby_user = LobbyUser.get(current_user.id, lobby_id)
+
+    if (lobby_user.role != LobbyRole.ADMIN and lobby.creator_id != current_user.id):
+        print("Somebody else than the room admin and creator tried to start the match")
+        return
+
+    # check whether all connected users are ready
+    q = select(LobbyUser).where(LobbyUser.lobby_id == lobby_id)
+    users: List[LobbyUser] = db.session.scalars(q).all()
+
+    racers_count = 0
+
+    for lobby_user in users:
+        if lobby_user.current_connection is not None:
+            racers_count += 1
+            if not force and lobby_user.status != LobbyUserStatus.READY:
+                print(lobby_user.user_id, "is not ready")
+                return
+
+    # everybody is ready, start the race
+    lobby_start_race(lobby, users, racers_count)
 
 
 @socketio.event
 def connect():
-    print()
-    print("SOCKET CONNECTION!")
-    print(request.sid)
+    pass
+
+
+def together_lobby_dc(connection: SocketConnection):
+    # handle socket disconnection from together lobby
+    socket_room = connection.together_lobby.get_room()
+    leave_room(socket_room)
+    socketio.emit(
+        "together_dc",
+        { "username": connection.user.username },
+        room=socket_room
+    )
+    users = connection.together_lobby.users
+    for together_user in users:
+        if together_user.user == current_user:
+            print("delete this user", together_user)
+            users.remove(together_user)
+            db.session.delete(together_user)
+            db.session.commit()
+
+
+def lobby_dc(connection: SocketConnection):
+    # handle socket disconnection from together lobby
+    lobby_user = LobbyUser.get(connection.user_id, connection.lobby_id)
+    lobby_user.current_connection_id = None
+    db.session.commit()
+
+    leave_room(connection.lobby_id)
+
+    socketio.emit(
+        "lobby_disconnection",
+        { "username": current_user.username },
+        room=connection.lobby_id
+    )
+
+    # run a function after 5 seconds - if the lobby is still empty after that
+    # time, delete the lobby
+    @copy_current_request_context
+    def lobby_cleanup(lobby_id):
+        sleep(5)
+        user_count = db.session.scalar(
+            select(
+                func.count()
+            ).select_from(
+                LobbyUser
+            ).where(
+                LobbyUser.lobby_id == lobby_id,
+                LobbyUser.current_connection_id != None
+            )
+        )
+
+        if user_count == 0:
+            print("deleting")
+            lobby = db.session.get(Lobby, lobby_id)
+            lobby.status = LobbyStatus.ENDED
+            db.session.commit()
+            socketio.emit(
+                "lobby_delete",
+                { "lobby_id": lobby_id }
+            )
+
+    eventlet.spawn(lobby_cleanup, lobby_id=connection.lobby_id)
+
 
 @socketio.event
 def disconnect():
-    print()
-    print("SOCKET DC")
-    print(request.sid)
-
+    now = datetime.now()
     connection = SocketConnection.get(request.sid)
-
     if not connection:
         return
 
+    connection.disconnection_date = now
+    db.session.commit()
+
+    # end current solve if the user is not in together lobby
     if connection.cube and connection.cube.current_solve and not connection.together_lobby:
-        connection.cube.current_solve.end_current_session(datetime.now())
+        connection.cube.current_solve.end_current_session(now)
 
     if connection.together_lobby:
-        socket_room = connection.together_lobby.get_room()
-        leave_room(socket_room)
-        socketio.emit(
-            "together_dc",
-            { "username": connection.user.username },
-            room=socket_room
-        )
-        users = connection.together_lobby.users
-        for together_user in users:
-            if together_user.user == current_user:
-                print("delete this user", together_user)
-                users.remove(together_user)
-                db.session.delete(together_user)
-                db.session.commit()
+        together_lobby_dc(connection)
 
     if connection.lobby_id is not None:
-        print("Lobby disconnection", connection.lobby_id, current_user.username)
-        q = select(LobbyUser).where(LobbyUser.user_id == connection.user_id, LobbyUser.lobby_id == connection.lobby_id)
-        lobby_user: LobbyUser = db.session.scalar(q)
-        lobby_user.current_connection_id = None
-        db.session.commit()
-
-        leave_room(connection.lobby_id)
-
-        socketio.emit(
-            "lobby_disconnection",
-            { "username": current_user.username },
-            room=connection.lobby_id
-        )
-
-        # check after given time, if the lobby is still empty, delete it
-        @copy_current_request_context
-        def lobby_cleanup(lobby_id):
-            print("bef")
-            sleep(5)
-            print("after sleep")
-            in_lobby = db.session.scalar(
-                select(
-                    func.count()
-                ).select_from(
-                    LobbyUser
-                ).where(
-                    LobbyUser.lobby_id == lobby_id,
-                    LobbyUser.current_connection_id != None
-                )
-            )
-            print("in lobby", in_lobby)
-            if in_lobby == 0:
-                print("deleting")
-                lobby = db.session.get(Lobby, lobby_id)
-                lobby.status = LobbyStatus.ENDED
-                db.session.commit()
-                socketio.emit(
-                    "lobby_delete",
-                    { "lobby_id": lobby_id }
-                )
-
-        eventlet.spawn(lobby_cleanup, lobby_id=connection.lobby_id)
-        # socketio.start_background_task(target=lobby_cleanup)
-
-    connection.disconnection_date = func.now()
-    db.session.commit()
+        lobby_dc(connection)

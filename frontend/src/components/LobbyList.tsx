@@ -17,7 +17,6 @@ export default function LobbyList() {
         fetch('/api/get_lobbies')
             .then(res => res.json())
             .then((data: LobbyInfo[]) => {
-                console.log(data)
                 setLobbies(data)
             })
             .catch(err => console.log(err));

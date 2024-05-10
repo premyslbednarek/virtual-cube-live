@@ -85,10 +85,8 @@ export default function TimeList({solves, setSolves, rowsPerPage=10, omitUsernam
         }
         setSolves(produce((draft) => {
             for (const solve of draft) {
-                console.log(solve.id, solve_id)
                 if (solve.id === solve_id) {
                     solve.deleted = newValue;
-                    console.log("setting")
                     break;
                 }
             }

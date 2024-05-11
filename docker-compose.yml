@@ -3,7 +3,6 @@ services:
     build:
       context: .
       dockerfile: backend.Dockerfile
-    image: backend
     # wait until the db is ready
     depends_on:
       db:
@@ -20,7 +19,6 @@ services:
     build:
       context: .
       dockerfile: frontend.Dockerfile
-    image: frontend
     ports:
       - "${APP_PORT}:80"
     # wait until db is ready

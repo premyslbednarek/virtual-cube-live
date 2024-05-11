@@ -7,5 +7,4 @@ export default function App() {
       <Router />
     </AuthContextProvider>
   );
-
 }

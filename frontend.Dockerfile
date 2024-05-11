@@ -5,7 +5,7 @@ ENV PATH /app/node_modules/.bin:$PATH
 
 COPY frontend/package.json ./
 COPY frontend/package-lock.json ./
-RUN yarn install
+RUN npm install
 
 COPY frontend ./
 RUN yarn build

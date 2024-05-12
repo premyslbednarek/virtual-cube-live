@@ -86,6 +86,8 @@ export function Replay({solveId} : {solveId : string}) {
             for (const move of solve.moves) {
                 move.sinceStart = Math.floor(move.sinceStart);
             }
+            solve.moves.sort((a, b) => a.sinceStart - b.sinceStart);
+            console.log(solve.moves);
             setSolve(solve);
         })
     }, [solveId])
@@ -121,7 +123,6 @@ export function Replay({solveId} : {solveId : string}) {
     useEffect(() => {
         if (solve.time !== 0 && time > solve.time) {
             setPaused(true);
-            // this is a hack
             setTime(solve.time);
         }
     }, [time, solve.time])
@@ -130,14 +131,14 @@ export function Replay({solveId} : {solveId : string}) {
     useEffect(() => {
         for (const move of solve.moves) {
             if (move.sinceStart > time + UPDATE_INTERVAL * playbackSpeed) break;
-            if (time <= move.sinceStart && move.sinceStart < time + UPDATE_INTERVAL * playbackSpeed) {
+            if (time < move.sinceStart && move.sinceStart <= time + UPDATE_INTERVAL * playbackSpeed) {
                 setTimeout(() => {cube.makeMove(move.move)}, (move.sinceStart - time) / playbackSpeed);
             }
         }
         if (manualCamera) return;
         for (const cameraChange of solve.camera_changes) {
             if (cameraChange.sinceStart > time + UPDATE_INTERVAL * playbackSpeed) break;
-            if (time <= cameraChange.sinceStart && cameraChange.sinceStart < time + UPDATE_INTERVAL * playbackSpeed) {
+            if (time < cameraChange.sinceStart && cameraChange.sinceStart <= time + UPDATE_INTERVAL * playbackSpeed) {
                 setTimeout(() => {cube.cameraUpdate(cameraChange.x, cameraChange.y, cameraChange.z)}, (cameraChange.sinceStart - time) / playbackSpeed);
             }
         }

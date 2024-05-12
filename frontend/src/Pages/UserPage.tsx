@@ -1,7 +1,7 @@
 import { ActionIcon, Alert, Button, Container, Flex, Text, TextInput, Title, Tooltip } from "@mantine/core";
 import { useNavigate, useParams } from "react-router-dom";
 import { useCallback, useContext, useEffect, useState } from "react";
-import NavigationButtons from "../components/NavigationButtons";
+import { NavigationIcons } from "../components/NavigationButtons";
 import { Statistics } from "../components/Statistics";
 import { AuthContext } from "../authContext";
 import { IconBan, IconSearch, IconTool } from "@tabler/icons-react";
@@ -128,7 +128,7 @@ export function User({username} : {username: string}) {
     return (
         <>
             <div style={{position: "absolute", top: 0}}>
-                <NavigationButtons />
+                <NavigationIcons />
             </div>
 
             <Container mt="md">

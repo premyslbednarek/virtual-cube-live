@@ -11,7 +11,7 @@ import { useSpeedMode } from "../hooks/useSpeedMode";
 import CubeCanvas from "../components/CubeCanvas";
 import { Overlay } from "../components/Overlay";
 import TimerDisplay from "../components/TimerDisplay";
-import NavigationButtons from "../components/NavigationButtons";
+import { NavigationIcons } from "../components/NavigationButtons";
 import KeybindsButton from "../components/KeybindsButton";
 import SidePanelTimeList, { SolveBasic } from "../components/SidePanelTimeList";
 import Invitation from "../components/Invitation";
@@ -120,7 +120,7 @@ function TogetherLobby({id} : {id: number}) {
             </Overlay>
             <Overlay position="left">
                 <Flex align="center">
-                    <NavigationButtons />
+                    <NavigationIcons />
                     <KeybindsButton />
                 </Flex>
                 {speedModeController}

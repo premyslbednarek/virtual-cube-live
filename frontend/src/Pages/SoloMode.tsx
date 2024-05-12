@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import CubeCanvas from "../components/CubeCanvas";
-import NavigationButtons from "../components/NavigationButtons";
+import { NavigationIcons } from "../components/NavigationButtons";
 import { socket } from "../socket";
 import { Button, Modal, Space, Center, Tooltip, Flex } from "@mantine/core";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -120,7 +120,7 @@ export default function SoloMode() {
 
             <Overlay position="left">
                 <Flex align="center">
-                    <NavigationButtons />
+                    <NavigationIcons />
                     <KeybindsButton />
                 </Flex>
 

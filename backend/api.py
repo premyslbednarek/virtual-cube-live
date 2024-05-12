@@ -1,5 +1,5 @@
 # https://stackoverflow.com/a/59155127
-from app import app, socketio, login_manager, PRODUCTION, mode
+from app import app, socketio, login_manager, PRODUCTION, mode, mail
 
 import eventlet
 import time
@@ -23,12 +23,12 @@ import os
 from functools import wraps
 from uuid import uuid4, UUID
 import logging
+from flask_mail import Message
 
 logger = logging.getLogger(__name__)
 
 class RequestSolutionData(TypedDict):
     lobby_id: int
-
 
 # https://flask.palletsprojects.com/en/2.3.x/patterns/viewdecorators/
 def admin_required(fun):
@@ -38,6 +38,68 @@ def admin_required(fun):
             return abort(401) # unauthorized
         return fun(*args, **kwargs)
     return decorator
+
+from threading import Thread
+
+def send_email(app, msg):
+    with app.app_context():
+        mail.send(msg)
+
+@app.route('/api/new_password_reset', methods=["POST"])
+@login_required
+def send_password_reset():
+    data = json.loads(request.data)
+    if not data:
+        abort(400)
+
+    username = data["username"]
+    email = data["email"]
+    baseURL = data["baseURL"]
+
+    user: Optional[User] = User.get(username)
+
+    if not user or not user.email_hash:
+        return {"msg": "Wrong username or email", "status": 400}
+
+    if not check_password_hash(user.email_hash, email):
+        return {"msg": "The email does not match", "status": 400}
+
+    token = user.create_password_token()
+    msg = Message()
+    msg.subject = "Virtual Cube password reset"
+    msg.sender = app.config["MAIL_USERNAME"]
+    msg.recipients = [email]
+    msg.html = render_template("email.html", url=f"{baseURL}/password_reset/{token}")
+    Thread(target=send_email, args=(app, msg)).start()
+    return {"msg": "ok", "status": 200}
+
+
+@app.route('/api/reset_password', methods=["POST"])
+@login_required
+def reset_password():
+    data = json.loads(request.data)
+    if not data:
+        abort(400)
+
+    password = data["password"]
+    confirmPassword = data["confirmPassword"]
+    token = data["token"]
+
+    if password != confirmPassword:
+        return {"msg": "Password do not match", "status": 400}
+
+    if len(password) < 6:
+        return {"msg": "The password must be at least 6 characters", "status": 400}
+
+
+    ret: User | str = User.get_user_from_token(token)
+    if isinstance(ret, str):
+        return {"msg": ret, "status": 400}
+
+    ret.password_hash = generate_password_hash(password)
+    db.session.commit()
+    return {"msg": "Your password has been reset", "status": 200}
+
 
 @app.route('/api/update_banned_status', methods=["POST"])
 @admin_required
@@ -373,6 +435,7 @@ def register_post():
     password: str = data['password']
     confirmPassword: str = data['confirmPassword']
     keep_data: bool = data['keepData']
+    email: str = data["email"]
 
     if not username or not password or not confirmPassword:
         return {"msg": "Fill in all form fields"}, 400
@@ -395,14 +458,17 @@ def register_post():
         return {"msg": "User with entered username already exists"}, 400
 
     password_hash: str = generate_password_hash(password)
+    email_hash = generate_password_hash(email)
 
     if keep_data:
         current_user.username = username
-        current_user.password_hash = password_hash
+        current_user.password_hash = password_hash,
+        current_user.email_hash=email_hash
     else:
         user = User(
             username=username,
             password_hash=password_hash,
+            email_hash=email_hash
         )
         db.session.add(user)
 

@@ -9,6 +9,7 @@ import Invite from './Pages/Invite';
 import ErrorPage from './Pages/ErrorPage';
 import Together from './Pages/Together';
 import Leaderboard from './Pages/Leaderboard';
+import { CreateNewPassword, PasswordResetPage } from './Pages/PasswordReset';
 
 export default function Router() {
     return (
@@ -23,6 +24,8 @@ export default function Router() {
                 <Route path="/invite/:uuid" element={<Invite />} />
                 <Route path="/together" element={<Together />} />
                 <Route path="/leaderboard" element={<Leaderboard />} />
+                <Route path="/password_reset/:token" element={<CreateNewPassword />} />
+                <Route path="/password_reset" element={<PasswordResetPage />} />
                 <Route path="*" element={<ErrorPage message="This page does not exist." />} />
             </Routes>
         </BrowserRouter>

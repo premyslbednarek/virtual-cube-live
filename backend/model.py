@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from uuid import uuid4, UUID
 from flask_sqlalchemy import SQLAlchemy
+import os
 from flask_login import UserMixin
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey, select, update
@@ -9,9 +10,10 @@ from sqlalchemy.dialects.sqlite import DATETIME
 from enum import Enum
 from datetime import datetime, timedelta
 from sqlalchemy import func
-from typing import Optional, List, TypedDict, Set
+from typing import Optional, List, TypedDict, Set, Union
 from cube import Cube, generate_scramble
 from werkzeug.security import generate_password_hash
+import jwt
 
 from app import app, socketio
 
@@ -52,11 +54,33 @@ class User(UserMixin, db.Model):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(unique=True)
-    # TODO DELETE default value
+    email_hash: Mapped[Optional[str]] = mapped_column(default=None)
     password_hash: Mapped[str] = mapped_column(default="")
     role: Mapped[UserRole] = mapped_column(default=UserRole.USER)
     created_date: Mapped[datetime] = mapped_column(insert_default=func.now())
     banned: Mapped[bool] = mapped_column(default=False)
+
+    def create_password_token(self):
+        return jwt.encode(
+            {
+                "username": self.username,
+                "expires": (datetime.now() + timedelta(seconds=600)).isoformat()
+            }, key=os.getenv("JWT_SECRET"), algorithm='HS256')
+
+    @staticmethod
+    def get_user_from_token(token: str) -> Union["User", str]:
+        try:
+            decoded = jwt.decode(token, key=os.getenv("JWT_SECRET"), algorithms=['HS256'])
+            if datetime.now() > datetime.fromisoformat(decoded["expires"]):
+                return "The token has expired"
+            username = decoded["username"]
+            user = User.get(username)
+            if not user:
+                return "Invalid token"
+        except Exception as e:
+            print(e)
+            return "Invalid token"
+        return user
 
     @staticmethod
     def create_anonymous():

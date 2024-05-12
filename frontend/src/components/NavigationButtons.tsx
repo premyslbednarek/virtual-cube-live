@@ -1,8 +1,8 @@
-import { ActionIcon, Space, Tooltip } from "@mantine/core";
+import { ActionIcon, Button, Flex, Space, Tooltip } from "@mantine/core";
 import { IconArrowLeft, IconHome } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 
-export default function NavigationButtons() {
+export function NavigationIcons() {
     // go back and homepage buttons
     const navigate = useNavigate();
     return (
@@ -16,4 +16,27 @@ export default function NavigationButtons() {
             </Tooltip>
         </div>
     );
+}
+
+export function NavigationButtons() {
+    const navigate = useNavigate();
+    return (
+        <Flex justify="center" gap="md" mt="md">
+            <Button
+                onClick={() => { navigate(-1)  }}
+                variant="outline"
+                leftSection={<IconArrowLeft size={15}/>}
+            >
+                Go back
+            </Button>
+            <Button
+                onClick={() => { navigate("/") }}
+                variant="outline"
+                leftSection={<IconHome size={15}/>}
+            >
+                Go to homepage
+            </Button>
+        </Flex>
+    );
+
 }

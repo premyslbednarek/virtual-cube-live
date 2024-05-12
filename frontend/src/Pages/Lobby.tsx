@@ -20,7 +20,7 @@ import { AuthContext } from "../authContext";
 import { useContext } from "react";
 import { produce } from "immer";
 import { print_time } from "../cube/timer";
-import NavigationButtons from "../components/NavigationButtons";
+import { NavigationIcons } from "../components/NavigationButtons";
 import CubeCanvas from "../components/CubeCanvas";
 import Invitation from "../components/Invitation";
 import ErrorPage from "./ErrorPage";
@@ -472,7 +472,7 @@ export default function Lobby() {
     const leftPanel = (
         <Overlay position="left">
             <Flex align="center">
-                <NavigationButtons />
+                <NavigationIcons />
                 <KeybindsButton />
                 <Space w="md" />
                 { isAdmin && <AdminPanelButton enemies={enemies} /> }

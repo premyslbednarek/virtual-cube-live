@@ -32,6 +32,7 @@ export default function AuthPanel() {
         password: '',
         confirmPassword: '',
         keepData: true,
+        email: '',
         },
     });
 
@@ -85,6 +86,16 @@ export default function AuthPanel() {
                 radius="md"
                 />
 
+                { type === "register" &&
+                    <TextInput
+                    label="Email (optional, only used for account recovery)"
+                    placeholder="Your email"
+                    value={form.values.email}
+                    onChange={(event) => form.setFieldValue('email', event.currentTarget.value)}
+                    radius="md"
+                    />
+                }
+
                 <PasswordInput
                 withAsterisk
                 label="Password"
@@ -117,6 +128,13 @@ export default function AuthPanel() {
                 ? 'Already have an account? Login'
                 : "Don't have an account? Register"}
             </Anchor>
+            { type === "login" &&
+                <Link to="/password_reset" style={{ textDecoration: 'none' }}>
+                    <br/><Text c="dimmed" size="xs">
+                        Forgot your password? Click here to reset
+                    </Text>
+                </Link>
+            }
             <Flex justify="flex-end">
                 <Button type="submit">
                     {type === 'register'

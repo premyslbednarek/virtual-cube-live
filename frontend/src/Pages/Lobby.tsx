@@ -438,13 +438,13 @@ export default function Lobby() {
                             disabled={!isEverybodyReady()}
                             onClick={() => onStartLobbyClick(false)}
                         >
-                            Start lobby
+                            Start race
                         </Button>
                         <Space w="md" />
                         <Button
                             onClick={() => onStartLobbyClick(true)}
                         >
-                            Start lobby (force)
+                            Force race start
                         </Button>
                     </Center>
                 }

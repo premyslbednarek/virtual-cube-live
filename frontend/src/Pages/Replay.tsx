@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo, useContext } from "react";
 import { useParams } from "react-router-dom"
 import CubeCanvas from "../components/CubeCanvas";
-import { Text, Space, Slider, ActionIcon, Center, Flex, Kbd, Container, Stack, Checkbox, Alert } from "@mantine/core";
+import { Text, Space, Slider, ActionIcon, Center, Flex, Kbd, Container, Stack, Checkbox, Alert, Popover, Button, PopoverDropdown } from "@mantine/core";
 import Cube from "../cube/cube";
 import { useHotkeys } from "react-hotkeys-hook";
 import {IconPlayerPlay, IconPlayerPause, IconRewindBackward5, IconRewindForward5, IconPlus, IconMinus, IconReload} from "@tabler/icons-react"
@@ -87,7 +87,6 @@ export function Replay({solveId} : {solveId : string}) {
                 move.sinceStart = Math.floor(move.sinceStart);
             }
             solve.moves.sort((a, b) => a.sinceStart - b.sinceStart);
-            console.log(solve.moves);
             setSolve(solve);
         })
     }, [solveId])
@@ -225,17 +224,25 @@ export function Replay({solveId} : {solveId : string}) {
             <div style={{position: "absolute", width: "100%"}}>
                 <Container mt={10}>
                     <Center>
-                        <Stack>
+                        <Stack gap="sm">
                             { solve.banned && <Alert color="red" ta="center">This user has been banned.</Alert>}
                             { solve.deleted && <Alert color="red" ta="center">This solve has been deleted.</Alert>}
                             { authInfo.isAdmin && <DeleteSolveButton deleted={solve.deleted} solve_id={solve.id} onChange={onDeletion} /> }
 
 
                             <Text ta="center">Use <Kbd>Space</Kbd>, <Kbd>LeftArrow</Kbd> and <Kbd>RightArrow</Kbd> to navigate the solve</Text>
-                            <Flex align="bottom">
-                                <Text ta="center" size="xl">Scramble: {solve.scramble}</Text>
-                                <CopyButton value={solve.scramble} />
-                            </Flex>
+                            <Popover width="30%">
+                                <Popover.Target>
+                                    <Button size="sm">Show scramble</Button>
+                                </Popover.Target>
+                                <Popover.Dropdown>
+                                    <Text ta="center">Scramble: {solve.scramble}</Text>
+                                    <Flex justify="center">
+                                        <CopyButton value={solve.scramble} />
+                                    </Flex>
+                                </Popover.Dropdown>
+                            </Popover>
+
                             <Text ta="center" size="xl">Time: {solve.completed ? print_time(solve.time) : "DNF"}</Text>
                         </Stack>
                     </Center>

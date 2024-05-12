@@ -4,6 +4,14 @@ import { IconCopy, IconCheck } from '@tabler/icons-react';
 
 export default function CopyButton({value} : {value: string}) {
   // clickable button, upon click, the content of value prop is copied to users clipboard
+
+  // copy is available only in secured context
+  // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/clipboard
+
+  if (!window.isSecureContext) {
+      return null;
+  }
+
   return (
     <CopyButtonMantine value={value} timeout={2000}>
       {({ copied, copy }) => (

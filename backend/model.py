@@ -517,11 +517,11 @@ class Invitation(db.Model):
     active: Mapped[bool] = mapped_column(default=True)
 
     @staticmethod
-    def create(created_by_id: int, id: int, type: str) -> "Invitation":
+    def create(created_by: str, id: int, type: str) -> "Invitation":
         assert type in ["together", "lobby"]
 
         invitation = Invitation()
-        invitation.created_by_id = created_by_id
+        invitation.created_by = User.get(created_by)
         if type == "together":
             invitation.together_lobby_id = id
         else:

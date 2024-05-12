@@ -202,12 +202,14 @@ export function Replay({solveId} : {solveId : string}) {
 
     const increasePlaybackSpeed = () => {
         if (playbackSpeed < 3) {
+            setPaused(true);
             setPlaybackSpeed(speed => speed + 0.25);
         }
     }
 
     const decreasePlaybackSpeed = () => {
         if (playbackSpeed > 0.25) {
+            setPaused(true);
             setPlaybackSpeed(speed => speed - 0.25);
         }
     }

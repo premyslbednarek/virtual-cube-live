@@ -285,24 +285,22 @@ export default function Lobby() {
         cube.cube.updateCamera(position);
     };
 
-    function resizeCanvases() {
-        cube.resizeCanvas();
+    // resize the canvases after somebody else connects/disconnects
+    useEffect(() => {
         for (const enemy of enemies.values()) {
             enemy.cube.resizeCanvas();
         }
-    }
+    }, [enemies])
 
     const onConnection = ({username, points, isAdmin} : {username: string, points: number, isAdmin: boolean}) => {
         setLobbyPoints(produce((draft) => {
             if (draft.find((el) => el.username === username)) return;
             draft.push({username: username, points: points})
         }))
-        resizeCanvases();
         setEnemies(new Map(enemies.set(username, {cube: new Cube(cubeSize), readyStatus: false, isAdmin: isAdmin })));
     };
 
     const onDisconnection = ({username} : {username: string}) => {
-        resizeCanvases();
         const updated = new Map(enemies);
         updated.delete(username);
         setEnemies(updated);

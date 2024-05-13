@@ -75,7 +75,7 @@ export function ReplayPage() {
 
 export function Replay({solveId} : {solveId : string}) {
     const [time, setTime] = useState(0); // current time in ms
-    const [paused, setPaused] = useState(false);
+    const [paused, setPaused] = useState(true);
     const [playbackSpeed, setPlaybackSpeed] = useState(1);
 
     const [solve, setSolve] = useState(defaultSolveInfo);
@@ -88,6 +88,7 @@ export function Replay({solveId} : {solveId : string}) {
             }
             solve.moves.sort((a, b) => a.sinceStart - b.sinceStart);
             setSolve(solve);
+            setPaused(false);
         })
     }, [solveId])
 
@@ -130,14 +131,14 @@ export function Replay({solveId} : {solveId : string}) {
     useEffect(() => {
         for (const move of solve.moves) {
             if (move.sinceStart > time + UPDATE_INTERVAL * playbackSpeed) break;
-            if (time < move.sinceStart && move.sinceStart <= time + UPDATE_INTERVAL * playbackSpeed) {
+            if (time <= move.sinceStart && move.sinceStart < time + UPDATE_INTERVAL * playbackSpeed) {
                 setTimeout(() => {cube.makeMove(move.move)}, (move.sinceStart - time) / playbackSpeed);
             }
         }
         if (manualCamera) return;
         for (const cameraChange of solve.camera_changes) {
             if (cameraChange.sinceStart > time + UPDATE_INTERVAL * playbackSpeed) break;
-            if (time < cameraChange.sinceStart && cameraChange.sinceStart <= time + UPDATE_INTERVAL * playbackSpeed) {
+            if (time <= cameraChange.sinceStart && cameraChange.sinceStart < time + UPDATE_INTERVAL * playbackSpeed) {
                 setTimeout(() => {cube.cameraUpdate(cameraChange.x, cameraChange.y, cameraChange.z)}, (cameraChange.sinceStart - time) / playbackSpeed);
             }
         }

@@ -16,11 +16,17 @@ import KeybindsButton from "../components/KeybindsButton";
 import SidePanelTimeList, { SolveBasic } from "../components/SidePanelTimeList";
 import Invitation from "../components/Invitation";
 
-interface TogetherJoinResponse {
+interface JoinSuccess {
+    status: 200;
     users: string[];
     cube_size: number;
     cube_state: string;
     solveTime: number | null;
+}
+
+interface JoinError {
+    status: 400;
+    msg: string;
 }
 
 function TogetherLobby({id} : {id: number}) {
@@ -32,6 +38,7 @@ function TogetherLobby({id} : {id: number}) {
     const speedModeController = useSpeedMode(cube);
 
     const [solves, setSolves] = useState<SolveBasic[]>([]);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         socket.connect();
@@ -41,7 +48,11 @@ function TogetherLobby({id} : {id: number}) {
         socket.emit(
             "together_join",
             { "id": id },
-            (response: TogetherJoinResponse) => {
+            (response: JoinSuccess | JoinError) => {
+                if (response.status === 400) {
+                    setError(response.msg);
+                    return;
+                }
                 setUsers(response.users);
                 cube.setSize(response.cube_size);
                 if (response.solveTime) {
@@ -54,6 +65,7 @@ function TogetherLobby({id} : {id: number}) {
             socket.disconnect();
         }
     }, [cube, id])
+
 
     const onJoin = ({username: newUser} : {username: string}) => {
         setUsers([...users, newUser]);
@@ -111,6 +123,10 @@ function TogetherLobby({id} : {id: number}) {
 
     const changeCubeSize = (newSize: number) => {
         socket.emit("together_layers_change", {newSize: newSize})
+    }
+
+    if (error) {
+        return <ErrorPage message={error} />;
     }
 
     return (

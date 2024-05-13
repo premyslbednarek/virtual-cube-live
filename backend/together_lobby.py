@@ -7,7 +7,7 @@ from typing import TypedDict
 from flask_socketio import join_room
 import json
 from uuid import UUID
-from sqlalchemy import select
+from sqlalchemy import select, func
 from datetime import timedelta
 
 
@@ -38,6 +38,17 @@ class TogetherJoinData(TypedDict):
 def together_user_join(data: TogetherJoinData):
     together_lobby = db.session.get(TogetherLobby, data["id"])
 
+    count = db.session.scalar(
+        select(func.count())
+            .where(
+                TogetherUser.user_id == current_user.id,
+                TogetherUser.together_lobby_id == data["id"]
+            )
+    )
+
+    if count != 0:
+        return {"status": 400, "msg": "You have already joined this lobby"}
+
     connection = SocketConnection()
     connection.user = current_user
     connection.socket_id = request.sid
@@ -61,6 +72,7 @@ def together_user_join(data: TogetherJoinData):
     join_room(together_lobby.get_room())
 
     return {
+        "status": 200,
         "users": [together_user.user.username for together_user in together_lobby.users],
         "cube_size": together_lobby.cube.size,
         "cube_state": together_lobby.cube.state.decode("UTF-8"),

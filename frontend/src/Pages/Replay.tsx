@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo, useContext } from "react";
 import { useParams } from "react-router-dom"
 import CubeCanvas from "../components/CubeCanvas";
-import { Text, Space, Slider, ActionIcon, Center, Flex, Kbd, Container, Stack, Checkbox, Alert, Popover, Button, PopoverDropdown } from "@mantine/core";
+import { Text, Space, Slider, ActionIcon, Center, Flex, Kbd, Container, Stack, Checkbox, Alert, Popover, Button } from "@mantine/core";
 import Cube from "../cube/cube";
 import { useHotkeys } from "react-hotkeys-hook";
 import {IconPlayerPlay, IconPlayerPause, IconRewindBackward5, IconRewindForward5, IconPlus, IconMinus, IconReload} from "@tabler/icons-react"

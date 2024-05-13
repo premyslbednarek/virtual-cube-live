@@ -3,6 +3,35 @@ from typing import List
 from math import floor
 from random import choices
 from pyTwistyScrambler import scrambler333, scrambler444, scrambler555, scrambler666, scrambler777, scrambler222
+from enum import Enum
+
+class Face(Enum):
+    U = 0
+    F = 1
+    R = 2
+    B = 3
+    L = 4
+    D = 5
+
+
+class Direction(Enum):
+    CW = 1
+    CCw = -1
+    DOUBLE = 2
+
+def get_terminal_color(color: bytes):
+    assert len(color) == 1
+
+    colors = {
+        b'W': "15m",
+        b'G': "2m",
+        b'R': "196m",
+        b'B': "4m",
+        b'O': "166m",
+        b'Y': "220m"
+    }
+    return u"\u001b[48;5;" + colors[color]
+
 
 colors = {
     b'W': u"\u001b[48;5;15m",
@@ -151,37 +180,57 @@ class Cube:
         arr = np.frombuffer(buffer, np.dtype("S1"))
         self.flat[:] = arr.copy()
 
+    def get_face(self, face: Face):
+        return self.faces[face.value]
+
     def pprint(self) -> None:
         """
-        Pretty print the cube in the following format:
+        Pretty print the cube to stdout. The cube is "unfolded" and printed
+        int the following format:
 
-         U
-        LFRB
-         D
-
-        where each face is a nxn grid of color letter with corresponding
-        colored background.
+              W W W
+              W W W
+              W W W
+        O O O G G G R R R B B B
+        O O O G G G R R R B B B
+        O O O G G G R R R B B B
+              Y Y Y
+              Y Y Y
+              Y Y Y
         """
-        n = self.n
-        print_table: np.chararray = np.chararray((3*self.n, 4*self.n))
-        print_table[:] = ''
-        np.set_printoptions(linewidth=200)
 
-        def fill(x, y, face):
-            print_table[x:x+n, y:y+n] = self.faces[face]
+        table_height = 3 * self.n
+        table_width = 4 * self.n
+        print_table = np.chararray((table_height, table_width))
+        print_table[:] = ''
+
+        # subdivide the print_table into 3x4 grid of n*n matrices
+        def fill(row: int, col: int, face: Face):
+            row_start = row * self.n
+            col_start = col * self.n
+            print_table[
+                row_start : row_start + self.n,
+                col_start : col_start + self.n
+            ] = self.get_face(face)
 
         # fill the print_table with corresponding stickers
-        fill(0, n, 0)
-        fill(n, n, 1)
-        fill(n, 2*n, 2)
-        fill(n, 0, 4)
-        fill(n, 3*n, 3)
-        fill(2*n, n, 5)
+        fill(0, 1, Face.U)
+        fill(1, 0, Face.L)
+        fill(1, 1, Face.F)
+        fill(1, 2, Face.R)
+        fill(1, 3, Face.B)
+        fill(2, 1, Face.D)
 
         for line in print_table:
             for elem in line:
-                print(f"{colors[elem]}{elem.decode('UTF-8')}{BG_RESET}" if elem != ''
-                      else " ", end='')
+                if elem == '':
+                    print(" ", end='')
+                    continue
+
+                print(get_terminal_color(elem), end='') # color escape sequence
+                print(elem.decode('UTF-8'), end='')     # color letter
+                print(BG_RESET, end='')                 # reset terminal color
+
             print()
 
     def rotate_face(self, face, dir, double=False) -> None:
@@ -335,7 +384,7 @@ scrambler_dispatch = {
     7: scrambler777
 }
 
-def generate_scramble(size: str) -> str:
+def generate_scramble(size: int) -> str:
     if (size <= 7):
         return scrambler_dispatch[size].get_WCA_scramble()
 

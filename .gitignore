@@ -33,3 +33,5 @@ yarn-error.log*
 
 start-backend
 start-frontend
+
+.env

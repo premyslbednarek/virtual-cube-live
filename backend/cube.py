@@ -5,19 +5,20 @@ from random import choices
 from pyTwistyScrambler import scrambler333, scrambler444, scrambler555, scrambler666, scrambler777, scrambler222
 from enum import Enum
 
+
 class Face(Enum):
-    U = 0 # up
-    F = 1 # front
-    R = 2 # right
-    B = 3 # back
-    L = 4 # left
-    D = 5 # down
+    U = 0  # up
+    F = 1  # front
+    R = 2  # right
+    B = 3  # back
+    L = 4  # left
+    D = 5  # down
 
 
 class Direction(Enum):
-    CW = 1 # clockwise
-    CCW = -1 # counter-clockwise
-    DOUBLE = 2 # double
+    CW = 1  # clockwise
+    CCW = -1  # counter-clockwise
+    DOUBLE = 2  # double
 
     def reverse(self) -> "Direction":
         if self == Direction.CW:
@@ -37,6 +38,7 @@ class Direction(Enum):
 
         return "2"
 
+
 colors = {
     b'W': "15m",
     b'G': "2m",
@@ -45,6 +47,7 @@ colors = {
     b'O': "166m",
     b'Y': "220m"
 }
+
 
 def get_terminal_color(color: bytes) -> str:
     """Returns terminal escape sequence for given color.
@@ -61,7 +64,9 @@ def get_terminal_color(color: bytes) -> str:
 
     return u"\u001b[48;5;" + colors[color]
 
+
 INVERTED_DIRECTION_LAYERS = "DBLM"
+
 
 class Move:
     def __init__(self, face: str, index: int, wide: bool, dir: Direction):
@@ -178,7 +183,7 @@ class Move:
 
 
 class Cube:
-    def __init__(self, n: int, state: bytes=None):
+    def __init__(self, n: int, state: bytes = None):
         """Create a Cube object.
 
         Args:
@@ -193,7 +198,7 @@ class Cube:
         # for each sticker, create a array element
         # this flat array will be used for serialization of the cube state
         if state is None:
-            self.flat = np.zeros(n*n*6, dtype=np.dtype("S1"))
+            self.flat = np.zeros(n * n * 6, dtype=np.dtype("S1"))
         else:
             self.flat = np.frombuffer(state, np.dtype("S1")).copy()
 
@@ -264,8 +269,8 @@ class Cube:
             row_start = row * self.n
             col_start = col * self.n
             print_table[
-                row_start : row_start + self.n,
-                col_start : col_start + self.n
+                row_start: row_start + self.n,
+                col_start: col_start + self.n
             ] = self._get_face(face)
 
         # fill the print_table with corresponding stickers
@@ -282,7 +287,9 @@ class Cube:
                     print(" ", end='')
                     continue
 
-                print(get_terminal_color(elem), end='') # color escape sequence
+                print(
+                    get_terminal_color(elem),
+                    end='')  # color escape sequence
                 print(elem.decode('UTF-8'), end='')     # color letter
                 print(u"\u001b[0m", end='')             # reset terminal color
 
@@ -317,10 +324,10 @@ class Cube:
         assert axis in "xyz"
         if axis == "x":
             return [
-                self._get_face(Face.U)[:, -1-i][::-1],
+                self._get_face(Face.U)[:, -1 - i][::-1],
                 self._get_face(Face.B)[:, i],
-                self._get_face(Face.D)[:, -1-i][::-1],
-                self._get_face(Face.F)[:, -1-i][::-1],
+                self._get_face(Face.D)[:, -1 - i][::-1],
+                self._get_face(Face.F)[:, -1 - i][::-1],
             ]
         if axis == "y":
             return [
@@ -331,12 +338,11 @@ class Cube:
             ]
 
         return [
-            self._get_face(Face.U)[-1-i],
+            self._get_face(Face.U)[-1 - i],
             self._get_face(Face.R)[:, i],
             self._get_face(Face.D)[i][::-1],
-            self._get_face(Face.L)[:, -1-i][::-1]
+            self._get_face(Face.L)[:, -1 - i][::-1]
         ]
-
 
     @staticmethod
     def _cycle_views(views: List[np.ndarray], dir: Direction):
@@ -349,7 +355,6 @@ class Cube:
         rotated = np.roll(views, dir.value, 0)
         for rotated, view in zip(rotated, views):
             view[:] = rotated
-
 
     def _rotate_layer(self, axis: str, index: int, dir: Direction, face: str):
         """Rotates one layer of the cube.
@@ -475,6 +480,7 @@ scrambler_dispatch = {
     6: scrambler666,
     7: scrambler777
 }
+
 
 def generate_scramble(size: int) -> str:
     """Generates scramble.

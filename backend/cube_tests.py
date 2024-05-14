@@ -78,6 +78,7 @@ for i in range(len(lines)):
 
 wr7x7solve = " ".join(lines)
 
+
 class TestClass(unittest.TestCase):
     def test_wide(self):
         self.assertTrue(Move.from_string("1212Uw2'").wide)
@@ -214,7 +215,6 @@ class TestClass(unittest.TestCase):
         c.move(wr7x7scramble)
         c.move(wr7x7solve)
         self.assertTrue(c.is_solved())
-
 
 
 if __name__ == '__main__':

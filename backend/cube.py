@@ -1,5 +1,5 @@
 import numpy as np
-from typing import List
+from typing import List, Optional
 from math import floor
 from random import choices
 from pyTwistyScrambler import scrambler333, scrambler444, scrambler555, scrambler666, scrambler777, scrambler222
@@ -60,7 +60,7 @@ def get_terminal_color(color: bytes) -> str:
     """
     assert len(color) == 1
 
-    assert color in colors.keys(), f"{color} is not a valid color"
+    assert color in colors.keys()
 
     return u"\u001b[48;5;" + colors[color]
 
@@ -183,7 +183,7 @@ class Move:
 
 
 class Cube:
-    def __init__(self, n: int, state: bytes = None):
+    def __init__(self, n: int, state: Optional[bytes] = None):
         """Create a Cube object.
 
         Args:

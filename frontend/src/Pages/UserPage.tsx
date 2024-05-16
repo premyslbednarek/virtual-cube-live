@@ -1,12 +1,13 @@
-import { ActionIcon, Alert, Button, Container, Flex, Text, TextInput, Title, Tooltip } from "@mantine/core";
-import { useNavigate, useParams } from "react-router-dom";
+import { Alert, Button, Container, Flex, Text, Title, Tooltip } from "@mantine/core";
+import { useParams } from "react-router-dom";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { NavigationIcons } from "../components/NavigationButtons";
 import { Statistics } from "../components/Statistics";
 import { AuthContext } from "../authContext";
-import { IconBan, IconSearch, IconTool } from "@tabler/icons-react";
+import { IconBan, IconTool } from "@tabler/icons-react";
 import { CubeSizeController } from "../components/CubeSizeController";
 import TimeList, { Solve } from "../components/TimeList";
+import { UserSearchField } from "../components/UserSearchField";
 
 type UserInfo = {
     username: string;
@@ -14,46 +15,6 @@ type UserInfo = {
     banned: boolean;
     created_date: string;
     solves: Array<Solve>;
-}
-
-export function UserSearchField() {
-    const [value, setValue] = useState("");
-    const [error, setError] = useState(false);
-    const navigate = useNavigate();
-
-    const onSubmit = () => {
-        fetch("/api/is_user", {
-            method: "POST",
-            body: JSON.stringify({username: value})
-        }).then(res => {
-            if (res.status === 200) {
-                navigate(`/user/${value}`);
-            } else if (res.status === 404) {
-                setError(true);
-            }
-        }).catch(err => {})
-    }
-
-    const submit = (
-        <Tooltip label="Submit">
-            <ActionIcon onClick={onSubmit}>
-                <IconSearch />
-            </ActionIcon>
-        </Tooltip>
-    )
-
-    return (
-        <form onSubmit={(e) => { e.preventDefault(); onSubmit() }}>
-            <TextInput
-                value={value}
-                onChange={(event) => {setError(false); setValue(event.currentTarget.value)}}
-                placeholder="Find User by Username"
-                error={error}
-                rightSection={submit}>
-            </TextInput>
-        </form>
-    );
-
 }
 
 export function User({username} : {username: string}) {

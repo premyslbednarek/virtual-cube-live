@@ -15,7 +15,7 @@ import LobbyList from '../components/LobbyList';
 import AuthPanel from '../components/AuthPanel';
 import { IconTrophy, IconUser } from '@tabler/icons-react';
 import TogetherCreateButton from '../components/TogetherCreateButton';
-import { UserSearchField } from './UserPage';
+import { UserSearchField } from "../components/UserSearchField";
 
 function DividerWithText({label} : {label: string}) {
   return <Divider my="md" size="sm" label={<Text>{label}</Text>}></Divider>

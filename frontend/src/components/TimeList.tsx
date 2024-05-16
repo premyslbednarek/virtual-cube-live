@@ -78,6 +78,8 @@ export default function TimeList({solves, setSolves, rowsPerPage=10, omitUsernam
             { /* if the list is sorted time, display a column with rank */ }
             { sortBy === "time" && <Table.Th>{(page - 1) * rowsPerPage + index + 1}</Table.Th>}
 
+            <Table.Th>{solve.id}</Table.Th>
+
             { !omitUsername &&
                 <Table.Th>
                     <Link to={`/user/${solve.username}`} style={{textDecoration: 'none', color: "white"}}>
@@ -132,6 +134,7 @@ export default function TimeList({solves, setSolves, rowsPerPage=10, omitUsernam
                 <Table.Thead>
                     <Table.Tr>
                         { sortBy === "time" && <Table.Th>Rank</Table.Th> }
+                        <Table.Th>Solve ID</Table.Th>
                         { !omitUsername && <Table.Th>Username</Table.Th>}
                         <Table.Th>Cube size</Table.Th>
                         <Table.Th>Solve time</Table.Th>

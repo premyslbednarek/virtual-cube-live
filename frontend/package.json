@@ -24,6 +24,7 @@
   "dependencies": {
     "@custom-react-hooks/use-fetch": "^1.4.19",
     "@d4c/numjs": "^0.17.34",
+    "@mantine/charts": "^7.9.1",
     "@mantine/core": "^7.7.1",
     "@mantine/form": "^7.7.1",
     "@mantine/hooks": "^7.7.1",
@@ -45,6 +46,7 @@
     "react-hotkeys-hook": "^4.5.0",
     "react-router-dom": "^6.22.3",
     "react-scripts": "5.0.1",
+    "recharts": "^2.12.7",
     "socket.io-client": "^4.7.5",
     "three": "^0.163.0",
     "timers-browserify": "^2.0.12",

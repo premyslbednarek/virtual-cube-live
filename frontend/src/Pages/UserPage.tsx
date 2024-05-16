@@ -1,4 +1,4 @@
-import { Alert, Button, Container, Flex, Text, Title, Tooltip } from "@mantine/core";
+import { Alert, Button, Container, Flex, Space, Text, Title, Tooltip } from "@mantine/core";
 import { useParams } from "react-router-dom";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { NavigationIcons } from "../components/NavigationButtons";
@@ -8,6 +8,9 @@ import { IconBan, IconTool } from "@tabler/icons-react";
 import { CubeSizeController } from "../components/CubeSizeController";
 import TimeList, { Solve } from "../components/TimeList";
 import { UserSearchField } from "../components/UserSearchField";
+import { LineChart } from '@mantine/charts';
+import { print_time } from "../cube/timer";
+import { getAverage } from "../components/SidePanelTimeList";
 
 type UserInfo = {
     username: string;
@@ -16,6 +19,31 @@ type UserInfo = {
     created_date: string;
     solves: Array<Solve>;
 }
+
+function TimeChart({solves} : {solves: Array<Solve>}) {
+    solves = solves.filter(solve => solve.completed);
+    solves.reverse();
+    const average = getAverage(solves, true);
+    const averageLineLabel = `Average time: ${print_time(average)}`
+    return (
+        <LineChart
+            h={300}
+            data={solves}
+            dataKey="id"
+            xAxisLabel="Solve ID"
+            yAxisLabel="time"
+            valueFormatter={(value) => print_time(value)}
+            series={[
+                { name: 'time', color: 'indigo.6' },
+            ]}
+             referenceLines={[
+                { y: average, label: averageLineLabel, color: 'red.6' },
+             ]}
+            curveType="linear"
+        />
+  );
+}
+
 
 export function User({username} : {username: string}) {
     const [statsCubeSize, setStatsCubeSize] = useState(3);
@@ -74,17 +102,31 @@ export function User({username} : {username: string}) {
         }).catch(error => console.log(error))
     }
 
+    const statsSolves = user.solves.filter(solve => solve.cube_size === statsCubeSize);
+
     const stats = (
         <>
             <Container mt="xl">
                 <Title order={3}>{statsCubeSize}x{statsCubeSize} Statistics</Title>
                 <CubeSizeController value={statsCubeSize} onChange={setStatsCubeSize} />
-                { user && user.solves && <Statistics solves={user.solves.filter(solve => solve.cube_size === statsCubeSize)} />}
+                {
+                    statsSolves.length !== 0 ? (
+                        <>
+                            <Statistics solves={statsSolves} />
+                            <Space h="md" />
+                            <Title order={4}>Time history (most recent solves are on the right)</Title>
+                            <Space h="sm" />
+                            <TimeChart solves={statsSolves} />
+                        </>
+                    ) : <Text ta="center">No solves for the specified cube size found..</Text>
+                }
             </Container>
 
-            <TimeList solves={solves} setSolves={setSolves} defaultSort="recent" omitUsername/>
+            <TimeList solves={solves} setSolves={setSolves} rowsPerPage={20} defaultSort="recent" omitUsername/>
         </>
     )
+
+
 
     return (
         <>

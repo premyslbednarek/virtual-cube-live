@@ -26,6 +26,7 @@ services:
     environment:
       - WATCHPACK_POLLING=true # enable browser live reload
     volumes:
+      - /app/node_modules
       - "./frontend/:/app"
   db_devel:
     image: postgres:latest

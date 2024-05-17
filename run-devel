@@ -1,6 +1,0 @@
-#!/bin/bash
-sudo docker compose up -d db
-
-tmux \
-    new-session  './run-devel-backend' \; \
-    split-window -h './run-devel-frontend'

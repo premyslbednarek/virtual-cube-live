@@ -1,9 +1,0 @@
-#!/bin/bash
-
-clear
-cd backend
-source env/bin/activate
-export $(xargs < .env)
-export SOURCE=localhost
-
-python3 main.py

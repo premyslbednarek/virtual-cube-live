@@ -1,29 +1,21 @@
 # https://stackoverflow.com/a/59155127
-from app import app, socketio, login_manager, PRODUCTION, mode, mail
-
+from init import app, socketio, login_manager, mail, db
 import eventlet
-import time
-from flask import Flask, request, send_from_directory, render_template, redirect, flash, url_for, jsonify, abort, copy_current_request_context
+from flask import request, render_template, flash, abort, copy_current_request_context
+from flask_socketio import join_room, leave_room, rooms
+from flask_login import login_user, logout_user, current_user, login_required
+from flask_mail import Message
 from threading import Thread
-from flask_socketio import SocketIO, join_room, leave_room, rooms
 from datetime import datetime, timedelta
-from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 import json
 from sqlalchemy import select, func
-from model import db, User, Lobby, LobbyUser, Scramble, Solve, Race, SocketConnection, CubeEntity, SolveMove, TogetherLobby, TogetherUser, DEFAULT_INSPECTION_TIME
-from model import LobbyUserStatus, UserRole, LobbyRole, LobbyStatus, Invitation, ANONYMOUS_PREFIX
+from model import User, Lobby, LobbyUser, Scramble, Solve, Race, SocketConnection, CubeEntity, DEFAULT_INSPECTION_TIME, LobbyUserStatus, UserRole, LobbyRole, LobbyStatus, Invitation, ANONYMOUS_PREFIX
 from cube import Cube
-from typing import List
-from enum import Enum
-from typing import TypedDict, Tuple, Optional, Dict
+from typing import TypedDict, Optional, Dict, List
 from eventlet import sleep
-from dotenv import load_dotenv
-import os
 from functools import wraps
-from uuid import uuid4, UUID
 import logging
-from flask_mail import Message
 
 logger = logging.getLogger(__name__)
 

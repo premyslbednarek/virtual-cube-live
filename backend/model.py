@@ -1,27 +1,20 @@
-from dataclasses import dataclass
+from init import socketio, db
 from uuid import uuid4, UUID
-from flask_sqlalchemy import SQLAlchemy
 import os
 from flask_login import UserMixin
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey, select, update
-from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.dialects.sqlite import DATETIME
 from enum import Enum
 from datetime import datetime, timedelta
 from sqlalchemy import func
-from typing import Optional, List, TypedDict, Set, Union
+from typing import Optional, List, TypedDict, Union
 from cube import Cube, generate_scramble
 from werkzeug.security import generate_password_hash
 import jwt
 
-from app import app, socketio
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
-
-db = SQLAlchemy()
-
 
 
 DEFAULT_INSPECTION_TIME=3

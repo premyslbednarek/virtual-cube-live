@@ -1,8 +1,7 @@
-from app import app, socketio, logger
+from init import app, socketio, logger, db
 import logging
+from model import setup_admin, tidy_db
 
-from model import db, setup_admin, tidy_db
-# db = SQLAlchemy()
 db.init_app(app)
 
 with app.app_context():

@@ -1,6 +1,6 @@
-from app import app, socketio
+from init import app, socketio, db
 from flask_login import login_required, current_user
-from model import db, SocketConnection, TogetherLobby, CubeEntity, Solve, TogetherUser, Scramble, DEFAULT_INSPECTION_TIME
+from model import SocketConnection, TogetherLobby, CubeEntity, Solve, TogetherUser, Scramble, DEFAULT_INSPECTION_TIME
 from flask import request, abort
 from datetime import datetime
 from typing import TypedDict

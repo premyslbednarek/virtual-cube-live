@@ -1,7 +1,7 @@
-from app import socketio
+from init import socketio, db
 from flask import copy_current_request_context
 from flask_login import login_required, current_user
-from model import db, SocketConnection, TogetherLobby, Lobby, CubeEntity, Solve, LobbyUserStatus, Race
+from model import SocketConnection, Lobby, CubeEntity, Solve, LobbyUserStatus, Race
 from flask import request
 from datetime import datetime
 import time

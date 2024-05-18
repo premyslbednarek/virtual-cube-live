@@ -87,6 +87,9 @@ export function Replay({solveId} : {solveId : string}) {
                 move.sinceStart = Math.floor(move.sinceStart);
             }
             solve.moves.sort((a, b) => a.sinceStart - b.sinceStart);
+            if (solve.moves.length) {
+                solve.moves[solve.moves.length - 1].sinceStart -= 1;
+            }
             setSolve(solve);
             setPaused(false);
         })

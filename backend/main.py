@@ -15,6 +15,9 @@ with app.app_context():
 import api
 import cube_events
 import together_lobby
+import auth
+import lobby
+import solo
 
 if __name__ == '__main__':
     handler = logging.FileHandler("app.log")

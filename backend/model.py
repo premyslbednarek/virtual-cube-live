@@ -13,10 +13,6 @@ from werkzeug.security import generate_password_hash
 import jwt
 
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import scoped_session, sessionmaker
-
-
 DEFAULT_INSPECTION_TIME=3
 
 class LobbyUserStatus(Enum):

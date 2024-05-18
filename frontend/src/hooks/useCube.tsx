@@ -35,8 +35,22 @@ export default function useCube() {
 
     // init cube controls
     useEffect(() => {
-        function send_move(move_str: string) {
-            socket.emit("move", {move: move_str});
+        // with each move emit, wait until it is acknowledged - avoid race conditions
+        const toEmit : string[] = [];
+        let emitting = false;
+
+        async function emitMoves() {
+            if (emitting) return;
+            emitting = true;
+            while (toEmit.length) {
+                await socket.emitWithAck("move", {move: toEmit.shift()});
+            }
+            emitting = false;
+        }
+
+        async function send_move(move_str: string) {
+            toEmit.push(move_str);
+            emitMoves();
         }
         cube.addOnMoveEventListener(send_move);
 

@@ -1,7 +1,9 @@
-import { ActionIcon, Container, Flex, Grid, Kbd, Modal, Stack, Text, Tooltip } from "@mantine/core";
+import { ActionIcon, Container, Flex, Grid, Image, Kbd, Modal, Stack, Text, Tooltip } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconKeyboard } from "@tabler/icons-react";
 import keybinds from "../cube/keybindings";
+// import img from './keymap.png'
+const img = require('./keymap.png');
 
 export default function KeybindsButton() {
     // button, clicking it will open a modal in which the keybindings are shown
@@ -27,7 +29,7 @@ export default function KeybindsButton() {
 
     return (
         <>
-            <Modal opened={opened} onClose={closeModal} title="Cube keybinds">
+            <Modal opened={opened} onClose={closeModal} title="Cube keybinds" size="xl">
                 <Container>
                     <Grid>
                         {
@@ -36,6 +38,9 @@ export default function KeybindsButton() {
                             ))
                         }
                     </Grid>
+
+                <Image src={img} alt="Keybindings"/>
+                <Text ta="center">All credits for the keybindings go to cstimer.</Text>
 
                 </Container>
             </Modal>

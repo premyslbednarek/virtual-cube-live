@@ -52,7 +52,7 @@ const defaultSolveInfo: ISolveInfo = {
 }
 
 
-const UPDATE_INTERVAL = 53; // in ms
+const UPDATE_INTERVAL = 17; // in ms
 
 export function ReplayPage() {
     const { solveId } = useParams();
@@ -135,14 +135,14 @@ export function Replay({solveId} : {solveId : string}) {
         for (const move of solve.moves) {
             if (move.sinceStart > time + UPDATE_INTERVAL * playbackSpeed) break;
             if (time <= move.sinceStart && move.sinceStart < time + UPDATE_INTERVAL * playbackSpeed) {
-                setTimeout(() => {cube.makeMove(move.move)}, (move.sinceStart - time) / playbackSpeed);
+                cube.makeMove(move.move);
             }
         }
         if (manualCamera) return;
         for (const cameraChange of solve.camera_changes) {
             if (cameraChange.sinceStart > time + UPDATE_INTERVAL * playbackSpeed) break;
             if (time <= cameraChange.sinceStart && cameraChange.sinceStart < time + UPDATE_INTERVAL * playbackSpeed) {
-                setTimeout(() => {cube.cameraUpdate(cameraChange.x, cameraChange.y, cameraChange.z)}, (cameraChange.sinceStart - time) / playbackSpeed);
+                cube.cameraUpdate(cameraChange.x, cameraChange.y, cameraChange.z)
             }
         }
 
@@ -206,15 +206,15 @@ export function Replay({solveId} : {solveId : string}) {
 
     const increasePlaybackSpeed = () => {
         if (playbackSpeed < 3) {
-            setPaused(true);
             setPlaybackSpeed(speed => speed + 0.25);
+            manualTimeChange(time);
         }
     }
 
     const decreasePlaybackSpeed = () => {
         if (playbackSpeed > 0.25) {
-            setPaused(true);
             setPlaybackSpeed(speed => speed - 0.25);
+            manualTimeChange(time);
         }
     }
 

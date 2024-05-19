@@ -1,3 +1,4 @@
+from generate_scramble import generate_scramble
 from init import socketio, db
 from uuid import uuid4, UUID
 import os
@@ -8,7 +9,7 @@ from enum import Enum
 from datetime import datetime, timedelta
 from sqlalchemy import func
 from typing import Optional, List, TypedDict, Union
-from cube import Cube, generate_scramble
+from cube import Cube
 from werkzeug.security import generate_password_hash
 import jwt
 

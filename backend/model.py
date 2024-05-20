@@ -1,5 +1,5 @@
-from generate_scramble import generate_scramble
 from init import socketio, db
+from cube import generate_scramble
 from uuid import uuid4, UUID
 import os
 from flask_login import UserMixin

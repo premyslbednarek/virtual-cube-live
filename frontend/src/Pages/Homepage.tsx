@@ -25,7 +25,7 @@ export default function HomePage() {
   return (
       <Center style={{height: "100vh"}}>
         <Container>
-          <Title order={1}>Welcome to Rubik's Cube Racing!</Title>
+          <Title order={1}>Welcome to Virtual Cube Live!</Title>
 
           <AuthPanel />
           <Space h="md" />

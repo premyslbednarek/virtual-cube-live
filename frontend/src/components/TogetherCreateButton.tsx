@@ -12,7 +12,7 @@ export default function TogetherCreateButton() {
     }
     return (
         <Center>
-            <Button onClick={createLobby} leftSection={<IconUsers />}>Lobby together</Button>
+            <Button onClick={createLobby} leftSection={<IconUsers />}>Together room</Button>
         </Center>
     );
 }

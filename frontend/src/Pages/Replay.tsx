@@ -83,10 +83,13 @@ export function Replay({solveId} : {solveId : string}) {
 
     useEffect(() => {
         fetch(`/api/solve/${solveId}`).then(res => res.json()).then((solve: ISolveInfo) => {
+            solve.moves.sort((a, b) => a.sinceStart - b.sinceStart);
             for (const move of solve.moves) {
                 move.sinceStart = Math.floor(move.sinceStart);
+                if (move.sinceStart < 0) {
+                    move.sinceStart = 0;
+                }
             }
-            solve.moves.sort((a, b) => a.sinceStart - b.sinceStart);
             if (solve.moves.length) {
                 solve.moves[solve.moves.length - 1].sinceStart -= 1;
             }

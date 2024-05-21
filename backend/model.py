@@ -265,7 +265,7 @@ class Solve(db.Model):
             for move in session.moves:
                 moves.append({
                     # time before this session + time since this session start
-                    "sinceStart": max(total_time + (move.timestamp - session.start) / timedelta(milliseconds=1), 0),
+                    "sinceStart": total_time + (move.timestamp - session.start) / timedelta(milliseconds=1),
                     "move": move.move
                 })
             if session.end:

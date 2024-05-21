@@ -34,3 +34,16 @@ or
 ```
 
 Unless you change the APP_PORT in the .env file, the APP should be running at localhost:3000
+
+To run the tests, start by running the development container by running ./development-run. The tests expect that the application is run on port 3000, the default value in the .env file. Then, navigate to the tests folder and install npm dependencies:
+```Shell
+cd tests
+npm install
+npx playwright install chromium
+sudo npx playwright install-deps
+```
+
+To launch the tests, fisrt open playwright UI and start the test by pressing F5 or by pressing the play button in the UI. To launch the UI, use:
+```Shell
+npx playwright test --ui
+```

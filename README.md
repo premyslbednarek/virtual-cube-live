@@ -53,7 +53,8 @@ npx playwright install chromium
 sudo npx playwright install-deps
 ```
 
-To launch the tests, fisrt open playwright UI and start the test by pressing F5 or by pressing the play button in the UI. To launch the UI, use:
+To run the tests, use:
 ```Shell
+cd tests
 npx playwright test
 ```

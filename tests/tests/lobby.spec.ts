@@ -155,3 +155,30 @@ test('lobby race', async ({ browser }) => {
     await expect(page3.getByRole('heading', { name: 'Total points' })).toBeVisible();
     await expect(page3.getByRole('heading', { name: 'Total points' })).toBeVisible();
 });
+
+test('lobby list updates on creation/deletion test', async ({ browser }) => {
+    // Create two isolated browser contexts
+    const creatorContext = await browser.newContext();
+    const user1Context = await browser.newContext();
+     await creatorContext.grantPermissions(["clipboard-read", "clipboard-write"]);
+    // Create pages and interact with contexts independently
+    const creator = await creatorContext.newPage();
+    const user = await user1Context.newPage();
+
+    await user.goto('http://localhost:3000/');
+
+    await creator.goto('http://localhost:3000/');
+    const creatorUsername = await creator.getByText(/Welcome, Anonymous/).textContent().then(val => val?.split(" ")[1]) as string;
+
+    // create lobby
+    await creator.getByRole('button', { name: 'Create lobby' }).click();
+
+    // see that the lobby appeared in the list
+    await expect(user.getByRole('cell', { name: creatorUsername })).toBeVisible();
+
+    // leave the lobby
+    await creator.locator('div').filter({ hasText: /^admin panel$/ }).getByRole('button').nth(1).click();
+
+    // the lobby should be deleted after few seconds
+    await expect(user.getByRole('cell', { name: creatorUsername })).not.toBeVisible({timeout: 10000});
+});

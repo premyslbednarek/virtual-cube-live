@@ -28,15 +28,14 @@ for (let cube_size = 2; cube_size <= 4; ++cube_size) {
         }
 
         await page.getByRole('button', { name: 'Start solve [spacebar]' }).click();
-        await page.waitForTimeout(7000);
 
-        await expect(page.getByRole('heading', { name: 'Time list' })).not.toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Time list' })).not.toBeVisible({timeout: 5000});
         await expect(page.getByRole('heading', { name: 'Statistics' })).not.toBeVisible();
 
+        await page.waitForTimeout(4000);
         await page.locator('body').press('Alt+Control+s');
-        await page.waitForTimeout(15000);
 
-        await expect(page.getByRole('heading', { name: 'Time list' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Time list' })).toBeVisible({timeout: 15000});
         await expect(page.getByRole('heading', { name: 'Statistics' })).toBeVisible();
     });
 }

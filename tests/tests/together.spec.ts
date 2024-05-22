@@ -67,22 +67,19 @@ test('Together lobby with 3 users and a solve', async ({ browser }) => {
     await expect(page3.getByText('StatisticsTotal solves:')).not.toBeVisible();
 
     await page1.keyboard.press("Control+Alt+S");
-    await page1.waitForTimeout(5000);
-
     // asert that the solve has ended
-    await expect(page1.getByRole('button', { name: 'Solve start' })).toBeVisible();
+    await expect(page1.getByRole('button', { name: 'Solve start' })).toBeVisible({timeout: 10000});
     await expect(page1.getByText('StatisticsTotal solves:')).toBeVisible();
     await expect(page2.getByRole('button', { name: 'Solve start' })).toBeVisible();
     await expect(page2.getByRole('button', { name: 'Solve start' })).toBeVisible();
     await expect(page3.getByText('StatisticsTotal solves:')).toBeVisible();
     await expect(page3.getByText('StatisticsTotal solves:')).toBeVisible();
 
-    // leave the together lobby
-    await page1.close();
+
+    await page1.locator('.m_8bffd616 > div > button:nth-child(3)').click();
     await expect(page2.getByText(page1username)).not.toBeVisible();
     await expect(page3.getByText(page1username)).not.toBeVisible();
 
-    await page2.close();
-    await page3.locator('button:nth-child(3)').click();
+    await page2.locator('.m_8bffd616 > div > button:nth-child(3)').click();
     await expect(page3.getByText(page2username)).not.toBeVisible();
 });

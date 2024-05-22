@@ -14,14 +14,13 @@ test('join a lobby via invitation link', async ({ browser }) => {
     await creator.goto('http://localhost:3000/');
     const creatorUsername = await creator.getByText(/Welcome, Anonymous/).textContent().then(val => val?.split(" ")[1]) as string;
 
-
     await joiner.goto('http://localhost:3000/');
     const joinerUsername = await joiner.getByText(/Welcome, Anonymous/).textContent().then(val => val?.split(" ")[1]) as string;
 
-    expect(creatorUsername)
-    expect(joinerUsername)
-
     await creator.getByRole('button', { name: 'Create lobby' }).click();
+
+    await creator.waitForTimeout(1000);
+
     await creator.getByRole('button', { name: 'Generate invite link' }).click();
 
     await creator.getByRole('button', { name: 'Copy to clipboard' }).click();
@@ -31,9 +30,9 @@ test('join a lobby via invitation link', async ({ browser }) => {
     await joiner.goto(inviteURL);
 
     await expect(creator.getByText(creatorUsername).first()).toBeVisible();
-    await expect(creator.getByText(creatorUsername).first()).toBeVisible();
+    await expect(creator.getByText(joinerUsername).first()).toBeVisible();
     await expect(joiner.getByText(creatorUsername).first()).toBeVisible();
-    await expect(joiner.getByText(creatorUsername).first()).toBeVisible();
+    await expect(joiner.getByText(joinerUsername).first()).toBeVisible();
 
     // leave lobby
     await expect(joiner.locator('span').getByText(creatorUsername)).toBeVisible();
@@ -56,6 +55,8 @@ test('kick user out of lobby', async ({ browser }) => {
     const page2username = await page2.getByText(/Welcome, Anonymous/).textContent().then(val => val?.split(" ")[1]) as string;
 
     await page1.getByRole('button', { name: 'Create lobby' }).click();
+
+    await page1.waitForTimeout(1000);
     await page1.getByRole('button', { name: 'Generate invite link' }).click();
 
     await page1.getByRole('button', { name: 'Copy to clipboard' }).click();
@@ -108,6 +109,8 @@ test('lobby race', async ({ browser }) => {
     await page3.goto('http://localhost:3000/');
 
     await page1.getByRole('button', { name: 'Create lobby' }).click();
+
+    await page1.waitForTimeout(1000);
     await page1.getByRole('button', { name: 'Generate invite link' }).click();
 
     await page1.getByRole('button', { name: 'Copy to clipboard' }).click();
@@ -144,13 +147,8 @@ test('lobby race', async ({ browser }) => {
 
     await page1.waitForTimeout(5000);
     await page1.keyboard.press("Control+Alt+s");
-    // wait until solved
-    await page1.waitForTimeout(5000);
 
-    // wait until wait time over
-    await page1.waitForTimeout(20000);
-
-    await expect(page1.getByRole('heading', { name: 'Last race results' })).toBeVisible();
+    await expect(page1.getByRole('heading', { name: 'Last race results' })).toBeVisible({timeout: 25000});
     await expect(page1.getByRole('heading', { name: 'Total points' })).toBeVisible();
     await expect(page2.getByRole('heading', { name: 'Last race results' })).toBeVisible();
     await expect(page2.getByRole('heading', { name: 'Last race results' })).toBeVisible();

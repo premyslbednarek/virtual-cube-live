@@ -272,6 +272,7 @@ class Solve(db.Model):
                 c = ((session.end - session.start) / timedelta(milliseconds=1))
                 total_time += c
 
+        moves.sort(key=lambda move: move["sinceStart"])
         return moves
 
     class CameraChangeType(TypedDict):

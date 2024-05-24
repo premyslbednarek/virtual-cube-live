@@ -29,6 +29,7 @@ export default function useCube() {
     const countdown = useCountdown()
 
     const [isSolving, setIsSolving] = useState(false);
+    const [isInspection, setIsInspection] = useState(false);
 
     const [currentTime, setCurrentTime] = useState<null | number>(null);
 
@@ -80,15 +81,17 @@ export default function useCube() {
         setCurrentTime(null);
 
         cube.startInspection()
+        setIsInspection(true);
 
         countdown.start(INSPECTION_LENGTH, () => {
             cube.startSolve();
+            setIsInspection(false);
             stopwatch.start();
         })
     }
 
     const solveTheCube = async () => {
-        if (!isSolving) {
+        if (!isSolving || isInspection) {
             return;
         }
 
